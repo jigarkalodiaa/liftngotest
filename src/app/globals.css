@@ -3,11 +3,20 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Primary: dark blue/purple for logo, buttons */
+  --color-primary: #1F2456;
+  --color-primary-hover: #181b45;
+  /* Landing page: creamy off-white, orange accent */
+  --landing-bg: #FCFBF8;
+  --landing-orange: #F6921E;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--color-primary);
+  --color-landing-bg: var(--landing-bg);
+  --color-landing-orange: var(--landing-orange);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -22,5 +31,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }

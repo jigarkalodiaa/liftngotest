@@ -1,25 +1,26 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-
-type SavedPickup = {
-  name: string;
-  address: string;
-  contact: string;
-};
-
-type PersonDetails = {
-  name: string;
-  mobile: string;
-};
+import type { SavedLocation, PersonDetails } from '@/types/booking';
+import {
+  getPickupLocation,
+  getDropLocation,
+  getLandingPickupLocation,
+  getStoredPhone,
+  setPickupLocation,
+  setSenderDetails,
+  setReceiverDetails,
+} from '@/lib/storage';
+import { ROUTES, MOBILE_LENGTH } from '@/lib/constants';
 
 export default function PickupLocationPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<1 | 2>(1);
-  const [pickup, setPickup] = useState<SavedPickup | null>(null);
-  const [drop, setDrop] = useState<SavedPickup | null>(null);
+  const [pickup, setPickup] = useState<SavedLocation | null>(null);
+  const [drop, setDrop] = useState<SavedLocation | null>(null);
   const [senderName, setSenderName] = useState('');
   const [senderMobile, setSenderMobile] = useState('');
   const [useCurrentMobile, setUseCurrentMobile] = useState(false);
@@ -29,75 +30,36 @@ export default function PickupLocationPage() {
   const [currentMobile, setCurrentMobile] = useState('');
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      // Get logged-in phone number
-      const storedPhone = window.localStorage.getItem('liftngo_phone') || '';
-      setCurrentMobile(storedPhone);
+    const storedPhone = getStoredPhone();
+    setCurrentMobile(storedPhone);
 
-      const rawPickup = window.localStorage.getItem('pickup_location');
-      if (rawPickup) {
-        const parsedPickup = JSON.parse(rawPickup) as SavedPickup;
-        if (parsedPickup?.name && parsedPickup?.address) {
-          setPickup(parsedPickup);
-        }
-      } else {
-        // Fallback to landing page pickup text if user entered it before login
-        const landingPickup = window.localStorage.getItem('landing_pickup_location');
-        if (landingPickup && landingPickup.trim()) {
-          const name = landingPickup.split(',')[0]?.trim() || 'Pickup location';
-          const derived: SavedPickup = {
-            name,
-            address: landingPickup,
-            contact: '',
-          };
-          setPickup(derived);
-          // Persist as structured pickup for later steps (trip options, etc.)
-          window.localStorage.setItem('pickup_location', JSON.stringify(derived));
-        }
+    const savedPickup = getPickupLocation();
+    if (savedPickup) {
+      setPickup(savedPickup);
+    } else {
+      const landingPickup = getLandingPickupLocation();
+      if (landingPickup?.trim()) {
+        const name = landingPickup.split(',')[0]?.trim() || 'Pickup location';
+        const derived: SavedLocation = { name, address: landingPickup, contact: '' };
+        setPickup(derived);
+        setPickupLocation(derived);
       }
-
-      const rawDrop = window.localStorage.getItem('drop_location');
-      if (rawDrop) {
-        const parsedDrop = JSON.parse(rawDrop) as SavedPickup;
-        if (parsedDrop?.name && parsedDrop?.address) {
-          setDrop(parsedDrop);
-        }
-      }
-
-      const rawSender = window.localStorage.getItem('sender_details');
-      if (rawSender) {
-        const sender = JSON.parse(rawSender) as PersonDetails;
-        if (sender?.name) {
-          setSenderName(sender.name);
-        }
-        if (sender?.mobile) {
-          setSenderMobile(sender.mobile);
-          // Check if sender mobile matches logged-in phone
-          if (storedPhone && sender.mobile === storedPhone) {
-            setUseCurrentMobile(true);
-          }
-        }
-      }
-
-      const rawReceiver = window.localStorage.getItem('receiver_details');
-      if (rawReceiver) {
-        const receiver = JSON.parse(rawReceiver) as PersonDetails;
-        if (receiver?.name) {
-          setReceiverName(receiver.name);
-        }
-        if (receiver?.mobile) {
-          setReceiverMobile(receiver.mobile);
-          // Check if receiver mobile matches logged-in phone
-          if (storedPhone && receiver.mobile === storedPhone) {
-            setUseReceiverCurrentMobile(true);
-          }
-        }
-      }
-    } catch {
-      // ignore parse errors
     }
+
+    const savedDrop = getDropLocation();
+    if (savedDrop) setDrop(savedDrop);
+
+    // Do not pre-fill sender or receiver – user enters them manually (or uses "Use my current mobile")
   }, []);
+
+  // Re-sync pickup/drop from storage when returning (e.g. after editing location); do not re-fill sender/receiver
+  useEffect(() => {
+    if (pathname !== ROUTES.PICKUP_LOCATION) return;
+    const savedPickup = getPickupLocation();
+    const savedDrop = getDropLocation();
+    if (savedPickup) setPickup(savedPickup);
+    if (savedDrop) setDrop(savedDrop);
+  }, [pathname]);
 
   // Initialize step from query (?step=2)
   useEffect(() => {
@@ -124,12 +86,12 @@ export default function PickupLocationPage() {
 
   const isMobileValid = useMemo(() => {
     const digits = senderMobile.replace(/\D/g, '');
-    return digits.length === 10;
+    return digits.length === MOBILE_LENGTH;
   }, [senderMobile]);
 
   const isReceiverMobileValid = useMemo(() => {
     const digits = receiverMobile.replace(/\D/g, '');
-    return digits.length === 10;
+    return digits.length === MOBILE_LENGTH;
   }, [receiverMobile]);
 
   const isPickupFormValid = useMemo(
@@ -151,8 +113,8 @@ export default function PickupLocationPage() {
         <header className="flex items-center gap-3 pt-4 pb-5">
           <button
             type="button"
-            onClick={() => router.back()}
-            aria-label="Back"
+            onClick={() => router.push(ROUTES.DASHBOARD)}
+            aria-label="Back to dashboard"
             className="h-9 w-9 rounded-full border border-gray-200 bg-white grid place-items-center"
           >
             <svg className="h-5 w-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -184,19 +146,16 @@ export default function PickupLocationPage() {
                   {pickup ? (
                     <button
                       type="button"
-                      onClick={() => router.push('/pickup-location/edit?type=pickup')}
+                      onClick={() => router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup`)}
                       className="mt-2 w-full rounded-xl bg-white px-3 py-2 text-left"
                     >
                       <div className="text-[14px] font-semibold text-gray-900">{pickup.name}</div>
                       <div className="mt-1 text-[12px] text-gray-500">{pickup.address}</div>
-                      {pickup.contact && (
-                        <div className="mt-1 text-[11px] text-gray-400">{pickup.contact}</div>
-                      )}
                     </button>
                   ) : (
                     <button
                       type="button"
-                      onClick={() => router.push('/pickup-location/edit?type=pickup')}
+                      onClick={() => router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup`)}
                       className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-400"
                     >
                       Enter pickup location
@@ -252,7 +211,7 @@ export default function PickupLocationPage() {
                         setSenderMobile('');
                       }
                     }}
-                    className="h-4 w-4 rounded border-gray-300 text-[#1F2456]"
+                    className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
                   />
                   <span>
                     Use My current Mobile number : <span className="font-semibold text-gray-800">{currentMobile}</span>
@@ -261,7 +220,7 @@ export default function PickupLocationPage() {
 
                 <div className="mt-4 flex justify-center gap-1.5">
   <span className="h-2 w-2 rounded-full bg-gray-300" />
-  <span className="h-2 w-2 rounded-full bg-[#1F2456]" />
+  <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
 </div>
               </div>
             </>
@@ -273,19 +232,16 @@ export default function PickupLocationPage() {
                   {drop ? (
                     <button
                       type="button"
-                      onClick={() => router.push('/pickup-location/edit?type=drop')}
+                      onClick={() => router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=drop`)}
                       className="mt-2 w-full rounded-xl bg-white px-3 py-2 text-left"
                     >
                       <div className="text-[14px] font-semibold text-gray-900">{drop.name}</div>
                       <div className="mt-1 text-[12px] text-gray-500">{drop.address}</div>
-                      {drop.contact && (
-                        <div className="mt-1 text-[11px] text-gray-400">{drop.contact}</div>
-                      )}
                     </button>
                   ) : (
                     <button
                       type="button"
-                      onClick={() => router.push('/pickup-location/edit?type=drop')}
+                      onClick={() => router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=drop`)}
                       className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-400"
                     >
                       Enter drop location
@@ -341,7 +297,7 @@ export default function PickupLocationPage() {
                         setReceiverMobile('');
                       }
                     }}
-                    className="h-4 w-4 rounded border-gray-300 text-[#1F2456]"
+                    className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
                   />
                   <span>
                     Use My current Mobile number : <span className="font-semibold text-gray-800">{currentMobile}</span>
@@ -350,7 +306,7 @@ export default function PickupLocationPage() {
 
                 <div className="mt-4 flex justify-center gap-1.5">
   <span className="h-2 w-2 rounded-full bg-gray-300" />
-  <span className="h-2 w-2 rounded-full bg-[#1F2456]" />
+  <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
 </div>
               </div>
             </>
@@ -366,36 +322,17 @@ export default function PickupLocationPage() {
               onClick={() => {
                 if (!isFormValid) return;
                 if (step === 1) {
-                  try {
-                    if (typeof window !== 'undefined') {
-                      const sender: PersonDetails = {
-                        name: senderName.trim(),
-                        mobile: senderMobile,
-                      };
-                      window.localStorage.setItem('sender_details', JSON.stringify(sender));
-                    }
-                  } catch {
-                    // ignore storage errors
-                  }
+                  const sender: PersonDetails = { name: senderName.trim(), mobile: senderMobile };
+                  setSenderDetails(sender);
                   setStep(2);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else {
-                  try {
-                    if (typeof window !== 'undefined') {
-                      const receiver: PersonDetails = {
-                        name: receiverName.trim(),
-                        mobile: receiverMobile,
-                      };
-                      window.localStorage.setItem('receiver_details', JSON.stringify(receiver));
-                    }
-                  } catch {
-                    // ignore storage errors
-                  }
-                  // Final confirmation – go to trip options page
-                  router.push('/trip-options');
+                  const receiver: PersonDetails = { name: receiverName.trim(), mobile: receiverMobile };
+                  setReceiverDetails(receiver);
+                  router.push(ROUTES.TRIP_OPTIONS);
                 }
               }}
-              className="w-full rounded-2xl bg-[#1F2456] py-3.5 text-[16px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-2xl bg-[var(--color-primary)] py-3.5 text-[16px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {step === 1 ? 'Confirm pick location' : 'Confirm drop location'}
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>

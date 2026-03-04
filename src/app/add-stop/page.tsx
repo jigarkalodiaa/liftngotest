@@ -3,35 +3,18 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { useGeolocation } from '@/hooks';
-
-type SavedLocation = {
-  name: string;
-  address: string;
-  contact: string;
-};
-
-const recentSearches: SavedLocation[] = [
-  {
-    name: 'Shyam Restaurant',
-    address: 'Zaildar Enclave Hastal, Vaibhav khand New Delhi,',
-    contact: 'Prateek Jha | 9065847341',
-  },
-  {
-    name: 'Shyam Restaurant',
-    address: 'Zaildar Enclave Hastal, Vaibhav khand New Delhi,',
-    contact: 'Prateek Jha | 9065847341',
-  },
-  {
-    name: 'Shyam Restaurant',
-    address: 'Zaildar Enclave Hastal, Vaibhav khand New Delhi,',
-    contact: 'Prateek Jha | 9065847341',
-  },
-  {
-    name: 'Shyam Restaurant',
-    address: 'Zaildar Enclave Hastal, Vaibhav khand New Delhi,',
-    contact: 'Prateek Jha | 9065847341',
-  },
-];
+import type { SavedLocation } from '@/types/booking';
+import { RECENT_SEARCHES } from '@/data/mockLocations';
+import {
+  getPickupLocation,
+  getDropLocation,
+  getStopLocation,
+  getStopDetails,
+  getStoredPhone,
+  setStopLocation,
+  setStopDetails,
+} from '@/lib/storage';
+import { MOBILE_LENGTH, ROUTES } from '@/lib/constants';
 
 export default function AddStopPage() {
   const router = useRouter();
@@ -53,77 +36,38 @@ export default function AddStopPage() {
         contact: '',
       };
       setStop(locationData);
-      localStorage.setItem('stop_location', JSON.stringify(locationData));
+      setStopLocation(locationData);
     }
   };
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      // Get logged-in phone number
-      const storedPhone = window.localStorage.getItem('liftngo_phone') || '';
-      setCurrentMobile(storedPhone);
-
-      const rawPickup = window.localStorage.getItem('pickup_location');
-      if (rawPickup) {
-        const parsed = JSON.parse(rawPickup) as SavedLocation;
-        if (parsed?.name && parsed?.address) setPickup(parsed);
-      }
-      const rawDrop = window.localStorage.getItem('drop_location');
-      if (rawDrop) {
-        const parsed = JSON.parse(rawDrop) as SavedLocation;
-        if (parsed?.name && parsed?.address) setDrop(parsed);
-      }
-      const rawStop = window.localStorage.getItem('stop_location');
-      if (rawStop) {
-        const parsed = JSON.parse(rawStop) as SavedLocation;
-        if (parsed?.name && parsed?.address) setStop(parsed);
-      }
-
-      const rawStopDetails = window.localStorage.getItem('stop_details');
-      if (rawStopDetails) {
-        const details = JSON.parse(rawStopDetails) as { name: string; mobile: string };
-        if (details?.name) setPersonName(details.name);
-        if (details?.mobile) {
-          setPersonMobile(details.mobile);
-          // Check if stop mobile matches logged-in phone
-          if (storedPhone && details.mobile === storedPhone) setUseCurrentMobile(true);
-        }
-      }
-    } catch {
-      // ignore
+    const storedPhone = getStoredPhone();
+    setCurrentMobile(storedPhone);
+    const p = getPickupLocation();
+    if (p) setPickup(p);
+    const d = getDropLocation();
+    if (d) setDrop(d);
+    const s = getStopLocation();
+    if (s) setStop(s);
+    const details = getStopDetails();
+    if (details?.name) setPersonName(details.name);
+    if (details?.mobile) {
+      setPersonMobile(details.mobile);
+      if (storedPhone && details.mobile === storedPhone) setUseCurrentMobile(true);
     }
   }, []);
 
   const handleSelectStop = (loc: SavedLocation) => {
     setStop(loc);
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem('stop_location', JSON.stringify(loc));
-        
-        // Parse contact field to extract name and phone
-        if (loc.contact) {
-          const parts = loc.contact.split('|').map(p => p.trim());
-          const name = parts[0] || '';
-          const mobile = parts[1] || '';
-          
-          setPersonName(name);
-          setPersonMobile(mobile);
-          
-          // Save stop details
-          window.localStorage.setItem('stop_details', JSON.stringify({
-            name,
-            mobile,
-          }));
-          
-          // Check if mobile matches logged-in phone
-          if (currentMobile && mobile === currentMobile) {
-            setUseCurrentMobile(true);
-          }
-        }
-      }
-    } catch {
-      // ignore
+    setStopLocation(loc);
+    if (loc.contact) {
+      const parts = loc.contact.split('|').map((p) => p.trim());
+      const name = parts[0] || '';
+      const mobile = parts[1] || '';
+      setPersonName(name);
+      setPersonMobile(mobile);
+      setStopDetails({ name, mobile });
+      if (currentMobile && mobile === currentMobile) setUseCurrentMobile(true);
     }
   };
 
@@ -135,7 +79,7 @@ export default function AddStopPage() {
 
   const isMobileValid = useMemo(() => {
     const digits = personMobile.replace(/\D/g, '');
-    return digits.length === 10;
+    return digits.length === MOBILE_LENGTH;
   }, [personMobile]);
 
   const isFormValid = useMemo(
@@ -151,8 +95,8 @@ export default function AddStopPage() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => router.back()}
-              aria-label="Back"
+              onClick={() => router.push(ROUTES.TRIP_OPTIONS)}
+              aria-label="Back to trip options"
               className="h-9 w-9 rounded-full border border-gray-200 bg-white grid place-items-center"
             >
               <svg className="h-5 w-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -254,7 +198,7 @@ export default function AddStopPage() {
                 setUseCurrentMobile(checked);
                 if (!checked) setPersonMobile('');
               }}
-              className="h-4 w-4 rounded border-gray-300 text-[#1F2456]"
+              className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
             />
             <span>
               Use My current Mobile number : <span className="font-semibold text-gray-800">{currentMobile}</span>
@@ -299,11 +243,11 @@ export default function AddStopPage() {
           </button>
           {geoError && <p className="px-1 py-2 text-sm text-red-500">{geoError}</p>}
 
-          {recentSearches.map((item, idx) => (
+          {RECENT_SEARCHES.map((item) => (
             <button
-              key={`${item.name}-${idx}`}
+              key={item.id}
               type="button"
-              onClick={() => handleSelectStop(item)}
+              onClick={() => handleSelectStop({ name: item.name, address: item.address, contact: item.contact })}
               className="flex w-full items-start gap-3 px-1 py-3 text-left"
             >
               <span className="mt-1">
@@ -328,19 +272,10 @@ export default function AddStopPage() {
             disabled={!isFormValid}
             onClick={() => {
               if (!isFormValid) return;
-              try {
-                if (typeof window !== 'undefined') {
-                  window.localStorage.setItem(
-                    'stop_details',
-                    JSON.stringify({ name: personName.trim(), mobile: personMobile })
-                  );
-                }
-              } catch {
-                // ignore
-              }
-              router.back();
+              setStopDetails({ name: personName.trim(), mobile: personMobile });
+              router.push(ROUTES.TRIP_OPTIONS);
             }}
-            className="w-full rounded-2xl bg-[#1F2456] py-3.5 text-[15px] font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-2xl bg-[var(--color-primary)] py-3.5 text-[15px] font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Confirm stop details
           </button>

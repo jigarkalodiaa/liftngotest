@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/site';
 
+/** Public marketing/content pages only; app routes (dashboard, history) excluded to avoid thin app screens in index. */
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {

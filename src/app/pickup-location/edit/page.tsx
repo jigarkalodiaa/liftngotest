@@ -3,50 +3,53 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useGeolocation } from '@/hooks';
-
-const recentSearches = [
-  {
-    id: '1',
-    name: 'Shyam Restaurant',
-    address: 'Zaildar Enclave Hastal, Vaibhav khand New Delhi,',
-    contact: 'Prateek Jha | 9065847341',
-  },
-  {
-    id: '2',
-    name: 'Shyam Restaurant',
-    address: 'Zaildar Enclave Hastal, Vaibhav khand New Delhi,',
-    contact: 'Prateek Jha | 9065847341',
-  },
-  {
-    id: '3',
-    name: 'Shyam Restaurant',
-    address: 'Zaildar Enclave Hastal, Vaibhav khand New Delhi,',
-    contact: 'Prateek Jha | 9065847341',
-  },
-];
+import { RECENT_SEARCHES } from '@/data/mockLocations';
+import { setPickupLocation, setDropLocation, setSenderDetails, setReceiverDetails } from '@/lib/storage';
+import { ROUTES } from '@/lib/constants';
+import type { SavedLocation } from '@/types/booking';
 
 function EditPickupLocationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get('type') === 'drop' ? 'drop' : 'pickup';
-  const storageKey = type === 'drop' ? 'drop_location' : 'pickup_location';
   const { isLoading, error, getLocation } = useGeolocation();
   const [searchValue, setSearchValue] = useState('');
 
   const handleUseCurrentLocation = async () => {
     const result = await getLocation();
     if (result) {
-      // Save to localStorage
-      const locationData = {
+      const locationData: SavedLocation = {
         name: 'Current Location',
         address: result.shortAddress,
         contact: '',
       };
-      localStorage.setItem(storageKey, JSON.stringify(locationData));
+      if (type === 'drop') {
+        setDropLocation(locationData);
+      } else {
+        setPickupLocation(locationData);
+      }
       setSearchValue(result.shortAddress);
-      // Navigate back after a short delay
-      setTimeout(() => router.back(), 300);
+      // When user selects current location, go to landing page (no sender/contact on card)
+      router.push(ROUTES.HOME);
     }
+  };
+
+  const handleSelectLocation = (item: SavedLocation & { id: string }) => {
+    const loc: SavedLocation = { name: item.name, address: item.address, contact: item.contact };
+    if (type === 'drop') {
+      setDropLocation(loc);
+      if (item.contact) {
+        const parts = item.contact.split('|').map((p) => p.trim());
+        setReceiverDetails({ name: parts[0] || '', mobile: parts[1] || '' });
+      }
+    } else {
+      setPickupLocation(loc);
+      if (item.contact) {
+        const parts = item.contact.split('|').map((p) => p.trim());
+        setSenderDetails({ name: parts[0] || '', mobile: parts[1] || '' });
+      }
+    }
+    router.back();
   };
 
   return (
@@ -120,35 +123,12 @@ function EditPickupLocationContent() {
         </div>
 
         <div className="mt-3 divide-y divide-gray-200 border-t border-b border-gray-200">
-          {recentSearches.map((item) => (
+          {RECENT_SEARCHES.map((item) => (
             <button
               key={item.id}
               type="button"
               className="flex w-full items-start gap-3 px-1 py-3 text-left"
-              onClick={() => {
-                try {
-                  if (typeof window !== 'undefined') {
-                    window.localStorage.setItem(storageKey, JSON.stringify(item));
-                    
-                    // Parse contact field to extract name and phone
-                    if (item.contact) {
-                      const parts = item.contact.split('|').map(p => p.trim());
-                      const personName = parts[0] || '';
-                      const personMobile = parts[1] || '';
-                      
-                      // Save sender or receiver details based on type
-                      const detailsKey = type === 'drop' ? 'receiver_details' : 'sender_details';
-                      window.localStorage.setItem(detailsKey, JSON.stringify({
-                        name: personName,
-                        mobile: personMobile,
-                      }));
-                    }
-                  }
-                } catch {
-                  // ignore storage errors
-                }
-                router.back();
-              }}
+              onClick={() => handleSelectLocation(item)}
             >
               <span className="mt-1">
                 <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
@@ -172,11 +152,11 @@ function EditPickupLocationContent() {
             aria-label="Pickup location"
             onClick={() => {
               if (type !== 'pickup') {
-                router.replace('/pickup-location/edit?type=pickup');
+                router.replace(`${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup`);
               }
             }}
             className={`h-2.5 w-2.5 rounded-full transition-colors ${
-              type === 'pickup' ? 'bg-[#1F2456]' : 'bg-gray-300'
+              type === 'pickup' ? 'bg-[var(--color-primary)]' : 'bg-gray-300'
             }`}
           />
           <button
@@ -184,11 +164,11 @@ function EditPickupLocationContent() {
             aria-label="Drop location"
             onClick={() => {
               if (type !== 'drop') {
-                router.replace('/pickup-location/edit?type=drop');
+                router.replace(`${ROUTES.PICKUP_LOCATION_EDIT}?type=drop`);
               }
             }}
             className={`h-2.5 w-2.5 rounded-full transition-colors ${
-              type === 'drop' ? 'bg-[#1F2456]' : 'bg-gray-300'
+              type === 'drop' ? 'bg-[var(--color-primary)]' : 'bg-gray-300'
             }`}
           />
         </div>

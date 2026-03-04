@@ -1,0 +1,47 @@
+import type { RideHistoryItem } from '@/types/booking';
+
+/** Mock past rides for History page. */
+export const RIDE_HISTORY: RideHistoryItem[] = [
+  {
+    id: 'h1',
+    vehicleName: '2 Wheeler',
+    vehicleSubtitle: 'Bike',
+    vehicleImage: '/services/two-wheeler.svg',
+    date: '2 Mar 2025',
+    time: '10:30 AM',
+    status: 'completed',
+    amount: '₹60',
+    fromName: 'Shipra Mall',
+    fromAddress: 'Vaibhav Khand, Indirapuram, Ghaziabad',
+    toName: 'HRC Professionals Hub',
+    toAddress: 'Middle Circle, Vaibhav Khand, Indirapuram',
+  },
+  {
+    id: 'h2',
+    vehicleName: '3 Wheeler',
+    vehicleSubtitle: 'Auto',
+    vehicleImage: '/services/three-wheeler.svg',
+    date: '28 Feb 2025',
+    time: '3:15 PM',
+    status: 'completed',
+    amount: '₹120',
+    fromName: 'Raj Nagar Extension',
+    fromAddress: 'Ghaziabad, Uttar Pradesh',
+    toName: 'Shipra Mall',
+    toAddress: 'Vaibhav Khand, Indirapuram',
+  },
+  {
+    id: 'h3',
+    vehicleName: '2 Wheeler',
+    vehicleSubtitle: 'Bike',
+    vehicleImage: '/services/two-wheeler.svg',
+    date: '13 Feb 2026',
+    time: '07:05 PM',
+    status: 'cancelled',
+    amount: '₹0',
+    fromName: 'Home',
+    fromAddress: 'Sector 62, Noida',
+    toName: 'Office',
+    toAddress: 'Connaught Place, Delhi',
+  },
+];

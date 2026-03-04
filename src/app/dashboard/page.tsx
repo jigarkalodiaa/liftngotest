@@ -1,28 +1,52 @@
 'use client';
 
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import MobileMenu from '@/components/landing/MobileMenu';
 import { useRouter } from 'next/navigation';
-
-type ServiceId = 'walk' | 'twoWheeler' | 'threeWheeler';
-
-type DefaultTrip = {
-  id: string;
-  fromName: string;
-  fromAddress: string;
-  toName: string;
-  toAddress: string;
-  contactName: string;
-  contactPhone: string;
-};
+import type { ServiceId, DefaultTrip } from '@/types/booking';
+import {
+  getPickupLocation,
+  setPickupLocation,
+  setDropLocation,
+  setSenderDetails,
+  setReceiverDetails,
+  setSelectedService,
+  getLoggedIn,
+} from '@/lib/storage';
+import { ROUTES } from '@/lib/constants';
+import { DEFAULT_TRIPS } from '@/data/defaultTrips';
+import { PageContainer, Button, IconButton, CloseIcon } from '@/components/ui';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [pickup, setPickup] = useState('');
+  const [pickup, setPickup] = useState<{ name: string; address: string } | null>(() => getPickupLocation());
   const [activeService, setActiveService] = useState<ServiceId>('walk');
   const [isChooseTripOpen, setIsChooseTripOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!getLoggedIn()) {
+      router.replace(ROUTES.HOME);
+      return;
+    }
+  }, [router]);
+
+  const syncPickupFromStorage = useCallback(() => {
+    const loc = getPickupLocation();
+    setPickup(loc);
+  }, []);
+
+  useEffect(() => {
+    syncPickupFromStorage();
+  }, [syncPickupFromStorage]);
+
+  useEffect(() => {
+    const onFocus = () => syncPickupFromStorage();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [syncPickupFromStorage]);
 
   const services = useMemo(
     () => [
@@ -33,67 +57,83 @@ export default function DashboardPage() {
     []
   );
 
-  const defaultTrips: DefaultTrip[] = useMemo(
-    () => [
-      {
-        id: 't1',
-        fromName: 'Shipra Mall',
-        fromAddress: 'Vaibhav Khand, Indirapuram, Ghaziabad, Uttar',
-        toName: 'HRC Professionals Hub,',
-        toAddress: 'Middle Circle, Vaibhav Khand, Indirapuram, Ghaziabad, Uttar Pradesh 201014',
-        contactName: 'Prateek Jha',
-        contactPhone: '9065847341',
-      },
-      {
-        id: 't2',
-        fromName: 'Shipra Mall',
-        fromAddress: 'Vaibhav Khand, Indirapuram, Ghaziabad, Uttar',
-        toName: 'HRC Professionals Hub,',
-        toAddress: 'Middle Circle, Vaibhav Khand, Indirapuram, Ghaziabad, Uttar Pradesh 201014',
-        contactName: 'Prateek Jha',
-        contactPhone: '9065847341',
-      },
-    ],
-    []
-  );
+  const defaultTrips = DEFAULT_TRIPS;
 
-  const handleBookNow = (trip: DefaultTrip) => {
-    try {
-      // Save pickup location
-      localStorage.setItem('pickup_location', JSON.stringify({
+  const handleBookNow = useCallback(
+    (trip: DefaultTrip) => {
+      setPickupLocation({
         name: trip.fromName,
         address: trip.fromAddress,
         contact: `${trip.contactName} | ${trip.contactPhone}`,
-      }));
-
-      // Save drop location
-      localStorage.setItem('drop_location', JSON.stringify({
+      });
+      setDropLocation({
         name: trip.toName,
         address: trip.toAddress,
         contact: `${trip.contactName} | ${trip.contactPhone}`,
-      }));
+      });
+      setSenderDetails({ name: trip.contactName, mobile: trip.contactPhone });
+      setReceiverDetails({ name: trip.contactName, mobile: trip.contactPhone });
+      setSelectedService(activeService);
+      setIsChooseTripOpen(false);
+      router.push(ROUTES.TRIP_OPTIONS);
+    },
+    [activeService, router]
+  );
 
-      // Save sender details
-      localStorage.setItem('sender_details', JSON.stringify({
-        name: trip.contactName,
-        mobile: trip.contactPhone,
-      }));
+  const closeChooseTrip = useCallback(() => setIsChooseTripOpen(false), []);
 
-      // Save receiver details
-      localStorage.setItem('receiver_details', JSON.stringify({
-        name: trip.contactName,
-        mobile: trip.contactPhone,
-      }));
+  useEffect(() => {
+    if (!isChooseTripOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeChooseTrip();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isChooseTripOpen, closeChooseTrip]);
 
-      // Save selected service
-      localStorage.setItem('selected_service', activeService);
-    } catch {
-      // ignore storage errors
+  const chooseTripPanelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isChooseTripOpen || !chooseTripPanelRef.current) return;
+    const panel = chooseTripPanelRef.current;
+    const focusables = panel.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusables[0];
+    if (first) first.focus();
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || focusables.length === 0) return;
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    panel.addEventListener('keydown', handleTab);
+    return () => panel.removeEventListener('keydown', handleTab);
+  }, [isChooseTripOpen]);
+
+  const handleContinue = useCallback(() => {
+    if (pickup?.name || pickup?.address) {
+      router.push(ROUTES.TRIP_OPTIONS);
+    } else {
+      router.push(ROUTES.PICKUP_LOCATION);
     }
+  }, [pickup, router]);
 
+  const handleAddMoreDefaultLocation = useCallback(() => {
     setIsChooseTripOpen(false);
-    router.push('/trip-options');
-  };
+    router.push(ROUTES.TRIP_OPTIONS);
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -116,35 +156,29 @@ export default function DashboardPage() {
         aria-modal="true"
         aria-label="Choose trip"
       >
-        <div className="absolute inset-0 bg-black/40" onClick={() => setIsChooseTripOpen(false)} />
+        <div className="absolute inset-0 bg-black/40" onClick={closeChooseTrip} />
         <div className="absolute inset-0 grid place-items-center px-3 py-6">
-          <div className="w-full max-w-[520px] rounded-[28px] bg-white shadow-2xl overflow-hidden">
+          <div ref={chooseTripPanelRef} className="w-full max-w-[520px] rounded-[28px] bg-white shadow-2xl overflow-hidden">
             <div className="px-6 pt-6 pb-4 flex items-center justify-between">
               <div className="text-[28px] font-bold text-gray-900">Choose trip</div>
-              <button
-                type="button"
-                onClick={() => setIsChooseTripOpen(false)}
-                aria-label="Close"
-                className="h-12 w-12 rounded-full bg-gray-100 grid place-items-center text-gray-700"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              <IconButton aria-label="Close" onClick={closeChooseTrip} className="h-12 w-12">
+                <CloseIcon />
+              </IconButton>
             </div>
 
             <div className="px-6 pb-5 max-h-[76vh] overflow-y-auto">
               <div className="rounded-2xl border border-gray-200 bg-white p-4">
-                <button
-                  type="button"
-                  onClick={() => router.push('/trip-options')}
-                  className="w-full rounded-2xl border border-gray-600/70 py-3 text-[18px] font-semibold text-gray-600 flex items-center justify-center gap-2"
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  className="!rounded-2xl !py-3 text-[18px]"
+                  onClick={() => router.push(ROUTES.TRIP_OPTIONS)}
                 >
                   Book Now
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <svg className="h-5 w-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
-                </button>
+                </Button>
               </div>
 
               <div className="mt-5 space-y-5">
@@ -169,7 +203,15 @@ export default function DashboardPage() {
                               {trip.contactName} <span className="mx-1">|</span> {trip.contactPhone}
                             </div>
                           </div>
-                          <button type="button" aria-label="Edit pickup" className="h-10 w-10 grid place-items-center text-gray-600">
+                          <button
+                            type="button"
+                            aria-label="Edit pickup"
+                            onClick={() => {
+                              handleBookNow(trip);
+                              router.push(ROUTES.PICKUP_LOCATION_EDIT);
+                            }}
+                            className="h-10 w-10 grid place-items-center text-gray-600"
+                          >
                             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213 3 21l1.787-4.5L16.862 3.487z" />
                             </svg>
@@ -189,14 +231,22 @@ export default function DashboardPage() {
                             <button
                               type="button"
                               aria-label="Swap"
-                              className="h-9 w-9 rounded-full bg-[#1F2456] grid place-items-center text-white shadow-sm"
+                              className="h-9 w-9 rounded-full bg-[var(--color-primary)] grid place-items-center text-white shadow-sm"
                             >
                               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 3l4 4-4 4M20 7H4" />
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 21l-4-4 4-4M4 17h16" />
                               </svg>
                             </button>
-                            <button type="button" aria-label="Edit drop" className="h-10 w-10 grid place-items-center text-gray-600">
+                            <button
+                              type="button"
+                              aria-label="Edit drop"
+                              onClick={() => {
+                                handleBookNow(trip);
+                                router.push(ROUTES.PICKUP_LOCATION_EDIT);
+                              }}
+                              className="h-10 w-10 grid place-items-center text-gray-600"
+                            >
                               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213 3 21l1.787-4.5L16.862 3.487z" />
                               </svg>
@@ -205,16 +255,17 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="mt-5">
-                          <button
-                            type="button"
-                            className="w-full rounded-2xl border border-gray-600/70 py-3 text-[18px] font-semibold text-gray-600 flex items-center justify-center gap-2"
+                          <Button
+                            variant="secondary"
+                            fullWidth
+                            className="!rounded-2xl !py-3 text-[18px]"
                             onClick={() => handleBookNow(trip)}
                           >
                             Book Now
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                            <svg className="h-5 w-5 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} aria-hidden>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                             </svg>
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -222,21 +273,23 @@ export default function DashboardPage() {
                 ))}
               </div>
 
-              <button
-                type="button"
-                className="mt-6 w-full rounded-2xl bg-[#1F2456] py-4 text-[20px] font-semibold text-white flex items-center justify-center gap-3"
-              >
+                              <Button
+                                variant="secondary"
+                                fullWidth
+                                className="!py-4 text-[20px] flex items-center justify-center gap-3"
+                                onClick={handleAddMoreDefaultLocation}
+                              >
                 Add More Default Location
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-[520px] px-4 pb-10">
+      <PageContainer className="pb-10">
         {/* Header */}
         <header className="pt-8 pb-4">
           <div className="flex items-center justify-between">
@@ -266,10 +319,10 @@ export default function DashboardPage() {
             </svg>
             <button
               type="button"
-              onClick={() => router.push('/pickup-location')}
+              onClick={() => router.push(ROUTES.PICKUP_LOCATION)}
               className="w-full text-left bg-transparent outline-none text-[15px] text-gray-900 placeholder:text-gray-500"
             >
-              {pickup || 'Enter Pickup Location'}
+              {pickup?.name || pickup?.address || 'Enter Pickup Location'}
             </button>
           </div>
         </div>
@@ -297,6 +350,7 @@ export default function DashboardPage() {
 
           <button
             type="button"
+            onClick={handleContinue}
             className="h-12 w-12 rounded-xl bg-[#3B82F6] shadow-sm grid place-items-center"
             aria-label="Continue"
           >
@@ -351,8 +405,7 @@ export default function DashboardPage() {
             Business prime pe
           </div>
         </div>
-      </div>
+      </PageContainer>
     </div>
   );
 }
-

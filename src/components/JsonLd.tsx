@@ -1,6 +1,7 @@
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 
 interface JsonLdProps {
+  /** Structured data – must be server/site-controlled only; never pass user input. */
   data: Record<string, unknown>;
 }
 

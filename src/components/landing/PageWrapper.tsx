@@ -50,10 +50,10 @@ export default function PageWrapper({ children }: PageWrapperProps) {
 
   return (
     <MenuContext.Provider value={{ isMenuOpen, openMenu, closeMenu, isLoginOpen, openLogin, closeLogin }}>
-      <div className="relative min-h-screen overflow-x-hidden bg-black">
-        {/* Black background behind the shifted content */}
+      <div className="relative min-h-screen overflow-x-hidden bg-[var(--landing-bg)]">
+        {/* Backdrop when menu open */}
         <div
-          className={`fixed inset-0 bg-black/60 transition-opacity duration-300 z-30 ${
+          className={`fixed inset-0 bg-black/40 transition-opacity duration-300 z-30 ${
             isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         />
@@ -65,7 +65,7 @@ export default function PageWrapper({ children }: PageWrapperProps) {
           }`}
         >
           <div
-            className={`min-h-screen bg-[#FFF7ED] transition-all duration-300 ${
+            className={`min-h-screen bg-[var(--landing-bg)] transition-all duration-300 ${
               isMenuOpen ? 'rounded-r-3xl overflow-hidden shadow-2xl' : ''
             }`}
           >

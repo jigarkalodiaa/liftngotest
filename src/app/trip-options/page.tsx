@@ -3,19 +3,34 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-type SavedLocation = {
-  name: string;
-  address: string;
-  contact: string;
-};
-
-type PersonDetails = {
-  name: string;
-  mobile: string;
-};
+import type { SavedLocation, PersonDetails } from '@/types/booking';
+import {
+  getPickupLocation,
+  getDropLocation,
+  getStopLocation,
+  getSenderDetails,
+  getReceiverDetails,
+  getStopDetails,
+  getSelectedService,
+  setStopLocation,
+  setSelectedService,
+  clearStopDetails,
+} from '@/lib/storage';
+import { ROUTES } from '@/lib/constants';
 
 type OptionId = 'walk' | 'two' | 'three';
+
+const SERVICE_TO_OPTION: Record<string, OptionId> = {
+  walk: 'walk',
+  twoWheeler: 'two',
+  threeWheeler: 'three',
+};
+
+const OPTION_TO_SERVICE: Record<OptionId, 'walk' | 'twoWheeler' | 'threeWheeler'> = {
+  walk: 'walk',
+  two: 'twoWheeler',
+  three: 'threeWheeler',
+};
 
 export default function TripOptionsPage() {
   const router = useRouter();
@@ -28,55 +43,14 @@ export default function TripOptionsPage() {
   const [selected, setSelected] = useState<OptionId>('two');
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const rawPickup = window.localStorage.getItem('pickup_location');
-      if (rawPickup) {
-        const parsed = JSON.parse(rawPickup) as SavedLocation;
-        if (parsed?.name && parsed?.address) setPickup(parsed);
-      }
-      const rawDrop = window.localStorage.getItem('drop_location');
-      if (rawDrop) {
-        const parsed = JSON.parse(rawDrop) as SavedLocation;
-        if (parsed?.name && parsed?.address) setDrop(parsed);
-      }
-
-      const rawStop = window.localStorage.getItem('stop_location');
-      if (rawStop) {
-        const parsed = JSON.parse(rawStop) as SavedLocation;
-        if (parsed?.name && parsed?.address) setStop(parsed);
-      }
-
-      const rawSender = window.localStorage.getItem('sender_details');
-      if (rawSender) {
-        const parsed = JSON.parse(rawSender) as PersonDetails;
-        if (parsed?.name && parsed?.mobile) setSender(parsed);
-      }
-
-      const rawReceiver = window.localStorage.getItem('receiver_details');
-      if (rawReceiver) {
-        const parsed = JSON.parse(rawReceiver) as PersonDetails;
-        if (parsed?.name && parsed?.mobile) setReceiver(parsed);
-      }
-
-      const rawStopDetails = window.localStorage.getItem('stop_details');
-      if (rawStopDetails) {
-        const parsed = JSON.parse(rawStopDetails) as PersonDetails;
-        if (parsed?.name && parsed?.mobile) setStopDetails(parsed);
-      }
-
-      // Read selected service from dashboard
-      const savedService = window.localStorage.getItem('selected_service');
-      if (savedService === 'walk') {
-        setSelected('walk');
-      } else if (savedService === 'twoWheeler') {
-        setSelected('two');
-      } else if (savedService === 'threeWheeler') {
-        setSelected('three');
-      }
-    } catch {
-      // ignore
-    }
+    setPickup(getPickupLocation());
+    setDrop(getDropLocation());
+    setStop(getStopLocation());
+    setSender(getSenderDetails());
+    setReceiver(getReceiverDetails());
+    setStopDetails(getStopDetails());
+    const saved = getSelectedService();
+    if (saved) setSelected(SERVICE_TO_OPTION[saved] ?? 'two');
   }, []);
 
   return (
@@ -92,8 +66,8 @@ export default function TripOptionsPage() {
           <div className="relative z-10 flex items-center justify-between px-4 pt-6">
             <button
               type="button"
-              aria-label="Back"
-              onClick={() => router.back()}
+              aria-label="Back to dashboard"
+              onClick={() => router.push(ROUTES.DASHBOARD)}
               className="h-9 w-9 rounded-full bg-white/90 grid place-items-center shadow"
             >
               <svg className="h-5 w-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -146,7 +120,7 @@ export default function TripOptionsPage() {
                       <button
                         type="button"
                         aria-label="Edit pickup"
-                        onClick={() => router.push('/pickup-location?step=1')}
+                        onClick={() => router.push(`${ROUTES.PICKUP_LOCATION}?step=1`)}
                         className="h-9 w-9 grid place-items-center text-gray-600"
                       >
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
@@ -174,13 +148,9 @@ export default function TripOptionsPage() {
                           aria-label="Remove stop"
                           onClick={() => {
                             setStop(null);
-                            try {
-                              if (typeof window !== 'undefined') {
-                                window.localStorage.removeItem('stop_location');
-                              }
-                            } catch {
-                              // ignore
-                            }
+                            setStopDetails(null);
+                            setStopLocation(null);
+                            clearStopDetails();
                           }}
                           className="h-8 w-8 rounded-full border border-gray-200 grid place-items-center text-gray-500 text-sm"
                         >
@@ -209,7 +179,7 @@ export default function TripOptionsPage() {
                       <button
                         type="button"
                         aria-label="Edit drop"
-                        onClick={() => router.push('/pickup-location?step=2')}
+                        onClick={() => router.push(`${ROUTES.PICKUP_LOCATION}?step=2`)}
                         className="h-9 w-9 grid place-items-center text-gray-600"
                       >
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
@@ -224,7 +194,7 @@ export default function TripOptionsPage() {
               <button
                 type="button"
                 className="flex w-full items-center justify-center gap-2 border-t border-gray-200 bg-white/90 py-3 text-[13px] font-medium text-gray-700"
-                onClick={() => router.push('/add-stop')}
+                onClick={() => router.push(ROUTES.ADD_STOP)}
               >
                 <span className="h-6 w-6 rounded-full border border-gray-300 grid place-items-center text-gray-500 text-xs">
                   +
@@ -240,7 +210,10 @@ export default function TripOptionsPage() {
           <OptionCard
             id="walk"
             selected={selected}
-            setSelected={setSelected}
+            setSelected={(id) => {
+              setSelected(id);
+              setSelectedService(OPTION_TO_SERVICE[id]);
+            }}
             title="Big Saver"
             subtitle="Walking"
             price="₹75"
@@ -250,7 +223,10 @@ export default function TripOptionsPage() {
           <OptionCard
             id="two"
             selected={selected}
-            setSelected={setSelected}
+            setSelected={(id) => {
+              setSelected(id);
+              setSelectedService(OPTION_TO_SERVICE[id]);
+            }}
             title="Faster to your door"
             subtitle="Two wheeler / 40kg"
             price="₹160"
@@ -261,7 +237,10 @@ export default function TripOptionsPage() {
           <OptionCard
             id="three"
             selected={selected}
-            setSelected={setSelected}
+            setSelected={(id) => {
+              setSelected(id);
+              setSelectedService(OPTION_TO_SERVICE[id]);
+            }}
             title="Faster to your door"
             subtitle="Three wheeler / 500 kg"
             price="₹450"
@@ -272,13 +251,14 @@ export default function TripOptionsPage() {
           <div className="mt-4 flex gap-3">
             <button
               type="button"
-              className="flex-1 rounded-2xl border border-gray-300 bg-white py-3 text-[15px] font-semibold text-gray-800"
+              className="flex-1 rounded-2xl bg-[var(--color-primary)] py-3 text-[15px] font-semibold text-white"
+              onClick={() => router.push(ROUTES.PAYMENT)}
             >
               Book Now
             </button>
             <button
               type="button"
-              className="flex-1 rounded-2xl bg-[#1F2456] py-3 text-[15px] font-semibold text-white"
+              className="flex-1 rounded-2xl border border-gray-300 bg-white py-3 text-[15px] font-semibold text-gray-800"
             >
               Schedule later
             </button>
@@ -318,7 +298,7 @@ function OptionCard({
       type="button"
       onClick={() => setSelected(id)}
       className={`mt-3 w-full rounded-2xl border px-3 py-3 text-left flex gap-3 ${
-        isActive ? 'border-[#1F2456] bg-[#EEF0FF]' : 'border-gray-200 bg-white'
+        isActive ? 'border-[var(--color-primary)] bg-[#EEF0FF]' : 'border-gray-200 bg-white'
       }`}
     >
       <div className="relative h-14 w-16 flex-shrink-0">

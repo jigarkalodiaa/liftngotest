@@ -1,21 +1,23 @@
 'use client';
 
 import Link from 'next/link';
+import { ROUTES } from '@/lib/constants';
+import { CloseIcon } from '@/components/ui';
 
 const menuSections = [
   {
-    title: 'Preference',
+    title: 'Prefernce',
     items: [
-      { label: 'Home', href: '/' },
+      { label: 'Home', href: ROUTES.HOME },
       { label: 'My Details', href: '/my-details' },
-      { label: 'History', href: '/history' },
+      { label: 'History', href: ROUTES.HISTORY },
     ],
   },
   {
     title: 'Liftngo',
     items: [
       { label: 'Why Choose', href: '/why-choose' },
-      { label: 'How Liftngo works', href: '/how-it-works' },
+      { label: 'How Liftingo Work', href: '/how-it-works' },
       { label: 'Offer', href: '/offers' },
     ],
   },
@@ -47,12 +49,10 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         <div className="flex justify-end p-4">
           <button
             onClick={onClose}
-            className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+            className="p-2 text-gray-500 hover:text-gray-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded-full"
             aria-label="Close menu"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon />
           </button>
         </div>
 
