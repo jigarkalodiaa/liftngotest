@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 const menuSections = [
   {
-    title: 'Prefernce',
+    title: 'Preference',
     items: [
       { label: 'Home', href: '/' },
       { label: 'My Details', href: '/my-details' },
@@ -15,7 +15,7 @@ const menuSections = [
     title: 'Liftngo',
     items: [
       { label: 'Why Choose', href: '/why-choose' },
-      { label: 'How Liftingo Work', href: '/how-it-works' },
+      { label: 'How Liftngo works', href: '/how-it-works' },
       { label: 'Offer', href: '/offers' },
     ],
   },

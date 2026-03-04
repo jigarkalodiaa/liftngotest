@@ -1,3 +1,5 @@
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
+
 interface JsonLdProps {
   data: Record<string, unknown>;
 }
@@ -14,14 +16,14 @@ export default function JsonLd({ data }: JsonLdProps) {
 export const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'Liftngo',
-  url: 'https://yourdomain.com',
-  description: 'Book rides in seconds, track in real-time, and get food delivered to your doorstep. Join Liftngo for affordable fares and seamless delivery.',
+  name: SITE_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: 'https://yourdomain.com/search?q={search_term_string}',
+      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
     },
     'query-input': 'required name=search_term_string',
   },
@@ -30,17 +32,13 @@ export const websiteJsonLd = {
 export const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Liftngo',
-  url: 'https://yourdomain.com',
-  logo: 'https://yourdomain.com/logo.png',
-  sameAs: [
-    'https://twitter.com/yourhandle',
-    'https://linkedin.com/company/yourcompany',
-    'https://github.com/yourhandle',
-  ],
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.svg`,
+  description: SITE_DESCRIPTION,
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+1-xxx-xxx-xxxx',
     contactType: 'customer service',
+    availableLanguage: 'English',
   },
 };

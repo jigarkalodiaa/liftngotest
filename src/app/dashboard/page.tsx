@@ -241,7 +241,7 @@ export default function DashboardPage() {
         <header className="pt-8 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Image src="/logo.svg" alt="Liftngo Logistics" width={140} height={44} className="h-8 w-auto" priority />
+              <Image src="/logo.svg" alt="Liftngo – Goods transport & last-mile delivery" width={140} height={44} className="h-8 w-auto" priority />
             </div>
 
             <button

@@ -1,7 +1,10 @@
-import { Metadata } from 'next';
-
-const BASE_URL = 'https://yourdomain.com';
-const SITE_NAME = 'Next.js SEO App';
+import { Metadata } from "next";
+import {
+  SITE_URL,
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  SEO_KEYWORDS,
+} from "@/lib/site";
 
 interface PageSEOProps {
   title: string;
@@ -15,18 +18,18 @@ interface PageSEOProps {
 export function generatePageMetadata({
   title,
   description,
-  path = '',
-  image = '/og-image.jpg',
+  path = "",
+  image = "/og-image.jpg",
   noIndex = false,
   keywords = [],
 }: PageSEOProps): Metadata {
-  const url = `${BASE_URL}${path}`;
-  const imageUrl = image.startsWith('http') ? image : `${BASE_URL}${image}`;
+  const url = `${SITE_URL}${path}`;
+  const imageUrl = image.startsWith("http") ? image : `${SITE_URL}${image}`;
 
   return {
     title,
     description,
-    keywords,
+    keywords: keywords.length > 0 ? keywords : SEO_KEYWORDS,
     alternates: {
       canonical: url,
     },
@@ -43,10 +46,10 @@ export function generatePageMetadata({
           alt: title,
         },
       ],
-      type: 'website',
+      type: "website",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title,
       description,
       images: [imageUrl],
@@ -72,13 +75,18 @@ export function generateArticleMetadata({
   authors?: string[];
   tags?: string[];
 }): Metadata {
-  const baseMetadata = generatePageMetadata({ title, description, path, image });
+  const baseMetadata = generatePageMetadata({
+    title,
+    description,
+    path,
+    image,
+  });
 
   return {
     ...baseMetadata,
     openGraph: {
       ...baseMetadata.openGraph,
-      type: 'article',
+      type: "article",
       publishedTime,
       modifiedTime,
       authors,

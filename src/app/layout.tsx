@@ -1,5 +1,17 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import {
+  SITE_URL,
+  SITE_NAME,
+  META_TITLE,
+  SITE_DESCRIPTION,
+  SEO_KEYWORDS,
+  OG_TITLE,
+  OG_DESCRIPTION,
+  TWITTER_TITLE,
+  TWITTER_DESCRIPTION,
+  DEFAULT_OG_IMAGE,
+} from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,38 +25,38 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://yourdomain.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Liftngo - Rides & Food Delivery',
-    template: '%s | Liftngo',
+    default: META_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: 'Book rides in seconds, track in real-time, and get food delivered to your doorstep. Join Liftngo for affordable fares and seamless delivery.',
-  keywords: ['ride booking', 'food delivery', 'taxi', 'delivery app', 'Liftngo'],
-  authors: [{ name: 'Your Name', url: 'https://yourdomain.com' }],
-  creator: 'Your Name',
-  publisher: 'Your Name',
+  description: SITE_DESCRIPTION,
+  keywords: SEO_KEYWORDS,
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://yourdomain.com',
-    siteName: 'Liftngo',
-    title: 'Liftngo - Rides & Food Delivery',
-    description: 'Book rides in seconds, track in real-time, and get food delivered to your doorstep. Join Liftngo for affordable fares and seamless delivery.',
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: OG_TITLE,
+    description: OG_DESCRIPTION,
     images: [
       {
-        url: '/og-image.jpg',
+        url: DEFAULT_OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: 'Liftngo - Rides & Food Delivery',
+        alt: OG_TITLE,
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'Liftngo - Rides & Food Delivery',
-    description: 'Book rides in seconds, track in real-time, and get food delivered to your doorstep. Join Liftngo for affordable fares and seamless delivery.',
-    creator: '@liftngo',
-    images: ['/og-image.jpg'],
+    card: "summary_large_image",
+    title: TWITTER_TITLE,
+    description: TWITTER_DESCRIPTION,
+    creator: "@liftngo",
+    images: [DEFAULT_OG_IMAGE],
   },
   robots: {
     index: true,
@@ -52,21 +64,21 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   alternates: {
-    canonical: 'https://yourdomain.com',
+    canonical: SITE_URL,
   },
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
-  manifest: '/manifest.json',
+  manifest: "/manifest.json",
   verification: {
-    google: 'your-google-site-verification-code',
+    google: "your-google-site-verification-code",
   },
 };
 

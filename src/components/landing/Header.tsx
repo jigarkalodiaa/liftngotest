@@ -14,7 +14,7 @@ export default function Header() {
           <Link href="/" className="flex items-center">
             <Image
               src="/logo.svg"
-              alt="LiftnGo Logistics"
+              alt="Liftngo – Goods transport & last-mile delivery"
               width={140}
               height={50}
               className="h-10 w-auto"

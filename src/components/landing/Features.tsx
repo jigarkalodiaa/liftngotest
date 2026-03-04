@@ -24,20 +24,20 @@ function FeatureCard({ icon, title, description, iconBg = 'bg-orange-100' }: Fea
 const features = [
   {
     icon: '/icons/driver.svg',
-    title: 'Become a driver',
-    description: 'Join Liftngo as a driver partner and start earning with flexible hours, instant payouts, and complete ride control.',
+    title: 'Become a driver partner',
+    description: 'Join Liftngo as a driver or fleet partner. Earn with flexible hours, verified bookings, and operational support through our driver network.',
     iconBg: 'bg-orange-100',
   },
   {
     icon: '/icons/experience.svg',
-    title: 'Experience the Liftngo',
-    description: 'Book rides in seconds, track in real-time, and travel comfortably with verified drivers at affordable fares.',
+    title: 'Experience Liftngo',
+    description: 'Book goods transport in seconds, track deliveries in real time, and get transparent upfront fares with verified drivers.',
     iconBg: 'bg-blue-100',
   },
   {
     icon: '/icons/app.svg',
-    title: 'Get the Liftngo App',
-    description: 'Available for customers and drivers. Install the app today and unlock seamless rides and smart earnings.',
+    title: 'Get the Liftngo app',
+    description: 'For customers and drivers. Book pickups, manage deliveries, and access the logistics platform built for local transport.',
     iconBg: 'bg-green-100',
   },
 ];

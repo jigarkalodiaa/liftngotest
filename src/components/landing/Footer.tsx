@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { SITE_NAME, BRAND } from '@/lib/site';
 
 export default function Footer() {
   return (
@@ -11,11 +14,11 @@ export default function Footer() {
                 <span className="text-white font-bold text-sm">L</span>
               </div>
               <span className="text-xl font-bold">
-                Lift<span className="text-orange-500">n</span>Go
+                {SITE_NAME}
               </span>
             </Link>
             <p className="text-gray-400 text-sm">
-              Your trusted partner for rides and deliveries.
+              {BRAND.shortDescription}
             </p>
           </div>
 
@@ -48,7 +51,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} Liftngo. All rights reserved.
+            © {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
           </p>
           <div className="flex gap-4">
             <a href="#" className="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">

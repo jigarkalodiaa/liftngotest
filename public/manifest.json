@@ -1,11 +1,11 @@
 {
-  "name": "Next.js SEO App",
-  "short_name": "SEO App",
-  "description": "A modern Next.js application built with SEO best practices for optimal search engine visibility and performance.",
+  "name": "Liftngo | Smart Logistics & Goods Transport Platform",
+  "short_name": "Liftngo",
+  "description": "Liftngo is a logistics platform that connects customers with drivers to provide fast, affordable, and reliable goods transportation and last-mile delivery services.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "theme_color": "#1e3a5f",
   "orientation": "portrait-primary",
   "icons": [
     {

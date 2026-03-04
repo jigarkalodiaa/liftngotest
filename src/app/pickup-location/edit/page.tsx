@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useGeolocation } from '@/hooks';
 
@@ -25,7 +25,7 @@ const recentSearches = [
   },
 ];
 
-export default function EditPickupLocationPage() {
+function EditPickupLocationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get('type') === 'drop' ? 'drop' : 'pickup';
@@ -194,6 +194,14 @@ export default function EditPickupLocationPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EditPickupLocationPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center p-4">Loading...</div>}>
+      <EditPickupLocationContent />
+    </Suspense>
   );
 }
 
