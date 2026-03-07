@@ -21,17 +21,9 @@ import { PageContainer, Button, IconButton, CloseIcon } from '@/components/ui';
 export default function DashboardPage() {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [pickup, setPickup] = useState<{ name: string; address: string } | null>(() => getPickupLocation());
+  const [pickup, setPickup] = useState<{ name: string; address: string } | null>(null);
   const [activeService, setActiveService] = useState<ServiceId>('walk');
   const [isChooseTripOpen, setIsChooseTripOpen] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!getLoggedIn()) {
-      router.replace(ROUTES.HOME);
-      return;
-    }
-  }, [router]);
 
   const syncPickupFromStorage = useCallback(() => {
     const loc = getPickupLocation();
@@ -41,6 +33,14 @@ export default function DashboardPage() {
   useEffect(() => {
     syncPickupFromStorage();
   }, [syncPickupFromStorage]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!getLoggedIn()) {
+      router.replace(ROUTES.HOME);
+      return;
+    }
+  }, [router]);
 
   useEffect(() => {
     const onFocus = () => syncPickupFromStorage();

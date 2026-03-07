@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import type { SavedLocation, PersonDetails } from '@/types/booking';
 import {
   getPickupLocation,
@@ -12,22 +13,48 @@ import {
   setSenderDetails,
   setReceiverDetails,
 } from '@/lib/storage';
-import { ROUTES, MOBILE_LENGTH } from '@/lib/constants';
+import { ROUTES } from '@/lib/constants';
+import { senderDetailsSchema, receiverDetailsSchema, validatePersonName } from '@/lib/validations';
 
-export default function PickupLocationPage() {
+type PersonalForm = {
+  senderName: string;
+  senderMobile: string;
+  receiverName: string;
+  receiverMobile: string;
+};
+
+export default function EditPickupContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<1 | 2>(1);
   const [pickup, setPickup] = useState<SavedLocation | null>(null);
   const [drop, setDrop] = useState<SavedLocation | null>(null);
-  const [senderName, setSenderName] = useState('');
-  const [senderMobile, setSenderMobile] = useState('');
   const [useCurrentMobile, setUseCurrentMobile] = useState(false);
-  const [receiverName, setReceiverName] = useState('');
-  const [receiverMobile, setReceiverMobile] = useState('');
   const [useReceiverCurrentMobile, setUseReceiverCurrentMobile] = useState(false);
   const [currentMobile, setCurrentMobile] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm<PersonalForm>({
+    defaultValues: {
+      senderName: '',
+      senderMobile: '',
+      receiverName: '',
+      receiverMobile: '',
+    },
+  });
+
+  const senderName = watch('senderName');
+  const senderMobile = watch('senderMobile');
+  const receiverName = watch('receiverName');
+  const receiverMobile = watch('receiverMobile');
 
   useEffect(() => {
     const storedPhone = getStoredPhone();
@@ -48,11 +75,8 @@ export default function PickupLocationPage() {
 
     const savedDrop = getDropLocation();
     if (savedDrop) setDrop(savedDrop);
-
-    // Do not pre-fill sender or receiver – user enters them manually (or uses "Use my current mobile")
   }, []);
 
-  // Re-sync pickup/drop from storage when returning (e.g. after editing location); do not re-fill sender/receiver
   useEffect(() => {
     if (pathname !== ROUTES.PICKUP_LOCATION) return;
     const savedPickup = getPickupLocation();
@@ -61,55 +85,66 @@ export default function PickupLocationPage() {
     if (savedDrop) setDrop(savedDrop);
   }, [pathname]);
 
-  // Initialize step from query (?step=2)
   useEffect(() => {
     const stepParam = searchParams.get('step');
-    if (stepParam === '2') {
-      setStep(2);
-    } else if (stepParam === '1') {
-      setStep(1);
-    }
+    if (stepParam === '2') setStep(2);
+    else if (stepParam === '1') setStep(1);
   }, [searchParams]);
 
-  // When toggling "use my current number"
   useEffect(() => {
-    if (useCurrentMobile) {
-      setSenderMobile(currentMobile);
-    }
-  }, [useCurrentMobile]);
+    if (useCurrentMobile) setValue('senderMobile', currentMobile);
+  }, [useCurrentMobile, currentMobile, setValue]);
 
   useEffect(() => {
-    if (useReceiverCurrentMobile) {
-      setReceiverMobile(currentMobile);
+    if (useReceiverCurrentMobile) setValue('receiverMobile', currentMobile);
+  }, [useReceiverCurrentMobile, currentMobile, setValue]);
+
+  const onStep1Submit = () => {
+    clearErrors();
+    const result = senderDetailsSchema.safeParse({
+      senderName: (senderName ?? '').trim(),
+      senderMobile: (senderMobile ?? '').trim().replace(/\D/g, '').replace(/\s/g, ''),
+    });
+    if (!result.success) {
+      const err = result.error.flatten().fieldErrors;
+      if (err.senderName?.[0]) setError('senderName', { message: err.senderName[0] });
+      if (err.senderMobile?.[0]) setError('senderMobile', { message: err.senderMobile[0] });
+      return;
     }
-  }, [useReceiverCurrentMobile]);
+    setSenderDetails({ name: result.data.senderName, mobile: result.data.senderMobile });
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  const isMobileValid = useMemo(() => {
-    const digits = senderMobile.replace(/\D/g, '');
-    return digits.length === MOBILE_LENGTH;
-  }, [senderMobile]);
+  const onStep2Submit = () => {
+    clearErrors();
+    const result = receiverDetailsSchema.safeParse({
+      receiverName: (receiverName ?? '').trim(),
+      receiverMobile: (receiverMobile ?? '').trim().replace(/\D/g, '').replace(/\s/g, ''),
+    });
+    if (!result.success) {
+      const err = result.error.flatten().fieldErrors;
+      if (err.receiverName?.[0]) setError('receiverName', { message: err.receiverName[0] });
+      if (err.receiverMobile?.[0]) setError('receiverMobile', { message: err.receiverMobile[0] });
+      return;
+    }
+    setReceiverDetails({ name: result.data.receiverName, mobile: result.data.receiverMobile });
+    router.push(ROUTES.TRIP_OPTIONS);
+  };
 
-  const isReceiverMobileValid = useMemo(() => {
-    const digits = receiverMobile.replace(/\D/g, '');
-    return digits.length === MOBILE_LENGTH;
-  }, [receiverMobile]);
-
-  const isPickupFormValid = useMemo(
-    () => Boolean(pickup && senderName.trim() && isMobileValid),
-    [pickup, senderName, isMobileValid]
-  );
-
-  const isDropFormValid = useMemo(
-    () => Boolean(drop && receiverName.trim() && isReceiverMobileValid),
-    [drop, receiverName, isReceiverMobileValid]
-  );
-
-  const isFormValid = step === 1 ? isPickupFormValid : isDropFormValid;
+  const isStep1Valid =
+    Boolean(pickup) &&
+    validatePersonName((senderName ?? '').trim()).success &&
+    (senderMobile ?? '').trim().replace(/\D/g, '').replace(/\s/g, '').length === 10;
+  const isStep2Valid =
+    Boolean(drop) &&
+    validatePersonName((receiverName ?? '').trim()).success &&
+    (receiverMobile ?? '').trim().replace(/\D/g, '').replace(/\s/g, '').length === 10;
+  const isFormValid = step === 1 ? isStep1Valid : isStep2Valid;
 
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto w-full max-w-[520px] px-4 pb-8 pt-6">
-        {/* Header */}
         <header className="flex items-center gap-3 pt-4 pb-5">
           <button
             type="button"
@@ -130,13 +165,11 @@ export default function PickupLocationPage() {
           <div className="w-9" />
         </header>
 
-        {/* Progress bar */}
         <div className="mt-1 mb-5 flex h-1.5 overflow-hidden rounded-full bg-gray-100">
           <div className={`w-1/2 ${step >= 1 ? 'bg-emerald-500' : 'bg-emerald-100'}`} />
           <div className={`flex-1 ${step >= 2 ? 'bg-emerald-500' : 'bg-emerald-100'}`} />
         </div>
 
-        {/* Card */}
         <div className="rounded-[22px] border border-gray-200 bg-white shadow-sm overflow-hidden">
           {step === 1 ? (
             <>
@@ -170,11 +203,17 @@ export default function PickupLocationPage() {
                   <label className="mb-1 block text-[12px] font-medium text-gray-600">Sender name</label>
                   <input
                     type="text"
-                    placeholder="Sender name"
-                    value={senderName}
-                    onChange={(e) => setSenderName(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none"
+                    placeholder="Sender name (min. 3 letters)"
+                    {...register('senderName', {
+                      onBlur: (e) => setValue('senderName', e.target.value.trim()),
+                    })}
+                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                      errors.senderName ? 'border-red-400' : 'border-gray-300'
+                    }`}
                   />
+                  {errors.senderName && (
+                    <p className="mt-1 text-[11px] text-red-500">{errors.senderName.message}</p>
+                  )}
                 </div>
 
                 <div>
@@ -182,21 +221,23 @@ export default function PickupLocationPage() {
                   <input
                     type="tel"
                     placeholder="Sender Mobile Number"
-                    value={senderMobile}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      const digits = val.replace(/\D/g, '').slice(0, 10);
-                      setSenderMobile(digits);
-                      if (digits !== currentMobile) {
-                        setUseCurrentMobile(false);
-                      }
-                    }}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none ${
-                      senderMobile && !isMobileValid ? 'border-red-400' : 'border-gray-300'
+                    {...register('senderMobile', {
+                      onChange: (e) => {
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setValue('senderMobile', digits);
+                        if (digits !== currentMobile) setUseCurrentMobile(false);
+                      },
+                    })}
+                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                      errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)
+                        ? 'border-red-400'
+                        : 'border-gray-300'
                     }`}
                   />
-                  {senderMobile && !isMobileValid && (
-                    <p className="mt-1 text-[11px] text-red-500">Enter a valid 10-digit mobile number.</p>
+                  {(errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)) && (
+                    <p className="mt-1 text-[11px] text-red-500">
+                      {errors.senderMobile?.message ?? 'Enter a valid 10-digit mobile number.'}
+                    </p>
                   )}
                 </div>
 
@@ -207,9 +248,7 @@ export default function PickupLocationPage() {
                     onChange={(e) => {
                       const checked = e.target.checked;
                       setUseCurrentMobile(checked);
-                      if (!checked) {
-                        setSenderMobile('');
-                      }
+                      if (!checked) setValue('senderMobile', '');
                     }}
                     className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
                   />
@@ -219,9 +258,9 @@ export default function PickupLocationPage() {
                 </label>
 
                 <div className="mt-4 flex justify-center gap-1.5">
-  <span className="h-2 w-2 rounded-full bg-gray-300" />
-  <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
-</div>
+                  <span className="h-2 w-2 rounded-full bg-gray-300" />
+                  <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+                </div>
               </div>
             </>
           ) : (
@@ -256,11 +295,17 @@ export default function PickupLocationPage() {
                   <label className="mb-1 block text-[12px] font-medium text-gray-600">Receiver&apos;s name</label>
                   <input
                     type="text"
-                    placeholder="Receiver's name"
-                    value={receiverName}
-                    onChange={(e) => setReceiverName(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none"
+                    placeholder="Receiver's name (min. 3 letters)"
+                    {...register('receiverName', {
+                      onBlur: (e) => setValue('receiverName', e.target.value.trim()),
+                    })}
+                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                      errors.receiverName ? 'border-red-400' : 'border-gray-300'
+                    }`}
                   />
+                  {errors.receiverName && (
+                    <p className="mt-1 text-[11px] text-red-500">{errors.receiverName.message}</p>
+                  )}
                 </div>
 
                 <div>
@@ -268,21 +313,23 @@ export default function PickupLocationPage() {
                   <input
                     type="tel"
                     placeholder="Receiver Mobile Number"
-                    value={receiverMobile}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      const digits = val.replace(/\D/g, '').slice(0, 10);
-                      setReceiverMobile(digits);
-                      if (digits !== currentMobile) {
-                        setUseReceiverCurrentMobile(false);
-                      }
-                    }}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none ${
-                      receiverMobile && !isReceiverMobileValid ? 'border-red-400' : 'border-gray-300'
+                    {...register('receiverMobile', {
+                      onChange: (e) => {
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setValue('receiverMobile', digits);
+                        if (digits !== currentMobile) setUseReceiverCurrentMobile(false);
+                      },
+                    })}
+                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                      errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)
+                        ? 'border-red-400'
+                        : 'border-gray-300'
                     }`}
                   />
-                  {receiverMobile && !isReceiverMobileValid && (
-                    <p className="mt-1 text-[11px] text-red-500">Enter a valid 10-digit mobile number.</p>
+                  {(errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)) && (
+                    <p className="mt-1 text-[11px] text-red-500">
+                      {errors.receiverMobile?.message ?? 'Enter a valid 10-digit mobile number.'}
+                    </p>
                   )}
                 </div>
 
@@ -293,9 +340,7 @@ export default function PickupLocationPage() {
                     onChange={(e) => {
                       const checked = e.target.checked;
                       setUseReceiverCurrentMobile(checked);
-                      if (!checked) {
-                        setReceiverMobile('');
-                      }
+                      if (!checked) setValue('receiverMobile', '');
                     }}
                     className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
                   />
@@ -305,33 +350,20 @@ export default function PickupLocationPage() {
                 </label>
 
                 <div className="mt-4 flex justify-center gap-1.5">
-  <span className="h-2 w-2 rounded-full bg-gray-300" />
-  <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
-</div>
+                  <span className="h-2 w-2 rounded-full bg-gray-300" />
+                  <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+                </div>
               </div>
             </>
           )}
         </div>
 
-        {/* Bottom button */}
         <div className="fixed inset-x-0 bottom-0">
           <div className="mx-auto w-full max-w-[520px] bg-white px-4 pb-7 pt-3 shadow-[0_-8px_20px_rgba(15,23,42,0.12)]">
             <button
               type="button"
               disabled={!isFormValid}
-              onClick={() => {
-                if (!isFormValid) return;
-                if (step === 1) {
-                  const sender: PersonDetails = { name: senderName.trim(), mobile: senderMobile };
-                  setSenderDetails(sender);
-                  setStep(2);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else {
-                  const receiver: PersonDetails = { name: receiverName.trim(), mobile: receiverMobile };
-                  setReceiverDetails(receiver);
-                  router.push(ROUTES.TRIP_OPTIONS);
-                }
-              }}
+              onClick={step === 1 ? onStep1Submit : onStep2Submit}
               className="w-full rounded-2xl bg-[var(--color-primary)] py-3.5 text-[16px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {step === 1 ? 'Confirm pick location' : 'Confirm drop location'}
@@ -345,5 +377,3 @@ export default function PickupLocationPage() {
     </div>
   );
 }
-
-

@@ -12,6 +12,7 @@ import {
   TWITTER_DESCRIPTION,
   DEFAULT_OG_IMAGE,
 } from "@/lib/site";
+import QueryProvider from "@/components/providers/QueryProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -94,7 +95,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
