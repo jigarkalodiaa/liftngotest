@@ -12,6 +12,8 @@ function EditPickupLocationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get('type') === 'drop' ? 'drop' : 'pickup';
+  const rawReturnTo = searchParams.get('returnTo');
+  const returnTo = rawReturnTo && rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//') ? rawReturnTo : null;
   const { isLoading, error, getLocation } = useGeolocation();
   const [searchValue, setSearchValue] = useState('');
 
@@ -29,8 +31,11 @@ function EditPickupLocationContent() {
         setPickupLocation(locationData);
       }
       setSearchValue(result.shortAddress);
-      // When user selects current location, go to landing page (no sender/contact on card)
-      router.push(ROUTES.HOME);
+      if (returnTo) {
+        router.push(returnTo);
+      } else {
+        router.push(ROUTES.HOME);
+      }
     }
   };
 
@@ -40,16 +45,22 @@ function EditPickupLocationContent() {
       setDropLocation(loc);
       if (item.contact) {
         const parts = item.contact.split('|').map((p) => p.trim());
-        setReceiverDetails({ name: parts[0] || '', mobile: parts[1] || '' });
+        const mobile = (parts[1] || '').replace(/\D/g, '').slice(0, 10);
+        setReceiverDetails({ name: parts[0] || '', mobile });
       }
     } else {
       setPickupLocation(loc);
       if (item.contact) {
         const parts = item.contact.split('|').map((p) => p.trim());
-        setSenderDetails({ name: parts[0] || '', mobile: parts[1] || '' });
+        const mobile = (parts[1] || '').replace(/\D/g, '').slice(0, 10);
+        setSenderDetails({ name: parts[0] || '', mobile });
       }
     }
-    router.back();
+    if (returnTo) {
+      router.push(returnTo);
+    } else {
+      router.back();
+    }
   };
 
   return (
@@ -60,7 +71,7 @@ function EditPickupLocationContent() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() => (returnTo ? router.push(returnTo) : router.back())}
               aria-label="Back"
               className="h-9 w-9 rounded-full border border-gray-200 bg-white grid place-items-center"
             >
@@ -152,7 +163,9 @@ function EditPickupLocationContent() {
             aria-label="Pickup location"
             onClick={() => {
               if (type !== 'pickup') {
-                router.replace(`${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup`);
+                const params = new URLSearchParams({ type: 'pickup' });
+                if (returnTo) params.set('returnTo', returnTo);
+                router.replace(`${ROUTES.PICKUP_LOCATION_EDIT}?${params.toString()}`);
               }
             }}
             className={`h-2.5 w-2.5 rounded-full transition-colors ${
@@ -164,7 +177,9 @@ function EditPickupLocationContent() {
             aria-label="Drop location"
             onClick={() => {
               if (type !== 'drop') {
-                router.replace(`${ROUTES.PICKUP_LOCATION_EDIT}?type=drop`);
+                const params = new URLSearchParams({ type: 'drop' });
+                if (returnTo) params.set('returnTo', returnTo);
+                router.replace(`${ROUTES.PICKUP_LOCATION_EDIT}?${params.toString()}`);
               }
             }}
             className={`h-2.5 w-2.5 rounded-full transition-colors ${

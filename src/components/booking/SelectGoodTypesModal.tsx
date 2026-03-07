@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { GOOD_TYPES } from '@/data/goodTypes';
 import type { GoodTypeOption } from '@/data/goodTypes';
+import { theme } from '@/config/theme';
 
 interface SelectGoodTypesModalProps {
   isOpen: boolean;
@@ -53,16 +54,16 @@ export default function SelectGoodTypesModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/50" aria-hidden="true" onClick={onClose} />
+      <div className="fixed inset-0 z-[100] bg-black/50 animate-[fade-in_0.2s_ease-out]" aria-hidden="true" onClick={onClose} />
       <div
-        className="fixed inset-x-0 bottom-0 z-[100] flex max-h-[90vh] flex-col rounded-t-3xl bg-white shadow-2xl"
+        className="fixed inset-x-0 bottom-0 z-[100] flex max-h-[90vh] flex-col rounded-t-3xl bg-white shadow-2xl overflow-hidden animate-[slide-up_0.3s_ease-out]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="select-good-types-title"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-4">
-          <h2 id="select-good-types-title" className="text-[18px] font-bold text-gray-900">
+          <h2 id="select-good-types-title" className="font-bold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>
             Select Good Types
           </h2>
           <button
@@ -76,7 +77,7 @@ export default function SelectGoodTypesModal({
         </div>
 
         {/* Scrollable list */}
-        <div className="flex-1 overflow-y-auto px-4 py-3">
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3">
           {GOOD_TYPES.map((item) => {
             const isSelected = selectedId === item.id;
             return (
@@ -86,9 +87,10 @@ export default function SelectGoodTypesModal({
                 onClick={() => setSelectedId(item.id)}
                 className={`mb-3 w-full rounded-2xl border px-4 py-3.5 text-left transition-colors ${
                   isSelected
-                    ? 'border-[var(--color-primary)] bg-[#EEF0FF]'
-                    : 'border-gray-200 bg-[#FAFAFA] hover:border-gray-300'
+                    ? 'border-[var(--color-primary)]'
+                    : 'border-gray-200 hover:border-gray-300'
                 }`}
+                style={{ backgroundColor: isSelected ? theme.colors.primaryTint : theme.colors.surfaceMuted }}
               >
                 <div className="flex gap-3">
                   <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gray-200 text-gray-600">
@@ -107,8 +109,8 @@ export default function SelectGoodTypesModal({
                     </svg>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[15px] font-semibold text-gray-900">{item.title}</p>
-                    <p className="mt-1 text-[13px] leading-snug text-gray-500">
+                    <p className="font-semibold" style={{ fontSize: theme.fontSizes.md, color: theme.colors.gray900 }}>{item.title}</p>
+                    <p className="mt-1 leading-snug" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray500 }}>
                       {item.description}
                     </p>
                   </div>
@@ -133,12 +135,13 @@ export default function SelectGoodTypesModal({
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                 />
               </svg>
-              <span className="text-[14px] font-medium text-gray-800">All Hazardous good</span>
+              <span className="font-medium" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray800 }}>All Hazardous good</span>
             </div>
             <button
               type="button"
               onClick={() => setShowHazardList(true)}
-              className="text-[14px] font-medium text-[#2563EB]"
+              className="font-medium"
+              style={{ fontSize: theme.fontSizes.base, color: theme.colors.primary }}
             >
               View List
             </button>
@@ -151,7 +154,8 @@ export default function SelectGoodTypesModal({
             type="button"
             onClick={handleProceed}
             disabled={!selectedId}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--color-primary)] py-3.5 text-[16px] font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--color-primary)] py-3.5 font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ fontSize: theme.fontSizes.lg }}
           >
             Proceed
             <svg
@@ -167,23 +171,46 @@ export default function SelectGoodTypesModal({
         </div>
       </div>
 
-      {/* Hazardous list popup */}
+      {/* Hazardous list – bottom sheet */}
       {showHazardList && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
-            <h3 className="text-[18px] font-bold text-gray-900">Hazardous goods</h3>
-            <p className="mt-2 text-[14px] text-gray-600">
-              Do not send explosives, flammables, corrosive materials, toxic substances, or other hazardous items. Contact support for the full restricted list.
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowHazardList(false)}
-              className="mt-4 w-full rounded-xl bg-[var(--color-primary)] py-2.5 text-[15px] font-semibold text-white"
-            >
-              Got it
-            </button>
+        <>
+          <div className="fixed inset-0 z-[110] bg-black/50 animate-[fade-in_0.2s_ease-out]" aria-hidden="true" onClick={() => setShowHazardList(false)} />
+          <div
+            className="fixed inset-x-0 bottom-0 z-[110] flex max-h-[85vh] flex-col rounded-t-3xl bg-white shadow-2xl overflow-hidden animate-[slide-up_0.3s_ease-out]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="hazardous-title"
+          >
+            <div className="flex-shrink-0 flex items-center justify-between border-b border-gray-200 px-5 py-4">
+              <h3 id="hazardous-title" className="font-bold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>
+                Hazardous goods
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowHazardList(false)}
+                aria-label="Close"
+                className="h-9 w-9 rounded-full bg-gray-100 grid place-items-center text-gray-600 hover:bg-gray-200"
+              >
+                <span className="text-lg font-medium leading-none">×</span>
+              </button>
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4">
+              <p style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray600 }}>
+                Do not send explosives, flammables, corrosive materials, toxic substances, or other hazardous items. Contact support for the full restricted list.
+              </p>
+            </div>
+            <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => setShowHazardList(false)}
+                className="w-full rounded-xl py-2.5 font-semibold text-white"
+                style={{ backgroundColor: theme.colors.primary, fontSize: theme.fontSizes.md }}
+              >
+                Got it
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );

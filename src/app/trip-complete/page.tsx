@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import { getDropLocation } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
-import { PageContainer, IconButton, BackIcon, Button, CloseIcon } from '@/components/ui';
+import { PageContainer, IconButton, BackIcon, Button } from '@/components/ui';
+import PriceBreakupSheet from '@/components/booking/PriceBreakupSheet';
 
 const DRIVER_NAME = 'Rakesh Patel';
 const AMOUNT = 400;
@@ -31,21 +32,7 @@ export default function TripCompletePage() {
   const [rating, setRating] = useState(0);
   const [showPriceBreakup, setShowPriceBreakup] = useState(false);
 
-  useEffect(() => {
-    setDrop(getDropLocation());
-  }, []);
-
-  useEffect(() => {
-    if (!showPriceBreakup) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setShowPriceBreakup(false);
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [showPriceBreakup]);
+  useEffect(() => setDrop(getDropLocation()), []);
 
   const destination = drop?.name || drop?.address || 'Your destination';
   const tripDateTime = useMemo(() => formatTripDateTime(), []);
@@ -54,23 +41,17 @@ export default function TripCompletePage() {
     <div className="min-h-screen bg-gray-100">
       <PageContainer className="py-6">
         <div className="mb-4">
-          <IconButton
-            aria-label="Back to dashboard"
-            onClick={() => router.push(ROUTES.DASHBOARD)}
-            className="h-10 w-10"
-          >
+          <IconButton aria-label="Back to dashboard" onClick={() => router.push(ROUTES.DASHBOARD)} className="h-10 w-10">
             <BackIcon />
           </IconButton>
         </div>
 
-        {/* Trip to + date/time */}
         <div className="rounded-2xl bg-white p-4 shadow-sm">
           <p className="text-[13px] text-gray-500">Trip to</p>
           <p className="mt-1 text-[17px] font-bold text-gray-900">{destination}</p>
           <p className="mt-1 text-[13px] text-gray-500">{tripDateTime}</p>
         </div>
 
-        {/* Amount Payable */}
         <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
           <div className="flex items-start justify-between">
             <div>
@@ -79,35 +60,24 @@ export default function TripCompletePage() {
             </div>
             <div className="text-right">
               <p className="text-[18px] font-bold text-gray-900">₹{AMOUNT}</p>
-              <button
-                type="button"
-                onClick={() => setShowPriceBreakup(true)}
-                className="mt-1 text-[13px] font-medium text-[#2563EB]"
-              >
+              <button type="button" onClick={() => setShowPriceBreakup(true)} className="mt-1 text-[13px] font-medium text-[var(--color-primary)]">
                 View breakup
               </button>
             </div>
           </div>
         </div>
 
-        {/* Remaining Amount */}
         <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
           <p className="text-[14px] font-semibold text-gray-900">Remaining Amount to be paid</p>
           <p className="mt-2 text-[20px] font-bold text-gray-900">₹{AMOUNT}</p>
           <p className="mt-2 text-[13px] text-gray-600 flex items-center gap-1">
-            You are paying in cash
-            <span className="text-base" aria-hidden>💰</span>
+            You are paying in cash <span className="text-base" aria-hidden>💰</span>
           </p>
-          <button type="button" className="mt-3 text-[14px] font-medium text-[#2563EB]">
-            Pay Online
-          </button>
+          <button type="button" className="mt-3 text-[14px] font-medium text-[var(--color-primary)]">Pay Online</button>
         </div>
 
-        {/* Rate your Driver */}
         <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
-          <p className="text-[14px] font-semibold text-gray-900">
-            Rate your Driver, {DRIVER_NAME.toUpperCase()}
-          </p>
+          <p className="text-[14px] font-semibold text-gray-900">Rate your Driver, {DRIVER_NAME.toUpperCase()}</p>
           <div className="mt-3 flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -131,40 +101,21 @@ export default function TripCompletePage() {
           </div>
         </div>
 
-        {/* Done – shown after rating */}
         {rating > 0 && (
           <div className="mt-6">
-            <Button fullWidth onClick={() => router.push(ROUTES.DASHBOARD)}>
-              Done
-            </Button>
+            <Button fullWidth onClick={() => router.push(ROUTES.DASHBOARD)}>Done</Button>
           </div>
         )}
       </PageContainer>
 
-      {/* Price breakup modal */}
-      {showPriceBreakup && (
-        <>
-          <div className="fixed inset-0 z-[100] bg-black/50" onClick={() => setShowPriceBreakup(false)} aria-hidden />
-          <div className="fixed left-1/2 top-1/2 z-[100] w-full max-w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="trip-price-title">
-            <div className="flex items-center justify-between mb-4">
-              <h2 id="trip-price-title" className="text-[18px] font-bold text-gray-900">Price Details</h2>
-              <button type="button" onClick={() => setShowPriceBreakup(false)} aria-label="Close" className="h-9 w-9 rounded-full bg-gray-100 grid place-items-center text-gray-600">
-                <CloseIcon />
-              </button>
-            </div>
-            <div className="space-y-3 text-[14px]">
-              <div className="flex justify-between"><span className="text-gray-600">Trip fare</span><span className="font-medium text-gray-900">₹{TRIP_FARE}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">GST</span><span className="font-medium text-gray-900">₹{GST}</span></div>
-              <div className="flex justify-between"><span className="text-gray-600">Platform fee</span><span className="font-medium text-gray-900">₹{PLATFORM_FEE}</span></div>
-            </div>
-            <div className="mt-4 border-t border-gray-200 pt-4 flex justify-between">
-              <span className="text-[15px] font-bold text-gray-900">Total Amount</span>
-              <span className="text-[15px] font-bold text-gray-900">₹{TOTAL_AMOUNT}</span>
-            </div>
-            <Button fullWidth className="mt-5 !rounded-xl" onClick={() => setShowPriceBreakup(false)}>Done</Button>
-          </div>
-        </>
-      )}
+      <PriceBreakupSheet
+        isOpen={showPriceBreakup}
+        onClose={() => setShowPriceBreakup(false)}
+        tripFare={TRIP_FARE}
+        gst={GST}
+        platformFee={PLATFORM_FEE}
+        totalAmount={TOTAL_AMOUNT}
+      />
     </div>
   );
 }

@@ -198,7 +198,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </button>
         </div>
 
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 min-h-0 p-6 overflow-y-auto">
           {step === 'phone' ? (
             <form onSubmit={handleSubmit(onPhoneSubmit)}>
               <div className="mb-3">

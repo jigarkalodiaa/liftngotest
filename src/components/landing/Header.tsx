@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useMenu } from './PageWrapper';
 
 /** Sticky header with glass effect – LiftnGo LOGISTICS, Login, hamburger. */
@@ -19,23 +20,13 @@ export default function Header() {
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pt-5 pb-3 sm:pt-6 sm:pb-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label="LiftnGo Logistics home">
-            {/* Truck icon + LiftnGo + LOGISTICS to match design */}
-            <svg
-              className="h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 text-[var(--color-primary)]"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden
-            >
-              <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
-            </svg>
-            <div>
-              <span className="block text-lg sm:text-xl font-bold leading-tight text-[var(--color-primary)]">
-                LiftnGo
-              </span>
-              <span className="block text-[10px] sm:text-xs font-medium uppercase tracking-wider text-gray-700">
-                Logistics
-              </span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="LiftnGo Logistics"
+              width={160}
+              height={48}
+              className="h-8 w-auto sm:h-9 object-contain"
+            />
           </Link>
 
           <div className="flex items-center gap-3">
