@@ -14,7 +14,7 @@ import {
   setReceiverDetails,
 } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
-import { senderDetailsSchema, receiverDetailsSchema } from '@/lib/validations';
+import { senderDetailsSchema, receiverDetailsSchema, validatePersonName } from '@/lib/validations';
 
 type PersonalForm = {
   senderName: string;
@@ -102,8 +102,8 @@ export default function EditPickupContent() {
   const onStep1Submit = () => {
     clearErrors();
     const result = senderDetailsSchema.safeParse({
-      senderName: senderName?.trim() ?? '',
-      senderMobile: (senderMobile ?? '').replace(/\D/g, ''),
+      senderName: (senderName ?? '').trim(),
+      senderMobile: (senderMobile ?? '').trim().replace(/\D/g, '').replace(/\s/g, ''),
     });
     if (!result.success) {
       const err = result.error.flatten().fieldErrors;
@@ -119,8 +119,8 @@ export default function EditPickupContent() {
   const onStep2Submit = () => {
     clearErrors();
     const result = receiverDetailsSchema.safeParse({
-      receiverName: receiverName?.trim() ?? '',
-      receiverMobile: (receiverMobile ?? '').replace(/\D/g, ''),
+      receiverName: (receiverName ?? '').trim(),
+      receiverMobile: (receiverMobile ?? '').trim().replace(/\D/g, '').replace(/\s/g, ''),
     });
     if (!result.success) {
       const err = result.error.flatten().fieldErrors;
@@ -134,12 +134,12 @@ export default function EditPickupContent() {
 
   const isStep1Valid =
     Boolean(pickup) &&
-    Boolean(senderName?.trim()) &&
-    (senderMobile ?? '').replace(/\D/g, '').length === 10;
+    validatePersonName((senderName ?? '').trim()).success &&
+    (senderMobile ?? '').trim().replace(/\D/g, '').replace(/\s/g, '').length === 10;
   const isStep2Valid =
     Boolean(drop) &&
-    Boolean(receiverName?.trim()) &&
-    (receiverMobile ?? '').replace(/\D/g, '').length === 10;
+    validatePersonName((receiverName ?? '').trim()).success &&
+    (receiverMobile ?? '').trim().replace(/\D/g, '').replace(/\s/g, '').length === 10;
   const isFormValid = step === 1 ? isStep1Valid : isStep2Valid;
 
   return (
@@ -203,8 +203,10 @@ export default function EditPickupContent() {
                   <label className="mb-1 block text-[12px] font-medium text-gray-600">Sender name</label>
                   <input
                     type="text"
-                    placeholder="Sender name"
-                    {...register('senderName')}
+                    placeholder="Sender name (min. 3 letters)"
+                    {...register('senderName', {
+                      onBlur: (e) => setValue('senderName', e.target.value.trim()),
+                    })}
                     className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.senderName ? 'border-red-400' : 'border-gray-300'
                     }`}
@@ -293,8 +295,10 @@ export default function EditPickupContent() {
                   <label className="mb-1 block text-[12px] font-medium text-gray-600">Receiver&apos;s name</label>
                   <input
                     type="text"
-                    placeholder="Receiver's name"
-                    {...register('receiverName')}
+                    placeholder="Receiver's name (min. 3 letters)"
+                    {...register('receiverName', {
+                      onBlur: (e) => setValue('receiverName', e.target.value.trim()),
+                    })}
                     className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.receiverName ? 'border-red-400' : 'border-gray-300'
                     }`}

@@ -149,7 +149,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       return;
     }
     setLoggedIn(true);
-    setStoredPhone(phoneNumber.replace(/\D/g, '').slice(0, 10));
+    setStoredPhone(phoneNumber.trim().replace(/\s/g, '').replace(/\D/g, '').slice(0, 10));
     const landingPickupValue = getLandingPickupLocation()?.trim();
     const hasLandingPickup = Boolean(landingPickupValue);
     if (hasLandingPickup && landingPickupValue) {
@@ -177,7 +177,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     [{ key: 'backspace', id: 'backspace' }, { key: '0', id: 'k0' }, { key: 'enter', id: 'enter' }],
   ];
 
-  const digitsOnly = phoneNumber.replace(/\D/g, '');
+  const digitsOnly = phoneNumber.trim().replace(/\s/g, '').replace(/\D/g, '');
   const otpValid = loginOtpSchema.safeParse({ otp: otp.join('') }).success;
   const otpFilled = otp.every((d) => d !== '');
 

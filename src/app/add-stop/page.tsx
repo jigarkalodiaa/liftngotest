@@ -15,6 +15,7 @@ import {
   setStopDetails,
 } from '@/lib/storage';
 import { MOBILE_LENGTH, ROUTES } from '@/lib/constants';
+import { validatePersonName } from '@/lib/validations';
 
 export default function AddStopPage() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function AddStopPage() {
   const [stop, setStop] = useState<SavedLocation | null>(null);
   const [personName, setPersonName] = useState('');
   const [personMobile, setPersonMobile] = useState('');
+  const [nameError, setNameError] = useState('');
   const [useCurrentMobile, setUseCurrentMobile] = useState(false);
   const [currentMobile, setCurrentMobile] = useState('');
   const { isLoading: isGeoLoading, error: geoError, getLocation } = useGeolocation();
@@ -78,13 +80,14 @@ export default function AddStopPage() {
   }, [useCurrentMobile]);
 
   const isMobileValid = useMemo(() => {
-    const digits = personMobile.replace(/\D/g, '');
+    const digits = personMobile.replace(/\D/g, '').trim();
     return digits.length === MOBILE_LENGTH;
   }, [personMobile]);
 
+  const trimmedName = personName.trim();
   const isFormValid = useMemo(
-    () => Boolean(stop && personName.trim() && isMobileValid),
-    [stop, personName, isMobileValid]
+    () => Boolean(stop && trimmedName && validatePersonName(trimmedName).success && isMobileValid),
+    [stop, trimmedName, isMobileValid]
   );
 
   return (
@@ -162,11 +165,18 @@ export default function AddStopPage() {
             <label className="mb-1 block text-[12px] font-medium text-gray-600">Stop person name</label>
             <input
               type="text"
-              placeholder="Name at stop"
+              placeholder="Name at stop (min. 3 letters)"
               value={personName}
-              onChange={(e) => setPersonName(e.target.value)}
-              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none"
+              onChange={(e) => {
+                setPersonName(e.target.value);
+                if (nameError) setNameError('');
+              }}
+              onBlur={(e) => setPersonName(e.target.value.trim())}
+              className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none ${
+                nameError ? 'border-red-400' : 'border-gray-300'
+              }`}
             />
+            {nameError && <p className="mt-1 text-[11px] text-red-500">{nameError}</p>}
           </div>
 
           <div>
@@ -176,7 +186,7 @@ export default function AddStopPage() {
               placeholder="Mobile number at stop"
               value={personMobile}
               onChange={(e) => {
-                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                const digits = e.target.value.trim().replace(/\D/g, '').slice(0, 10);
                 setPersonMobile(digits);
                 if (digits !== currentMobile) setUseCurrentMobile(false);
               }}
@@ -272,7 +282,13 @@ export default function AddStopPage() {
             disabled={!isFormValid}
             onClick={() => {
               if (!isFormValid) return;
-              setStopDetails({ name: personName.trim(), mobile: personMobile });
+              const nameResult = validatePersonName(personName.trim());
+              if (!nameResult.success) {
+                setNameError(nameResult.error);
+                return;
+              }
+              setNameError('');
+              setStopDetails({ name: nameResult.data, mobile: personMobile });
               router.push(ROUTES.TRIP_OPTIONS);
             }}
             className="w-full rounded-2xl bg-[var(--color-primary)] py-3.5 text-[15px] font-semibold text-white disabled:opacity-50 disabled:cursor-not-allowed"

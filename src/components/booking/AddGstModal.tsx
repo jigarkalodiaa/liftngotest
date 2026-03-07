@@ -84,6 +84,7 @@ export default function AddGstModal({
               type="text"
               placeholder="GST Number (15 characters)"
               {...register('gstNumber')}
+              onKeyDown={(e) => e.key === ' ' && e.preventDefault()}
               className={`w-full rounded-xl border bg-white px-4 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                 errors.gstNumber ? 'border-red-500' : 'border-gray-300'
               }`}
