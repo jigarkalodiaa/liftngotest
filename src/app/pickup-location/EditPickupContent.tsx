@@ -250,7 +250,7 @@ export default function EditPickupContent() {
                     {...register('senderName', {
                       onBlur: (e) => setValue('senderName', e.target.value.trim()),
                     })}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.senderName ? 'border-red-400' : 'border-gray-300'
                     }`}
                   />
@@ -271,7 +271,7 @@ export default function EditPickupContent() {
                         if (digits !== currentMobile) setUseCurrentMobile(false);
                       },
                     })}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)
                         ? 'border-red-400'
                         : 'border-gray-300'
@@ -350,7 +350,7 @@ export default function EditPickupContent() {
                     {...register('receiverName', {
                       onBlur: (e) => setValue('receiverName', e.target.value.trim()),
                     })}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.receiverName ? 'border-red-400' : 'border-gray-300'
                     }`}
                   />
@@ -371,7 +371,7 @@ export default function EditPickupContent() {
                         if (digits !== currentMobile) setUseReceiverCurrentMobile(false);
                       },
                     })}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)
                         ? 'border-red-400'
                         : 'border-gray-300'

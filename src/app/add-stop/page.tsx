@@ -172,7 +172,7 @@ export default function AddStopPage() {
                 if (nameError) setNameError('');
               }}
               onBlur={(e) => setPersonName(e.target.value.trim())}
-              className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none ${
+              className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none ${
                 nameError ? 'border-red-400' : 'border-gray-300'
               }`}
             />
@@ -190,7 +190,7 @@ export default function AddStopPage() {
                 setPersonMobile(digits);
                 if (digits !== currentMobile) setUseCurrentMobile(false);
               }}
-              className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none ${
+              className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none ${
                 personMobile && !isMobileValid ? 'border-red-400' : 'border-gray-300'
               }`}
             />

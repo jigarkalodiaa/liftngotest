@@ -202,7 +202,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           {step === 'phone' ? (
             <form onSubmit={handleSubmit(onPhoneSubmit)}>
               <div className="mb-3">
-                <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 bg-white">
+                <div className="h-14 flex items-center border border-gray-300 rounded-xl px-4 bg-white">
                   <span className="text-gray-700 font-medium mr-1">+91</span>
                   <span className="text-gray-400 mr-2">|</span>
                   <input

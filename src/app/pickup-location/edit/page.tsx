@@ -80,7 +80,7 @@ function EditPickupLocationContent() {
               </svg>
             </button>
             <div className="flex-1">
-              <div className="rounded-2xl border border-gray-300 bg-white px-4 py-2.5">
+              <div className="rounded-2xl border border-gray-300 bg-white h-14 flex items-center px-4">
                 <input
                   type="text"
                   value={searchValue}

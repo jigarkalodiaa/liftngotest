@@ -1,16 +1,26 @@
 import JsonLd, { websiteJsonLd, organizationJsonLd } from "@/components/JsonLd";
-import { Header, Hero, Features, FoodDelivery, Footer, PageWrapper } from "@/components/landing";
+import {
+  Header,
+  Hero,
+  Features,
+  ServiceSection,
+  EnterpriseSection,
+  DeliveryPromise,
+  Footer,
+  PageWrapper,
+} from "@/components/landing";
 
 export default function Home() {
   return (
-    <PageWrapper>
+    <PageWrapper headerSlot={<Header />}>
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={organizationJsonLd} />
-      <Header />
       <main>
         <Hero />
         <Features />
-        <FoodDelivery />
+        <ServiceSection />
+        <EnterpriseSection />
+        <DeliveryPromise />
       </main>
       <Footer />
     </PageWrapper>

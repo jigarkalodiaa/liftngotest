@@ -4,21 +4,32 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMenu } from './PageWrapper';
 
-/** Sticky header with glass effect – LiftnGo LOGISTICS, Login, hamburger. */
+const HEADER_BAR_HEIGHT = 60;
+const HEADER_TOP_GAP = 50;
+const HEADER_TOTAL_HEIGHT = HEADER_TOP_GAP + HEADER_BAR_HEIGHT;
+
+/** Sticky header that stays in place; content scrolls under it. Glass effect + shadow so it feels like it’s hovering. */
 export default function Header() {
   const { openMenu, openLogin } = useMenu();
 
   return (
-    <header
-      className="sticky top-0 z-50 w-full border-b border-[var(--landing-bg)]"
-      style={{
-        background: 'rgba(252, 251, 248, 0.85)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-      }}
-    >
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pt-5 pb-3 sm:pt-6 sm:pb-4">
-        <div className="flex items-center justify-between">
+    <>
+      {/* Spacer so initial content isn’t hidden; then everything scrolls under the fixed bar */}
+      <div style={{ height: HEADER_TOTAL_HEIGHT }} aria-hidden />
+
+      <header
+        className="fixed top-0 left-0 right-0 z-50 px-6 pt-[50px] pointer-events-none"
+        style={{ paddingBottom: 0 }}
+      >
+        <div
+          className="pointer-events-auto max-w-7xl mx-auto h-[60px] rounded-[12px] flex items-center justify-between px-6 border border-[#e8d5c4]"
+          style={{
+            background: 'rgba(252, 234, 216, 0.55)',
+            backdropFilter: 'saturate(180%) blur(24px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(24px)',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)',
+          }}
+        >
           <Link href="/" className="flex items-center gap-2" aria-label="LiftnGo Logistics home">
             <Image
               src="/logo.png"
@@ -28,7 +39,6 @@ export default function Header() {
               className="h-8 w-auto sm:h-9 object-contain"
             />
           </Link>
-
           <div className="flex items-center gap-3">
             <button
               onClick={openLogin}
@@ -47,7 +57,7 @@ export default function Header() {
             </button>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }

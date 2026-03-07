@@ -58,6 +58,28 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/* No inner border or focus ring on inputs – let the outer container control the look */
+input,
+textarea,
+select {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Consistent input height across the platform (exclude checkbox/radio) */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  min-height: 56px;
+}
+
 /* Bottom sheet / modal slide-up animation */
 @keyframes slide-up {
   from {

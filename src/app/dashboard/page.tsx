@@ -190,7 +190,7 @@ export default function DashboardPage() {
             <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4">
 
               {/* Trip cards */}
-              <div className="mt-4 space-y-4">
+              <div className="mt-4 space-y-4 ">
                 {defaultTrips.map((trip) => {
                   const swapped = swappedTripIds[trip.id];
                   const pickupName = swapped ? trip.toName : trip.fromName;
@@ -212,7 +212,7 @@ export default function DashboardPage() {
                         </svg>
                       </div>
 
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 flex flex-col justify-center items-right align-center">
                         {/* Pickup row */}
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
@@ -229,7 +229,7 @@ export default function DashboardPage() {
                               handleBookNow(trip);
                               router.push(ROUTES.PICKUP_LOCATION_EDIT);
                             }}
-                            className="h-9 w-9 flex-shrink-0 rounded-full grid place-items-center hover:bg-gray-100 transition-colors"
+                            className="h-9 w-9 flex-shrink-0 rounded-full grid place-items-center hover:bg-gray-100 transition-colors align-center"
                             style={{ color: theme.colors.textMuted }}
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
@@ -378,8 +378,8 @@ export default function DashboardPage() {
                 Instant Delivery
               </h2>
               <p
-                className="mt-1.5 font-normal"
-                style={{ fontSize: theme.fontSizes.md, color: theme.colors.textSecondary }}
+                className="mt-1 font-normal pb-6"
+                style={{ fontSize: theme.fontSizes.sm, fontWeight: 800, color: theme.colors.gray600 }}
               >
                 Book a vehicle in a second
               </p>
@@ -398,13 +398,13 @@ export default function DashboardPage() {
                 Book Now
               </button>
             </div>
-            <div className="relative h-[140px] w-full max-w-[200px] sm:h-[160px] sm:max-w-[220px] flex-shrink-0 mx-auto sm:mx-0 sm:ml-auto">
+            <div className="relative h-[100px] w-full max-w-[140px] sm:h-[160px] sm:max-w-[220px] flex-shrink-0 mx-auto sm:mx-0 sm:ml-auto ">
               <Image
                 src="/dashboard/dashboard.png"
                 alt=""
                 fill
                 className="object-contain object-right"
-                sizes="220px"
+                sizes="40px"
               />
             </div>
           </div>
