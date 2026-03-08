@@ -198,11 +198,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </button>
         </div>
 
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 min-h-0 p-6 overflow-y-auto">
           {step === 'phone' ? (
             <form onSubmit={handleSubmit(onPhoneSubmit)}>
               <div className="mb-3">
-                <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 bg-white">
+                <div className="h-14 flex items-center border border-gray-300 rounded-xl px-4 bg-white">
                   <span className="text-gray-700 font-medium mr-1">+91</span>
                   <span className="text-gray-400 mr-2">|</span>
                   <input

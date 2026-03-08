@@ -6,6 +6,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { getPickupLocation, getDropLocation, getSenderDetails } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
 import { IconButton, BackIcon, Button, CloseIcon } from '@/components/ui';
+import CancelReasonSheet from './components/CancelReasonSheet';
+import SorrySheet from './components/SorrySheet';
 
 const PRICE_ANIMATION_MS = 300;
 
@@ -21,55 +23,23 @@ export default function BookingPage() {
   const [selectedCancelReason, setSelectedCancelReason] = useState<string | null>(null);
   const [driverAssigned, setDriverAssigned] = useState(false);
   const [driverArrived, setDriverArrived] = useState(false);
-  const [arrivalCountdown, setArrivalCountdown] = useState(5 * 60); // 5 min in seconds
+  const [arrivalCountdown, setArrivalCountdown] = useState(5 * 60);
 
   const userName = getSenderDetails()?.name || 'there';
 
-  // After 5 seconds, switch to "driver assigned" UI
-  useEffect(() => {
-    const t = setTimeout(() => setDriverAssigned(true), 5000);
-    return () => clearTimeout(t);
-  }, []);
-
-  // After driver assigned, 5 more seconds → "driver arrived" and start countdown
-  useEffect(() => {
-    if (!driverAssigned) return;
-    const t = setTimeout(() => setDriverArrived(true), 5000);
-    return () => clearTimeout(t);
-  }, [driverAssigned]);
-
-  // Countdown timer when driver arrived (04:59 → 00:00)
+  useEffect(() => { const t = setTimeout(() => setDriverAssigned(true), 5000); return () => clearTimeout(t); }, []);
+  useEffect(() => { if (!driverAssigned) return; const t = setTimeout(() => setDriverArrived(true), 5000); return () => clearTimeout(t); }, [driverAssigned]);
   useEffect(() => {
     if (!driverArrived) return;
-    const interval = setInterval(() => {
-      setArrivalCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+    const interval = setInterval(() => setArrivalCountdown((p) => (p > 0 ? p - 1 : 0)), 1000);
     return () => clearInterval(interval);
   }, [driverArrived]);
 
+  useEffect(() => { setPickup(getPickupLocation()); setDrop(getDropLocation()); }, []);
+  useEffect(() => { const t = requestAnimationFrame(() => setCancelButtonVisible(true)); return () => cancelAnimationFrame(t); }, []);
   useEffect(() => {
-    setPickup(getPickupLocation());
-    setDrop(getDropLocation());
-  }, []);
-
-  // Cancel ride button: slight slide-up animation on mount
-  useEffect(() => {
-    const t = requestAnimationFrame(() => {
-      setCancelButtonVisible(true);
-    });
-    return () => cancelAnimationFrame(t);
-  }, []);
-
-  // Slide-up open: after mount, trigger visible state on next frame
-  useEffect(() => {
-    if (showPriceBreakup) {
-      const t = requestAnimationFrame(() => {
-        setPriceBreakupOpen(true);
-      });
-      return () => cancelAnimationFrame(t);
-    } else {
-      setPriceBreakupOpen(false);
-    }
+    if (showPriceBreakup) { const t = requestAnimationFrame(() => setPriceBreakupOpen(true)); return () => cancelAnimationFrame(t); }
+    setPriceBreakupOpen(false);
   }, [showPriceBreakup]);
 
   const closePriceBreakup = useCallback(() => {
@@ -86,62 +56,17 @@ export default function BookingPage() {
 
   useEffect(() => {
     if (!showPriceBreakup) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closePriceBreakup();
-      }
-    };
+    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); closePriceBreakup(); } };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [showPriceBreakup, closePriceBreakup]);
-
-  useEffect(() => {
-    if (!showCancelReasonModal) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        setShowCancelReasonModal(false);
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [showCancelReasonModal]);
-
-  useEffect(() => {
-    if (!showSorryModal) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        goToDashboard();
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [showSorryModal, goToDashboard]);
-
-  const CANCEL_REASONS = [
-    'Wrong/Inappropriate Vehicle',
-    'My reason is not listed',
-    'Driver asked me to cancel',
-    'Changed my mind',
-    'Driver issue - delaying to come',
-    'Unable to contact driver',
-    'Expected a shorter arrival time',
-    'Driver asking for extra money',
-    'Driver not moving',
-    'Other',
-  ];
 
   const amountPayable = 400;
   const tripFare = 522;
   const gst = 8;
   const platformFee = 10;
   const totalAmount = 540;
-
-  const countdownMinutes = Math.floor(arrivalCountdown / 60);
-  const countdownSeconds = arrivalCountdown % 60;
-  const countdownDisplay = `${String(countdownMinutes).padStart(2, '0')} : ${String(countdownSeconds).padStart(2, '0')}`;
+  const countdownDisplay = `${String(Math.floor(arrivalCountdown / 60)).padStart(2, '0')} : ${String(arrivalCountdown % 60).padStart(2, '0')}`;
 
   return (
     <div className="min-h-screen bg-white">
@@ -298,7 +223,7 @@ export default function BookingPage() {
                   <button
                     type="button"
                     onClick={() => setShowPriceBreakup(true)}
-                    className="mt-1 text-[13px] font-medium text-[#2563EB]"
+                    className="mt-1 text-[13px] font-medium text-[var(--color-primary)]"
                   >
                     View breakup
                   </button>
@@ -375,7 +300,7 @@ export default function BookingPage() {
                   <span className="text-gray-600">Platform fee</span>
                   <span className="flex items-center gap-1">
                     <span className="font-medium text-gray-900">₹{platformFee}</span>
-                    <button type="button" className="text-[#2563EB] text-[13px]">Know more</button>
+                    <button type="button" className="text-[var(--color-primary)] text-[13px]">Know more</button>
                   </span>
                 </div>
               </div>
@@ -391,75 +316,22 @@ export default function BookingPage() {
         </>
       )}
 
-      {/* Cancel reason modal */}
-      {showCancelReasonModal && (
-        <>
-          <div className="fixed inset-0 z-[100] bg-black/50" aria-hidden="true" onClick={() => setShowCancelReasonModal(false)} />
-          <div className="fixed left-1/2 top-1/2 z-[100] w-full max-w-[400px] max-h-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white shadow-2xl flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
-              <h2 className="text-[18px] font-bold text-gray-900">Please Choose reason for cancellation</h2>
-              <button type="button" onClick={() => setShowCancelReasonModal(false)} aria-label="Close" className="h-9 w-9 rounded-full bg-gray-100 grid place-items-center text-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                <CloseIcon />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {CANCEL_REASONS.map((reason) => (
-                <label key={reason} className="flex items-center gap-3 cursor-pointer py-2">
-                  <input
-                    type="radio"
-                    name="cancelReason"
-                    checked={selectedCancelReason === reason}
-                    onChange={() => setSelectedCancelReason(reason)}
-                    className="h-5 w-5 border-gray-300 text-[var(--color-primary)]"
-                  />
-                  <span className="text-[14px] text-gray-900">{reason}</span>
-                </label>
-              ))}
-            </div>
-            <div className="flex gap-3 p-4 border-t border-gray-100">
-              <Button variant="secondary" className="flex-1 !rounded-xl !py-3" onClick={() => setShowCancelReasonModal(false)}>
-                Go back
-              </Button>
-              <Button
-                className="flex-1 !rounded-xl !py-3"
-                disabled={!selectedCancelReason}
-                onClick={() => {
-                  setShowCancelReasonModal(false);
-                  setShowSorryModal(true);
-                }}
-              >
-                Submit
-              </Button>
-            </div>
-          </div>
-        </>
-      )}
+      {/* Cancel reason – bottom sheet */}
+      <CancelReasonSheet
+        isOpen={showCancelReasonModal}
+        onClose={() => setShowCancelReasonModal(false)}
+        selectedReason={selectedCancelReason}
+        onSelectReason={setSelectedCancelReason}
+        onSubmit={() => { setShowCancelReasonModal(false); setShowSorryModal(true); }}
+      />
 
-      {/* Sorry to hear modal – after submit */}
-      {showSorryModal && (
-        <>
-          <div className="fixed inset-0 z-[110] bg-black/50" aria-hidden="true" />
-          <div className="fixed left-1/2 top-1/2 z-[110] w-full max-w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-5 shadow-2xl">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-[18px] font-bold text-gray-900">Sorry to hear about that, {userName}</h2>
-              <button type="button" onClick={goToDashboard} aria-label="Close" className="h-9 w-9 rounded-full bg-gray-100 grid place-items-center text-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                <CloseIcon />
-              </button>
-            </div>
-            <p className="text-[14px] text-gray-600 mb-5">
-              We always strive for top-notch service, but sometimes things are beyond our control
-            </p>
-            <div className="flex gap-3">
-              <Button variant="secondary" className="flex-1 !rounded-xl !py-3" onClick={goToDashboard}>
-                Cancel, anyway
-              </Button>
-              <Button className="flex-1 !rounded-xl !py-3" onClick={goToDashboard}>
-                Get another Trip
-              </Button>
-            </div>
-          </div>
-        </>
-      )}
+      {/* Sorry to hear – bottom sheet */}
+      <SorrySheet
+        isOpen={showSorryModal}
+        onClose={goToDashboard}
+        userName={userName}
+        onDone={goToDashboard}
+      />
     </div>
   );
 }

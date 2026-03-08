@@ -74,8 +74,8 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/logo.png",
+    apple: "/logo.png",
   },
   manifest: "/manifest.json",
   ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {

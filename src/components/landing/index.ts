@@ -1,6 +1,10 @@
 export { default as Header } from './Header';
 export { default as Hero } from './Hero';
 export { default as Features } from './Features';
+export { default as ServiceSection } from './ServiceSection';
+export { default as EnterpriseSection } from './EnterpriseSection';
+export { default as ContentWithImage } from './ContentWithImage';
+export { default as DeliveryPromise } from './DeliveryPromise';
 export { default as FoodDelivery } from './FoodDelivery';
 export { default as Footer } from './Footer';
 export { default as PageWrapper } from './PageWrapper';

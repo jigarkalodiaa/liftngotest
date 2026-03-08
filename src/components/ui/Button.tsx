@@ -1,6 +1,7 @@
 'use client';
 
 import type { ButtonHTMLAttributes } from 'react';
+import { theme } from '@/config/theme';
 
 const variants = {
   primary: 'bg-[var(--color-primary)] text-white hover:opacity-90 active:opacity-95',
@@ -17,15 +18,17 @@ export default function Button({
   variant = 'primary',
   fullWidth,
   className = '',
+  style,
   children,
   ...props
 }: ButtonProps) {
   return (
     <button
       type="button"
-      className={`rounded-2xl py-3.5 text-[16px] font-semibold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)] ${
+      className={`rounded-2xl py-3.5 font-semibold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)] ${
         fullWidth ? 'w-full' : ''
       } ${variants[variant]} ${className}`}
+      style={{ fontSize: theme.fontSizes.lg, ...style }}
       {...props}
     >
       {children}

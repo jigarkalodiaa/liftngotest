@@ -9,6 +9,8 @@ import {
   getDropLocation,
   getLandingPickupLocation,
   getStoredPhone,
+  getSenderDetails,
+  getReceiverDetails,
   setPickupLocation,
   setSenderDetails,
   setReceiverDetails,
@@ -27,7 +29,9 @@ export default function EditPickupContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2>(() =>
+    searchParams.get('step') === '2' ? 2 : 1
+  );
   const [pickup, setPickup] = useState<SavedLocation | null>(null);
   const [drop, setDrop] = useState<SavedLocation | null>(null);
   const [useCurrentMobile, setUseCurrentMobile] = useState(false);
@@ -75,7 +79,22 @@ export default function EditPickupContent() {
 
     const savedDrop = getDropLocation();
     if (savedDrop) setDrop(savedDrop);
-  }, []);
+
+    const sender = getSenderDetails();
+    if (sender?.name) setValue('senderName', sender.name);
+    if (sender?.mobile) {
+      const digits = sender.mobile.replace(/\D/g, '').slice(0, 10);
+      setValue('senderMobile', digits);
+      if (digits === storedPhone) setUseCurrentMobile(true);
+    }
+    const receiver = getReceiverDetails();
+    if (receiver?.name) setValue('receiverName', receiver.name);
+    if (receiver?.mobile) {
+      const digits = receiver.mobile.replace(/\D/g, '').slice(0, 10);
+      setValue('receiverMobile', digits);
+      if (digits === storedPhone) setUseReceiverCurrentMobile(true);
+    }
+  }, [setValue]);
 
   useEffect(() => {
     if (pathname !== ROUTES.PICKUP_LOCATION) return;
@@ -83,7 +102,22 @@ export default function EditPickupContent() {
     const savedDrop = getDropLocation();
     if (savedPickup) setPickup(savedPickup);
     if (savedDrop) setDrop(savedDrop);
-  }, [pathname]);
+
+    const sender = getSenderDetails();
+    if (sender?.name) setValue('senderName', sender.name);
+    if (sender?.mobile) {
+      const digits = sender.mobile.replace(/\D/g, '').slice(0, 10);
+      setValue('senderMobile', digits);
+      if (digits === getStoredPhone()) setUseCurrentMobile(true);
+    }
+    const receiver = getReceiverDetails();
+    if (receiver?.name) setValue('receiverName', receiver.name);
+    if (receiver?.mobile) {
+      const digits = receiver.mobile.replace(/\D/g, '').slice(0, 10);
+      setValue('receiverMobile', digits);
+      if (digits === getStoredPhone()) setUseReceiverCurrentMobile(true);
+    }
+  }, [pathname, setValue]);
 
   useEffect(() => {
     const stepParam = searchParams.get('step');
@@ -113,6 +147,7 @@ export default function EditPickupContent() {
     }
     setSenderDetails({ name: result.data.senderName, mobile: result.data.senderMobile });
     setStep(2);
+    router.replace(`${ROUTES.PICKUP_LOCATION}?step=2`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -179,7 +214,11 @@ export default function EditPickupContent() {
                   {pickup ? (
                     <button
                       type="button"
-                      onClick={() => router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup`)}
+                      onClick={() =>
+                        router.push(
+                          `${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup&returnTo=${encodeURIComponent(`${ROUTES.PICKUP_LOCATION}?step=1`)}`
+                        )
+                      }
                       className="mt-2 w-full rounded-xl bg-white px-3 py-2 text-left"
                     >
                       <div className="text-[14px] font-semibold text-gray-900">{pickup.name}</div>
@@ -188,7 +227,11 @@ export default function EditPickupContent() {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup`)}
+                      onClick={() =>
+                        router.push(
+                          `${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup&returnTo=${encodeURIComponent(`${ROUTES.PICKUP_LOCATION}?step=1`)}`
+                        )
+                      }
                       className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-400"
                     >
                       Enter pickup location
@@ -207,7 +250,7 @@ export default function EditPickupContent() {
                     {...register('senderName', {
                       onBlur: (e) => setValue('senderName', e.target.value.trim()),
                     })}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.senderName ? 'border-red-400' : 'border-gray-300'
                     }`}
                   />
@@ -228,7 +271,7 @@ export default function EditPickupContent() {
                         if (digits !== currentMobile) setUseCurrentMobile(false);
                       },
                     })}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)
                         ? 'border-red-400'
                         : 'border-gray-300'
@@ -271,7 +314,11 @@ export default function EditPickupContent() {
                   {drop ? (
                     <button
                       type="button"
-                      onClick={() => router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=drop`)}
+                      onClick={() =>
+                        router.push(
+                          `${ROUTES.PICKUP_LOCATION_EDIT}?type=drop&returnTo=${encodeURIComponent(`${ROUTES.PICKUP_LOCATION}?step=2`)}`
+                        )
+                      }
                       className="mt-2 w-full rounded-xl bg-white px-3 py-2 text-left"
                     >
                       <div className="text-[14px] font-semibold text-gray-900">{drop.name}</div>
@@ -280,7 +327,11 @@ export default function EditPickupContent() {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=drop`)}
+                      onClick={() =>
+                        router.push(
+                          `${ROUTES.PICKUP_LOCATION_EDIT}?type=drop&returnTo=${encodeURIComponent(`${ROUTES.PICKUP_LOCATION}?step=2`)}`
+                        )
+                      }
                       className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-400"
                     >
                       Enter drop location
@@ -299,7 +350,7 @@ export default function EditPickupContent() {
                     {...register('receiverName', {
                       onBlur: (e) => setValue('receiverName', e.target.value.trim()),
                     })}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.receiverName ? 'border-red-400' : 'border-gray-300'
                     }`}
                   />
@@ -320,7 +371,7 @@ export default function EditPickupContent() {
                         if (digits !== currentMobile) setUseReceiverCurrentMobile(false);
                       },
                     })}
-                    className={`w-full rounded-xl border bg-white px-3 py-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
                       errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)
                         ? 'border-red-400'
                         : 'border-gray-300'

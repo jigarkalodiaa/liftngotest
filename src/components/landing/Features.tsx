@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 
 interface FeatureCardProps {
@@ -9,11 +11,9 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description, iconBg = 'bg-gray-100' }: FeatureCardProps) {
   return (
-    <div className="flex gap-4 p-0">
-      <div
-        className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 ${iconBg} rounded-2xl flex items-center justify-center`}
-      >
-        <Image src={icon} alt={title} width={32} height={32} className="w-8 h-8 sm:w-9 sm:h-9 object-contain" />
+    <div className="flex gap-4 p-0 lg:items-center">
+      <div className={`flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center`} style={{ height: 64 }}>
+        <Image src={icon} alt="" width={70} height={70} className="w-20 h-20 sm:w-24 sm:h-24 object-contain" />
       </div>
       <div className="min-w-0 flex-1 pt-0.5">
         <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1">{title}</h3>
@@ -23,34 +23,35 @@ function FeatureCard({ icon, title, description, iconBg = 'bg-gray-100' }: Featu
   );
 }
 
-const features = [
+const FEATURES = [
   {
-    icon: '/icons/driver.svg',
+    icon: '/icons/scooter.png',
     title: 'Become a driver',
-    description: 'Join Liftngo as a driver or fleet partner. Earn with flexible hours and verified bookings.',
+    description:
+      'Join LiftnGo as a driver partner and start earning with flexible hours, instant payouts, and complete ride control.',
     iconBg: 'bg-blue-100',
   },
   {
-    icon: '/icons/experience.svg',
+    icon: '/icons/parcel.png',
     title: 'Experience the Liftngo',
-    description: 'Book goods transport in seconds, track in real time, and get transparent upfront fares.',
+    description:
+      'Book rides in seconds, track in real time, and travel comfortably with verified drivers at affordable fares.',
     iconBg: 'bg-amber-50',
   },
   {
-    icon: '/icons/app.svg',
+    icon: '/icons/phone.png',
     title: 'Get the Liftngo App',
-    description: 'For customers and drivers. Book pickups, manage deliveries, all in one place.',
-    iconBg: 'bg-blue-50',
+    description:
+      'Available for customers and drivers. Install the app today and unlock seamless rides and smart earnings.',  
   },
 ];
-
 export default function Features() {
   return (
-    <section id="features" className="py-12 lg:py-16 bg-[var(--landing-bg)]">
+    <section id="features" className="py-12 lg:py-16 lg:flex bg-white">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto lg:max-w-none space-y-8 lg:space-y-10">
-          {features.map((feature) => (
-            <FeatureCard key={feature.title} {...feature} />
+          {FEATURES.map((f) => (
+            <FeatureCard key={f.title} {...f} />
           ))}
         </div>
       </div>

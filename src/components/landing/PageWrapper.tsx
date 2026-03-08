@@ -25,9 +25,11 @@ export function useMenu() {
 
 interface PageWrapperProps {
   children: ReactNode;
+  /** Rendered outside the sliding panel so position:fixed works (e.g. Header). */
+  headerSlot?: ReactNode;
 }
 
-export default function PageWrapper({ children }: PageWrapperProps) {
+export default function PageWrapper({ children, headerSlot }: PageWrapperProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -51,6 +53,9 @@ export default function PageWrapper({ children }: PageWrapperProps) {
   return (
     <MenuContext.Provider value={{ isMenuOpen, openMenu, closeMenu, isLoginOpen, openLogin, closeLogin }}>
       <div className="relative min-h-screen overflow-x-hidden bg-[var(--landing-bg)]">
+        {/* Header outside transformed div so it stays fixed to the viewport */}
+        {headerSlot}
+
         {/* Backdrop when menu open */}
         <div
           className={`fixed inset-0 bg-black/40 transition-opacity duration-300 z-30 ${
@@ -58,7 +63,7 @@ export default function PageWrapper({ children }: PageWrapperProps) {
           }`}
         />
 
-        {/* Main content that slides left only */}
+        {/* Main content that slides left when menu opens (no transform on header = fixed works) */}
         <div
           className={`relative z-40 transition-transform duration-300 ease-out ${
             isMenuOpen ? '-translate-x-[85vw]' : 'translate-x-0'

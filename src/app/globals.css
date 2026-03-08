@@ -1,14 +1,38 @@
 @import "tailwindcss";
 
+/* Design tokens: keep in sync with src/config/theme.ts */
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Primary: dark blue/purple for logo, buttons */
-  --color-primary: #1F2456;
-  --color-primary-hover: #181b45;
-  /* Landing page: creamy off-white, orange accent */
+  --color-primary: #2C2D5B;
+  --color-primary-hover: #23244a;
   --landing-bg: #FCFBF8;
   --landing-orange: #F6921E;
+  /* Extended palette from theme.ts for Tailwind/utility use */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
+  --color-success: #10B981;
+  --color-error: #EF4444;
+  --color-text-primary: #2F2E41;
+  --color-text-secondary: #6E6D7A;
+  --color-surface: #F8FAFC;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.875rem;
+  --font-size-md: 0.9375rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.125rem;
+  --font-size-2xl: 1.25rem;
+  --font-size-3xl: 1.5rem;
+  --font-size-4xl: 1.75rem;
 }
 
 @theme inline {
@@ -32,4 +56,45 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* No inner border or focus ring on inputs – let the outer container control the look */
+input,
+textarea,
+select {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Consistent input height across the platform (exclude checkbox/radio) */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  min-height: 56px;
+}
+
+/* Bottom sheet / modal slide-up animation */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
