@@ -4,8 +4,10 @@ import {
   Hero,
   Features,
   ServiceSection,
-  EnterpriseSection,
-  DeliveryPromise,
+  QuickRidesSection,
+  AppDownloadSection,
+  BlogSection,
+  FaqSection,
   Footer,
   PageWrapper,
 } from "@/components/landing";
@@ -15,12 +17,14 @@ export default function Home() {
     <PageWrapper headerSlot={<Header />}>
       <JsonLd data={websiteJsonLd} />
       <JsonLd data={organizationJsonLd} />
-      <main>
+      <main className="w-full min-h-screen flex flex-col">
         <Hero />
         <Features />
         <ServiceSection />
-        <EnterpriseSection />
-        <DeliveryPromise />
+        <QuickRidesSection />
+        <AppDownloadSection />
+        <BlogSection />
+        <FaqSection />
       </main>
       <Footer />
     </PageWrapper>

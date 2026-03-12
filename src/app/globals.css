@@ -4,10 +4,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --color-primary: #2C2D5B;
+  --color-primary: #2D3748;
   --color-primary-hover: #23244a;
-  --landing-bg: #FCFBF8;
-  --landing-orange: #F6921E;
+  --landing-bg: #FDFBF7;
+  --landing-orange: #FF8C00;
   /* Extended palette from theme.ts for Tailwind/utility use */
   --color-gray-50: #F9FAFB;
   --color-gray-100: #F3F4F6;
