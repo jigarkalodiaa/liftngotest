@@ -25,9 +25,9 @@ export default function Header() {
           className="pointer-events-auto max-w-7xl mx-auto h-[60px] rounded-[12px] flex items-center justify-between px-6 border border-[#e8d5c4]"
           style={{
             background: 'rgba(252, 234, 216, 0.55)',
-            backdropFilter: 'saturate(180%) blur(24px)',
-            WebkitBackdropFilter: 'saturate(180%) blur(24px)',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04)',
+            backdropFilter: 'saturate(180%) blur(12px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(12px)',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.06)',
           }}
         >
           <Link href="/" className="flex items-center gap-2" aria-label="LiftnGo Logistics home">
