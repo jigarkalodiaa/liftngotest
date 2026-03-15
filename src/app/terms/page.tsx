@@ -37,7 +37,7 @@ const SECTIONS = [
   },
   {
     title: 'Prohibited use',
-    content: 'You may not use our platform for any illegal purpose, to transport prohibited or hazardous goods, or to harm others. You may not abuse, circumvent, or attempt to gain unauthorized access to our systems or other users' accounts. We reserve the right to suspend or terminate accounts that violate these terms.',
+    content: "You may not use our platform for any illegal purpose, to transport prohibited or hazardous goods, or to harm others. You may not abuse, circumvent, or attempt to gain unauthorized access to our systems or other users' accounts. We reserve the right to suspend or terminate accounts that violate these terms.",
     image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80',
     alt: 'Security and compliance',
   },
@@ -49,7 +49,7 @@ const SECTIONS = [
   },
   {
     title: 'Disclaimer of warranties',
-    content: 'Our services are provided "as is" and "as available". We do not warrant that the platform will be uninterrupted, error-free, or free of harmful components. To the fullest extent permitted by law, we disclaim all warranties, express or implied.',
+    content: 'Our services are provided as is and as available. We do not warrant that the platform will be uninterrupted, error-free, or free of harmful components. To the fullest extent permitted by law, we disclaim all warranties, express or implied.',
     image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80',
     alt: 'Legal notice',
   },
