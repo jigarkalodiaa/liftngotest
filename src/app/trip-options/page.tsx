@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { SavedLocation, PersonDetails } from '@/types/booking';
 import {
@@ -39,6 +39,8 @@ const OPTION_TO_SERVICE: Record<OptionId, 'walk' | 'twoWheeler' | 'threeWheeler'
 
 export default function TripOptionsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromFood = searchParams.get('from') === 'food';
   const [pickup, setPickup] = useState<SavedLocation | null>(null);
   const [drop, setDrop] = useState<SavedLocation | null>(null);
   const [stop, setStop] = useState<SavedLocation | null>(null);
@@ -90,8 +92,12 @@ export default function TripOptionsPage() {
           <div className="relative z-10 flex items-center px-4 pt-6 pb-2">
             <button
               type="button"
-              aria-label="Back to dashboard"
-              onClick={() => router.push(ROUTES.DASHBOARD)}
+              aria-label={fromFood ? 'Back to delivery address' : 'Back to dashboard'}
+              onClick={() =>
+                router.push(
+                  fromFood ? `${ROUTES.PICKUP_LOCATION}?step=2&from=food` : ROUTES.DASHBOARD
+                )
+              }
               className="h-10 w-10 rounded-full grid place-items-center"
               style={{ backgroundColor: theme.colors.white, color: theme.colors.gray700 }}
             >
@@ -302,7 +308,9 @@ export default function TripOptionsPage() {
                 color: theme.colors.primary,
                 fontSize: theme.fontSizes.xl,
               }}
-              onClick={() => router.push(ROUTES.PAYMENT)}
+              onClick={() =>
+                router.push(fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT)
+              }
             >
               Book Now
             </button>

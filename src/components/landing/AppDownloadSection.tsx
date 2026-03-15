@@ -16,7 +16,7 @@ export default function AppDownloadSection() {
           className="w-full max-w-[334px] rounded-[24px] border p-6 sm:p-8 flex flex-col items-center gap-8 min-h-[279px]"
           style={{
             borderWidth: '1px',
-            borderColor: '#4A2CCC',
+            borderColor: 'var(--landing-primary)',
             backgroundColor: 'rgba(255, 247, 242, 0.45)',
             backdropFilter: 'blur(35px)',
             WebkitBackdropFilter: 'blur(35px)',

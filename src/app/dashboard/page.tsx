@@ -410,6 +410,56 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Find Restaurant & Food – same design as Instant Delivery */}
+        <div
+          className="mt-5 rounded-2xl overflow-hidden p-5 sm:p-6"
+          style={{
+            backgroundColor: theme.colors.surface,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)',
+          }}
+        >
+          <div className="flex flex-row items-center gap-4 flex-wrap sm:flex-nowrap sm:gap-6">
+            <div className="flex-1 min-w-0">
+              <h2
+                className="font-bold leading-tight"
+                style={{ fontSize: theme.fontSizes['2xl'], color: theme.colors.textPrimary }}
+              >
+                Find Restaurant & Food
+              </h2>
+              <p
+                className="mt-1 font-normal pb-6"
+                style={{ fontSize: theme.fontSizes.sm, fontWeight: 800, color: theme.colors.gray600 }}
+              >
+                Order food and get it delivered
+              </p>
+              <button
+                type="button"
+                onClick={() => router.push(ROUTES.FIND_RESTAURANT)}
+                className="inline-flex items-center justify-center text-white font-medium hover:opacity-95 transition-opacity"
+                style={{
+                  backgroundColor: theme.colors.primary,
+                  width: 134,
+                  height: 44,
+                  borderRadius: 10,
+                  fontSize: theme.fontSizes.md,
+                }}
+              >
+                Order food
+              </button>
+            </div>
+            <div className="relative h-[100px] w-full max-w-[140px] sm:h-[160px] sm:max-w-[220px] flex-shrink-0 mx-auto sm:mx-0 sm:ml-auto flex items-center justify-end">
+              <svg className="w-full h-full max-h-[100px] sm:max-h-[140px] text-[var(--landing-primary)] opacity-90" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <ellipse cx="60" cy="58" rx="42" ry="14" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeOpacity="0.25" strokeWidth="1.5" />
+                <ellipse cx="60" cy="54" rx="35" ry="11" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeOpacity="0.2" strokeWidth="1" />
+                <ellipse cx="40" cy="52" rx="10" ry="4" fill="currentColor" fillOpacity="0.35" />
+                <ellipse cx="60" cy="50" rx="10" ry="4" fill="currentColor" fillOpacity="0.4" />
+                <ellipse cx="80" cy="52" rx="10" ry="4" fill="currentColor" fillOpacity="0.35" />
+                <ellipse cx="60" cy="48" rx="12" ry="5" fill="currentColor" fillOpacity="0.1" stroke="currentColor" strokeOpacity="0.2" strokeWidth="0.8" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
         {/* Choose service – heading + three cards */}
         <h2 className="mt-8 text-center font-normal" style={{ fontSize: theme.fontSizes.lg, color: theme.colors.gray800 }}>Choose service</h2>
         <div className="mt-3 grid grid-cols-3 gap-3">

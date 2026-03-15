@@ -13,8 +13,10 @@ export const STORAGE_KEYS = {
   STOP_DETAILS: 'stop_details',
   LANDING_PICKUP_LOCATION: 'landing_pickup_location',
   LOGGED_IN: 'liftngo_logged_in',
+  AUTH_TOKEN: 'liftngo_auth_token',
   PHONE: 'liftngo_phone',
   SELECTED_SERVICE: 'selected_service',
+  DELIVERY_GOODS_DESCRIPTION: 'delivery_goods_description',
 } as const;
 
 export const ROUTES = {
@@ -29,6 +31,7 @@ export const ROUTES = {
   TRIP_COMPLETE: '/trip-complete',
   ABOUT: '/about',
   HISTORY: '/history',
+  FIND_RESTAURANT: '/find-restaurant',
 } as const;
 
 /** Demo/dev OTP – use env NEXT_PUBLIC_DEMO_OTP in .env.local; fallback only for local dev. */

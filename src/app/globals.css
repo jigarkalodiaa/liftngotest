@@ -8,6 +8,10 @@
   --color-primary-hover: #23244a;
   --landing-bg: #FDFBF7;
   --landing-orange: #FF8C00;
+  /** LiftnGo landing accent (cards, borders, steps) */
+  --landing-primary: #4A2CCC;
+  /** WhatsApp brand green for Send order via WhatsApp button */
+  --whatsapp-green: #25D366;
   /* Extended palette from theme.ts for Tailwind/utility use */
   --color-gray-50: #F9FAFB;
   --color-gray-100: #F3F4F6;
@@ -41,6 +45,7 @@
   --color-primary: var(--color-primary);
   --color-landing-bg: var(--landing-bg);
   --color-landing-orange: var(--landing-orange);
+  --color-landing-primary: var(--landing-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

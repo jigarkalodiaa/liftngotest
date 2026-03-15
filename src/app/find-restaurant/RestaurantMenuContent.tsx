@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Restaurant } from '@/data/restaurantsKhatushyam';
 import { parsePrice, RESTAURANT_OWNER_WHATSAPP } from '@/data/restaurantsKhatushyam';
-import { setPickupLocation } from '@/lib/storage';
+import { setPickupLocation, setDeliveryGoodsDescription } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
 
 type CartItem = { name: string; price: string; quantity: number };
@@ -101,6 +101,7 @@ const IconDelivery = ({ className = 'w-5 h-5' }: { className?: string }) => (
 export default function RestaurantMenuContent({ restaurant }: { restaurant: Restaurant }) {
   const router = useRouter();
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
 
   const groupedMenu = restaurant.menu.reduce<Record<string, typeof restaurant.menu>>((acc, item) => {
     const cat = item.category || 'Other';
@@ -155,14 +156,23 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
       ? `https://wa.me/${RESTAURANT_OWNER_WHATSAPP}?text=${encodeURIComponent(whatsappMessage)}`
       : null;
 
-  const handleBookDelivery = () => {
+  const handleBookDeliveryClick = () => {
+    setShowPaymentConfirm(true);
+  };
+
+  const handlePaymentConfirmed = () => {
+    setShowPaymentConfirm(false);
     const pickupAddress = restaurant.address?.trim() || restaurant.name;
     setPickupLocation({
       name: restaurant.name,
       address: pickupAddress,
       contact: restaurant.phone?.trim() ?? '',
     });
-    router.push(`${ROUTES.PICKUP_LOCATION}?step=2`);
+    setDeliveryGoodsDescription({
+      restaurantName: restaurant.name,
+      items: cart.map((c) => ({ name: c.name, quantity: c.quantity, price: c.price })),
+    });
+    router.push(`${ROUTES.PICKUP_LOCATION}?step=2&from=food`);
   };
 
   return (
@@ -171,12 +181,12 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
         <div
           className="rounded-2xl border overflow-hidden flex flex-col"
           style={{
-            borderColor: '#4A2CCC',
+            borderColor: 'var(--landing-primary)',
             backgroundColor: 'rgba(255, 252, 250, 0.98)',
             boxShadow: '0 25px 50px -12px rgba(74, 44, 204, 0.15)',
           }}
         >
-          <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-[var(--landing-bg)] to-white" style={{ borderColor: 'rgba(74, 44, 204, 0.2)' }}>
+          <div className="flex items-center justify-between p-4 border-b border-[var(--landing-primary)]/20 bg-gradient-to-r from-[var(--landing-bg)] to-white">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--landing-orange)]/20 text-[var(--landing-orange)]">
                 <FoodCurryBowl className="w-6 h-6" />
@@ -197,12 +207,12 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
           <div className="p-4">
             <div className="w-full space-y-5">
               {Object.entries(groupedMenu).map(([category, items]) => (
-                <div key={category} className="rounded-xl border p-4 bg-white/80" style={{ borderColor: 'rgba(74, 44, 204, 0.15)' }}>
+                <div key={category} className="rounded-xl border border-[var(--landing-primary)]/15 p-4 bg-white/80">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="w-9 h-9 rounded-lg flex items-center justify-center text-[#4A2CCC]" style={{ backgroundColor: 'rgba(74, 44, 204, 0.1)' }}>
+                    <span className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--landing-primary)] bg-[var(--landing-primary)]/10">
                       {getCategoryIcon(category)}
                     </span>
-                    <h2 className="text-sm font-semibold uppercase tracking-wide" style={{ color: '#4A2CCC' }}>{category}</h2>
+                    <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--landing-primary)]">{category}</h2>
                   </div>
                   <ul className="space-y-2">
                     {items.map((item) => {
@@ -214,7 +224,7 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                         >
                           <div className="flex-1 min-w-0">
                             <span className="text-gray-900 font-medium text-sm">{item.name}</span>
-                            <span className="font-semibold text-sm whitespace-nowrap ml-2" style={{ color: '#4A2CCC' }}>{item.price}</span>
+                            <span className="font-semibold text-sm whitespace-nowrap ml-2 text-[var(--landing-primary)]">{item.price}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             {inCart ? (
@@ -257,8 +267,8 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
 
             {/* Order summary & cumulative total */}
             {cart.length > 0 && (
-              <div className="mt-6 p-4 rounded-xl border bg-white/90" style={{ borderColor: 'rgba(74, 44, 204, 0.2)' }}>
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3" style={{ color: '#4A2CCC' }}>
+              <div className="mt-6 p-4 rounded-xl border border-[var(--landing-primary)]/20 bg-white/90">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3 text-[var(--landing-primary)]">
                   <IconCart className="w-5 h-5" />
                   Your order
                 </h3>
@@ -268,7 +278,7 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                       <span className="text-gray-700">
                         {item.name} × {item.quantity}
                       </span>
-                      <span className="font-semibold" style={{ color: '#4A2CCC' }}>
+                      <span className="font-semibold text-[var(--landing-primary)]">
                         ₹{parsePrice(item.price) * item.quantity}
                       </span>
                     </li>
@@ -276,15 +286,14 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                 </ul>
                 <p className="flex justify-between items-center pt-2 border-t border-gray-200 text-base font-bold text-gray-900">
                   Total
-                  <span className="text-lg" style={{ color: '#4A2CCC' }}>₹{totalAmount}</span>
+                  <span className="text-lg text-[var(--landing-primary)]">₹{totalAmount}</span>
                 </p>
                 {whatsappUrl && (
                   <a
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 w-full rounded-xl py-3 text-sm font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
-                    style={{ backgroundColor: '#25D366' }}
+                    className="mt-4 w-full rounded-xl py-3 text-sm font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 bg-[var(--whatsapp-green)]"
                   >
                     <IconWhatsApp className="w-5 h-5" />
                     Send order via WhatsApp
@@ -294,17 +303,22 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
             )}
 
             {/* Book delivery – after order sent & payment done, use LiftnGo booking flow */}
-            <div className="mt-6 p-4 rounded-xl border bg-white/90" style={{ borderColor: 'rgba(74, 44, 204, 0.2)' }}>
-              <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2" style={{ color: '#4A2CCC' }}>
+            {cart.length > 0 && (
+              <p className="mt-4 text-xs text-gray-600 bg-[var(--landing-primary)]/5 rounded-lg px-3 py-2 border border-[var(--landing-primary)]/10">
+                <strong>Next:</strong> Send your order via WhatsApp above, pay the restaurant, then tap &quot;Book delivery boy&quot; below. You&apos;ll only enter your delivery address.
+              </p>
+            )}
+            <div className="mt-6 p-4 rounded-xl border border-[var(--landing-primary)]/20 bg-white/90">
+              <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2 text-[var(--landing-primary)]">
                 <IconDelivery className="w-5 h-5" />
                 Book delivery
               </h3>
               <p className="text-sm text-gray-600 mb-4">
-                After sending your order and completing payment with the restaurant, book a delivery boy to get your food delivered. Pickup is set to <strong>{restaurant.name}</strong>; you will enter your drop address in the next step.
+                Already paid the restaurant? Tap below to book a delivery. Pickup is <strong>{restaurant.name}</strong>; you just enter <strong>your delivery address</strong> in the next step.
               </p>
               <button
                 type="button"
-                onClick={handleBookDelivery}
+                onClick={handleBookDeliveryClick}
                 className="w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
                 <IconDelivery className="w-5 h-5" />
@@ -313,7 +327,48 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
             </div>
           </div>
 
-          <div className="p-4 border-t bg-gray-50/80 space-y-2" style={{ borderColor: 'rgba(74, 44, 204, 0.15)' }}>
+          {/* Mandatory payment confirmation before book delivery */}
+          {showPaymentConfirm && (
+            <>
+              <div
+                className="fixed inset-0 bg-black/50 z-[100]"
+                onClick={() => setShowPaymentConfirm(false)}
+                aria-hidden
+              />
+              <div
+                className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[calc(100%-2rem)] max-w-sm rounded-2xl bg-white p-5 shadow-xl border border-gray-200"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="payment-confirm-title"
+                aria-describedby="payment-confirm-desc"
+              >
+                <h2 id="payment-confirm-title" className="text-lg font-bold text-gray-900 mb-1">
+                  Confirm payment
+                </h2>
+                <p id="payment-confirm-desc" className="text-sm text-gray-600 mb-5">
+                  Have you paid <strong>{restaurant.name}</strong> for your order? We&apos;ll then ask for your <strong>delivery address</strong> and complete the booking.
+                </p>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={handlePaymentConfirmed}
+                    className="w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+                  >
+                    Yes, I&apos;ve paid — Book delivery
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPaymentConfirm(false)}
+                    className="w-full rounded-xl border border-gray-300 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    No, not yet
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="p-4 border-t border-[var(--landing-primary)]/15 bg-gray-50/80 space-y-2">
             {restaurant.phone && (
               <a
                 href={`tel:${restaurant.phone.replace(/\s/g, '')}`}
