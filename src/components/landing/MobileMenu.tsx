@@ -6,27 +6,27 @@ import { CloseIcon } from '@/components/ui';
 
 const menuSections = [
   {
-    title: 'Prefernce',
+    title: 'Preference',
     items: [
       { label: 'Home', href: ROUTES.HOME },
-      { label: 'My Details', href: '/my-details' },
+      { label: 'My Details', href: ROUTES.DASHBOARD },
       { label: 'History', href: ROUTES.HISTORY },
     ],
   },
   {
-    title: 'Liftngo',
+    title: 'LiftnGo',
     items: [
-      { label: 'Why Choose', href: '/why-choose' },
-      { label: 'How Liftingo Work', href: '/how-it-works' },
-      { label: 'Offer', href: '/offers' },
+      { label: 'Why Choose', href: '/about' },
+      { label: 'How LiftnGo Works', href: '/#features' },
+      { label: 'Offers', href: '/promotions' },
     ],
   },
   {
     title: 'Other',
     items: [
-      { label: 'FAQs', href: '/faqs' },
-      { label: 'Customer Support', href: '/support' },
-      { label: 'Term & Condition', href: '/terms' },
+      { label: 'FAQs', href: '/#faq' },
+      { label: 'Customer Support', href: '/about' },
+      { label: 'Terms & Conditions', href: '/terms' },
       { label: 'Privacy Policy', href: '/privacy' },
     ],
   },

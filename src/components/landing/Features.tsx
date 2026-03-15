@@ -4,11 +4,12 @@ import Image from 'next/image';
 
 interface FeatureCardProps {
   illustration: string;
+  illustrationAlt: string;
   title: string;
   description: string;
 }
 
-function FeatureCard({ illustration, title, description }: FeatureCardProps) {
+function FeatureCard({ illustration, illustrationAlt, title, description }: FeatureCardProps) {
   return (
     <div className="flex flex-row gap-3 sm:gap-8 lg:gap-10 items-center text-left">
       {/* Left: illustration on light peach/orange organic blob */}
@@ -21,10 +22,11 @@ function FeatureCard({ illustration, title, description }: FeatureCardProps) {
         >
           <Image
             src={illustration}
-            alt=""
+            alt={illustrationAlt}
             width={160}
             height={160}
             className="w-10 h-10 sm:w-28 sm:h-28 lg:w-32 lg:h-32 object-contain"
+            loading="lazy"
           />
         </div>
       </div>
@@ -45,18 +47,21 @@ function FeatureCard({ illustration, title, description }: FeatureCardProps) {
 const FEATURES = [
   {
     illustration: '/icons/parcel.png',
+    illustrationAlt: 'Parcel delivery – book and track rides with LiftnGo',
     title: 'Experience the Liftngo',
     description:
       'Book rides in seconds, track in real-time, and travel comfortably with verified drivers at affordable fares.',
   },
   {
     illustration: '/icons/phone.png',
+    illustrationAlt: 'LiftnGo app for customers and drivers',
     title: 'Get the Liftngo App',
     description:
       'Seamless for customers & drivers. Install the app today and unlock smart earnings.',
   },
   {
     illustration: '/icons/scooter.png',
+    illustrationAlt: 'Become a driver partner with LiftnGo',
     title: 'Become a driver',
     description:
       'Start earning with Liftngo. Flexible hours, instant payouts, and complete ride control.',
@@ -65,9 +70,13 @@ const FEATURES = [
 
 export default function Features() {
   return (
-    <section id="features" className="w-full py-12 lg:py-16 xl:py-20 bg-white">
+    <section
+      id="features"
+      className="w-full py-12 lg:py-16 xl:py-20 bg-white"
+      aria-labelledby="features-heading"
+    >
       <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
-        <h2 className="text-center text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 mb-10 lg:mb-14">
+        <h2 id="features-heading" className="text-center text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 mb-10 lg:mb-14">
           How it Works
         </h2>
         <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12 lg:space-y-14">

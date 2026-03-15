@@ -1,26 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-
-const FAQ_ITEMS = [
-  { id: '1', question: 'What is Liftngo?', answer: 'Liftngo is a ride and delivery platform that connects you with verified drivers for quick, affordable trips and deliveries.' },
-  { id: '2', question: 'How do I book a delivery?', answer: 'Enter your pickup location on the homepage or in the app, choose your service (Walk, 2 Wheeler, or 3 Wheeler), and confirm. A driver will be assigned to you.' },
-  { id: '3', question: 'What is on the road to reach Liftngo?', answer: 'We work with trained drivers and partners to ensure safe, reliable service. You can track your ride or delivery in real time in the app.' },
-  { id: '4', question: 'What is our app all about for delivery?', answer: 'The Liftngo app lets you book rides and deliveries, track in real time, pay securely, and access offers. Available for both customers and drivers.' },
-];
-
-const VISIBLE_COUNT = 4;
+import { FAQ_ITEMS, VISIBLE_FAQ_COUNT } from '@/data/faq';
 
 /** Section: FAQ – collapsible questions, "See More" to expand. */
 export default function FaqSection() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
-  const items = showAll ? FAQ_ITEMS : FAQ_ITEMS.slice(0, VISIBLE_COUNT);
+  const items = showAll ? FAQ_ITEMS : FAQ_ITEMS.slice(0, VISIBLE_FAQ_COUNT);
 
   return (
-    <section id="faq" className="w-full py-12 lg:py-16 bg-white">
+    <section
+      id="faq"
+      className="w-full py-12 lg:py-16 bg-white"
+      aria-labelledby="faq-heading"
+    >
       <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-col items-center">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8 text-center">
+        <h2 id="faq-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8 text-center">
           FAQ
         </h2>
         <div className="w-full max-w-2xl space-y-3">
@@ -53,7 +49,7 @@ export default function FaqSection() {
             </div>
           ))}
         </div>
-        {FAQ_ITEMS.length > VISIBLE_COUNT ? (
+        {FAQ_ITEMS.length > VISIBLE_FAQ_COUNT ? (
           <button
             type="button"
             onClick={() => setShowAll(!showAll)}
