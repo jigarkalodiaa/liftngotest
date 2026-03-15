@@ -3,115 +3,130 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+/** Icons matching Figma: scooter, coins, steering wheel — white on orange circle */
+const ScooterIcon = () => (
+  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+    <path d="M19 10c-.1 0-.2 0-.3-.1l-1.7-1.7-2.5 2.5-1.4-1.4 2.5-2.5-1.6-1.6c-.2-.2-.2-.5 0-.7s.5-.2.7 0l1.9 1.9 2.2-2.2 1.4 1.4-2.2 2.2 1.6 1.6c.2.2.2.5 0 .7-.1.1-.2.1-.4.1zM7 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-3c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1zm10 3c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-3c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z" />
+  </svg>
+);
+const CoinsIcon = () => (
+  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.08-.73-2.12-1.64H8.04c.06 1.58 1.14 2.6 2.83 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-1.81-1.49-2.67-3.64-3.16z" />
+  </svg>
+);
+const SteeringWheelIcon = () => (
+  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden>
+    <circle cx="12" cy="12" r="8" />
+    <path d="M12 6v4M12 14v4M6 12h4M14 12h4" />
+  </svg>
+);
+
 const FEATURES = [
   {
-    icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    text: 'Your dedicated advisor plans and manages all deliveries—no coordination hassles.',
+    icon: <ScooterIcon />,
+    text: 'Your dedicated advisor plans and manages all deliveries no coordination hassles.',
   },
   {
-    icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-      </svg>
-    ),
+    icon: <CoinsIcon />,
     text: 'GST-compliant billing options for per-trip or monthly bulk payments.',
   },
   {
-    icon: (
-      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4-4m-4 4l4 4" />
-      </svg>
-    ),
-    text: 'Trained drivers with fleets pre-aligned for bulk orders—smooth and on time.',
+    icon: <SteeringWheelIcon />,
+    text: 'Trained drivers with fleets pre-aligned for bulk orders smooth and on time.',
   },
 ];
 
-/** Section: "Get Quick Rides, Low Fares" – image collage (1 large + 3 stacked), feature list, Find Restaurant CTA. */
+/** Section matching Figma: "Get Quick Rides, Low Fares" — headline, 4-image collage (left portrait, middle 2 squares, right portrait), feature list, Find Restaurant CTA. */
 export default function QuickRidesSection() {
   return (
-    <section id="quick-rides" className="w-full py-12 lg:py-16 xl:py-20 bg-[var(--landing-bg)]">
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
-        <h2 className="text-center text-2xl sm:text-3xl xl:text-4xl font-bold text-gray-900 mb-8 lg:mb-10">
-          <span className="text-gray-800">Get Quick Rides,</span>{' '}
-          <span className="text-[var(--landing-orange)]">Low Fares</span>
+    <section
+      id="quick-rides"
+      className="w-full py-12 lg:py-16 xl:py-20 bg-[var(--landing-bg)]"
+      aria-labelledby="quick-rides-heading"
+    >
+      <div className="w-full mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 flex flex-col items-center">
+        <h2 id="quick-rides-heading" className="text-center text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 lg:mb-12">
+          Get Quick Rides,<br />
+          Low Fares
         </h2>
 
-        {/* Image collage: 1 large left + 3 stacked right — responsive grid */}
+        {/* 4-image collage: 3 columns — left tall portrait, middle 2 stacked squares, right tall portrait; max height 178px */}
         <div
           className="
-            w-full max-w-5xl mx-auto mb-10 lg:mb-12
-            grid grid-cols-1 md:grid-cols-2 md:grid-rows-3
-            gap-3 sm:gap-4
-            min-h-[320px] md:min-h-[380px] lg:min-h-[420px]
+            w-full max-w-4xl mx-auto mb-10 lg:mb-14
+            grid grid-cols-3 grid-rows-2 gap-3 sm:gap-4
+            h-[178px] max-h-[178px]
           "
         >
-          {/* Large left image — full height on md+ */}
-          <div className="relative w-full aspect-[3/4] md:aspect-auto md:row-span-3 md:min-h-0 rounded-2xl overflow-hidden bg-gray-100 shadow-sm">
+          {/* Image 1: Large portrait (left) — delivery driver + van + boxes, full height */}
+          <div className="relative col-start-1 row-span-2 min-h-0 rounded-2xl overflow-hidden bg-[#4A90E2] shadow-md">
             <Image
-              src="/dashboard/hero-delivery.png"
-              alt="Quick rides delivery"
+              src="/images/quickrides/quickrides-1.png"
+              alt="Delivery driver with van and packages"
               fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 33vw, 280px"
             />
           </div>
 
-          {/* Right column: 3 stacked images */}
-          <div className="relative w-full aspect-[4/3] sm:aspect-video md:aspect-auto md:min-h-0 rounded-2xl overflow-hidden bg-[#E8F4FC] shadow-sm">
+          {/* Image 2: Small square (top-middle) — scooter + map on phone */}
+          <div className="relative col-start-2 row-start-1 min-h-0 rounded-2xl overflow-hidden bg-[#E8E4F4] shadow-md">
             <Image
-              src="/icons/quickrides.png"
-              alt="Track your ride"
+              src="/images/quickrides/quickrides-2.png"
+              alt="Track your ride on the app"
               fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 33vw, 200px"
             />
           </div>
-          <div className="relative w-full aspect-[4/3] sm:aspect-video md:aspect-auto md:min-h-0 rounded-2xl overflow-hidden bg-[#F3E8FC] shadow-sm">
+
+          {/* Image 3: Small square (bottom-middle) — food delivery app */}
+          <div className="relative col-start-2 row-start-2 min-h-0 rounded-2xl overflow-hidden bg-[#F5F0F8] shadow-md">
             <Image
-              src="/icons/quickrides1.png"
-              alt="Quick rides app"
+              src="/images/quickrides/quickrides-3.png"
+              alt="Food delivery app"
               fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 33vw, 200px"
             />
           </div>
-          <div className="relative w-full aspect-[4/3] sm:aspect-[3/4] md:aspect-auto md:min-h-0 rounded-2xl overflow-hidden bg-[#FEF9E7] shadow-sm">
+
+          {/* Image 4: Medium portrait (right) — groceries stepping out of phone, full height */}
+          <div className="relative col-start-3 row-span-2 min-h-0 rounded-2xl overflow-hidden bg-[#FEF9E7] shadow-md">
             <Image
-              src="/icons/fooddelivery.png"
-              alt="Food delivery"
+              src="/images/quickrides/quickrides-4.png"
+              alt="Fresh groceries delivery"
               fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 33vw, 280px"
             />
           </div>
         </div>
 
-        {/* Feature list: orange circle icons + dark grey text */}
-        <ul className="max-w-2xl mx-auto space-y-4 mb-10">
+        {/* Feature list: orange circle + dark grey text, block centered, text left-aligned with icon */}
+        <ul className="w-full max-w-2xl mx-auto space-y-5 mb-10 lg:mb-12">
           {FEATURES.map((item, i) => (
             <li key={i} className="flex gap-4 items-start">
-              <span className="flex-shrink-0 w-10 h-10 rounded-full bg-[var(--landing-orange)] flex items-center justify-center text-white">
+              <span
+                className="flex-shrink-0 w-11 h-11 rounded-full bg-[var(--landing-orange)] flex items-center justify-center"
+                aria-hidden
+              >
                 {item.icon}
               </span>
-              <p className="text-gray-800 text-sm sm:text-base leading-relaxed pt-2">{item.text}</p>
+              <p className="text-gray-800 text-sm sm:text-base leading-relaxed pt-2.5">
+                {item.text}
+              </p>
             </li>
           ))}
         </ul>
 
-        {/* CTA: dark purple button, centered */}
+        {/* CTA: dark purple/indigo button, centered — Figma "Find Restaurant" */}
         <div className="flex justify-center">
           <Link
-            href="/pickup-location"
+            href="/find-restaurant"
             className="inline-flex items-center justify-center rounded-xl bg-[var(--color-primary)] px-8 py-3.5 text-base font-semibold text-white hover:opacity-90 transition-opacity"
           >
-            Find Routes!
+            Find Restaurant
           </Link>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { SITE_NAME, BRAND } from '@/lib/site';
 
 export default function Footer() {
@@ -9,11 +10,14 @@ export default function Footer() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-col items-center text-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-2xl lg:max-w-none place-items-center">
           <div className="col-span-1 sm:col-span-2 lg:col-span-1 flex flex-col items-center">
-            <Link href="/" className="flex items-center gap-2 mb-4 justify-center">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--color-primary)]">
-                <span className="text-white font-bold text-sm">L</span>
-              </div>
-              <span className="text-xl font-bold">{SITE_NAME}</span>
+            <Link href="/" className="flex items-center justify-center mb-4" aria-label={`${SITE_NAME} home`}>
+              <Image
+                src="/logo.png"
+                alt={SITE_NAME}
+                width={140}
+                height={42}
+                className="h-9 w-auto object-contain object-center brightness-0 invert"
+              />
             </Link>
             <p className="text-gray-400 text-sm max-w-xs">{BRAND?.shortDescription ?? ''}</p>
           </div>
@@ -22,18 +26,19 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Company</h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">Careers</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">Company Blog</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">Promotions</Link></li>
+              <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">Company Blog</Link></li>
+              <li><Link href="/promotions" className="hover:text-white transition-colors">Promotions</Link></li>
             </ul>
           </div>
 
           <div className="flex flex-col items-center">
             <h4 className="font-semibold mb-4">Service</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/pickup-location" className="hover:text-white transition-colors">Walk</Link></li>
-              <li><Link href="/pickup-location" className="hover:text-white transition-colors">2 Wheeler</Link></li>
-              <li><Link href="/pickup-location" className="hover:text-white transition-colors">3 Wheeler</Link></li>
+              <li><Link href="/services" className="hover:text-white transition-colors">Our services</Link></li>
+              <li><Link href="/services/walk" className="hover:text-white transition-colors">Walk</Link></li>
+              <li><Link href="/services/2-wheeler" className="hover:text-white transition-colors">2 Wheeler</Link></li>
+              <li><Link href="/services/3-wheeler" className="hover:text-white transition-colors">3 Wheeler</Link></li>
             </ul>
           </div>
 
@@ -53,9 +58,10 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 w-full flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Link href="/about" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link>
-          <p className="text-gray-400 text-sm">© {new Date().getFullYear()} {SITE_NAME ?? 'Liftngo'}. All rights reserved.</p>
+        <div className="border-t border-gray-800 mt-12 pt-8 w-full flex flex-col sm:flex-row justify-center items-center gap-4 flex-wrap">
+          <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</Link>
+          <p className="text-gray-400 text-sm">© {new Date().getFullYear()} {SITE_NAME ?? 'LiftnGo'}. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -11,35 +11,48 @@ export interface BlogCardProps {
   href: string;
 }
 
-/** Single blog card: image, title, snippet, Read More. */
+/** Single blog card: image top, dark blue overlay with title, snippet, Read More + arrow. Design: 212×268px, 12px radius, white bg, drop shadow. */
 export default function BlogCard({ title, snippet, imageSrc, imageAlt, href }: BlogCardProps) {
   return (
     <article
-      className="flex-shrink-0 w-[280px] sm:w-[320px] rounded-xl overflow-hidden shadow-md bg-[var(--landing-bg)] border border-gray-200"
-      style={{ scrollSnapAlign: 'start' }}
+      className="w-[212px] h-[268px] flex-shrink-0 rounded-[12px] overflow-hidden bg-white relative border border-gray-200/80"
+      style={{
+        boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
+        scrollSnapAlign: 'start',
+      }}
     >
-      <div className="relative h-40 w-full bg-gray-200">
+      <div className="absolute inset-0">
         <Image
           src={imageSrc}
           alt={imageAlt}
           fill
           className="object-cover"
-          sizes="320px"
+          sizes="212px"
         />
+        {/* Dark blue overlay at bottom with content */}
         <div
-          className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
-          aria-hidden
-        />
-      </div>
-      <div className="p-4">
-        <h3 className="font-bold text-gray-900 text-sm sm:text-base line-clamp-2 mb-2">{title}</h3>
-        <p className="text-gray-500 text-sm line-clamp-2 mb-3">{snippet}</p>
-        <Link
-          href={href}
-          className="text-gray-900 font-medium text-sm hover:underline"
+          className="absolute inset-x-0 bottom-0 left-0 right-0 pt-8 px-3 pb-3 flex flex-col justify-end"
+          style={{
+            height: '55%',
+            background: 'linear-gradient(to top, #1A1D3A 0%, #1A1D3A 70%, transparent 100%)',
+          }}
         >
-          Read More
-        </Link>
+          <h3 className="font-bold text-white text-sm leading-tight line-clamp-2 mb-1">
+            {title}
+          </h3>
+          <p className="text-white/90 text-xs leading-snug line-clamp-2 mb-3">
+            {snippet}
+          </p>
+          <Link
+            href={href}
+            className="inline-flex items-center gap-1.5 text-white font-medium text-xs hover:opacity-90 transition-opacity"
+          >
+            Read More
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </Link>
+        </div>
       </div>
     </article>
   );
