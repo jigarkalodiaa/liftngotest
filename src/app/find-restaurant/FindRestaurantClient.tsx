@@ -65,12 +65,22 @@ export default function FindRestaurantClient() {
     <ContentLayout>
       <main className="flex-1 min-h-screen bg-[var(--landing-bg)]">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-          {/* How to use – instruction section */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 mb-6 -mt-2"
+            aria-label="Back to home"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </Link>
+          {/* How to order food – clear, efficient journey */}
           <div
             className="rounded-[24px] border p-6 sm:p-8 mb-10"
             style={{
               borderWidth: '1px',
-              borderColor: '#4A2CCC',
+              borderColor: 'var(--landing-primary)',
               backgroundColor: 'rgba(255, 247, 242, 0.45)',
               backdropFilter: 'blur(35px)',
               WebkitBackdropFilter: 'blur(35px)',
@@ -78,36 +88,71 @@ export default function FindRestaurantClient() {
             }}
           >
             <div className="flex items-center gap-3 mb-5">
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#4A2CCC]/15 flex items-center justify-center">
-                <IconUtensils className="w-6 h-6 text-[#4A2CCC]" />
+              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[var(--landing-primary)]/15 flex items-center justify-center">
+                <IconUtensils className="w-6 h-6 text-[var(--landing-primary)]" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  How to view restaurant menus
+                  How to order food
                 </h1>
                 <p className="text-sm text-gray-600 mt-0.5">
-                  Restaurants near Khatushyam Ji
+                  Restaurants near Khatushyam Ji — simple 4-step flow
                 </p>
               </div>
             </div>
-            <ol className="space-y-3 text-gray-700 text-sm sm:text-base" role="list" aria-label="Steps to view a menu">
+            <ol className="space-y-4 text-gray-700 text-sm sm:text-base" role="list" aria-label="How to order food">
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4A2CCC] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>1</span>
-                <span><strong className="text-gray-900">Browse</strong> the list of restaurants below.</span>
+                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--landing-primary)] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>1</span>
+                <div>
+                  <span className="font-semibold text-gray-900">Choose a restaurant</span>
+                  <span className="block mt-0.5">Pick from the list below and tap <strong className="text-[var(--landing-primary)]">Menu</strong> to open that restaurant’s menu page.</span>
+                </div>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4A2CCC] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>2</span>
-                <span>Click the <strong className="text-[#4A2CCC]">Menu</strong> link on any restaurant card to open the full menu page.</span>
+                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--landing-primary)] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>2</span>
+                <div>
+                  <span className="font-semibold text-gray-900">Add items &amp; send order</span>
+                  <span className="block mt-0.5">Use <strong className="text-[var(--landing-primary)]">Add</strong> / <strong className="text-[var(--landing-primary)]">+</strong> for each item, check the <strong className="text-gray-900">total</strong>, then tap <strong className="text-[var(--landing-primary)]">Send order via WhatsApp</strong>. Complete payment with the restaurant (call or as they confirm).</span>
+                </div>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4A2CCC] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>3</span>
-                <span>View that restaurant’s <strong className="text-gray-900">full menu</strong> and prices on the menu page.</span>
+                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--landing-primary)] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>3</span>
+                <div>
+                  <span className="font-semibold text-gray-900">Book delivery (optional)</span>
+                  <span className="block mt-0.5">After payment, tap <strong className="text-[var(--landing-primary)]">Book delivery boy</strong> on the menu page. Pickup is set to the restaurant; you only enter your <strong className="text-gray-900">drop address</strong> in the next step.</span>
+                </div>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4A2CCC] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>4</span>
-                <span>Use <strong className="text-[#4A2CCC]">Call to order</strong> to phone the restaurant and book your food.</span>
+                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--landing-primary)] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>4</span>
+                <div>
+                  <span className="font-semibold text-gray-900">Or call to order</span>
+                  <span className="block mt-0.5">Prefer to order by phone? Use <strong className="text-[var(--landing-primary)]">Call to order</strong> on any restaurant card or menu page.</span>
+                </div>
               </li>
             </ol>
+            {/* Visual flow: Order → Pay → Deliver */}
+            <div className="mt-5 pt-4 border-t border-[var(--landing-primary)]/20 flex items-center justify-between gap-2 text-center">
+              <div className="flex-1">
+                <span className="inline-flex w-8 h-8 rounded-full bg-[var(--landing-primary)] text-white text-xs font-bold items-center justify-center">1</span>
+                <p className="mt-1.5 text-xs font-medium text-gray-700">Order</p>
+                <p className="text-[10px] text-gray-500">Menu → WhatsApp</p>
+              </div>
+              <span className="text-gray-300">→</span>
+              <div className="flex-1">
+                <span className="inline-flex w-8 h-8 rounded-full bg-[var(--landing-primary)] text-white text-xs font-bold items-center justify-center">2</span>
+                <p className="mt-1.5 text-xs font-medium text-gray-700">Pay</p>
+                <p className="text-[10px] text-gray-500">Restaurant</p>
+              </div>
+              <span className="text-gray-300">→</span>
+              <div className="flex-1">
+                <span className="inline-flex w-8 h-8 rounded-full bg-[var(--landing-primary)] text-white text-xs font-bold items-center justify-center">3</span>
+                <p className="mt-1.5 text-xs font-medium text-gray-700">Deliver</p>
+                <p className="text-[10px] text-gray-500">Your address</p>
+              </div>
+            </div>
+            <p className="mt-4 text-xs text-gray-500">
+              <strong className="text-gray-700">Tip:</strong> Order on menu → send via WhatsApp → pay restaurant → then tap &quot;Book delivery boy&quot; and enter your address. Easiest way to get food delivered.
+            </p>
           </div>
 
           {/* Restaurant list – LiftnGo themed cards with food illustration */}
@@ -117,7 +162,7 @@ export default function FindRestaurantClient() {
                 key={restaurant.id}
                 className="rounded-2xl border overflow-hidden flex flex-col sm:flex-row sm:items-stretch transition-all hover:shadow-lg"
                 style={{
-                  borderColor: '#4A2CCC',
+                  borderColor: 'var(--landing-primary)',
                   borderWidth: '1px',
                   backgroundColor: 'rgba(255, 255, 255, 0.9)',
                   backdropFilter: 'blur(12px)',
@@ -145,7 +190,7 @@ export default function FindRestaurantClient() {
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col justify-center gap-2 p-4 sm:pr-5 sm:pl-0 border-t sm:border-t-0 sm:border-l border-[#4A2CCC]/20">
+                <div className="flex flex-col justify-center gap-2 p-4 sm:pr-5 sm:pl-0 border-t sm:border-t-0 sm:border-l border-[var(--landing-primary)]/20">
                   <Link
                     href={`/find-restaurant/${restaurant.id}`}
                     className="rounded-xl bg-[var(--color-primary)] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 flex items-center justify-center gap-2"

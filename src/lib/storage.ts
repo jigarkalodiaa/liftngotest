@@ -112,6 +112,30 @@ export function getLoggedIn(): boolean {
   return window.localStorage.getItem(STORAGE_KEYS.LOGGED_IN) === 'true';
 }
 
+/** Temporary dummy auth token set after OTP verification (client-only). */
+export function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const t = window.localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  return t && t.trim() ? t.trim() : null;
+}
+
+export function setAuthToken(token: string): void {
+  try {
+    if (token?.trim()) window?.localStorage?.setItem(STORAGE_KEYS.AUTH_TOKEN, token.trim());
+    else window?.localStorage?.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+  } catch {
+    // ignore
+  }
+}
+
+export function clearAuthToken(): void {
+  try {
+    window?.localStorage?.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+  } catch {
+    // ignore
+  }
+}
+
 export function getSelectedService(): ServiceId | null {
   if (typeof window === 'undefined') return null;
   const v = window.localStorage.getItem(STORAGE_KEYS.SELECTED_SERVICE);
@@ -189,6 +213,57 @@ export function setLandingPickupLocation(value: string | null): void {
   try {
     if (value?.trim()) window?.localStorage?.setItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION, value.trim());
     else window?.localStorage?.removeItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION);
+  } catch {
+    // ignore
+  }
+}
+
+/** Restaurant food order for delivery – set when user books delivery from Find Restaurant flow. */
+export interface DeliveryGoodsDescription {
+  restaurantName: string;
+  items: { name: string; quantity: number; price: string }[];
+}
+
+function isDeliveryGoodsDescription(v: unknown): v is DeliveryGoodsDescription {
+  const o = v as DeliveryGoodsDescription;
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    'restaurantName' in v &&
+    'items' in v &&
+    typeof o.restaurantName === 'string' &&
+    Array.isArray(o.items) &&
+    o.items.every(
+      (i) =>
+        typeof i === 'object' &&
+        i !== null &&
+        'name' in i &&
+        'quantity' in i &&
+        'price' in i &&
+        typeof (i as { name: string; quantity: number; price: string }).name === 'string' &&
+        typeof (i as { name: string; quantity: number; price: string }).quantity === 'number' &&
+        typeof (i as { name: string; quantity: number; price: string }).price === 'string'
+    )
+  );
+}
+
+export function getDeliveryGoodsDescription(): DeliveryGoodsDescription | null {
+  if (typeof window === 'undefined') return null;
+  const raw = safeParse(window.localStorage.getItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION), isDeliveryGoodsDescription);
+  return raw;
+}
+
+export function setDeliveryGoodsDescription(data: DeliveryGoodsDescription): void {
+  try {
+    window?.localStorage?.setItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION, JSON.stringify(data));
+  } catch {
+    // ignore
+  }
+}
+
+export function clearDeliveryGoodsDescription(): void {
+  try {
+    window?.localStorage?.removeItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION);
   } catch {
     // ignore
   }

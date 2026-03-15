@@ -4,6 +4,8 @@ import Image from 'next/image';
 import PageHeader from '@/components/ui/PageHeader';
 import { theme } from '@/config/theme';
 import type { ServiceId } from '@/types/booking';
+import type { DeliveryGoodsDescription } from '@/lib/storage';
+import { parsePrice } from '@/data/restaurantsKhatushyam';
 
 const VEHICLE_LABELS: Record<ServiceId, { name: string; subtitle: string; image: string }> = {
   walk: { name: 'Big Saver', subtitle: 'Quick Fleet ride', image: '/dashboard/service-walk.png' },
@@ -109,13 +111,17 @@ export function GoodsSection({
   packages,
   onChangeGoods,
   onViewRestrictedList,
+  deliveryGoods,
 }: {
   goodTypeTitle: string;
   weightKg: number;
   packages: number;
   onChangeGoods: () => void;
   onViewRestrictedList: () => void;
+  deliveryGoods?: DeliveryGoodsDescription | null;
 }) {
+  const isFoodOrder = deliveryGoods && deliveryGoods.items.length > 0;
+
   return (
     <section className="mt-5">
       <h2 className="font-semibold" style={{ fontSize: theme.fontSizes.md, color: theme.colors.gray900 }}>
@@ -125,33 +131,51 @@ export function GoodsSection({
         className="mt-2 rounded-2xl border p-4"
         style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.white }}
       >
-        <div className="flex items-start justify-between gap-2">
-          <div>
+        {isFoodOrder ? (
+          <>
             <p className="font-medium" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray900 }}>
-              {goodTypeTitle || 'Select goods type'}
+              Food order from {deliveryGoods.restaurantName}
             </p>
-            <p className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray500 }}>
-              {weightKg}kg • ({packages} {packages === 1 ? 'Package' : 'Packages'})
-            </p>
+            <ul className="mt-3 space-y-2" style={{ fontSize: theme.fontSizes.sm }}>
+              {deliveryGoods.items.map((item) => (
+                <li key={item.name} className="flex justify-between gap-2 text-gray-700">
+                  <span>{item.name} × {item.quantity}</span>
+                  <span className="font-medium text-gray-900">₹{parsePrice(item.price) * item.quantity}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="font-medium" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray900 }}>
+                {goodTypeTitle || 'Select goods type'}
+              </p>
+              <p className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray500 }}>
+                {weightKg}kg • ({packages} {packages === 1 ? 'Package' : 'Packages'})
+              </p>
+            </div>
+            <button type="button" onClick={onChangeGoods} className="font-medium" style={{ fontSize: theme.fontSizes.base, color: theme.colors.primary }}>
+              Change
+            </button>
           </div>
-          <button type="button" onClick={onChangeGoods} className="font-medium" style={{ fontSize: theme.fontSizes.base, color: theme.colors.primary }}>
-            Change
-          </button>
-        </div>
-        <div
-          className="mt-3 flex items-center justify-between rounded-xl px-3 py-2.5 border"
-          style={{ backgroundColor: theme.colors.warningBg, borderColor: theme.colors.warningBorder }}
-        >
-          <div className="flex items-center gap-2">
-            <svg className="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} style={{ color: theme.colors.gray700 }}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <span style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray700 }}>Do Not send restricted items</span>
+        )}
+        {!isFoodOrder && (
+          <div
+            className="mt-3 flex items-center justify-between rounded-xl px-3 py-2.5 border"
+            style={{ backgroundColor: theme.colors.warningBg, borderColor: theme.colors.warningBorder }}
+          >
+            <div className="flex items-center gap-2">
+              <svg className="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} style={{ color: theme.colors.gray700 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray700 }}>Do Not send restricted items</span>
+            </div>
+            <button type="button" onClick={onViewRestrictedList} className="font-medium" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.primary }}>
+              View List
+            </button>
           </div>
-          <button type="button" onClick={onViewRestrictedList} className="font-medium" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.primary }}>
-            View List
-          </button>
-        </div>
+        )}
       </div>
     </section>
   );

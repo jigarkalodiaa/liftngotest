@@ -11,6 +11,9 @@ export const colors = {
   // Brand
   primary: '#2C2D5B',
   primaryHover: '#23244a',
+  /** LiftnGo landing accent (find-restaurant, download section) – sync with --landing-primary in globals.css */
+  landingPrimary: '#4A2CCC',
+  whatsappGreen: '#25D366',
 
   // Neutrals
   white: '#FFFFFF',

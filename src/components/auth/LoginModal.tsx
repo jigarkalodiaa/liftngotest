@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { getLandingPickupLocation, setStoredPhone, setLoggedIn, setLandingPickupLocation, setPickupLocation } from '@/lib/storage';
+import { getLandingPickupLocation, setStoredPhone, setLoggedIn, setLandingPickupLocation, setPickupLocation, setAuthToken } from '@/lib/storage';
 import { ROUTES, getValidOtp } from '@/lib/constants';
 import { loginPhoneSchema, loginOtpSchema, type LoginPhoneForm } from '@/lib/validations';
 
@@ -149,7 +149,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       return;
     }
     setLoggedIn(true);
-    setStoredPhone(phoneNumber.trim().replace(/\s/g, '').replace(/\D/g, '').slice(0, 10));
+    const phone = phoneNumber.trim().replace(/\s/g, '').replace(/\D/g, '').slice(0, 10);
+    setStoredPhone(phone);
+    const dummyToken = `dummy_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    setAuthToken(dummyToken);
     const landingPickupValue = getLandingPickupLocation()?.trim();
     const hasLandingPickup = Boolean(landingPickupValue);
     if (hasLandingPickup && landingPickupValue) {
@@ -159,9 +162,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
     setTimeout(() => {
       onClose();
-      router.push(hasLandingPickup ? ROUTES.PICKUP_LOCATION : ROUTES.DASHBOARD);
+      router.push(ROUTES.DASHBOARD);
     }, 500);
-  }, [otp, phoneNumber, router, onClose, setValue]);
+  }, [otp, phoneNumber, router, onClose]);
 
   const formatTimer = (seconds: number) => {
     const s = seconds % 60;

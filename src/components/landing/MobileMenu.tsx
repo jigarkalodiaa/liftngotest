@@ -1,16 +1,21 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { ROUTES } from '@/lib/constants';
 import { CloseIcon } from '@/components/ui';
+import { getLoggedIn, setLoggedIn, clearAuthToken } from '@/lib/storage';
 
-const menuSections = [
+type MenuItem = { label: string; href: string; authOnly?: boolean };
+
+const menuSections: { title: string; items: MenuItem[] }[] = [
   {
     title: 'Preference',
     items: [
       { label: 'Home', href: ROUTES.HOME },
       { label: 'My Details', href: ROUTES.DASHBOARD },
-      { label: 'History', href: ROUTES.HISTORY },
+      { label: 'Trip history', href: ROUTES.HISTORY, authOnly: true },
     ],
   },
   {
@@ -38,6 +43,20 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) setIsLoggedIn(getLoggedIn());
+  }, [isOpen]);
+
+  const handleLogout = () => {
+    clearAuthToken();
+    setLoggedIn(false);
+    onClose();
+    router.push(ROUTES.HOME);
+  };
+
   return (
     <div
       className={`fixed top-0 right-0 h-full w-[85vw] bg-white z-[60] shadow-2xl transform transition-transform duration-300 ease-out ${
@@ -64,7 +83,9 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 {section.title}
               </h3>
               <ul className="space-y-1">
-                {section.items.map((item) => (
+                {section.items
+                  .filter((item) => !item.authOnly || isLoggedIn)
+                  .map((item) => (
                   <li key={item.label}>
                     <Link
                       href={item.href}
@@ -83,6 +104,25 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     </Link>
                   </li>
                 ))}
+                {section.title === 'Preference' && isLoggedIn && (
+                  <li>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex w-full items-center justify-between py-3 text-gray-600 hover:text-gray-900 transition-colors group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v3.75m0 10.5A2.25 2.25 0 0113.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m0 3h3" />
+                        </svg>
+                        <span>Logout</span>
+                      </div>
+                      <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </li>
+                )}
               </ul>
             </div>
           ))}

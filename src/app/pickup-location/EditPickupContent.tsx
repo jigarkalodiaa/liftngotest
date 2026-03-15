@@ -125,6 +125,9 @@ export default function EditPickupContent() {
     else if (stepParam === '1') setStep(1);
   }, [searchParams]);
 
+  const fromFood = searchParams.get('from') === 'food';
+  const returnToStep2 = `${ROUTES.PICKUP_LOCATION}?step=2${fromFood ? '&from=food' : ''}`;
+
   useEffect(() => {
     if (useCurrentMobile) setValue('senderMobile', currentMobile);
   }, [useCurrentMobile, currentMobile, setValue]);
@@ -164,7 +167,7 @@ export default function EditPickupContent() {
       return;
     }
     setReceiverDetails({ name: result.data.receiverName, mobile: result.data.receiverMobile });
-    router.push(ROUTES.TRIP_OPTIONS);
+    router.push(fromFood ? `${ROUTES.TRIP_OPTIONS}?from=food` : ROUTES.TRIP_OPTIONS);
   };
 
   const isStep1Valid =
@@ -183,8 +186,8 @@ export default function EditPickupContent() {
         <header className="flex items-center gap-3 pt-4 pb-5">
           <button
             type="button"
-            onClick={() => router.push(ROUTES.DASHBOARD)}
-            aria-label="Back to dashboard"
+            onClick={() => router.push(fromFood ? ROUTES.FIND_RESTAURANT : ROUTES.DASHBOARD)}
+            aria-label={fromFood ? 'Back to Find Restaurant' : 'Back to dashboard'}
             className="h-9 w-9 rounded-full border border-gray-200 bg-white grid place-items-center"
           >
             <svg className="h-5 w-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -192,17 +195,29 @@ export default function EditPickupContent() {
             </svg>
           </button>
           <div className="flex-1 text-center">
-            <div className="text-[20px] font-semibold text-gray-900">Personal Details</div>
+            <div className="text-[20px] font-semibold text-gray-900">
+              {fromFood && step === 2 ? 'Food delivery' : 'Personal Details'}
+            </div>
             <div className="mt-1 text-[12px] text-gray-500">
-              {step === 1 ? 'Step 1 of 2 : Sender Details' : 'Step 2 of 2 : Receiver Details'}
+              {fromFood && step === 2
+                ? 'Where to deliver your food?'
+                : step === 1
+                  ? 'Step 1 of 2 : Sender Details'
+                  : 'Step 2 of 2 : Receiver Details'}
             </div>
           </div>
           <div className="w-9" />
         </header>
 
         <div className="mt-1 mb-5 flex h-1.5 overflow-hidden rounded-full bg-gray-100">
-          <div className={`w-1/2 ${step >= 1 ? 'bg-emerald-500' : 'bg-emerald-100'}`} />
-          <div className={`flex-1 ${step >= 2 ? 'bg-emerald-500' : 'bg-emerald-100'}`} />
+          {fromFood && step === 2 ? (
+            <div className="w-full bg-emerald-500" />
+          ) : (
+            <>
+              <div className={`w-1/2 ${step >= 1 ? 'bg-emerald-500' : 'bg-emerald-100'}`} />
+              <div className={`flex-1 ${step >= 2 ? 'bg-emerald-500' : 'bg-emerald-100'}`} />
+            </>
+          )}
         </div>
 
         <div className="rounded-[22px] border border-gray-200 bg-white shadow-sm overflow-hidden">
@@ -308,15 +323,20 @@ export default function EditPickupContent() {
             </>
           ) : (
             <>
+              {fromFood && pickup && (
+                <div className="px-4 pt-2 pb-1 text-[12px] text-gray-500">
+                  Pickup: <strong className="text-gray-700">{pickup.name}</strong> — Enter where to deliver your food.
+                </div>
+              )}
               <div className="bg-[#F5F7FF] px-4 py-3 flex items-center justify-between">
                 <div>
-                  <div className="text-[14px] font-semibold text-gray-800">Drop Location</div>
+                  <div className="text-[14px] font-semibold text-gray-800">{fromFood ? 'Your delivery address' : 'Drop Location'}</div>
                   {drop ? (
                     <button
                       type="button"
                       onClick={() =>
                         router.push(
-                          `${ROUTES.PICKUP_LOCATION_EDIT}?type=drop&returnTo=${encodeURIComponent(`${ROUTES.PICKUP_LOCATION}?step=2`)}`
+                          `${ROUTES.PICKUP_LOCATION_EDIT}?type=drop&returnTo=${encodeURIComponent(returnToStep2)}`
                         )
                       }
                       className="mt-2 w-full rounded-xl bg-white px-3 py-2 text-left"
@@ -329,12 +349,12 @@ export default function EditPickupContent() {
                       type="button"
                       onClick={() =>
                         router.push(
-                          `${ROUTES.PICKUP_LOCATION_EDIT}?type=drop&returnTo=${encodeURIComponent(`${ROUTES.PICKUP_LOCATION}?step=2`)}`
+                          `${ROUTES.PICKUP_LOCATION_EDIT}?type=drop&returnTo=${encodeURIComponent(returnToStep2)}`
                         )
                       }
                       className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-400"
                     >
-                      Enter drop location
+                      {fromFood ? 'Enter your delivery address' : 'Enter drop location'}
                     </button>
                   )}
                 </div>
@@ -343,10 +363,10 @@ export default function EditPickupContent() {
 
               <div className="px-4 pt-4 pb-5 space-y-4">
                 <div>
-                  <label className="mb-1 block text-[12px] font-medium text-gray-600">Receiver&apos;s name</label>
+                  <label className="mb-1 block text-[12px] font-medium text-gray-600">{fromFood ? 'Your name' : "Receiver's name"}</label>
                   <input
                     type="text"
-                    placeholder="Receiver's name (min. 3 letters)"
+                    placeholder={fromFood ? 'Your name (min. 3 letters)' : "Receiver's name (min. 3 letters)"}
                     {...register('receiverName', {
                       onBlur: (e) => setValue('receiverName', e.target.value.trim()),
                     })}
@@ -360,10 +380,10 @@ export default function EditPickupContent() {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-[12px] font-medium text-gray-600">Receiver Mobile Number</label>
+                  <label className="mb-1 block text-[12px] font-medium text-gray-600">{fromFood ? 'Your mobile number' : 'Receiver Mobile Number'}</label>
                   <input
                     type="tel"
-                    placeholder="Receiver Mobile Number"
+                    placeholder={fromFood ? 'Your mobile number' : 'Receiver Mobile Number'}
                     {...register('receiverMobile', {
                       onChange: (e) => {
                         const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
@@ -417,7 +437,7 @@ export default function EditPickupContent() {
               onClick={step === 1 ? onStep1Submit : onStep2Submit}
               className="w-full rounded-2xl bg-[var(--color-primary)] py-3.5 text-[16px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {step === 1 ? 'Confirm pick location' : 'Confirm drop location'}
+              {step === 1 ? 'Confirm pick location' : fromFood ? 'Continue to book delivery' : 'Confirm drop location'}
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
-import { getDropLocation } from '@/lib/storage';
+import { getDropLocation, clearDeliveryGoodsDescription } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
 import { PageContainer, IconButton, BackIcon, Button } from '@/components/ui';
 import PriceBreakupSheet from '@/components/booking/PriceBreakupSheet';
@@ -33,6 +33,9 @@ export default function TripCompletePage() {
   const [showPriceBreakup, setShowPriceBreakup] = useState(false);
 
   useEffect(() => setDrop(getDropLocation()), []);
+  useEffect(() => {
+    clearDeliveryGoodsDescription();
+  }, []);
 
   const destination = drop?.name || drop?.address || 'Your destination';
   const tripDateTime = useMemo(() => formatTripDateTime(), []);

@@ -1,8 +1,11 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import MobileMenu from './MobileMenu';
 import { LoginModal } from '@/components/auth';
+import { getAuthToken } from '@/lib/storage';
+import { ROUTES } from '@/lib/constants';
 
 interface MenuContextType {
   isMenuOpen: boolean;
@@ -30,6 +33,8 @@ interface PageWrapperProps {
 }
 
 export default function PageWrapper({ children, headerSlot }: PageWrapperProps) {
+  const pathname = usePathname();
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -37,6 +42,12 @@ export default function PageWrapper({ children, headerSlot }: PageWrapperProps) 
   const closeMenu = () => setIsMenuOpen(false);
   const openLogin = () => setIsLoginOpen(true);
   const closeLogin = () => setIsLoginOpen(false);
+
+  useEffect(() => {
+    if (pathname === '/' && getAuthToken()) {
+      router.replace(ROUTES.DASHBOARD);
+    }
+  }, [pathname, router]);
 
   useEffect(() => {
     if (isMenuOpen || isLoginOpen) {

@@ -8,6 +8,8 @@ import {
   getSelectedService,
   getSenderDetails,
   getReceiverDetails,
+  getDeliveryGoodsDescription,
+  clearDeliveryGoodsDescription,
   setPickupLocation,
   setDropLocation,
   setSenderDetails,
@@ -54,6 +56,7 @@ export default function PaymentPage() {
   const [showGoodTypesModal, setShowGoodTypesModal] = useState(false);
   const [showRestrictedList, setShowRestrictedList] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [deliveryGoods, setDeliveryGoods] = useState(getDeliveryGoodsDescription());
 
   const syncFromStorage = useCallback(() => {
     setVehicle(getSelectedService() ?? 'threeWheeler');
@@ -61,6 +64,7 @@ export default function PaymentPage() {
     setDrop(getDropLocation());
     setSender(getSenderDetails());
     setReceiver(getReceiverDetails());
+    setDeliveryGoods(getDeliveryGoodsDescription());
   }, []);
 
   useEffect(() => { syncFromStorage(); }, [syncFromStorage]);
@@ -97,7 +101,15 @@ export default function PaymentPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.colors.white }}>
       <PageContainer className="pb-32 pt-4">
-        <PaymentHeader onBack={() => router.push(ROUTES.TRIP_OPTIONS)} />
+        <PaymentHeader
+          onBack={() =>
+            router.push(
+              searchParams.get('from') === 'food'
+                ? `${ROUTES.TRIP_OPTIONS}?from=food`
+                : ROUTES.TRIP_OPTIONS
+            )
+          }
+        />
         <VehicleCard serviceId={vehicle} />
         <AddressCta onClick={openAddressModal} />
         <GstSection gstin={gstin} businessName={businessName} onAddOrEdit={() => setShowGstModal(true)} />
@@ -105,8 +117,15 @@ export default function PaymentPage() {
           goodTypeTitle={selectedGoodType?.title ?? ''}
           weightKg={weightKg}
           packages={packages}
-          onChangeGoods={() => setShowGoodTypesModal(true)}
+          onChangeGoods={() => {
+            if (deliveryGoods) {
+              clearDeliveryGoodsDescription();
+              setDeliveryGoods(null);
+            }
+            setShowGoodTypesModal(true);
+          }}
           onViewRestrictedList={() => setShowRestrictedList(true)}
+          deliveryGoods={deliveryGoods}
         />
         <CouponSection appliedCoupon={appliedCoupon} onToggleCoupon={() => setAppliedCoupon((c) => (c ? null : 'extra400'))} />
         <PriceDetailsSection tripFare={TRIP_FARE} gst={GST_AMOUNT} platformFee={PLATFORM_FEE} totalAmount={TOTAL_AMOUNT} />
