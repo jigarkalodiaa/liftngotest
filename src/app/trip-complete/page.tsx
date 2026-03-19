@@ -70,13 +70,23 @@ export default function TripCompletePage() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
+        <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm flex">
+          <div >
           <p className="text-[14px] font-semibold text-gray-900">Remaining Amount to be paid</p>
           <p className="mt-2 text-[20px] font-bold text-gray-900">₹{AMOUNT}</p>
           <p className="mt-2 text-[13px] text-gray-600 flex items-center gap-1">
             You are paying in cash <span className="text-base" aria-hidden>💰</span>
           </p>
-          <button type="button" className="mt-3 text-[14px] font-medium text-[var(--color-primary)]">Pay Online</button>
+          </div>
+          
+          <div className="mt-8 ml-4  justify-end">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-xl border border-[#3D76F1]/30 bg-[#EEF3FD] px-4 py-2 text-[14px] font-semibold text-[#3D76F1] hover:bg-[#E6EEFF] transition-colors"
+            >
+              Pay Online
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm">

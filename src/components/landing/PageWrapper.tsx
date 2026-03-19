@@ -63,41 +63,29 @@ export default function PageWrapper({ children, headerSlot }: PageWrapperProps) 
 
   return (
     <MenuContext.Provider value={{ isMenuOpen, openMenu, closeMenu, isLoginOpen, openLogin, closeLogin }}>
-      <div className="relative min-h-screen overflow-x-hidden bg-[var(--landing-bg)]">
-        {/* Header outside transformed div so it stays fixed to the viewport */}
+      <div
+        className={`relative min-h-screen overflow-x-hidden bg-[var(--landing-bg)] ${isMenuOpen || isLoginOpen ? 'overflow-y-hidden' : ''}`}
+      >
         {headerSlot}
 
-        {/* Backdrop when menu open */}
+        {/* Backdrop: same 300ms ease-out as menu for in-sync transition; tap/click to close */}
         <div
-          className={`fixed inset-0 bg-black/40 transition-opacity duration-300 z-30 ${
+          role="button"
+          tabIndex={-1}
+          onClick={closeMenu}
+          onKeyDown={(e) => e.key === 'Escape' && closeMenu()}
+          className={`fixed inset-0 z-[55] cursor-pointer touch-manipulation bg-black/40 transition-opacity duration-300 ease-out motion-reduce:transition-none ${
             isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+          aria-hidden="true"
         />
 
-        {/* Main content that slides left when menu opens (no transform on header = fixed works) */}
-        <div
-          className={`relative z-40 transition-transform duration-300 ease-out ${
-            isMenuOpen ? '-translate-x-[85vw]' : 'translate-x-0'
-          }`}
-        >
-          <div
-            className={`min-h-screen bg-[var(--landing-bg)] transition-all duration-300 ${
-              isMenuOpen ? 'rounded-r-3xl overflow-hidden shadow-2xl' : ''
-            }`}
-          >
-            {children}
-          </div>
-
-          {/* Overlay on content to close menu */}
-          {isMenuOpen && (
-            <div
-              className="absolute inset-0 z-50"
-              onClick={closeMenu}
-            />
-          )}
+        {/* Main content – never moves; menu overlays on top */}
+        <div className="relative min-h-screen bg-[var(--landing-bg)]">
+          {children}
         </div>
 
-        {/* Mobile Menu */}
         <MobileMenu isOpen={isMenuOpen} onClose={closeMenu} />
 
         {/* Login Modal */}

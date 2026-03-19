@@ -37,14 +37,14 @@ export default function BlogSection() {
         background: 'radial-gradient(ellipse at center, #FFF7EE 0%, #FFF6ED 100%)',
       }}
     >
-      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-        <h2 id="blogs-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 text-left">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
+        <h2 id="blogs-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
           Blogs
         </h2>
 
-        {/* Horizontal sliding carousel – scroll-snap, partial next card visible */}
+        {/* Mobile: horizontal carousel; desktop: centered grid, equal-height cards */}
         <div
-          className="scrollbar-hide flex gap-4 overflow-x-auto overflow-y-hidden scroll-smooth pb-2 px-5 sm:px-6 lg:px-8"
+          className="scrollbar-hide flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto md:overflow-visible overflow-y-hidden scroll-smooth pb-2 md:pb-0"
           style={{
             scrollSnapType: 'x mandatory',
             WebkitOverflowScrolling: 'touch',

@@ -25,6 +25,7 @@ export const ROUTES = {
   PICKUP_LOCATION: '/pickup-location',
   PICKUP_LOCATION_EDIT: '/pickup-location/edit',
   TRIP_OPTIONS: '/trip-options',
+  SCHEDULE_LATER: '/schedule-later',
   ADD_STOP: '/add-stop',
   PAYMENT: '/payment',
   BOOKING: '/booking',
@@ -34,14 +35,14 @@ export const ROUTES = {
   FIND_RESTAURANT: '/find-restaurant',
 } as const;
 
-/** Demo/dev OTP – use env NEXT_PUBLIC_DEMO_OTP in .env.local; fallback only for local dev. */
+import { DEMO_OTP, SUPPORT_PHONE } from '@/config/env';
+
+/** Demo/dev OTP – use NEXT_PUBLIC_DEMO_OTP in .env.local; fallback only for local dev. */
 export function getValidOtp(): string {
-  if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_DEMO_OTP) {
-    return process.env.NEXT_PUBLIC_DEMO_OTP;
-  }
-  return '4768'; // dev fallback only
+  if (DEMO_OTP) return DEMO_OTP;
+  return '4768'; // dev fallback only when env not set
 }
 
-/** Placeholder for phone input (demo only). */
-export const CURRENT_MOBILE_PLACEHOLDER = '9065847341';
+/** Placeholder for phone input (demo only). Driven by NEXT_PUBLIC_SUPPORT_PHONE when set. */
+export const CURRENT_MOBILE_PLACEHOLDER = SUPPORT_PHONE || '9065847341';
 export const MOBILE_LENGTH = 10;

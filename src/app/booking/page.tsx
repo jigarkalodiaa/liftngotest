@@ -5,7 +5,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useCallback } from 'react';
 import { getPickupLocation, getDropLocation, getSenderDetails } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
+import { SUPPORT_PHONE } from '@/config/env';
 import { IconButton, BackIcon, Button, CloseIcon } from '@/components/ui';
+
+/** E.164-style tel link for driver/support (uses NEXT_PUBLIC_SUPPORT_PHONE when set). */
+const SUPPORT_TEL = SUPPORT_PHONE
+  ? `tel:+91${SUPPORT_PHONE.replace(/\D/g, '').slice(-10)}`
+  : 'tel:+919065847341';
 import CancelReasonSheet from './components/CancelReasonSheet';
 import SorrySheet from './components/SorrySheet';
 
@@ -94,31 +100,38 @@ export default function BookingPage() {
             </IconButton>
           </div>
 
-          {/* Captain on the way banner – when driver assigned but not yet arrived */}
-          {driverAssigned && !driverArrived && (
-            <div className="absolute bottom-0 left-0 right-0 z-10 mx-4 mb-0 flex items-center justify-between rounded-t-2xl bg-[var(--color-primary)] px-4 py-3">
-              <div>
-                <p className="text-[16px] font-bold text-white">Captain is on the way</p>
-                <p className="text-[13px] text-white/80">600 M</p>
-              </div>
+        </div>
+
+        {/* Status banner (Captain on the way vs Driver arrived) */}
+        {(driverAssigned || driverArrived) && (
+          <div className="relative z-10 flex items-center justify-between bg-[var(--color-primary)] px-4 py-3 mb-12">
+            <div>
+              {driverArrived ? (
+                <p className="text-[16px] font-bold text-white">Driver arrived</p>
+              ) : (
+                <>
+                  <p className="text-[16px] font-bold text-white">Captain is on the way</p>
+                  <p className="text-[13px] text-white/80">600 M</p>
+                </>
+              )}
+            </div>
+
+            {driverArrived ? (
+              <span className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[14px] font-bold text-white tabular-nums">
+                {countdownDisplay}
+              </span>
+            ) : (
               <div className="flex gap-1">
                 {[8, 8, 8, 8].map((n, i) => (
-                  <span key={i} className="flex h-8 w-8 items-center justify-center rounded bg-white/20 text-sm font-bold text-white">
+                  <span
+                    key={i}
+                    className="flex h-8 w-8 items-center justify-center rounded bg-white/20 text-sm font-bold text-white"
+                  >
                     {n}
                   </span>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Driver arrived – dark blue bar with countdown */}
-        {driverArrived && (
-          <div className="relative z-10 flex items-center justify-between bg-[var(--color-primary)] px-4 py-3">
-            <p className="text-[16px] font-bold text-white">Driver arrived</p>
-            <span className="rounded-lg bg-emerald-500 px-3 py-1.5 text-[14px] font-bold text-white tabular-nums">
-              {countdownDisplay}
-            </span>
+            )}
           </div>
         )}
 
@@ -163,7 +176,7 @@ export default function BookingPage() {
                     <p className="text-[15px] font-semibold text-gray-900">Rakesh Patel</p>
                   </div>
                   <a
-                    href="tel:+919065847341"
+                    href={SUPPORT_TEL}
                     className="flex h-10 items-center gap-1.5 rounded-xl bg-[var(--color-primary)] px-4 py-2 text-[14px] font-medium text-white"
                   >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>

@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TWITTER_TITLE,
     description: TWITTER_DESCRIPTION,
-    creator: "@liftngo",
+    creator: process.env.NEXT_PUBLIC_TWITTER_HANDLE || "@liftngo",
     images: [DEFAULT_OG_IMAGE],
   },
   robots: {

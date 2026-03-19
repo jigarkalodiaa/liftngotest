@@ -108,7 +108,7 @@ export default function TripOptionsPage() {
           </div>
 
           {/* Location card – white, rounded, shadow */}
-          <div className="relative z-10 mx-4 mt-4">
+          <div className="relative z-10 mx-4 m-4">
             <div
               className="rounded-3xl overflow-hidden border"
               style={{
@@ -299,6 +299,18 @@ export default function TripOptionsPage() {
 
           {/* Bottom: Book Now (outline) + Schedule later (filled) */}
           <div className="mt-5 flex gap-3">
+            
+          <button
+              type="button"
+              className="flex-1 rounded-xl py-3.5 font-semibold text-white transition-opacity hover:opacity-95"
+              style={{
+                backgroundColor: theme.colors.primary,
+                fontSize: theme.fontSizes.xl,
+              }}
+              onClick={() => router.push(ROUTES.SCHEDULE_LATER)}
+            >
+              Schedule later
+            </button>
             <button
               type="button"
               className="flex-1 rounded-xl border py-3.5 font-semibold transition-opacity hover:opacity-90"
@@ -314,16 +326,7 @@ export default function TripOptionsPage() {
             >
               Book Now
             </button>
-            <button
-              type="button"
-              className="flex-1 rounded-xl py-3.5 font-semibold text-white transition-opacity hover:opacity-95"
-              style={{
-                backgroundColor: theme.colors.primary,
-                fontSize: theme.fontSizes.xl,
-              }}
-            >
-              Schedule later
-            </button>
+           
           </div>
         </div>
       </div>

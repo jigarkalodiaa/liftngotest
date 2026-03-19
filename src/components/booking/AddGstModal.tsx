@@ -3,7 +3,11 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { addGstSchema, type AddGstForm } from '@/lib/validations';
+import { addGstSchema, normalizeGstInput, type AddGstForm } from '@/lib/validations';
+
+/** Visible borders: globals.css sets `input { border: none }` — override explicitly. */
+const inputClass =
+  'w-full h-14 rounded-xl box-border !border !border-solid bg-white px-4 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:!border-[var(--color-primary)]';
 
 interface AddGstModalProps {
   isOpen: boolean;
@@ -27,8 +31,11 @@ export default function AddGstModal({
     formState: { errors },
   } = useForm<AddGstForm>({
     resolver: zodResolver(addGstSchema),
+    mode: 'onTouched',
     defaultValues: { gstNumber: initialGstNumber, businessName: initialBusinessName },
   });
+
+  const gstField = register('gstNumber');
 
   useEffect(() => {
     if (isOpen) {
@@ -81,30 +88,50 @@ export default function AddGstModal({
         <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" id="add-gst-form">
             <div>
+              <label htmlFor="add-gst-number" className="mb-1.5 block text-[13px] font-medium text-gray-700">
+                GST number
+              </label>
               <input
+                id="add-gst-number"
                 type="text"
-                placeholder="GST Number (15 characters)"
-                {...register('gstNumber')}
+                inputMode="text"
+                autoComplete="off"
+                maxLength={15}
+                placeholder="15-character GSTIN"
+                {...gstField}
+                onChange={(e) => {
+                  const v = normalizeGstInput(e.target.value);
+                  e.target.value = v;
+                  gstField.onChange(e);
+                }}
                 onKeyDown={(e) => e.key === ' ' && e.preventDefault()}
-                className={`w-full h-14 rounded-xl border bg-white px-4 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
-                  errors.gstNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`${inputClass} ${errors.gstNumber ? '!border-red-500' : '!border-gray-300'}`}
+                aria-invalid={errors.gstNumber ? true : undefined}
+                aria-describedby={errors.gstNumber ? 'add-gst-number-error' : undefined}
               />
               {errors.gstNumber && (
-                <p className="mt-1 text-[12px] text-red-500">{errors.gstNumber.message}</p>
+                <p id="add-gst-number-error" className="mt-1 text-[12px] text-red-500" role="alert">
+                  {errors.gstNumber.message}
+                </p>
               )}
             </div>
             <div>
+              <label htmlFor="add-gst-business" className="mb-1.5 block text-[13px] font-medium text-gray-700">
+                Business name
+              </label>
               <input
+                id="add-gst-business"
                 type="text"
-                placeholder="Business Name"
+                placeholder="As per GST registration"
                 {...register('businessName')}
-                className={`w-full h-14 rounded-xl border bg-white px-4 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
-                  errors.businessName ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`${inputClass} ${errors.businessName ? '!border-red-500' : '!border-gray-300'}`}
+                aria-invalid={errors.businessName ? true : undefined}
+                aria-describedby={errors.businessName ? 'add-gst-business-error' : undefined}
               />
               {errors.businessName && (
-                <p className="mt-1 text-[12px] text-red-500">{errors.businessName.message}</p>
+                <p id="add-gst-business-error" className="mt-1 text-[12px] text-red-500" role="alert">
+                  {errors.businessName.message}
+                </p>
               )}
             </div>
           </form>
