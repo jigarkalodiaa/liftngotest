@@ -1,13 +1,15 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ROUTES } from '@/lib/constants';
 import { CloseIcon } from '@/components/ui';
 import { getLoggedIn, setLoggedIn, clearAuthToken } from '@/lib/storage';
 
 type MenuItem = { label: string; href: string; authOnly?: boolean };
+
+/** Delay (ms) before navigating after menu close – should match drawer’s CSS transition (duration-300 = 300ms). */
+const MENU_CLOSE_MS = 300;
 
 const menuSections: { title: string; items: MenuItem[] }[] = [
   {
@@ -45,9 +47,17 @@ interface MobileMenuProps {
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (isOpen) setIsLoggedIn(getLoggedIn());
+  }, [isOpen]);
+
+  // Focus close button when menu opens for keyboard/screen reader users
+  useEffect(() => {
+    if (isOpen) {
+      closeButtonRef.current?.focus({ preventScroll: true });
+    }
   }, [isOpen]);
 
   const handleLogout = () => {
@@ -57,16 +67,25 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     router.push(ROUTES.HOME);
   };
 
+  const handleNavClick = (href: string) => {
+    onClose();
+    setTimeout(() => router.push(href), MENU_CLOSE_MS);
+  };
+
   return (
     <div
-      className={`fixed top-0 right-0 h-full w-[85vw] bg-white z-[60] shadow-2xl transform transition-transform duration-300 ease-out ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
+      className={`fixed top-0 right-0 h-full w-[85vw] max-w-[280px] sm:w-80 sm:max-w-none bg-white z-[60] shadow-2xl transform transition-transform duration-300 ease-out motion-reduce:transition-none ${
+        isOpen ? 'translate-x-0' : 'translate-x-full pointer-events-none'
       }`}
+      aria-hidden={!isOpen}
+      aria-label="Navigation menu"
+      aria-modal="true"
     >
       <div className="flex flex-col h-full">
         {/* Close button */}
         <div className="flex justify-end p-4">
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="p-2 text-gray-500 hover:text-gray-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded-full"
             aria-label="Close menu"
@@ -87,21 +106,21 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   .filter((item) => !item.authOnly || isLoggedIn)
                   .map((item) => (
                   <li key={item.label}>
-                    <Link
-                      href={item.href}
-                      onClick={onClose}
-                      className="flex items-center justify-between py-3 text-gray-600 hover:text-gray-900 transition-colors group"
+                    <button
+                      type="button"
+                      onClick={() => handleNavClick(item.href)}
+                      className="flex w-full items-center justify-between py-3 text-left text-gray-600 hover:text-gray-900 transition-colors group"
                     >
                       <div className="flex items-center gap-3">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                        <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                         <span>{item.label}</span>
                       </div>
-                      <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                       </svg>
-                    </Link>
+                    </button>
                   </li>
                 ))}
                 {section.title === 'Preference' && isLoggedIn && (

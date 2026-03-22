@@ -4,9 +4,19 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { getLandingPickupLocation, setStoredPhone, setLoggedIn, setLandingPickupLocation, setPickupLocation, setAuthToken } from '@/lib/storage';
+import {
+  clearDropLocation,
+  clearPickupLocation,
+  consumePostLoginPath,
+  getLandingPickupLocation,
+  setAuthToken,
+  setLandingPickupLocation,
+  setLoggedIn,
+  setPickupLocation,
+  setStoredPhone,
+} from '@/lib/storage';
 import { ROUTES, getValidOtp } from '@/lib/constants';
-import { loginPhoneSchema, loginOtpSchema, type LoginPhoneForm } from '@/lib/validations';
+import { loginPhoneSchema, loginOtpSchema, MOBILE_LENGTH, normalizePhoneInput, type LoginPhoneForm } from '@/lib/validations';
 
 type LoginStep = 'phone' | 'otp';
 
@@ -42,6 +52,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     formState: { errors },
   } = useForm<LoginPhoneForm & { otp?: string }>({
     resolver: zodResolver(loginPhoneSchema),
+    mode: 'onTouched',
     defaultValues: { phone: '', termsAccepted: true, otp: '' },
   });
 
@@ -74,6 +85,15 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   }, [isOpen, onClose]);
 
   const panelRef = useRef<HTMLDivElement>(null);
+  const otpInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (step === 'otp') {
+      const t = setTimeout(() => otpInputRef.current?.focus(), 50);
+      return () => clearTimeout(t);
+    }
+  }, [step]);
+
   useEffect(() => {
     if (!isOpen || !panelRef.current) return;
     const panel = panelRef.current;
@@ -149,20 +169,28 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       return;
     }
     setLoggedIn(true);
-    const phone = phoneNumber.trim().replace(/\s/g, '').replace(/\D/g, '').slice(0, 10);
+    const phone = normalizePhoneInput(phoneNumber);
     setStoredPhone(phone);
     const dummyToken = `dummy_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
     setAuthToken(dummyToken);
-    const landingPickupValue = getLandingPickupLocation()?.trim();
-    const hasLandingPickup = Boolean(landingPickupValue);
-    if (hasLandingPickup && landingPickupValue) {
-      const name = landingPickupValue.split(',')[0]?.trim() || 'Pickup location';
-      setPickupLocation({ name, address: landingPickupValue, contact: '' });
-      setLandingPickupLocation(null);
+
+    const nextPath = consumePostLoginPath();
+    const landingPickupValue = getLandingPickupLocation()?.trim() ?? '';
+    if (nextPath === ROUTES.PICKUP_LOCATION) {
+      if (landingPickupValue) {
+        const name = landingPickupValue.split(',')[0]?.trim() || 'Pickup location';
+        setPickupLocation({ name, address: landingPickupValue, contact: '' });
+      } else {
+        // Landing flow with no address: don’t reuse a previous booking’s pickup/drop.
+        clearPickupLocation();
+        clearDropLocation();
+      }
     }
+    setLandingPickupLocation(null);
+
     setTimeout(() => {
       onClose();
-      router.push(ROUTES.DASHBOARD);
+      router.push(nextPath);
     }, 500);
   }, [otp, phoneNumber, router, onClose]);
 
@@ -180,13 +208,13 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     [{ key: 'backspace', id: 'backspace' }, { key: '0', id: 'k0' }, { key: 'enter', id: 'enter' }],
   ];
 
-  const digitsOnly = phoneNumber.trim().replace(/\s/g, '').replace(/\D/g, '');
+  const phoneDigits = normalizePhoneInput(phoneNumber);
   const otpValid = loginOtpSchema.safeParse({ otp: otp.join('') }).success;
   const otpFilled = otp.every((d) => d !== '');
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-black/50 backdrop-blur-sm">
-      <div ref={panelRef} className="flex-1 flex flex-col mt-auto bg-white rounded-t-3xl max-h-[90vh] overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-end md:justify-center bg-black/50 backdrop-blur-sm p-0 md:p-4">
+      <div ref={panelRef} className="flex-1 flex flex-col w-full mt-auto md:mt-0 md:flex-initial md:max-h-[28rem] md:max-w-md md:rounded-2xl bg-white rounded-t-3xl max-h-[90vh] overflow-hidden shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-900">Login to Liftngo</h2>
           <button
@@ -213,10 +241,16 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     inputMode="numeric"
                     autoComplete="tel-national"
                     placeholder="Enter mobile number"
+                    maxLength={10}
                     {...register('phone')}
+                    value={normalizePhoneInput(phoneNumber)}
+                    onChange={(e) => {
+                      const digits = normalizePhoneInput(e.target.value);
+                      setValue('phone', digits, { shouldValidate: true });
+                    }}
                     className={`flex-1 min-w-0 bg-transparent outline-none ${phoneNumber ? 'text-gray-900' : 'text-gray-400'}`}
                   />
-                  {digitsOnly.length === 10 && (
+                  {phoneDigits.length === MOBILE_LENGTH && (
                     <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -253,7 +287,28 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 </button>
               </div>
 
-              <div className="flex justify-center gap-2 mb-4" role="group" aria-label="OTP digits">
+              <label
+                htmlFor="login-otp-input"
+                className="flex justify-center gap-2 mb-4 cursor-text select-none relative"
+                role="group"
+                aria-label="OTP digits – click to type"
+              >
+                {/* Invisible input: label click focuses this so desktop can type OTP */}
+                <input
+                  id="login-otp-input"
+                  ref={otpInputRef}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={4}
+                  value={otp.join('')}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 4).split('');
+                    setOtp([digits[0] ?? '', digits[1] ?? '', digits[2] ?? '', digits[3] ?? '']);
+                  }}
+                  className="absolute opacity-0 w-0 h-0 p-0 m-0 border-0 pointer-events-none overflow-hidden"
+                  aria-label="Enter 4-digit OTP"
+                />
                 {otp.map((digit, i) => (
                   <div
                     key={i}
@@ -264,7 +319,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     {digit}
                   </div>
                 ))}
-              </div>
+              </label>
 
               {otpFilled && !otpValid && (
                 <ErrorMessage message="Please enter a valid 4-digit OTP" />
@@ -306,7 +361,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <button
               type="button"
               onClick={handleSubmit(onPhoneSubmit)}
-              disabled={digitsOnly.length !== 10 || !termsChecked}
+              disabled={phoneDigits.length !== MOBILE_LENGTH || !termsChecked}
               className="w-full py-4 bg-[var(--color-primary)] text-white font-semibold rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               Login
@@ -329,7 +384,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           )}
         </div>
 
-        <div className="bg-gray-100 p-4">
+        {/* Keypad: hidden on desktop so modal stays compact; desktop users use keyboard */}
+        <div className="bg-gray-100 p-4 md:hidden">
           <div className="grid grid-cols-3 gap-2">
             {keypadKeys.flat().map(({ key: k, id }) => (
               <button

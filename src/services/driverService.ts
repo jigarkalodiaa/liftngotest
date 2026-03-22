@@ -4,6 +4,7 @@
  */
 
 import apiClient from './apiClient';
+import { API_PATHS } from '@/config/api';
 
 export interface DriverInfo {
   id: string;
@@ -23,11 +24,11 @@ export interface TripDriverStatus {
 }
 
 export async function getTripDriverStatus(bookingId: string): Promise<TripDriverStatus> {
-  const { data } = await apiClient.get<TripDriverStatus>(`/bookings/${bookingId}/driver`);
+  const { data } = await apiClient.get<TripDriverStatus>(API_PATHS.bookingDriver(bookingId));
   return data;
 }
 
 export async function getDriverLocation(bookingId: string): Promise<{ lat: number; lng: number }> {
-  const { data } = await apiClient.get<{ lat: number; lng: number }>(`/bookings/${bookingId}/driver/location`);
+  const { data } = await apiClient.get<{ lat: number; lng: number }>(API_PATHS.bookingDriverLocation(bookingId));
   return data;
 }

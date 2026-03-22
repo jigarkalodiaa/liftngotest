@@ -5,12 +5,15 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SavedLocation, PersonDetails } from '@/types/booking';
 import {
+  clearDropLocation,
+  clearPickupLocation,
   getPickupLocation,
   getDropLocation,
   getLandingPickupLocation,
   getStoredPhone,
   getSenderDetails,
   getReceiverDetails,
+  savedLocationHasAddress,
   setPickupLocation,
   setSenderDetails,
   setReceiverDetails,
@@ -65,9 +68,10 @@ export default function EditPickupContent() {
     setCurrentMobile(storedPhone);
 
     const savedPickup = getPickupLocation();
-    if (savedPickup) {
+    if (savedLocationHasAddress(savedPickup)) {
       setPickup(savedPickup);
     } else {
+      if (savedPickup) clearPickupLocation();
       const landingPickup = getLandingPickupLocation();
       if (landingPickup?.trim()) {
         const name = landingPickup.split(',')[0]?.trim() || 'Pickup location';
@@ -78,7 +82,8 @@ export default function EditPickupContent() {
     }
 
     const savedDrop = getDropLocation();
-    if (savedDrop) setDrop(savedDrop);
+    if (savedLocationHasAddress(savedDrop)) setDrop(savedDrop);
+    else if (savedDrop) clearDropLocation();
 
     const sender = getSenderDetails();
     if (sender?.name) setValue('senderName', sender.name);
@@ -100,8 +105,10 @@ export default function EditPickupContent() {
     if (pathname !== ROUTES.PICKUP_LOCATION) return;
     const savedPickup = getPickupLocation();
     const savedDrop = getDropLocation();
-    if (savedPickup) setPickup(savedPickup);
-    if (savedDrop) setDrop(savedDrop);
+    if (savedLocationHasAddress(savedPickup)) setPickup(savedPickup);
+    else if (savedPickup) clearPickupLocation();
+    if (savedLocationHasAddress(savedDrop)) setDrop(savedDrop);
+    else if (savedDrop) clearDropLocation();
 
     const sender = getSenderDetails();
     if (sender?.name) setValue('senderName', sender.name);
@@ -181,9 +188,10 @@ export default function EditPickupContent() {
   const isFormValid = step === 1 ? isStep1Valid : isStep2Valid;
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="mx-auto w-full max-w-[520px] px-4 pb-8 pt-6">
-        <header className="flex items-center gap-3 pt-4 pb-5">
+    <div className="relative flex min-h-dvh flex-col bg-white">
+      {/* Flex column + flex-1 card fills space to the CTA (like design); inner form scrolls if content is tall (e.g. SE). CTA stays outside this column. */}
+      <div className="mx-auto flex min-h-0 w-full max-w-[520px] flex-1 flex-col overflow-x-hidden px-4 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-[calc(6.75rem+env(safe-area-inset-bottom,0px))] sm:px-5 sm:pb-[calc(7rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
+        <header className="flex shrink-0 items-center gap-3 pb-4 pt-3 sm:pt-4 sm:pb-5">
           <button
             type="button"
             onClick={() => router.push(fromFood ? ROUTES.FIND_RESTAURANT : ROUTES.DASHBOARD)}
@@ -196,7 +204,7 @@ export default function EditPickupContent() {
           </button>
           <div className="flex-1 text-center">
             <div className="text-[20px] font-semibold text-gray-900">
-              {fromFood && step === 2 ? 'Food delivery' : 'Personal Details'}
+              {fromFood && step === 2 ? 'Food delivery' : 'Add Default Details'}
             </div>
             <div className="mt-1 text-[12px] text-gray-500">
               {fromFood && step === 2
@@ -209,7 +217,7 @@ export default function EditPickupContent() {
           <div className="w-9" />
         </header>
 
-        <div className="mt-1 mb-5 flex h-1.5 overflow-hidden rounded-full bg-gray-100">
+        <div className="mb-4 flex h-1.5 shrink-0 overflow-hidden rounded-full bg-gray-100 sm:mb-5">
           {fromFood && step === 2 ? (
             <div className="w-full bg-emerald-500" />
           ) : (
@@ -220,10 +228,12 @@ export default function EditPickupContent() {
           )}
         </div>
 
-        <div className="rounded-[22px] border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div
+          className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[22px] border border-gray-200 bg-white shadow-[0_4px_24px_rgba(15,23,42,0.08)] max-lg:min-h-0 lg:max-h-[min(640px,calc(100dvh-10rem))] lg:flex-none lg:self-stretch"
+        >
           {step === 1 ? (
-            <>
-              <div className="bg-[#F5F7FF] px-4 py-3 flex items-center justify-between">
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="bg-[#F5F7FF] px-4 py-3 sm:px-5 sm:py-4 flex shrink-0 items-center justify-between">
                 <div>
                   <div className="text-[14px] font-semibold text-gray-800">Pick up Location</div>
                   {pickup ? (
@@ -247,88 +257,94 @@ export default function EditPickupContent() {
                           `${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup&returnTo=${encodeURIComponent(`${ROUTES.PICKUP_LOCATION}?step=1`)}`
                         )
                       }
-                      className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-400"
+                      className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-500"
                     >
-                      Enter pickup location
+                      Select pickup location
                     </button>
                   )}
                 </div>
                 <div className="h-9 w-9" />
               </div>
 
-              <div className="px-4 pt-4 pb-5 space-y-4">
-                <div>
-                  <label className="mb-1 block text-[12px] font-medium text-gray-600">Sender name</label>
-                  <input
-                    type="text"
-                    placeholder="Sender name (min. 3 letters)"
-                    {...register('senderName', {
-                      onBlur: (e) => setValue('senderName', e.target.value.trim()),
-                    })}
-                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
-                      errors.senderName ? 'border-red-400' : 'border-gray-300'
-                    }`}
-                  />
-                  {errors.senderName && (
-                    <p className="mt-1 text-[11px] text-red-500">{errors.senderName.message}</p>
-                  )}
-                </div>
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-1 block text-[12px] font-medium text-gray-600">Sender name</label>
+                      <input
+                        type="text"
+                        placeholder="Sender name (min. 3 letters)"
+                        {...register('senderName', {
+                          onBlur: (e) => setValue('senderName', e.target.value.trim()),
+                        })}
+                        className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                          errors.senderName ? 'border-red-400' : 'border-gray-300'
+                        }`}
+                      />
+                      {errors.senderName && (
+                        <p className="mt-1 text-[11px] text-red-500">{errors.senderName.message}</p>
+                      )}
+                    </div>
 
-                <div>
-                  <label className="mb-1 block text-[12px] font-medium text-gray-600">Sender Mobile Number</label>
-                  <input
-                    type="tel"
-                    placeholder="Sender Mobile Number"
-                    {...register('senderMobile', {
-                      onChange: (e) => {
-                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        setValue('senderMobile', digits);
-                        if (digits !== currentMobile) setUseCurrentMobile(false);
-                      },
-                    })}
-                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
-                      errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)
-                        ? 'border-red-400'
-                        : 'border-gray-300'
-                    }`}
-                  />
-                  {(errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)) && (
-                    <p className="mt-1 text-[11px] text-red-500">
-                      {errors.senderMobile?.message ?? 'Enter a valid 10-digit mobile number.'}
-                    </p>
-                  )}
-                </div>
+                    <div>
+                      <label className="mb-1 block text-[12px] font-medium text-gray-600">Sender Mobile Number</label>
+                      <input
+                        type="tel"
+                        placeholder="Sender Mobile Number"
+                        {...register('senderMobile', {
+                          onChange: (e) => {
+                            const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                            setValue('senderMobile', digits);
+                            if (digits !== currentMobile) setUseCurrentMobile(false);
+                          },
+                        })}
+                        className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                          errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)
+                            ? 'border-red-400'
+                            : 'border-gray-300'
+                        }`}
+                      />
+                      {(errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)) && (
+                        <p className="mt-1 text-[11px] text-red-500">
+                          {errors.senderMobile?.message ?? 'Enter a valid 10-digit mobile number.'}
+                        </p>
+                      )}
+                    </div>
 
-                <label className="mt-1 flex items-center gap-2 text-[12px] text-gray-600">
-                  <input
-                    type="checkbox"
-                    checked={useCurrentMobile}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setUseCurrentMobile(checked);
-                      if (!checked) setValue('senderMobile', '');
-                    }}
-                    className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
-                  />
-                  <span>
-                    Use My current Mobile number : <span className="font-semibold text-gray-800">{currentMobile}</span>
-                  </span>
-                </label>
+                    <label className="mt-1 flex items-center gap-2 text-[12px] text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={useCurrentMobile}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setUseCurrentMobile(checked);
+                          if (!checked) setValue('senderMobile', '');
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
+                      />
+                      <span>
+                        Use My current Mobile number : <span className="font-semibold text-gray-800">{currentMobile}</span>
+                      </span>
+                    </label>
+                  </div>
 
-                <div className="mt-4 flex justify-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-gray-300" />
-                  <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+                  <div className="min-h-6 flex-1" aria-hidden />
+
+                  <div className="flex shrink-0 justify-center gap-1.5 pb-4 pt-6" aria-hidden>
+                    <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+                    <span className="h-2 w-2 rounded-full bg-gray-300" />
+                  </div>
                 </div>
               </div>
-            </>
+            </div>
           ) : (
-            <>
+            <div className="flex min-h-0 flex-1 flex-col">
               {fromFood && pickup && (
                 <div className="px-4 pt-2 pb-1 text-[12px] text-gray-500">
                   Pickup: <strong className="text-gray-700">{pickup.name}</strong> — Enter where to deliver your food.
                 </div>
               )}
-              <div className="bg-[#F5F7FF] px-4 py-3 flex items-center justify-between">
+              <div className="bg-[#F5F7FF] px-4 py-3 sm:px-5 sm:py-4 flex shrink-0 items-center justify-between">
                 <div>
                   <div className="text-[14px] font-semibold text-gray-800">{fromFood ? 'Your delivery address' : 'Drop Location'}</div>
                   {drop ? (
@@ -361,88 +377,94 @@ export default function EditPickupContent() {
                 <div className="h-9 w-9" />
               </div>
 
-              <div className="px-4 pt-4 pb-5 space-y-4">
-                <div>
-                  <label className="mb-1 block text-[12px] font-medium text-gray-600">{fromFood ? 'Your name' : "Receiver's name"}</label>
-                  <input
-                    type="text"
-                    placeholder={fromFood ? 'Your name (min. 3 letters)' : "Receiver's name (min. 3 letters)"}
-                    {...register('receiverName', {
-                      onBlur: (e) => setValue('receiverName', e.target.value.trim()),
-                    })}
-                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
-                      errors.receiverName ? 'border-red-400' : 'border-gray-300'
-                    }`}
-                  />
-                  {errors.receiverName && (
-                    <p className="mt-1 text-[11px] text-red-500">{errors.receiverName.message}</p>
-                  )}
-                </div>
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="mb-1 block text-[12px] font-medium text-gray-600">{fromFood ? 'Your name' : "Receiver's name"}</label>
+                      <input
+                        type="text"
+                        placeholder={fromFood ? 'Your name (min. 3 letters)' : "Receiver's name (min. 3 letters)"}
+                        {...register('receiverName', {
+                          onBlur: (e) => setValue('receiverName', e.target.value.trim()),
+                        })}
+                        className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                          errors.receiverName ? 'border-red-400' : 'border-gray-300'
+                        }`}
+                      />
+                      {errors.receiverName && (
+                        <p className="mt-1 text-[11px] text-red-500">{errors.receiverName.message}</p>
+                      )}
+                    </div>
 
-                <div>
-                  <label className="mb-1 block text-[12px] font-medium text-gray-600">{fromFood ? 'Your mobile number' : 'Receiver Mobile Number'}</label>
-                  <input
-                    type="tel"
-                    placeholder={fromFood ? 'Your mobile number' : 'Receiver Mobile Number'}
-                    {...register('receiverMobile', {
-                      onChange: (e) => {
-                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        setValue('receiverMobile', digits);
-                        if (digits !== currentMobile) setUseReceiverCurrentMobile(false);
-                      },
-                    })}
-                    className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
-                      errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)
-                        ? 'border-red-400'
-                        : 'border-gray-300'
-                    }`}
-                  />
-                  {(errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)) && (
-                    <p className="mt-1 text-[11px] text-red-500">
-                      {errors.receiverMobile?.message ?? 'Enter a valid 10-digit mobile number.'}
-                    </p>
-                  )}
-                </div>
+                    <div>
+                      <label className="mb-1 block text-[12px] font-medium text-gray-600">{fromFood ? 'Your mobile number' : 'Receiver Mobile Number'}</label>
+                      <input
+                        type="tel"
+                        placeholder={fromFood ? 'Your mobile number' : 'Receiver Mobile Number'}
+                        {...register('receiverMobile', {
+                          onChange: (e) => {
+                            const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                            setValue('receiverMobile', digits);
+                            if (digits !== currentMobile) setUseReceiverCurrentMobile(false);
+                          },
+                        })}
+                        className={`w-full h-14 rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] ${
+                          errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)
+                            ? 'border-red-400'
+                            : 'border-gray-300'
+                        }`}
+                      />
+                      {(errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)) && (
+                        <p className="mt-1 text-[11px] text-red-500">
+                          {errors.receiverMobile?.message ?? 'Enter a valid 10-digit mobile number.'}
+                        </p>
+                      )}
+                    </div>
 
-                <label className="mt-1 flex items-center gap-2 text-[12px] text-gray-600">
-                  <input
-                    type="checkbox"
-                    checked={useReceiverCurrentMobile}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setUseReceiverCurrentMobile(checked);
-                      if (!checked) setValue('receiverMobile', '');
-                    }}
-                    className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
-                  />
-                  <span>
-                    Use My current Mobile number : <span className="font-semibold text-gray-800">{currentMobile}</span>
-                  </span>
-                </label>
+                    <label className="mt-1 flex items-center gap-2 text-[12px] text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={useReceiverCurrentMobile}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setUseReceiverCurrentMobile(checked);
+                          if (!checked) setValue('receiverMobile', '');
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)]"
+                      />
+                      <span>
+                        Use My current Mobile number : <span className="font-semibold text-gray-800">{currentMobile}</span>
+                      </span>
+                    </label>
+                  </div>
 
-                <div className="mt-4 flex justify-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-gray-300" />
-                  <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+                  <div className="min-h-6 flex-1" aria-hidden />
+
+                  <div className="flex shrink-0 justify-center gap-1.5 pb-4 pt-6" aria-hidden>
+                    <span className="h-2 w-2 rounded-full bg-gray-300" />
+                    <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
+                  </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
+      </div>
 
-        <div className="fixed inset-x-0 bottom-0">
-          <div className="mx-auto w-full max-w-[520px] bg-white px-4 pb-7 pt-3 shadow-[0_-8px_20px_rgba(15,23,42,0.12)]">
-            <button
-              type="button"
-              disabled={!isFormValid}
-              onClick={step === 1 ? onStep1Submit : onStep2Submit}
-              className="w-full rounded-2xl bg-[var(--color-primary)] py-3.5 text-[16px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {step === 1 ? 'Confirm pick location' : fromFood ? 'Continue to book delivery' : 'Confirm drop location'}
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-gray-100 bg-white/95 backdrop-blur-sm supports-[backdrop-filter]:bg-white/80">
+        <div className="mx-auto w-full max-w-[520px] px-4 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-3 sm:px-5">
+          <button
+            type="button"
+            disabled={!isFormValid}
+            onClick={step === 1 ? onStep1Submit : onStep2Submit}
+            className="w-full rounded-2xl bg-[var(--color-primary)] py-3.5 text-[16px] font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {step === 1 ? 'Confirm pick location' : fromFood ? 'Continue to book delivery' : 'Confirm drop location'}
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

@@ -4,12 +4,13 @@
  */
 
 import axios, { type AxiosError } from 'axios';
-import { API_BASE_URL } from '@/config/env';
+import { API_BASE_URL, API_TIMEOUT_MS } from '@/config/env';
+import { getAuthToken } from '@/lib/storage';
 import { normalizeApiError } from '@/utils/error';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL || undefined,
-  timeout: 20000,
+  timeout: API_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -18,7 +19,7 @@ const apiClient = axios.create({
 // Request: add auth token if present (never expose tokens in logs – TRD §14)
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const token = window.localStorage.getItem('liftngo_token');
+    const token = getAuthToken();
     if (token) config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

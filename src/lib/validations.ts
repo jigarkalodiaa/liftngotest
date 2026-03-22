@@ -6,13 +6,18 @@
 
 import { z } from 'zod';
 
-const MOBILE_LENGTH = 10;
+export const MOBILE_LENGTH = 10;
 const OTP_LENGTH = 4;
 const MIN_ALPHABETS = 3;
 
 /** Count alphabetic characters (a-zA-Z) */
 function countAlphabets(s: string): number {
   return s.match(/[a-zA-Z]/g)?.length ?? 0;
+}
+
+/** Normalize raw input for phone field: digits only, max MOBILE_LENGTH. Use for controlled inputs so UI stays in sync with schema. */
+export function normalizePhoneInput(value: string): string {
+  return value.replace(/\D/g, '').slice(0, MOBILE_LENGTH);
 }
 
 /** Indian 10-digit mobile: trim, digits only, no spaces */
@@ -69,39 +74,35 @@ export const receiverDetailsSchema = z.object({
   receiverMobile: mobileSchema,
 });
 
-/** GSTIN: trim, no spaces, 15 chars format */
+/** Indian GSTIN: 15 chars, no spaces (standard format). */
 const GSTIN_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+
+/** Normalize GST input: uppercase, strip spaces/non-alphanumerics, max 15. */
+export function normalizeGstInput(value: string): string {
+  return value.replace(/\s/g, '').toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 15);
+}
+
+/** Optional GSTIN (e.g. profile): empty OK, else must match format */
 export const gstinSchema = z
   .string()
-  .transform((s) => s.replace(/\s/g, '').trim().toUpperCase())
+  .transform((s) => normalizeGstInput(s))
   .refine((s) => s.length === 0 || GSTIN_REGEX.test(s), 'Enter a valid 15-character GSTIN');
 
-/** Business name when provided: trim, at least 3 letters if required */
-/** Add GST modal: GST number optional (no spaces); when provided, business name required with min 3 letters */
-export const addGstSchema = z
-  .object({
-    gstNumber: z
-      .string()
-      .transform((s) => s.replace(/\s/g, '').trim().toUpperCase())
-      .optional(),
-    businessName: z
-      .string()
-      .max(200, 'Business name is too long')
-      .transform((s) => s.trim())
-      .optional()
-      .refine((s) => !s || s.length === 0 || countAlphabets(s) >= MIN_ALPHABETS, {
-        message: 'Business name must contain at least 3 letters',
-      }),
-  })
-  .refine(
-    (data) => {
-      const hasGst = Boolean(data.gstNumber?.length);
-      if (!hasGst) return true;
-      const name = (data.businessName ?? '').trim();
-      return name.length > 0 && countAlphabets(name) >= MIN_ALPHABETS;
-    },
-    { message: 'Business name is required when adding GST (at least 3 letters)', path: ['businessName'] }
-  );
+/** Add GST modal: both fields required; GST must be valid format */
+export const addGstSchema = z.object({
+  gstNumber: z
+    .string()
+    .transform((s) => normalizeGstInput(s))
+    .refine((s) => s.length > 0, 'GST number is required')
+    .refine((s) => s.length === 15, 'GST number must be 15 characters')
+    .refine((s) => GSTIN_REGEX.test(s), 'Enter a valid GSTIN (e.g. 22AAAAA0000A1Z5)'),
+  businessName: z
+    .string()
+    .transform((s) => s.trim())
+    .refine((s) => s.length > 0, 'Business name is required')
+    .refine((s) => countAlphabets(s) >= MIN_ALPHABETS, 'Business name must contain at least 3 letters')
+    .refine((s) => s.length <= 200, 'Business name is too long'),
+});
 
 export type LoginPhoneForm = z.infer<typeof loginPhoneSchema>;
 export type LoginOtpForm = z.infer<typeof loginOtpSchema>;

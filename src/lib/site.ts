@@ -55,14 +55,14 @@ export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 /** Full project description (About, structured data). */
 export const PROJECT_DESCRIPTION =
-  'Liftngo is a technology-driven logistics and goods transportation platform designed to simplify last-mile delivery for businesses and individuals. The platform connects customers with nearby drivers and fleet operators to provide fast, reliable, and affordable goods transport services within cities and local regions. Liftngo focuses on organizing the traditionally unstructured local transport ecosystem by introducing a digital booking system, transparent pricing, and efficient driver management. The platform enables customers to book vehicles for transporting goods such as parcels, retail inventory, groceries, and commercial materials with ease. Through its smart logistics infrastructure, Liftngo supports real-time booking, route optimization, and delivery tracking while creating consistent earning opportunities for drivers and fleet owners. The system is designed to scale across multiple cities while maintaining operational efficiency and service reliability. Liftngo aims to empower small businesses, local merchants, and independent drivers by providing them with an accessible logistics network that improves delivery efficiency and reduces operational friction.';
+  'Liftngo is a B2B-oriented, technology-driven logistics platform for sending and receiving goods: it connects businesses and teams with verified drivers and fleet operators for structured bookings, transparent pricing, and last-mile delivery within cities and local regions. The product follows a clear logistics pattern—pickup, transit, and handoff—rather than treating delivery as a generic add-on. Liftngo organizes the traditionally unstructured local transport ecosystem with digital booking, route-aware operations, and efficient partner management. Customers book vehicles for parcels, retail inventory, groceries, and commercial materials; the platform supports real-time booking, tracking, and scale across cities while empowering merchants and driver partners with a dependable service network.';
 
 /** Mission & vision (for About and structured data). */
 export const MISSION =
-  'Liftngo’s mission is to organize the unstructured local goods transportation market by providing technology-driven logistics solutions that are affordable, reliable, and accessible for everyone.';
+  'We exist so every business—from a corner store to a growing distributor—can ship goods with enterprise-grade confidence: clear pricing, verified partners, and live visibility from first pickup to final handoff.';
 
 export const VISION =
-  'Liftngo aims to become a trusted logistics infrastructure for local transport ecosystems, empowering drivers, supporting small businesses, and simplifying goods movement through technology.';
+  'A future where local goods movement runs on trust and data, not phone calls and guesswork—and where Liftngo is the quiet infrastructure behind every shipment that arrives exactly as promised.';
 
 /** Brand object for shared use. */
 export const BRAND = {
