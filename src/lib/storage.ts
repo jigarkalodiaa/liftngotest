@@ -4,7 +4,7 @@
  */
 
 import type { SavedLocation, PersonDetails, ServiceId } from '@/types/booking';
-import { STORAGE_KEYS } from './constants';
+import { ROUTES, SESSION_KEYS, STORAGE_KEYS } from './constants';
 
 function safeParse<T>(raw: string | null, guard: (v: unknown) => v is T): T | null {
   if (!raw) return null;
@@ -159,6 +159,27 @@ export function setPickupLocation(loc: SavedLocation): void {
   }
 }
 
+export function clearPickupLocation(): void {
+  try {
+    window?.localStorage?.removeItem(STORAGE_KEYS.PICKUP_LOCATION);
+  } catch {
+    // ignore
+  }
+}
+
+export function clearDropLocation(): void {
+  try {
+    window?.localStorage?.removeItem(STORAGE_KEYS.DROP_LOCATION);
+  } catch {
+    // ignore
+  }
+}
+
+/** True when a saved location is safe to show (non-empty address). */
+export function savedLocationHasAddress(loc: SavedLocation | null | undefined): loc is SavedLocation {
+  return Boolean(loc && typeof loc.address === 'string' && loc.address.trim().length > 0);
+}
+
 export function setDropLocation(loc: SavedLocation): void {
   try {
     window?.localStorage?.setItem(STORAGE_KEYS.DROP_LOCATION, JSON.stringify(loc));
@@ -215,6 +236,43 @@ export function setLandingPickupLocation(value: string | null): void {
     else window?.localStorage?.removeItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION);
   } catch {
     // ignore
+  }
+}
+
+/**
+ * Landing hero “Enter pickup → login” flow: after OTP, go to /pickup-location.
+ * Cleared when opening login from the header (dashboard path).
+ */
+export function setPostLoginPath(path: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (path === ROUTES.PICKUP_LOCATION) {
+      sessionStorage.setItem(SESSION_KEYS.POST_LOGIN_PATH, ROUTES.PICKUP_LOCATION);
+    }
+  } catch {
+    // ignore (private mode / quota)
+  }
+}
+
+export function clearPostLoginPath(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(SESSION_KEYS.POST_LOGIN_PATH);
+  } catch {
+    // ignore
+  }
+}
+
+/** Read and remove post-login redirect (one-shot). Unknown values fall back to dashboard. */
+export function consumePostLoginPath(): string {
+  if (typeof window === 'undefined') return ROUTES.DASHBOARD;
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEYS.POST_LOGIN_PATH);
+    sessionStorage.removeItem(SESSION_KEYS.POST_LOGIN_PATH);
+    if (raw === ROUTES.PICKUP_LOCATION) return ROUTES.PICKUP_LOCATION;
+    return ROUTES.DASHBOARD;
+  } catch {
+    return ROUTES.DASHBOARD;
   }
 }
 

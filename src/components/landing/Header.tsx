@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMenu } from './PageWrapper';
 import { SITE_NAME } from '@/lib/site';
+import { clearPostLoginPath } from '@/lib/storage';
 
 const HEADER_BAR_HEIGHT = 56;
 const HEADER_TOP_GAP = 24;
@@ -30,12 +31,9 @@ export default function Header() {
         style={{ paddingBottom: 0 }}
       >
         <div
-          className="pointer-events-auto max-w-7xl mx-auto h-14 md:h-[56px] rounded-xl md:rounded-[12px] flex items-center justify-between px-4 sm:px-6 border border-[#e8d5c4]"
+          className="pointer-events-auto mx-auto flex h-14 max-w-7xl items-center justify-between rounded-xl border border-black/[0.06] bg-[var(--landing-bg)]/85 px-4 shadow-sm backdrop-blur-md sm:px-6 md:h-[56px] md:rounded-[12px]"
           style={{
-            background: 'rgba(252, 234, 216, 0.55)',
-            backdropFilter: 'saturate(180%) blur(12px)',
-            WebkitBackdropFilter: 'saturate(180%) blur(12px)',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.06)',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04)',
           }}
         >
           <Link href="/" className="flex items-center gap-2 shrink-0" aria-label={`${SITE_NAME} home`}>
@@ -62,7 +60,10 @@ export default function Header() {
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
-              onClick={openLogin}
+              onClick={() => {
+                clearPostLoginPath();
+                openLogin();
+              }}
               className="rounded-xl bg-[var(--color-primary)] px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-semibold text-white hover:opacity-90 transition-opacity"
             >
               Login

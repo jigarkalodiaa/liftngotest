@@ -4,7 +4,17 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { getLandingPickupLocation, setStoredPhone, setLoggedIn, setLandingPickupLocation, setPickupLocation, setAuthToken } from '@/lib/storage';
+import {
+  clearDropLocation,
+  clearPickupLocation,
+  consumePostLoginPath,
+  getLandingPickupLocation,
+  setAuthToken,
+  setLandingPickupLocation,
+  setLoggedIn,
+  setPickupLocation,
+  setStoredPhone,
+} from '@/lib/storage';
 import { ROUTES, getValidOtp } from '@/lib/constants';
 import { loginPhoneSchema, loginOtpSchema, MOBILE_LENGTH, normalizePhoneInput, type LoginPhoneForm } from '@/lib/validations';
 
@@ -163,16 +173,24 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setStoredPhone(phone);
     const dummyToken = `dummy_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
     setAuthToken(dummyToken);
-    const landingPickupValue = getLandingPickupLocation()?.trim();
-    const hasLandingPickup = Boolean(landingPickupValue);
-    if (hasLandingPickup && landingPickupValue) {
-      const name = landingPickupValue.split(',')[0]?.trim() || 'Pickup location';
-      setPickupLocation({ name, address: landingPickupValue, contact: '' });
-      setLandingPickupLocation(null);
+
+    const nextPath = consumePostLoginPath();
+    const landingPickupValue = getLandingPickupLocation()?.trim() ?? '';
+    if (nextPath === ROUTES.PICKUP_LOCATION) {
+      if (landingPickupValue) {
+        const name = landingPickupValue.split(',')[0]?.trim() || 'Pickup location';
+        setPickupLocation({ name, address: landingPickupValue, contact: '' });
+      } else {
+        // Landing flow with no address: don’t reuse a previous booking’s pickup/drop.
+        clearPickupLocation();
+        clearDropLocation();
+      }
     }
+    setLandingPickupLocation(null);
+
     setTimeout(() => {
       onClose();
-      router.push(ROUTES.DASHBOARD);
+      router.push(nextPath);
     }, 500);
   }, [otp, phoneNumber, router, onClose]);
 

@@ -5,12 +5,15 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SavedLocation, PersonDetails } from '@/types/booking';
 import {
+  clearDropLocation,
+  clearPickupLocation,
   getPickupLocation,
   getDropLocation,
   getLandingPickupLocation,
   getStoredPhone,
   getSenderDetails,
   getReceiverDetails,
+  savedLocationHasAddress,
   setPickupLocation,
   setSenderDetails,
   setReceiverDetails,
@@ -65,9 +68,10 @@ export default function EditPickupContent() {
     setCurrentMobile(storedPhone);
 
     const savedPickup = getPickupLocation();
-    if (savedPickup) {
+    if (savedLocationHasAddress(savedPickup)) {
       setPickup(savedPickup);
     } else {
+      if (savedPickup) clearPickupLocation();
       const landingPickup = getLandingPickupLocation();
       if (landingPickup?.trim()) {
         const name = landingPickup.split(',')[0]?.trim() || 'Pickup location';
@@ -78,7 +82,8 @@ export default function EditPickupContent() {
     }
 
     const savedDrop = getDropLocation();
-    if (savedDrop) setDrop(savedDrop);
+    if (savedLocationHasAddress(savedDrop)) setDrop(savedDrop);
+    else if (savedDrop) clearDropLocation();
 
     const sender = getSenderDetails();
     if (sender?.name) setValue('senderName', sender.name);
@@ -100,8 +105,10 @@ export default function EditPickupContent() {
     if (pathname !== ROUTES.PICKUP_LOCATION) return;
     const savedPickup = getPickupLocation();
     const savedDrop = getDropLocation();
-    if (savedPickup) setPickup(savedPickup);
-    if (savedDrop) setDrop(savedDrop);
+    if (savedLocationHasAddress(savedPickup)) setPickup(savedPickup);
+    else if (savedPickup) clearPickupLocation();
+    if (savedLocationHasAddress(savedDrop)) setDrop(savedDrop);
+    else if (savedDrop) clearDropLocation();
 
     const sender = getSenderDetails();
     if (sender?.name) setValue('senderName', sender.name);
@@ -250,9 +257,9 @@ export default function EditPickupContent() {
                           `${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup&returnTo=${encodeURIComponent(`${ROUTES.PICKUP_LOCATION}?step=1`)}`
                         )
                       }
-                      className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-400"
+                      className="mt-2 w-full rounded-xl border border-dashed border-gray-400 bg-white px-3 py-2 text-left text-[14px] text-gray-500"
                     >
-                      Enter Pick Location
+                      Select pickup location
                     </button>
                   )}
                 </div>

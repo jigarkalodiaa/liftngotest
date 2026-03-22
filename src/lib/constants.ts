@@ -19,6 +19,12 @@ export const STORAGE_KEYS = {
   DELIVERY_GOODS_DESCRIPTION: 'delivery_goods_description',
 } as const;
 
+/** sessionStorage — cleared when the tab closes; not shared across tabs. */
+export const SESSION_KEYS = {
+  /** After OTP success, navigate here if set (e.g. landing “Enter pickup” → /pickup-location). */
+  POST_LOGIN_PATH: 'liftngo_post_login_path',
+} as const;
+
 export const ROUTES = {
   HOME: '/',
   DASHBOARD: '/dashboard',
