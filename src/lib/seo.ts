@@ -4,6 +4,7 @@ import {
   SITE_NAME,
   SITE_DESCRIPTION,
   SEO_KEYWORDS,
+  OG_IMAGE_PATH,
 } from "@/lib/site";
 
 interface PageSEOProps {
@@ -19,7 +20,7 @@ export function generatePageMetadata({
   title,
   description,
   path = "",
-  image = "/og-image.jpg",
+  image = OG_IMAGE_PATH,
   noIndex = false,
   keywords = [],
 }: PageSEOProps): Metadata {
@@ -38,6 +39,7 @@ export function generatePageMetadata({
       description,
       url,
       siteName: SITE_NAME,
+      locale: "en_IN",
       images: [
         {
           url: imageUrl,
@@ -69,6 +71,8 @@ export function generateArticleMetadata({
   modifiedTime,
   authors,
   tags,
+  keywords = [],
+  noIndex = false,
 }: PageSEOProps & {
   publishedTime: string;
   modifiedTime?: string;
@@ -80,6 +84,8 @@ export function generateArticleMetadata({
     description,
     path,
     image,
+    noIndex,
+    keywords,
   });
 
   return {

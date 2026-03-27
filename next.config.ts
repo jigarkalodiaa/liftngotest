@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  compress: true,
+  async redirects() {
+    return [
+      { source: '/delivery-khatu', destination: '/khatu-shyam-logistics', permanent: true },
+      { source: '/b2b-logistics-noida', destination: '/noida-b2b-logistics', permanent: true },
+      { source: '/food-menu', destination: '/find-restaurant', permanent: false },
+    ];
+  },
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'picsum.photos', pathname: '/**' },

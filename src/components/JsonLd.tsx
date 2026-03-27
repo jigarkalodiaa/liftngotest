@@ -1,4 +1,4 @@
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, PROJECT_DESCRIPTION, LOGO_URL } from '@/lib/site';
 import { FAQ_ITEMS } from '@/data/faq';
 
 interface JsonLdProps {
@@ -31,19 +31,172 @@ export const websiteJsonLd = {
   },
 };
 
+const ORGANIZATION_ID = `${SITE_URL}/#organization`;
+const WEBSITE_ID = `${SITE_URL}/#website`;
+
 export const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': ORGANIZATION_ID,
   name: SITE_NAME,
   url: SITE_URL,
-  logo: `${SITE_URL}/logo.png`,
+  logo: LOGO_URL,
   description: SITE_DESCRIPTION,
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer service',
-    availableLanguage: 'English',
+    availableLanguage: ['English', 'Hindi'],
   },
 };
+
+/** About page: AboutPage + WebSite + Organization + BreadcrumbList (single graph). */
+export function buildAboutPageJsonLd({
+  pageUrl,
+  title,
+  description,
+  heroImageUrl,
+}: {
+  pageUrl: string;
+  title: string;
+  description: string;
+  heroImageUrl: string;
+}) {
+  const aboutId = `${pageUrl}#webpage`;
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'Organization',
+      '@id': ORGANIZATION_ID,
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: { '@type': 'ImageObject', url: LOGO_URL },
+      description: PROJECT_DESCRIPTION,
+      areaServed: [
+        {
+          '@type': 'Place',
+          name: 'Khatu',
+          address: {
+            '@type': 'PostalAddress',
+            addressRegion: 'Rajasthan',
+            addressCountry: 'IN',
+          },
+        },
+        {
+          '@type': 'Country',
+          name: 'India',
+        },
+      ],
+      knowsAbout: [
+        'Hyperlocal logistics',
+        'Last-mile goods delivery',
+        'EV cargo vehicles',
+        'B2B transport',
+        'Intra-city freight',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': WEBSITE_ID,
+      name: SITE_NAME,
+      url: SITE_URL,
+      publisher: { '@id': ORGANIZATION_ID },
+    },
+    {
+      '@type': 'AboutPage',
+      '@id': aboutId,
+      url: pageUrl,
+      name: title,
+      description,
+      inLanguage: 'en-IN',
+      isPartOf: { '@id': WEBSITE_ID },
+      about: { '@id': ORGANIZATION_ID },
+      primaryImageOfPage: {
+        '@type': 'ImageObject',
+        url: heroImageUrl,
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: SITE_URL,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'About',
+          item: pageUrl,
+        },
+      ],
+    },
+  ];
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  };
+}
+
+type BreadcrumbItem = { name: string; url: string };
+
+/** Marketing detail pages: WebPage + breadcrumbs (+ optional FAQ in same graph). */
+export function buildWebPageJsonLd({
+  pageUrl,
+  name,
+  description,
+  breadcrumb,
+  faqMainEntity,
+}: {
+  pageUrl: string;
+  name: string;
+  description: string;
+  breadcrumb: BreadcrumbItem[];
+  faqMainEntity?: { question: string; answer: string }[];
+}) {
+  const pageId = `${pageUrl}#webpage`;
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'WebPage',
+      '@id': pageId,
+      url: pageUrl,
+      name,
+      description,
+      inLanguage: 'en-IN',
+      isPartOf: { '@id': WEBSITE_ID },
+      publisher: { '@id': ORGANIZATION_ID },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumb.map((item, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    },
+  ];
+
+  if (faqMainEntity?.length) {
+    graph.push({
+      '@type': 'FAQPage',
+      mainEntity: faqMainEntity.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      })),
+    });
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  };
+}
 
 /** LocalBusiness schema for local/logistics SEO. */
 export const localBusinessJsonLd = {
@@ -52,9 +205,9 @@ export const localBusinessJsonLd = {
   '@id': `${SITE_URL}/#organization`,
   name: SITE_NAME,
   url: SITE_URL,
-  logo: `${SITE_URL}/logo.png`,
+  logo: LOGO_URL,
   description: SITE_DESCRIPTION,
-  image: `${SITE_URL}/logo.png`,
+  image: LOGO_URL,
   priceRange: '₹₹',
   openingHoursSpecification: {
     '@type': 'OpeningHoursSpecification',

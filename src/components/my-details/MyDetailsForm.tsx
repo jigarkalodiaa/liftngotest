@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { userProfileFormSchema, type UserProfileForm } from '@/lib/validations';
 import { getUserProfile, setUserProfile, isUserAuthenticated } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
+import { trackFormSubmit } from '@/lib/analytics';
 
 const emptyDefaults: UserProfileForm = {
   fullName: '',
@@ -59,6 +60,7 @@ export default function MyDetailsForm() {
   }, [allowed, reset]);
 
   const onSubmit = (data: UserProfileForm) => {
+    trackFormSubmit('my_details');
     setUserProfile({
       fullName: data.fullName,
       alternatePhone: data.alternatePhone,

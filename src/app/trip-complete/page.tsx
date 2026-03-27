@@ -82,7 +82,7 @@ export default function TripCompletePage() {
           <div className="mt-8 ml-4  justify-end">
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-xl border border-[#3D76F1]/30 bg-[#EEF3FD] px-4 py-2 text-[14px] font-semibold text-[#3D76F1] hover:bg-[#E6EEFF] transition-colors"
+              className="inline-flex items-center justify-center rounded-xl border border-[#2C2D5B]/25 bg-[#ECECF4] px-4 py-2 text-[14px] font-semibold text-[#2C2D5B] hover:bg-[#E0E1ED] transition-colors"
             >
               Pay Online
             </button>

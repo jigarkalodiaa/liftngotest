@@ -7,6 +7,18 @@ import type { SavedLocation, PersonDetails, ServiceId, DefaultTrip } from '@/typ
 import type { UserProfile } from '@/types/userProfile';
 import { ROUTES, SESSION_KEYS, STORAGE_KEYS } from './constants';
 
+const ALLOWED_POST_LOGIN_PATHS = new Set<string>([ROUTES.PICKUP_LOCATION, ROUTES.PICKUP_LOCATION_EDIT]);
+
+/** Allow only pickup booking URLs (main flow + map edit) — no open redirects. */
+export function sanitizePostLoginRedirectTarget(raw: string): string | null {
+  const t = raw.trim();
+  if (t.includes('//') || t.includes('\\')) return null;
+  const q = t.indexOf('?');
+  const pathOnly = q === -1 ? t : t.slice(0, q);
+  if (!ALLOWED_POST_LOGIN_PATHS.has(pathOnly)) return null;
+  return q === -1 ? pathOnly : t;
+}
+
 function safeParse<T>(raw: string | null, guard: (v: unknown) => v is T): T | null {
   if (!raw) return null;
   try {
@@ -189,7 +201,7 @@ export function clearAuthToken(): void {
 export function getSelectedService(): ServiceId | null {
   if (typeof window === 'undefined') return null;
   const v = window.localStorage.getItem(STORAGE_KEYS.SELECTED_SERVICE);
-  if (v === 'walk' || v === 'twoWheeler' || v === 'threeWheeler') return v;
+  if (v === 'walk' || v === 'twoWheeler' || v === 'threeWheeler' || v === 'fourWheeler') return v;
   return null;
 }
 
@@ -298,18 +310,22 @@ export function setLandingPickupLocation(value: string | null): void {
 }
 
 /**
- * Landing hero “Enter pickup → login” flow: after OTP, go to /pickup-location.
- * Cleared when opening login from the header (dashboard path).
+ * Store full post-login URL (`/pickup-location` or with `?query`). Validated to prevent open redirects.
  */
-export function setPostLoginPath(path: string): void {
+export function setPostLoginRedirect(fullPath: string): void {
   if (typeof window === 'undefined') return;
+  const safe = sanitizePostLoginRedirectTarget(fullPath);
+  if (!safe) return;
   try {
-    if (path === ROUTES.PICKUP_LOCATION) {
-      sessionStorage.setItem(SESSION_KEYS.POST_LOGIN_PATH, ROUTES.PICKUP_LOCATION);
-    }
+    sessionStorage.setItem(SESSION_KEYS.POST_LOGIN_PATH, safe);
   } catch {
     // ignore (private mode / quota)
   }
+}
+
+/** @deprecated Prefer {@link setPostLoginRedirect} for flows that need query params. */
+export function setPostLoginPath(path: string): void {
+  if (path === ROUTES.PICKUP_LOCATION) setPostLoginRedirect(ROUTES.PICKUP_LOCATION);
 }
 
 export function clearPostLoginPath(): void {
@@ -321,16 +337,52 @@ export function clearPostLoginPath(): void {
   }
 }
 
-/** Read and remove post-login redirect (one-shot). Unknown values fall back to dashboard. */
-export function consumePostLoginPath(): string {
+/** Read post-login target without consuming (e.g. already logged-in user hits `/login`). */
+export function peekPostLoginRedirect(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEYS.POST_LOGIN_PATH);
+    return raw ? sanitizePostLoginRedirectTarget(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Read and remove post-login redirect (one-shot). Invalid or missing → dashboard. */
+export function consumePostLoginRedirect(): string {
   if (typeof window === 'undefined') return ROUTES.DASHBOARD;
   try {
     const raw = sessionStorage.getItem(SESSION_KEYS.POST_LOGIN_PATH);
     sessionStorage.removeItem(SESSION_KEYS.POST_LOGIN_PATH);
-    if (raw === ROUTES.PICKUP_LOCATION) return ROUTES.PICKUP_LOCATION;
-    return ROUTES.DASHBOARD;
+    const safe = raw ? sanitizePostLoginRedirectTarget(raw) : null;
+    return safe ?? ROUTES.DASHBOARD;
   } catch {
     return ROUTES.DASHBOARD;
+  }
+}
+
+/** @alias {@link consumePostLoginRedirect} */
+export function consumePostLoginPath(): string {
+  return consumePostLoginRedirect();
+}
+
+export function setLoginContinuationMessage(message: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem(SESSION_KEYS.LOGIN_CONTINUATION_MESSAGE, message);
+  } catch {
+    // ignore
+  }
+}
+
+export function consumeLoginContinuationMessage(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const v = sessionStorage.getItem(SESSION_KEYS.LOGIN_CONTINUATION_MESSAGE);
+    sessionStorage.removeItem(SESSION_KEYS.LOGIN_CONTINUATION_MESSAGE);
+    return v && v.trim() ? v.trim() : null;
+  } catch {
+    return null;
   }
 }
 
@@ -380,6 +432,53 @@ export function setDeliveryGoodsDescription(data: DeliveryGoodsDescription): voi
 export function clearDeliveryGoodsDescription(): void {
   try {
     window?.localStorage?.removeItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION);
+  } catch {
+    // ignore
+  }
+}
+
+/** Food menu cart — survives refresh and login (cleared when cart empty for that restaurant). */
+export interface FoodOrderCartDraft {
+  restaurantId: string;
+  items: { name: string; price: string; quantity: number }[];
+  whatsappOpened: boolean;
+}
+
+function isFoodOrderCartDraft(v: unknown): v is FoodOrderCartDraft {
+  const o = v as FoodOrderCartDraft;
+  return (
+    typeof o === 'object' &&
+    o !== null &&
+    typeof o.restaurantId === 'string' &&
+    typeof o.whatsappOpened === 'boolean' &&
+    Array.isArray(o.items) &&
+    o.items.every(
+      (i) =>
+        typeof i === 'object' &&
+        i !== null &&
+        typeof (i as FoodOrderCartDraft['items'][0]).name === 'string' &&
+        typeof (i as FoodOrderCartDraft['items'][0]).price === 'string' &&
+        typeof (i as FoodOrderCartDraft['items'][0]).quantity === 'number'
+    )
+  );
+}
+
+export function getFoodOrderCartDraft(): FoodOrderCartDraft | null {
+  if (typeof window === 'undefined') return null;
+  return safeParse(window.localStorage.getItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT), isFoodOrderCartDraft);
+}
+
+export function setFoodOrderCartDraft(data: FoodOrderCartDraft): void {
+  try {
+    window?.localStorage?.setItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT, JSON.stringify(data));
+  } catch {
+    // ignore
+  }
+}
+
+export function clearFoodOrderCartDraft(): void {
+  try {
+    window?.localStorage?.removeItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT);
   } catch {
     // ignore
   }

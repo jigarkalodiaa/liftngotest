@@ -14,7 +14,7 @@ export interface PersonDetails {
   mobile: string;
 }
 
-export type ServiceId = 'walk' | 'twoWheeler' | 'threeWheeler';
+export type ServiceId = 'walk' | 'twoWheeler' | 'threeWheeler' | 'fourWheeler';
 
 export interface DefaultTrip {
   id: string;

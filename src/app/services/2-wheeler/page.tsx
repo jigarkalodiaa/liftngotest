@@ -1,14 +1,21 @@
 import { generatePageMetadata } from '@/lib/seo';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export const metadata = generatePageMetadata({
   title: `2 Wheeler Delivery | ${SITE_NAME}`,
-  description: `Book 2 wheeler delivery for fast, same-day goods transport. Medium-sized packages delivered across the city with ${SITE_NAME}.`,
+  description: `Book 2 wheeler bike delivery for same-day goods transport with ${BRAND.name}. Also: walk, 3W cargo & 4W mini truck; cold chain & more soon.`,
   path: '/services/2-wheeler',
-  keywords: ['2 wheeler delivery', 'bike delivery', 'scooter delivery', 'same day delivery', 'LiftnGo 2 wheeler'],
+  keywords: [
+    '2 wheeler delivery',
+    'bike delivery',
+    'scooter delivery',
+    'same day delivery',
+    'Liftngo two wheeler',
+    'motorbike parcel delivery',
+  ],
 });
 
 export default function TwoWheelerServicePage() {

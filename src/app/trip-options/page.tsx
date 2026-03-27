@@ -23,18 +23,20 @@ import {
 import { ROUTES } from '@/lib/constants';
 import { theme } from '@/config/theme';
 
-type OptionId = 'walk' | 'two' | 'three';
+type OptionId = 'walk' | 'two' | 'three' | 'four';
 
 const SERVICE_TO_OPTION: Record<string, OptionId> = {
   walk: 'walk',
   twoWheeler: 'two',
   threeWheeler: 'three',
+  fourWheeler: 'four',
 };
 
-const OPTION_TO_SERVICE: Record<OptionId, 'walk' | 'twoWheeler' | 'threeWheeler'> = {
+const OPTION_TO_SERVICE: Record<OptionId, 'walk' | 'twoWheeler' | 'threeWheeler' | 'fourWheeler'> = {
   walk: 'walk',
   two: 'twoWheeler',
   three: 'threeWheeler',
+  four: 'fourWheeler',
 };
 
 export default function TripOptionsPage() {
@@ -313,19 +315,34 @@ export default function TripOptionsPage() {
             note="Orders can be picked up within 1 km only."
           />
           {!fromFood && (
-            <OptionCard
-              id="three"
-              selected={selected}
-              setSelected={(id) => {
-                setSelected(id);
-                setSelectedService(OPTION_TO_SERVICE[id]);
-              }}
-              title="Faster to your door"
-              subtitle="Three wheeler / 500 kg"
-              price="₹450"
-              oldPrice="₹495"
-              image="/dashboard/service-3wheeler.png"
-            />
+            <>
+              <OptionCard
+                id="three"
+                selected={selected}
+                setSelected={(id) => {
+                  setSelected(id);
+                  setSelectedService(OPTION_TO_SERVICE[id]);
+                }}
+                title="Faster to your door"
+                subtitle="Three wheeler / 500 kg"
+                price="₹450"
+                oldPrice="₹495"
+                image="/dashboard/service-3wheeler.png"
+              />
+              <OptionCard
+                id="four"
+                selected={selected}
+                setSelected={(id) => {
+                  setSelected(id);
+                  setSelectedService(OPTION_TO_SERVICE[id]);
+                }}
+                title="Room for bulky loads"
+                subtitle="Four wheeler / mini truck"
+                price="₹720"
+                oldPrice="₹799"
+                image="/services/four-wheeler.svg"
+              />
+            </>
           )}
 
           <div className={`mt-5 flex gap-3 ${fromFood ? 'flex-col' : ''}`}>

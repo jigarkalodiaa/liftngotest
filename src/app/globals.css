@@ -4,12 +4,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --color-primary: #2D3748;
-  --color-primary-hover: #23244a;
+  --color-primary: #2C2D5B;
+  --color-primary-hover: #23243d;
   --landing-bg: #FDFBF7;
   --landing-orange: #FF8C00;
-  /** LiftnGo landing accent (cards, borders, steps) */
-  --landing-primary: #4A2CCC;
+  /** LiftnGo landing accent (cards, borders, steps) — same as brand primary */
+  --landing-primary: #2C2D5B;
   /** WhatsApp brand green for Send order via WhatsApp button */
   --whatsapp-green: #25D366;
   /* Extended palette from theme.ts for Tailwind/utility use */
@@ -59,6 +59,8 @@
   --radius-2xl: 10px;
   --radius-3xl: 10px;
   --radius-4xl: 10px;
+  /** `rounded-full` utility — fixed corner radius (not a circle). */
+  --radius-full: 12px;
   --radius: 10px;
 }
 
@@ -69,10 +71,100 @@
   }
 }
 
+html {
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100dvh;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+/* Baseline: block media never overflows its container (layout dimensions set per component). */
+img,
+video {
+  max-width: 100%;
+}
+
+/**
+ * Location / marketing heroes — stacking context for photo + gradient + grid overlays.
+ * Brand accents: landing-primary (navy) + landing-orange (applied in component layers).
+ */
+.liftngo-brand-mesh {
+  isolation: isolate;
+}
+
+/**
+ * Adaptive glass header: tint is mostly neutral + low opacity so the bar “picks up”
+ * the colours of whatever scrolls underneath (via backdrop-filter). Hairline edge only.
+ * Fallback: light solid fill when backdrop-filter is unsupported.
+ */
+.liftngo-header-glass {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0.58) 100%
+    )
+      padding-box,
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(230, 230, 235, 0.35) 100%
+    )
+      border-box;
+  box-shadow:
+    0 4px 28px rgba(0, 0, 0, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+@supports ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
+  .liftngo-header-glass {
+    -webkit-backdrop-filter: blur(20px) saturate(1.25);
+    backdrop-filter: blur(20px) saturate(1.25);
+    /* Veil lets hero/sections show through; hue comes from content below */
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.14) 0%,
+        rgba(255, 255, 255, 0.06) 100%
+      )
+        padding-box,
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.42) 0%,
+        rgba(255, 255, 255, 0.14) 100%
+      )
+        border-box;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .liftngo-header-glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(253, 251, 247, 0.92) 100%
+      )
+        padding-box,
+      linear-gradient(180deg, rgba(220, 220, 228, 0.9) 0%, rgba(240, 238, 242, 0.75) 100%) border-box;
+  }
+}
+
+/** Full-bleed sticky bars inside max-width app columns (e.g. dashboard). */
+.liftngo-header-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
 }
 
 /* No inner border or focus ring on inputs – let the outer container control the look */
@@ -124,4 +216,12 @@ select {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/**
+ * Tailwind’s default `rounded-full` is a true circle (`3.40282e38px`-style clamp).
+ * Lock to 12px sitewide; `!important` wins over the generated utility order.
+ */
+.rounded-full {
+  border-radius: 12px !important;
 }

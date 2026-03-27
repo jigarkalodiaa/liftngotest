@@ -2,6 +2,11 @@ import Image from 'next/image';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
+import {
+  indiaPhotoBangaloreLoadedTruck,
+  indiaPhotoMumbaiLoading,
+  indiaPhotoWarehouseLogistics,
+} from '@/config/indiaLogisticsImages';
 
 export const metadata = generatePageMetadata({
   title: `Privacy Policy | ${SITE_NAME}`,
@@ -12,9 +17,9 @@ export const metadata = generatePageMetadata({
 
 /** Only 3 Unsplash assets — hero + 2 accent bands (fast, cohesive UI). */
 const IMAGES = {
-  hero: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=85',
-  security: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1400&q=85',
-  trust: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1400&q=85',
+  hero: indiaPhotoBangaloreLoadedTruck(1920),
+  security: indiaPhotoMumbaiLoading(1400),
+  trust: indiaPhotoWarehouseLogistics(1400),
 } as const;
 
 const SECTIONS: { title: string; content: string }[] = [
@@ -67,7 +72,7 @@ export default function PrivacyPage() {
         <section className="relative min-h-[220px] overflow-hidden sm:min-h-[280px]">
           <Image
             src={IMAGES.hero}
-            alt=""
+            alt="Goods truck in Bengaluru, India — Liftngo privacy commitment for Indian customers"
             fill
             className="object-cover"
             priority
@@ -97,7 +102,7 @@ export default function PrivacyPage() {
             <div className="relative aspect-[2/1] w-full sm:aspect-[2.2/1]">
               <Image
                 src={IMAGES.security}
-                alt="Digital security and data protection"
+                alt="Goods loading in Mumbai — secure handling of your booking data in India"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 768px"
@@ -134,7 +139,7 @@ export default function PrivacyPage() {
             <div className="relative aspect-[2.4/1] w-full min-h-[140px]">
               <Image
                 src={IMAGES.trust}
-                alt="Team commitment to responsible data handling"
+                alt="Warehouse operations — secure handling of logistics data and trustworthy goods network"
                 fill
                 className="object-cover object-[center_30%]"
                 sizes="(max-width: 768px) 100vw, 768px"

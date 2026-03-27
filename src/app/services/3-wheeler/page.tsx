@@ -1,14 +1,21 @@
 import { generatePageMetadata } from '@/lib/seo';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export const metadata = generatePageMetadata({
   title: `3 Wheeler Delivery | ${SITE_NAME}`,
-  description: `Book 3 wheeler delivery for larger loads and bulk orders. Heavy goods transport with ${SITE_NAME} across the city.`,
+  description: `Book 3 wheeler cargo for larger loads and bulk orders with ${BRAND.name}. Step up to 4W mini truck when you need more deck; expanded fleet coming soon.`,
   path: '/services/3-wheeler',
-  keywords: ['3 wheeler delivery', 'auto delivery', 'bulk delivery', 'heavy goods', 'LiftnGo 3 wheeler'],
+  keywords: [
+    '3 wheeler delivery',
+    'three wheeler cargo',
+    'bulk delivery',
+    'heavy goods',
+    'Liftngo 3 wheeler',
+    'tempo goods transport',
+  ],
 });
 
 export default function ThreeWheelerServicePage() {

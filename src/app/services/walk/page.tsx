@@ -1,14 +1,21 @@
 import { generatePageMetadata } from '@/lib/seo';
-import { SITE_NAME } from '@/lib/site';
+import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export const metadata = generatePageMetadata({
   title: `Walk Delivery | ${SITE_NAME}`,
-  description: `Book walk delivery for small parcels and documents. Fast, affordable same-area delivery with ${SITE_NAME}.`,
+  description: `Book walk delivery for small parcels and documents with ${BRAND.name}. Full fleet: 2W, 3W & 4W mini trucks; refrigerated & long-haul coming soon.`,
   path: '/services/walk',
-  keywords: ['walk delivery', 'foot delivery', 'parcel delivery', 'document delivery', 'LiftnGo walk'],
+  keywords: [
+    'walk delivery',
+    'foot delivery',
+    'parcel delivery',
+    'document delivery',
+    'Liftngo walk',
+    'goods transport walk',
+  ],
 });
 
 export default function WalkServicePage() {

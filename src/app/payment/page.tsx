@@ -87,9 +87,23 @@ export default function PaymentPage() {
     }
   }, [searchParams, router, syncFromStorage, fromFood]);
 
-  const vehicleName = vehicle === 'walk' ? 'Big Saver' : vehicle === 'twoWheeler' ? 'Two Wheeler' : 'Tata Ace';
+  const vehicleName =
+    vehicle === 'walk'
+      ? 'Big Saver'
+      : vehicle === 'twoWheeler'
+        ? 'Two Wheeler'
+        : vehicle === 'threeWheeler'
+          ? 'Three Wheeler'
+          : 'Four Wheeler';
   const vehicleSubtitle = 'Quick Fleet ride';
-  const vehicleImage = vehicle === 'walk' ? '/dashboard/service-walk.png' : vehicle === 'twoWheeler' ? '/dashboard/service-2wheeler.png' : '/dashboard/service-3wheeler.png';
+  const vehicleImage =
+    vehicle === 'walk'
+      ? '/dashboard/service-walk.png'
+      : vehicle === 'twoWheeler'
+        ? '/dashboard/service-2wheeler.png'
+        : vehicle === 'threeWheeler'
+          ? '/dashboard/service-3wheeler.png'
+          : '/services/four-wheeler.svg';
 
   const openAddressModal = useCallback(() => { syncFromStorage(); setShowAddressDetailsModal(true); }, [syncFromStorage]);
 

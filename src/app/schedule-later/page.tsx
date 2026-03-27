@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { IconButton, BackIcon, Button, PageContainer } from '@/components/ui';
@@ -102,6 +101,8 @@ export default function ScheduleLaterPage() {
         return 160;
       case 'threeWheeler':
         return 450;
+      case 'fourWheeler':
+        return 720;
       default:
         return 400;
     }
@@ -368,14 +369,12 @@ export default function ScheduleLaterPage() {
               className="flex items-center gap-3 rounded-xl px-3  sm:gap-3.5 sm:px-4 sm:py-3.5"
               style={{ backgroundColor: '#F7FAFF' }}
             >
-              <Image
-                src="/images/schedule-later-offer-badge.png"
-                alt=""
-                width={10}
-                height={10}
-                className="h-6 w-6 shrink-0 object-contain"
-                priority
-              />
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--landing-orange)] text-[17px] font-bold leading-none text-white shadow-sm"
+                aria-hidden
+              >
+                ₹
+              </span>
               <p className="min-w-0 flex-1 text-left text-[13px] font-semibold leading-snug text-gray-900">
                 {SCHEDULE_LATER_OFFER_MESSAGE}
               </p>

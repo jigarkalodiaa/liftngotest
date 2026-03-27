@@ -1,45 +1,41 @@
 /**
- * About page — remote images (Unsplash).
- *
- * `images.unsplash.com` must stay in `next.config` → `images.remotePatterns`.
- * Swap URLs here only; components import these constants.
- *
- * @see https://unsplash.com/license
+ * About page — Unsplash images from Indian logistics contexts.
+ * `images.unsplash.com` → `next.config` → `images.remotePatterns`.
  */
 
+import {
+  indiaPhotoBangaloreLoadedTruck,
+  indiaPhotoFreightBoxes,
+  indiaPhotoDeliveryRiderGoods,
+  indiaPhotoCargoBayLoading,
+} from '@/config/indiaLogisticsImages';
+
 export type AboutFleetImage = {
-  /** CDN URL (e.g. images.unsplash.com/photo-…?w=&q=) */
   src: string;
   alt: string;
   label: string;
-  /** Original Unsplash page (attribution / when the asset was chosen) */
   sourceUrl?: string;
 };
 
-/** Hero banner — warehouse / logistics */
 export const ABOUT_HERO_IMAGE = {
-  src: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&q=80',
-  alt: 'Warehouse and logistics — goods transport',
+  src: indiaPhotoBangaloreLoadedTruck(1600),
+  alt: 'Loaded commercial goods truck — B2B logistics and cargo transport (not passenger service)',
 } as const;
 
-/** Fleet strip: walk, two wheeler, three wheeler (order matches UI). */
 export const ABOUT_FLEET_IMAGES: readonly AboutFleetImage[] = [
   {
-    src: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=900&q=85',
-    label: 'Walk & light cargo',
-    alt: 'Parcels and boxes for light cargo delivery',
+    src: indiaPhotoFreightBoxes(900),
+    label: 'Walk & light parcels',
+    alt: 'Cartons and freight sorting — light handoff and parcel logistics (no passenger vehicles)',
   },
   {
-    src: 'https://images.unsplash.com/photo-1587476351660-e9fa4bb8b26c?w=900&q=85',
-    label: 'Two wheeler',
-    alt: 'Rider in helmet on a motorbike — two wheeler delivery',
-    sourceUrl: 'https://unsplash.com/photos/man-in-green-and-black-jacket-wearing-black-helmet-62JneRv7jW4',
+    src: indiaPhotoDeliveryRiderGoods(900),
+    label: 'Two-wheeler goods',
+    alt: 'Delivery professional with carry equipment — two-wheeler last-mile goods and food logistics',
   },
   {
-    src: 'https://images.unsplash.com/photo-1768063988641-46b21236bd86?w=900&q=85',
-    label: 'Three wheeler',
-    alt: 'Blue three-wheeled truck carrying cargo',
-    sourceUrl:
-      'https://unsplash.com/photos/a-blue-three-wheeled-truck-filled-with-sand-in-autumn-park-v9ylnfHtQoA',
+    src: indiaPhotoCargoBayLoading(900),
+    label: 'Three- & four-wheel cargo',
+    alt: 'Packages staged at vehicle cargo bay — three- and four-wheeler commercial goods transport',
   },
 ];

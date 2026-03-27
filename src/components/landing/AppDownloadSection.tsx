@@ -1,9 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
+import { SITE_NAME, LOGO_PATH } from '@/lib/site';
 
-/** Section: "Download our apk" – card with title, two app options (icon + label): Customer App (orange), Driver App (dark blue). */
+/**
+ * Liftngo brand + app roadmap: native apps coming soon; live product is mobile web today.
+ */
 export default function AppDownloadSection() {
   return (
     <section
@@ -11,9 +13,9 @@ export default function AppDownloadSection() {
       className="w-full py-12 lg:py-16 bg-[var(--landing-bg)]"
       aria-labelledby="download-heading"
     >
-      <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-col items-center">
+      <div className="mx-auto flex w-full max-w-7xl flex-col items-center px-4 sm:px-6 lg:px-8 xl:px-10">
         <div
-          className="w-full max-w-[334px] rounded-xl border p-6 sm:p-8 flex flex-col items-center gap-8 min-h-[279px]"
+          className="flex w-full max-w-lg flex-col items-center gap-6 rounded-2xl border p-6 sm:p-8 sm:gap-8"
           style={{
             borderWidth: '1px',
             borderColor: 'var(--landing-primary)',
@@ -23,48 +25,74 @@ export default function AppDownloadSection() {
             boxShadow: '0 75px 50px -40px rgba(235, 193, 193, 0.75)',
           }}
         >
-          <h2 id="download-heading" className="text-xl sm:text-2xl font-semibold text-gray-900 text-center">
-            Download our apk
-          </h2>
+          <div className="flex flex-col items-center gap-2">
+            <Image
+              src={LOGO_PATH}
+              alt={`${SITE_NAME} logo`}
+              width={220}
+              height={62}
+              className="h-9 w-auto object-contain object-center sm:h-11"
+            />
+            <h2 id="download-heading" className="text-center text-xl font-semibold text-gray-900 sm:text-2xl">
+              Liftngo on your phone
+            </h2>
+          </div>
 
-          <div className="grid grid-cols-2 gap-8 sm:gap-12 w-full max-w-sm">
-            <Link
-              href="/#download"
-              className="flex flex-col items-center gap-3 hover:opacity-90 transition-opacity group"
-              aria-label="Download Customer App"
-            >
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-[var(--landing-orange)] flex items-center justify-center p-3 shadow-sm group-hover:shadow-md transition-shadow">
-                <Image
-                  src="/logo.png"
-                  alt="LiftnGo Customer App"
-                  width={80}
-                  height={48}
-                  className="w-full h-auto object-contain max-h-12 sm:max-h-14 brightness-0 invert"
-                />
-              </div>
-              <span className="text-gray-900 font-medium text-sm sm:text-base text-center">
-                Customer App
-              </span>
-            </Link>
+          <p className="max-w-md text-center text-sm leading-relaxed text-gray-700 sm:text-base">
+            <strong className="font-semibold text-gray-900">Coming soon:</strong> native Customer and Driver apps (Play Store
+            &amp; App Store).{' '}
+            <strong className="font-semibold text-gray-900">Right now</strong> we&apos;re live on{' '}
+            <strong className="font-semibold text-[var(--color-primary)]">mobile web only</strong>
+            —use Liftngo in your browser on any phone. Stay tuned for downloads.
+          </p>
 
-            <Link
-              href="/#download"
-              className="flex flex-col items-center gap-3 hover:opacity-90 transition-opacity group"
-              aria-label="Download Driver App"
+          <div
+            className="grid w-full max-w-md grid-cols-1 gap-4 min-[380px]:grid-cols-2 sm:gap-6"
+            role="list"
+          >
+            <div
+              role="listitem"
+              className="flex flex-col items-center gap-3 rounded-xl border border-gray-200/80 bg-white/80 px-3 py-4 shadow-sm"
             >
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-[var(--color-primary)] flex items-center justify-center p-3 shadow-sm group-hover:shadow-md transition-shadow">
-                <Image
-                  src="/logo.png"
-                  alt="LiftnGo Driver App"
-                  width={80}
-                  height={48}
-                  className="w-full h-auto object-contain max-h-12 sm:max-h-14 brightness-0 invert"
-                />
+              <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-[var(--landing-orange)] p-3 shadow-inner sm:h-28 sm:w-28">
+                <div className="flex h-full w-full items-center justify-center rounded-lg bg-white p-2">
+                  <Image
+                    src={LOGO_PATH}
+                    alt=""
+                    width={72}
+                    height={40}
+                    className="h-auto w-full max-h-10 object-contain"
+                    aria-hidden
+                  />
+                </div>
               </div>
-              <span className="text-gray-900 font-medium text-sm sm:text-base text-center">
-                Driver App
+              <span className="text-center text-sm font-medium text-gray-900 sm:text-base">Customer app</span>
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                Coming soon
               </span>
-            </Link>
+            </div>
+
+            <div
+              role="listitem"
+              className="flex flex-col items-center gap-3 rounded-xl border border-gray-200/80 bg-white/80 px-3 py-4 shadow-sm"
+            >
+              <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-[var(--color-primary)] p-3 shadow-inner sm:h-28 sm:w-28">
+                <div className="flex h-full w-full items-center justify-center rounded-lg bg-white p-2">
+                  <Image
+                    src={LOGO_PATH}
+                    alt=""
+                    width={72}
+                    height={40}
+                    className="h-auto w-full max-h-10 object-contain"
+                    aria-hidden
+                  />
+                </div>
+              </div>
+              <span className="text-center text-sm font-medium text-gray-900 sm:text-base">Driver app</span>
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                Coming soon
+              </span>
+            </div>
           </div>
         </div>
       </div>

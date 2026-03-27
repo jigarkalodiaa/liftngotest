@@ -1,12 +1,23 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Restaurant } from '@/data/restaurantsKhatushyam';
 import { parsePrice, RESTAURANT_OWNER_WHATSAPP } from '@/data/restaurantsKhatushyam';
-import { setPickupLocation, setDeliveryGoodsDescription } from '@/lib/storage';
+import {
+  setPickupLocation,
+  setDeliveryGoodsDescription,
+  setPostLoginRedirect,
+  setLoginContinuationMessage,
+  isUserAuthenticated,
+  setFoodOrderCartDraft,
+  getFoodOrderCartDraft,
+  clearFoodOrderCartDraft,
+} from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
+import { trackWhatsAppClick, trackBookNowClick } from '@/lib/analytics';
 
 type CartItem = { name: string; price: string; quantity: number };
 
@@ -76,6 +87,36 @@ function getCategoryIcon(category: string) {
   return CATEGORY_ICONS[category] ?? <IconPlate />;
 }
 
+function MenuItemThumb({
+  item,
+  category,
+}: {
+  item: { name: string; image?: string };
+  category: string;
+}) {
+  if (item.image) {
+    return (
+      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gray-100 sm:h-[4.5rem] sm:w-[4.5rem]">
+        <Image
+          src={item.image}
+          alt={item.name}
+          fill
+          className="object-cover"
+          sizes="(max-width: 640px) 64px, 72px"
+        />
+      </div>
+    );
+  }
+  return (
+    <div
+      className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[var(--landing-primary)]/10 text-[var(--landing-primary)] sm:h-[4.5rem] sm:w-[4.5rem]"
+      aria-hidden
+    >
+      <span className="scale-110">{getCategoryIcon(category)}</span>
+    </div>
+  );
+}
+
 const IconWhatsApp = ({ className = 'w-5 h-5' }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
@@ -98,16 +139,35 @@ const IconDelivery = ({ className = 'w-5 h-5' }: { className?: string }) => (
   </svg>
 );
 
+function loadDraftForRestaurant(restaurantId: string): { cart: CartItem[]; whatsappOpened: boolean } {
+  if (typeof window === 'undefined') return { cart: [], whatsappOpened: false };
+  const d = getFoodOrderCartDraft();
+  if (d?.restaurantId !== restaurantId) return { cart: [], whatsappOpened: false };
+  return { cart: d.items, whatsappOpened: d.whatsappOpened };
+}
+
 export default function RestaurantMenuContent({ restaurant }: { restaurant: Restaurant }) {
   const router = useRouter();
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => loadDraftForRestaurant(restaurant.id).cart);
   const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
   /** Unlocks "Book delivery boy" only after user taps Send order via WhatsApp (same session). */
-  const [whatsappOpened, setWhatsappOpened] = useState(false);
+  const [whatsappOpened, setWhatsappOpened] = useState(() => loadDraftForRestaurant(restaurant.id).whatsappOpened);
 
   useEffect(() => {
     if (cart.length === 0) setWhatsappOpened(false);
   }, [cart.length]);
+
+  useEffect(() => {
+    if (cart.length === 0 && !whatsappOpened) {
+      clearFoodOrderCartDraft();
+      return;
+    }
+    setFoodOrderCartDraft({
+      restaurantId: restaurant.id,
+      items: cart,
+      whatsappOpened,
+    });
+  }, [cart, whatsappOpened, restaurant.id]);
 
   const canBookDelivery = cart.length > 0 && whatsappOpened;
 
@@ -165,11 +225,13 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
       : null;
 
   const handleBookDeliveryClick = () => {
+    trackBookNowClick('restaurant_menu_book_delivery');
     setShowPaymentConfirm(true);
   };
 
   const handlePaymentConfirmed = () => {
-    setShowPaymentConfirm(false);
+    trackBookNowClick('restaurant_menu_after_payment');
+    const pickupUrl = `${ROUTES.PICKUP_LOCATION}?step=2&from=food&fresh=1`;
     const pickupAddress = restaurant.address?.trim() || restaurant.name;
     setPickupLocation({
       name: restaurant.name,
@@ -180,7 +242,17 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
       restaurantName: restaurant.name,
       items: cart.map((c) => ({ name: c.name, quantity: c.quantity, price: c.price })),
     });
-    router.push(`${ROUTES.PICKUP_LOCATION}?step=2&from=food&fresh=1`);
+
+    if (!isUserAuthenticated()) {
+      setPostLoginRedirect(pickupUrl);
+      setLoginContinuationMessage('Please login to continue your booking.');
+      setShowPaymentConfirm(false);
+      router.push(`${ROUTES.LOGIN}?from=food`);
+      return;
+    }
+
+    setShowPaymentConfirm(false);
+    router.push(pickupUrl);
   };
 
   return (
@@ -205,7 +277,7 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
             backgroundColor: 'rgba(255, 255, 255, 0.9)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            boxShadow: '0 4px 24px -4px rgba(74, 44, 204, 0.15)',
+            boxShadow: '0 4px 24px -4px rgba(44, 45, 91, 0.15)',
           }}
         >
           <div className="flex items-center gap-3 p-5 sm:p-6 border-b border-[var(--landing-primary)]/20 bg-gradient-to-r from-[var(--landing-bg)]/90 to-white">
@@ -224,7 +296,7 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                 <div
                   key={category}
                   className="rounded-xl border border-[var(--landing-primary)]/15 p-4 sm:p-5 bg-white/90"
-                  style={{ boxShadow: '0 2px 12px -4px rgba(74, 44, 204, 0.08)' }}
+                  style={{ boxShadow: '0 2px 12px -4px rgba(44, 45, 91, 0.08)' }}
                 >
                   <div className="flex items-center gap-2 mb-4">
                     <span className="w-10 h-10 rounded-xl flex items-center justify-center text-[var(--landing-primary)] bg-[var(--landing-primary)]/10">
@@ -238,13 +310,18 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                       return (
                         <li
                           key={item.name}
-                          className="flex flex-wrap items-center justify-between gap-2 py-2.5 px-3 sm:px-4 rounded-xl bg-[var(--landing-bg)]/60 border border-[var(--landing-primary)]/10"
+                          className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--landing-primary)]/10 bg-[var(--landing-bg)]/60 py-2.5 ps-2 pe-3 sm:gap-4 sm:px-4"
                         >
-                          <div className="flex-1 min-w-0">
-                            <span className="text-gray-900 font-medium text-sm">{item.name}</span>
-                            <span className="font-semibold text-sm whitespace-nowrap ml-2 text-[var(--landing-primary)]">{item.price}</span>
+                          <MenuItemThumb item={item} category={category} />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-2">
+                              <span className="text-sm font-medium text-gray-900">{item.name}</span>
+                              <span className="whitespace-nowrap text-sm font-semibold text-[var(--landing-primary)]">
+                                {item.price}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex shrink-0 items-center gap-1 sm:ms-auto">
                             {inCart ? (
                               <>
                                 <button
@@ -311,7 +388,10 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => setWhatsappOpened(true)}
+                    onClick={() => {
+                      trackWhatsAppClick('restaurant_menu');
+                      setWhatsappOpened(true);
+                    }}
                     className="mt-4 w-full rounded-xl py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 bg-[var(--whatsapp-green)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--whatsapp-green)]"
                   >
                     <IconWhatsApp className="w-5 h-5" />

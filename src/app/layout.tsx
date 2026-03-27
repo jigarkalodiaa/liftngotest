@@ -11,18 +11,25 @@ import {
   TWITTER_TITLE,
   TWITTER_DESCRIPTION,
   DEFAULT_OG_IMAGE,
+  LOGO_PATH,
 } from "@/lib/site";
 import QueryProvider from "@/components/providers/QueryProvider";
+import GoogleAnalytics from "@/components/Analytics";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -38,7 +45,7 @@ export const metadata: Metadata = {
   publisher: SITE_NAME,
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "en_IN",
     url: SITE_URL,
     siteName: SITE_NAME,
     title: OG_TITLE,
@@ -70,12 +77,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  alternates: {
-    canonical: SITE_URL,
-  },
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: LOGO_PATH,
+    apple: LOGO_PATH,
   },
   manifest: "/manifest.json",
   ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
@@ -91,10 +95,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
+      <head>
+        <link rel="preload" href="/images/liftngohero.gif" as="image" type="image/gif" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-dvh overflow-x-clip antialiased`}
       >
+        <GoogleAnalytics />
         <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
