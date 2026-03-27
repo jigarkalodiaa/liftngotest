@@ -1,11 +1,13 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'History',
+export const metadata = generatePageMetadata({
+  title: `History | ${SITE_NAME}`,
   description: `Your ride history on ${SITE_NAME}.`,
-  robots: { index: false, follow: true },
-};
+  path: '/history',
+  noIndex: true,
+  useAbsoluteTitle: true,
+});
 
 export default function HistoryLayout({
   children,

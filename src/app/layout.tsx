@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import {
   SITE_URL,
@@ -11,7 +11,10 @@ import {
   TWITTER_TITLE,
   TWITTER_DESCRIPTION,
   DEFAULT_OG_IMAGE,
-  LOGO_PATH,
+  OG_IMAGE_ALT,
+  OG_IMAGE_WIDTH,
+  OG_IMAGE_HEIGHT,
+  FAVICON_PATH,
 } from "@/lib/site";
 import QueryProvider from "@/components/providers/QueryProvider";
 import GoogleAnalytics from "@/components/Analytics";
@@ -31,6 +34,13 @@ const geistMono = Geist_Mono({
   display: "swap",
   adjustFontFallback: true,
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#2C2D5B",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -53,9 +63,10 @@ export const metadata: Metadata = {
     images: [
       {
         url: DEFAULT_OG_IMAGE,
-        width: 1200,
-        height: 630,
-        alt: OG_TITLE,
+        width: OG_IMAGE_WIDTH,
+        height: OG_IMAGE_HEIGHT,
+        type: "image/jpeg",
+        alt: OG_IMAGE_ALT,
       },
     ],
   },
@@ -64,7 +75,14 @@ export const metadata: Metadata = {
     title: TWITTER_TITLE,
     description: TWITTER_DESCRIPTION,
     creator: process.env.NEXT_PUBLIC_TWITTER_HANDLE || "@liftngo",
-    images: [DEFAULT_OG_IMAGE],
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: OG_IMAGE_WIDTH,
+        height: OG_IMAGE_HEIGHT,
+        alt: OG_IMAGE_ALT,
+      },
+    ],
   },
   robots: {
     index: true,
@@ -78,8 +96,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: LOGO_PATH,
-    apple: LOGO_PATH,
+    icon: [{ url: FAVICON_PATH, type: "image/png", sizes: "1024x1024" }],
+    apple: [{ url: FAVICON_PATH, type: "image/png", sizes: "1024x1024" }],
   },
   manifest: "/manifest.json",
   ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {

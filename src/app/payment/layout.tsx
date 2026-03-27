@@ -1,11 +1,13 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'Payment',
+export const metadata = generatePageMetadata({
+  title: `Payment | ${SITE_NAME}`,
   description: `Confirm your booking and payment details on ${SITE_NAME}.`,
-  robots: { index: false, follow: true },
-};
+  path: '/payment',
+  noIndex: true,
+  useAbsoluteTitle: true,
+});
 
 export default function PaymentLayout({
   children,

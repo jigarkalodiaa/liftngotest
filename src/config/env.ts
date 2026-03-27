@@ -29,9 +29,24 @@ export const SUPPORT_PHONE = getEnv('NEXT_PUBLIC_SUPPORT_PHONE', '');
 /** Twitter handle for meta (e.g. @liftngo). Use NEXT_PUBLIC_TWITTER_HANDLE in .env.local. */
 export const TWITTER_HANDLE = getEnv('NEXT_PUBLIC_TWITTER_HANDLE', '@liftngo');
 
-/** Social links (optional). Use NEXT_PUBLIC_SOCIAL_TWITTER, NEXT_PUBLIC_SOCIAL_LINKEDIN, NEXT_PUBLIC_SOCIAL_INSTAGRAM. */
+/** Social profile URLs — defaults point to brand handles; override per env in production. */
 export const SOCIAL_LINKS = {
-  twitter: getEnv('NEXT_PUBLIC_SOCIAL_TWITTER', 'https://twitter.com'),
-  linkedin: getEnv('NEXT_PUBLIC_SOCIAL_LINKEDIN', 'https://linkedin.com'),
-  instagram: getEnv('NEXT_PUBLIC_SOCIAL_INSTAGRAM', 'https://instagram.com'),
+  youtube: getEnv('NEXT_PUBLIC_SOCIAL_YOUTUBE', 'https://www.youtube.com/@liftngo'),
+  facebook: getEnv(
+    'NEXT_PUBLIC_SOCIAL_FACEBOOK',
+    'https://www.facebook.com/profile.php?id=61578755032262',
+  ),
+  /** X (Twitter) — prefer NEXT_PUBLIC_SOCIAL_X, else legacy TWITTER key */
+  x: getEnv(
+    'NEXT_PUBLIC_SOCIAL_X',
+    getEnv('NEXT_PUBLIC_SOCIAL_TWITTER', 'https://x.com/liftngo'),
+  ),
+  linkedin: getEnv(
+    'NEXT_PUBLIC_SOCIAL_LINKEDIN',
+    'https://www.linkedin.com/company/liftngo-logistics',
+  ),
+  instagram: getEnv(
+    'NEXT_PUBLIC_SOCIAL_INSTAGRAM',
+    'https://www.instagram.com/liftngo_goods_transfer/',
+  ),
 } as const;

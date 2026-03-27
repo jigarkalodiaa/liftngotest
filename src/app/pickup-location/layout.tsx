@@ -1,11 +1,13 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'Pickup & drop details',
+export const metadata = generatePageMetadata({
+  title: `Pickup & drop details | ${SITE_NAME}`,
   description: `Enter pickup and drop location and contact details for your ${SITE_NAME} booking.`,
-  robots: { index: false, follow: true },
-};
+  path: '/pickup-location',
+  noIndex: true,
+  useAbsoluteTitle: true,
+});
 
 export default function PickupLocationLayout({
   children,

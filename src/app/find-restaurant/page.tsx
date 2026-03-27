@@ -3,10 +3,16 @@ import { SITE_NAME } from '@/lib/site';
 import FindRestaurantClient from './FindRestaurantClient';
 
 export const metadata = generatePageMetadata({
-  title: `Find Restaurant | Khatushyam Ji | ${SITE_NAME}`,
-  description: `Find restaurants in Khatushyam Ji. View menus and order food from local vegetarian restaurants near Khatushyam Ji temple.`,
+  title: `Food Delivery Khatu Shyam Ji | Restaurants & Menu | ${SITE_NAME}`,
+  description: `Order food from partner restaurants in Khatu Shyam Ji. Liftngo delivers from local kitchens to your doorstep—fast pickup near the temple.`,
   path: '/find-restaurant',
-  keywords: ['Khatushyam Ji restaurants', 'food near Khatushyam Ji', 'veg restaurant Khatushyam', 'Khatushyam Ji menu'],
+  keywords: [
+    'Khatu Shyam Ji food delivery',
+    'Khatushyam Ji restaurants',
+    'veg restaurant Khatu',
+    'temple area delivery',
+    'Liftngo food',
+  ],
 });
 
 export default function FindRestaurantPage() {

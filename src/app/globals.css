@@ -81,6 +81,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  /* 16px baseline improves mobile readability (audit / tap-friendly scaling). */
+  font-size: 1rem;
+  line-height: 1.5;
   min-height: 100dvh;
   min-height: 100vh;
   overflow-x: clip;

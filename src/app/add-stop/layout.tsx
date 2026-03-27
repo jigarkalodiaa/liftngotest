@@ -1,11 +1,13 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'Add stop',
+export const metadata = generatePageMetadata({
+  title: `Add stop | ${SITE_NAME}`,
   description: `Add an intermediate stop to your ${SITE_NAME} trip.`,
-  robots: { index: false, follow: true },
-};
+  path: '/add-stop',
+  noIndex: true,
+  useAbsoluteTitle: true,
+});
 
 export default function AddStopLayout({
   children,

@@ -451,7 +451,7 @@ export default function DashboardPage() {
             <div className="relative h-[100px] w-full max-w-[140px] sm:h-[160px] sm:max-w-[220px] flex-shrink-0 mx-auto sm:mx-0 sm:ml-auto ">
               <Image
                 src="/dashboard/dashboard.png"
-                alt=""
+                alt="Instant delivery — book a goods vehicle"
                 fill
                 priority
                 className="object-contain object-right"
@@ -524,7 +524,7 @@ export default function DashboardPage() {
                 style={active ? { borderColor: `${theme.colors.primary}66`, boxShadow: `0 0 0 1px ${theme.colors.primary}33` } : undefined}
               >
                 <div className="relative mx-auto h-[72px] w-[80px] pointer-events-none">
-                  <Image src={s.image} alt="" fill className="object-contain" sizes="80px" />
+                  <Image src={s.image} alt={s.label} fill className="object-contain" sizes="80px" />
                 </div>
                 <div className="mt-2 font-medium" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray800 }}>{s.label}</div>
               </button>

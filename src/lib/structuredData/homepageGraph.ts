@@ -4,9 +4,9 @@ import {
   SITE_NAME,
   SITE_DESCRIPTION,
   PROJECT_DESCRIPTION,
-  DEFAULT_OG_IMAGE,
   LOGO_URL,
 } from '@/lib/site';
+import { getOrganizationSameAs } from '@/lib/social';
 
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
@@ -65,14 +65,20 @@ export function buildHomepageSeoGraph() {
     };
   }
 
+  const sameAs = getOrganizationSameAs();
+  if (sameAs.length > 0) {
+    organization.sameAs = sameAs;
+  }
+
   const localBusiness: Record<string, unknown> = {
     '@type': 'LocalBusiness',
     '@id': `${SITE_URL}/#localBusiness`,
     name: SITE_NAME,
-    image: DEFAULT_OG_IMAGE,
+    image: LOGO_URL,
     url: SITE_URL,
     description: SITE_DESCRIPTION,
-    priceRange: '₹₹',
+    /** ASCII label — some validators reject non-ASCII in priceRange */
+    priceRange: 'Mid-range',
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Khatu',
