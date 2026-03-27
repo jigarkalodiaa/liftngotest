@@ -17,6 +17,10 @@ export const STORAGE_KEYS = {
   PHONE: 'liftngo_phone',
   SELECTED_SERVICE: 'selected_service',
   DELIVERY_GOODS_DESCRIPTION: 'delivery_goods_description',
+  /** User-added entries from dashboard “Add More Default Location”. */
+  CUSTOM_DEFAULT_TRIPS: 'custom_default_trips',
+  /** Menu → My Details: name, phones, emergency contact, AC no, address */
+  USER_PROFILE: 'liftngo_user_profile',
 } as const;
 
 /** sessionStorage — cleared when the tab closes; not shared across tabs. */
@@ -28,6 +32,7 @@ export const SESSION_KEYS = {
 export const ROUTES = {
   HOME: '/',
   DASHBOARD: '/dashboard',
+  MY_DETAILS: '/my-details',
   PICKUP_LOCATION: '/pickup-location',
   PICKUP_LOCATION_EDIT: '/pickup-location/edit',
   TRIP_OPTIONS: '/trip-options',
@@ -40,6 +45,9 @@ export const ROUTES = {
   HISTORY: '/history',
   FIND_RESTAURANT: '/find-restaurant',
 } as const;
+
+/** `?mode=` on `/pickup-location` — dashboard “Add more default location” (pickup → drop, then trip options). */
+export const PICKUP_LOCATION_MODE_DEFAULTS = 'defaults';
 
 import { DEMO_OTP, SUPPORT_PHONE } from '@/config/env';
 

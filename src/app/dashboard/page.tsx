@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import MobileMenu from '@/components/landing/MobileMenu';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { ServiceId, DefaultTrip } from '@/types/booking';
 import {
   getPickupLocation,
@@ -14,19 +14,24 @@ import {
   setReceiverDetails,
   setSelectedService,
   getLoggedIn,
+  getCustomDefaultTrips,
 } from '@/lib/storage';
-import { ROUTES } from '@/lib/constants';
+import { ROUTES, PICKUP_LOCATION_MODE_DEFAULTS } from '@/lib/constants';
+import { getGreetingDisplayName } from '@/lib/greeting';
 import { DEFAULT_TRIPS } from '@/data/defaultTrips';
 import { PageContainer } from '@/components/ui';
 import { theme } from '@/config/theme';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [pickup, setPickup] = useState<{ name: string; address: string } | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [activeService, setActiveService] = useState<ServiceId>('walk');
   const [isChooseTripOpen, setIsChooseTripOpen] = useState(false);
+  const [showDefaultAddedToast, setShowDefaultAddedToast] = useState(false);
+  const [customDefaultTrips, setCustomDefaultTrips] = useState<DefaultTrip[]>([]);
   /** Which trip cards have pickup/drop swapped for display and Book Now */
   const [swappedTripIds, setSwappedTripIds] = useState<Record<string, boolean>>({});
 
@@ -36,8 +41,11 @@ export default function DashboardPage() {
   }, []);
 
   const syncUserName = useCallback(() => {
-    const sender = getSenderDetails();
-    setUserName(sender?.name?.trim() || 'there');
+    setUserName(getGreetingDisplayName());
+  }, []);
+
+  const syncCustomDefaultTrips = useCallback(() => {
+    setCustomDefaultTrips(getCustomDefaultTrips());
   }, []);
 
   useEffect(() => {
@@ -46,7 +54,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     syncPickupFromStorage();
-  }, [syncPickupFromStorage]);
+    syncCustomDefaultTrips();
+  }, [syncPickupFromStorage, syncCustomDefaultTrips]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -60,10 +69,11 @@ export default function DashboardPage() {
     const onFocus = () => {
       syncPickupFromStorage();
       syncUserName();
+      syncCustomDefaultTrips();
     };
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
-  }, [syncPickupFromStorage, syncUserName]);
+  }, [syncPickupFromStorage, syncUserName, syncCustomDefaultTrips]);
 
   const services = useMemo(
     () => [
@@ -74,7 +84,21 @@ export default function DashboardPage() {
     []
   );
 
-  const defaultTrips = DEFAULT_TRIPS;
+  const defaultTrips = useMemo(() => [...customDefaultTrips, ...DEFAULT_TRIPS], [customDefaultTrips]);
+
+  useEffect(() => {
+    if (searchParams.get('defaultAdded') !== '1') return;
+    setIsChooseTripOpen(true);
+    setShowDefaultAddedToast(true);
+    syncCustomDefaultTrips();
+    router.replace(ROUTES.DASHBOARD);
+  }, [searchParams, router, syncCustomDefaultTrips]);
+
+  useEffect(() => {
+    if (!showDefaultAddedToast) return;
+    const id = window.setTimeout(() => setShowDefaultAddedToast(false), 3000);
+    return () => window.clearTimeout(id);
+  }, [showDefaultAddedToast]);
 
   const handleBookNow = useCallback(
     (trip: DefaultTrip) => {
@@ -140,7 +164,7 @@ export default function DashboardPage() {
 
   const handleAddMoreDefaultLocation = useCallback(() => {
     setIsChooseTripOpen(false);
-    router.push(ROUTES.TRIP_OPTIONS);
+    router.push(`${ROUTES.PICKUP_LOCATION}?step=1&mode=${PICKUP_LOCATION_MODE_DEFAULTS}`);
   }, [router]);
 
   return (
@@ -188,6 +212,11 @@ export default function DashboardPage() {
 
             {/* Scrollable content */}
             <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4">
+              {showDefaultAddedToast && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] font-medium text-emerald-700">
+                  Default location added successfully.
+                </div>
+              )}
 
               {/* Trip cards */}
               <div className="mt-4 space-y-4 ">
@@ -391,7 +420,7 @@ export default function DashboardPage() {
                   backgroundColor: theme.colors.primary,
                   width: 134,
                   height: 44,
-                  borderRadius: 10,
+                  borderRadius: theme.radius.standard,
                   fontSize: theme.fontSizes.md,
                 }}
               >
@@ -440,7 +469,7 @@ export default function DashboardPage() {
                   backgroundColor: theme.colors.primary,
                   width: 134,
                   height: 44,
-                  borderRadius: 10,
+                  borderRadius: theme.radius.standard,
                   fontSize: theme.fontSizes.md,
                 }}
               >

@@ -34,6 +34,34 @@ const IconPhone = ({ className = 'w-4 h-4' }: { className?: string }) => (
   </svg>
 );
 
+/** Locality suffix used in Khatushyam area addresses; opens Maps for the temple / town. */
+const KHATUSHYAM_JI_SUFFIX = ', Khatushyam Ji';
+const GOOGLE_MAPS_KHATUSHYAM_URL =
+  'https://www.google.com/maps/search/?api=1&query=' +
+  encodeURIComponent('Khatu Shyam Ji Temple, Khatu, Sikar, Rajasthan, India');
+
+function AddressWithKhatushyamMapsLink({ address }: { address: string }) {
+  if (address.endsWith(KHATUSHYAM_JI_SUFFIX)) {
+    const prefix = address.slice(0, -KHATUSHYAM_JI_SUFFIX.length);
+    return (
+      <>
+        {prefix}
+        {', '}
+        <a
+          href={GOOGLE_MAPS_KHATUSHYAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open Khatushyam Ji area in Google Maps (opens in new tab)"
+          className="font-medium text-[var(--color-primary)] hover:underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-1 rounded-sm"
+        >
+          Khatushyam Ji
+        </a>
+      </>
+    );
+  }
+  return <>{address}</>;
+}
+
 const IconUtensils = ({ className = 'w-8 h-8' }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M8 2v4M8 4v14a2 2 0 0 0 4 0V4M8 4h8M12 2v4M12 4v14a2 2 0 0 0 4 0V4" />
@@ -77,7 +105,7 @@ export default function FindRestaurantClient() {
           </Link>
           {/* How to order food – clear, efficient journey */}
           <div
-            className="rounded-[24px] border p-6 sm:p-8 mb-10"
+            className="rounded-xl border p-6 sm:p-8 mb-10"
             style={{
               borderWidth: '1px',
               borderColor: 'var(--landing-primary)',
@@ -119,7 +147,7 @@ export default function FindRestaurantClient() {
                 <span className="flex-shrink-0 w-7 h-7 rounded-full bg-[var(--landing-primary)] text-white text-xs font-bold flex items-center justify-center mt-0.5" aria-hidden>3</span>
                 <div>
                   <span className="font-semibold text-gray-900">Book delivery (optional)</span>
-                  <span className="block mt-0.5">After payment, tap <strong className="text-[var(--landing-primary)]">Book delivery boy</strong> on the menu page. Pickup is set to the restaurant; you only enter your <strong className="text-gray-900">drop address</strong> in the next step.</span>
+                  <span className="block mt-0.5">After you open <strong className="text-[var(--landing-primary)]">Send order via WhatsApp</strong> and pay the restaurant, <strong className="text-[var(--landing-primary)]">Book delivery boy</strong> unlocks on the menu page. Pickup is the restaurant; you only enter your <strong className="text-gray-900">drop address</strong> next.</span>
                 </div>
               </li>
               <li className="flex items-start gap-3">
@@ -151,7 +179,7 @@ export default function FindRestaurantClient() {
               </div>
             </div>
             <p className="mt-4 text-xs text-gray-500">
-              <strong className="text-gray-700">Tip:</strong> Order on menu → send via WhatsApp → pay restaurant → then tap &quot;Book delivery boy&quot; and enter your address. Easiest way to get food delivered.
+              <strong className="text-gray-700">Tip:</strong> Add items → tap WhatsApp (this unlocks delivery) → pay the restaurant → book delivery and enter your address.
             </p>
           </div>
 
@@ -177,9 +205,11 @@ export default function FindRestaurantClient() {
                     <h2 className="text-lg font-bold text-gray-900">{restaurant.name}</h2>
                     <p className="text-gray-600 text-sm mt-1">{restaurant.description}</p>
                     {restaurant.address && (
-                      <p className="text-gray-500 text-xs mt-2 flex items-center gap-1.5">
-                        <IconLocation className="flex-shrink-0 w-5 h-5 max-w-[20px] max-h-[20px] text-[var(--color-primary)]" />
-                        {restaurant.address}
+                      <p className="text-gray-500 text-xs mt-2 flex items-start gap-1.5">
+                        <IconLocation className="flex-shrink-0 w-5 h-5 max-w-[20px] max-h-[20px] text-[var(--color-primary)] mt-0.5" />
+                        <span>
+                          <AddressWithKhatushyamMapsLink address={restaurant.address} />
+                        </span>
                       </p>
                     )}
                     {restaurant.phone && (

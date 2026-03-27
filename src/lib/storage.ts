@@ -3,7 +3,8 @@
  * Centralizes localStorage keys and parsing; safe for SSR (no-op when window is undefined).
  */
 
-import type { SavedLocation, PersonDetails, ServiceId } from '@/types/booking';
+import type { SavedLocation, PersonDetails, ServiceId, DefaultTrip } from '@/types/booking';
+import type { UserProfile } from '@/types/userProfile';
 import { ROUTES, SESSION_KEYS, STORAGE_KEYS } from './constants';
 
 function safeParse<T>(raw: string | null, guard: (v: unknown) => v is T): T | null {
@@ -42,6 +43,49 @@ function isPersonDetails(v: unknown): v is PersonDetails {
     typeof (v as PersonDetails).name === 'string' &&
     typeof (v as PersonDetails).mobile === 'string'
   );
+}
+
+function isDefaultTrip(v: unknown): v is DefaultTrip {
+  const o = v as DefaultTrip;
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    typeof o.id === 'string' &&
+    typeof o.fromName === 'string' &&
+    typeof o.fromAddress === 'string' &&
+    typeof o.toName === 'string' &&
+    typeof o.toAddress === 'string' &&
+    typeof o.contactName === 'string' &&
+    typeof o.contactPhone === 'string'
+  );
+}
+
+export function getCustomDefaultTrips(): DefaultTrip[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.CUSTOM_DEFAULT_TRIPS) || 'null') as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(isDefaultTrip);
+  } catch {
+    return [];
+  }
+}
+
+export function addCustomDefaultTrip(trip: Omit<DefaultTrip, 'id'>): void {
+  try {
+    const current = getCustomDefaultTrips();
+    const id = `c-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const nextItem: DefaultTrip = { id, ...trip };
+    const deduped = current.filter(
+      (t) => !(t.fromAddress === trip.fromAddress && t.toAddress === trip.toAddress)
+    );
+    window?.localStorage?.setItem(
+      STORAGE_KEYS.CUSTOM_DEFAULT_TRIPS,
+      JSON.stringify([nextItem, ...deduped].slice(0, 20))
+    );
+  } catch {
+    // ignore
+  }
 }
 
 export function getPickupLocation(): SavedLocation | null {
@@ -110,6 +154,12 @@ export function setLoggedIn(value: boolean): void {
 export function getLoggedIn(): boolean {
   if (typeof window === 'undefined') return false;
   return window.localStorage.getItem(STORAGE_KEYS.LOGGED_IN) === 'true';
+}
+
+/** True if user has session (logged-in flag or auth token). Used for My Details / protected menu items. */
+export function isUserAuthenticated(): boolean {
+  if (typeof window === 'undefined') return false;
+  return getLoggedIn() || Boolean(getAuthToken());
 }
 
 /** Temporary dummy auth token set after OTP verification (client-only). */
@@ -208,6 +258,14 @@ export function setSenderDetails(d: PersonDetails): void {
 export function setReceiverDetails(d: PersonDetails): void {
   try {
     window?.localStorage?.setItem(STORAGE_KEYS.RECEIVER_DETAILS, JSON.stringify(d));
+  } catch {
+    // ignore
+  }
+}
+
+export function clearReceiverDetails(): void {
+  try {
+    window?.localStorage?.removeItem(STORAGE_KEYS.RECEIVER_DETAILS);
   } catch {
     // ignore
   }
@@ -322,6 +380,42 @@ export function setDeliveryGoodsDescription(data: DeliveryGoodsDescription): voi
 export function clearDeliveryGoodsDescription(): void {
   try {
     window?.localStorage?.removeItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION);
+  } catch {
+    // ignore
+  }
+}
+
+function isUserProfile(v: unknown): v is UserProfile {
+  const o = v as UserProfile;
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    typeof o.fullName === 'string' &&
+    typeof o.alternatePhone === 'string' &&
+    typeof o.emergencyContactName === 'string' &&
+    typeof o.emergencyContactPhone === 'string' &&
+    typeof o.accountNumber === 'string' &&
+    typeof o.address === 'string' &&
+    typeof o.email === 'string'
+  );
+}
+
+export function getUserProfile(): UserProfile | null {
+  if (typeof window === 'undefined') return null;
+  return safeParse(window.localStorage.getItem(STORAGE_KEYS.USER_PROFILE), isUserProfile);
+}
+
+export function setUserProfile(profile: UserProfile): void {
+  try {
+    window?.localStorage?.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
+  } catch {
+    // ignore
+  }
+}
+
+export function clearUserProfile(): void {
+  try {
+    window?.localStorage?.removeItem(STORAGE_KEYS.USER_PROFILE);
   } catch {
     // ignore
   }

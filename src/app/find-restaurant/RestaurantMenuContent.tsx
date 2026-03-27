@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Restaurant } from '@/data/restaurantsKhatushyam';
@@ -102,6 +102,14 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
   const router = useRouter();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
+  /** Unlocks "Book delivery boy" only after user taps Send order via WhatsApp (same session). */
+  const [whatsappOpened, setWhatsappOpened] = useState(false);
+
+  useEffect(() => {
+    if (cart.length === 0) setWhatsappOpened(false);
+  }, [cart.length]);
+
+  const canBookDelivery = cart.length > 0 && whatsappOpened;
 
   const groupedMenu = restaurant.menu.reduce<Record<string, typeof restaurant.menu>>((acc, item) => {
     const cat = item.category || 'Other';
@@ -172,55 +180,65 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
       restaurantName: restaurant.name,
       items: cart.map((c) => ({ name: c.name, quantity: c.quantity, price: c.price })),
     });
-    router.push(`${ROUTES.PICKUP_LOCATION}?step=2&from=food`);
+    router.push(`${ROUTES.PICKUP_LOCATION}?step=2&from=food&fresh=1`);
   };
 
   return (
     <main className="flex-1 min-h-screen bg-[var(--landing-bg)]">
-      <div className="max-w-md mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <Link
+          href="/find-restaurant"
+          className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 mb-6 -mt-2"
+          aria-label="Back to restaurants"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </Link>
+
         <div
           className="rounded-2xl border overflow-hidden flex flex-col"
           style={{
             borderColor: 'var(--landing-primary)',
-            backgroundColor: 'rgba(255, 252, 250, 0.98)',
-            boxShadow: '0 25px 50px -12px rgba(74, 44, 204, 0.15)',
+            borderWidth: '1px',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            boxShadow: '0 4px 24px -4px rgba(74, 44, 204, 0.15)',
           }}
         >
-          <div className="flex items-center justify-between p-4 border-b border-[var(--landing-primary)]/20 bg-gradient-to-r from-[var(--landing-bg)] to-white">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--landing-orange)]/20 text-[var(--landing-orange)]">
-                <FoodCurryBowl className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">{restaurant.name}</h1>
-                <p className="text-xs text-gray-500">Menu</p>
-              </div>
+          <div className="flex items-center gap-3 p-5 sm:p-6 border-b border-[var(--landing-primary)]/20 bg-gradient-to-r from-[var(--landing-bg)]/90 to-white">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--landing-primary)]/15 text-[var(--landing-primary)] shrink-0">
+              <FoodCurryBowl className="w-7 h-7" />
             </div>
-            <Link
-              href="/find-restaurant"
-              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
-            >
-              Back
-            </Link>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{restaurant.name}</h1>
+              <p className="text-sm text-gray-600 mt-0.5">Menu · Khatushyam Ji</p>
+            </div>
           </div>
 
-          <div className="p-4">
+          <div className="p-5 sm:p-8 space-y-6">
             <div className="w-full space-y-5">
               {Object.entries(groupedMenu).map(([category, items]) => (
-                <div key={category} className="rounded-xl border border-[var(--landing-primary)]/15 p-4 bg-white/80">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="w-9 h-9 rounded-lg flex items-center justify-center text-[var(--landing-primary)] bg-[var(--landing-primary)]/10">
+                <div
+                  key={category}
+                  className="rounded-xl border border-[var(--landing-primary)]/15 p-4 sm:p-5 bg-white/90"
+                  style={{ boxShadow: '0 2px 12px -4px rgba(74, 44, 204, 0.08)' }}
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="w-10 h-10 rounded-xl flex items-center justify-center text-[var(--landing-primary)] bg-[var(--landing-primary)]/10">
                       {getCategoryIcon(category)}
                     </span>
                     <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--landing-primary)]">{category}</h2>
                   </div>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2.5">
                     {items.map((item) => {
                       const inCart = cart.find((c) => c.name === item.name);
                       return (
                         <li
                           key={item.name}
-                          className="flex flex-wrap items-center justify-between gap-2 py-2 px-3 rounded-lg bg-[var(--landing-bg)]/80 border border-gray-100"
+                          className="flex flex-wrap items-center justify-between gap-2 py-2.5 px-3 sm:px-4 rounded-xl bg-[var(--landing-bg)]/60 border border-[var(--landing-primary)]/10"
                         >
                           <div className="flex-1 min-w-0">
                             <span className="text-gray-900 font-medium text-sm">{item.name}</span>
@@ -267,12 +285,12 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
 
             {/* Order summary & cumulative total */}
             {cart.length > 0 && (
-              <div className="mt-6 p-4 rounded-xl border border-[var(--landing-primary)]/20 bg-white/90">
-                <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3 text-[var(--landing-primary)]">
+              <div className="p-4 sm:p-5 rounded-xl border border-[var(--landing-primary)]/20 bg-white/90">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-4 text-[var(--landing-primary)]">
                   <IconCart className="w-5 h-5" />
                   Your order
                 </h3>
-                <ul className="space-y-2 mb-4">
+                <ul className="space-y-2.5 mb-4">
                   {cart.map((item) => (
                     <li key={item.name} className="flex justify-between items-center text-sm">
                       <span className="text-gray-700">
@@ -284,7 +302,7 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                     </li>
                   ))}
                 </ul>
-                <p className="flex justify-between items-center pt-2 border-t border-gray-200 text-base font-bold text-gray-900">
+                <p className="flex justify-between items-center pt-3 border-t border-gray-200 text-base font-bold text-gray-900">
                   Total
                   <span className="text-lg text-[var(--landing-primary)]">₹{totalAmount}</span>
                 </p>
@@ -293,7 +311,8 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 w-full rounded-xl py-3 text-sm font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 bg-[var(--whatsapp-green)]"
+                    onClick={() => setWhatsappOpened(true)}
+                    className="mt-4 w-full rounded-xl py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 bg-[var(--whatsapp-green)] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--whatsapp-green)]"
                   >
                     <IconWhatsApp className="w-5 h-5" />
                     Send order via WhatsApp
@@ -302,24 +321,34 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
               </div>
             )}
 
-            {/* Book delivery – after order sent & payment done, use LiftnGo booking flow */}
             {cart.length > 0 && (
-              <p className="mt-4 text-xs text-gray-600 bg-[var(--landing-primary)]/5 rounded-lg px-3 py-2 border border-[var(--landing-primary)]/10">
-                <strong>Next:</strong> Send your order via WhatsApp above, pay the restaurant, then tap &quot;Book delivery boy&quot; below. You&apos;ll only enter your delivery address.
+              <p className="text-xs sm:text-sm text-gray-600 bg-[var(--landing-primary)]/5 rounded-xl px-4 py-3 border border-[var(--landing-primary)]/10 leading-relaxed">
+                <strong className="text-gray-800">Next:</strong> Tap <strong className="text-[var(--landing-primary)]">Send order via WhatsApp</strong> first (this unlocks delivery). Pay the restaurant, then use <strong className="text-[var(--landing-primary)]">Book delivery boy</strong>. You&apos;ll only add your drop address next.
               </p>
             )}
-            <div className="mt-6 p-4 rounded-xl border border-[var(--landing-primary)]/20 bg-white/90">
+
+            <div className="p-4 sm:p-5 rounded-xl border border-[var(--landing-primary)]/20 bg-white/90">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-2 text-[var(--landing-primary)]">
                 <IconDelivery className="w-5 h-5" />
                 Book delivery
               </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Already paid the restaurant? Tap below to book a delivery. Pickup is <strong>{restaurant.name}</strong>; you just enter <strong>your delivery address</strong> in the next step.
+              <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                Pickup is <strong className="text-gray-800">{restaurant.name}</strong>. After you&apos;ve paid the restaurant, we&apos;ll ask for <strong className="text-gray-800">your delivery address</strong> in the next step.
               </p>
+              {cart.length === 0 && (
+                <p className="text-xs text-gray-500 mb-3">Add items to your order to continue.</p>
+              )}
+              {cart.length > 0 && !whatsappOpened && (
+                <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200/80 rounded-lg px-3 py-2 mb-3">
+                  Tap <strong>Send order via WhatsApp</strong> above to unlock booking.
+                </p>
+              )}
               <button
                 type="button"
                 onClick={handleBookDeliveryClick}
-                className="w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                disabled={!canBookDelivery}
+                aria-disabled={!canBookDelivery}
+                className="w-full rounded-xl bg-[var(--color-primary)] py-3.5 text-sm font-semibold text-white flex items-center justify-center gap-2 hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 disabled:opacity-45 disabled:pointer-events-none disabled:cursor-not-allowed"
               >
                 <IconDelivery className="w-5 h-5" />
                 Book delivery boy
@@ -368,11 +397,11 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
             </>
           )}
 
-          <div className="p-4 border-t border-[var(--landing-primary)]/15 bg-gray-50/80 space-y-2">
+          <div className="p-5 sm:p-6 border-t border-[var(--landing-primary)]/15 bg-[var(--landing-bg)]/50 space-y-3">
             {restaurant.phone && (
               <a
                 href={`tel:${restaurant.phone.replace(/\s/g, '')}`}
-                className="w-full rounded-xl bg-[var(--color-primary)] py-2.5 sm:py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                className="w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-primary)]"
               >
                 <IconPhone className="w-4 h-4 opacity-90" />
                 Call to order
@@ -380,9 +409,9 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
             )}
             <Link
               href="/find-restaurant"
-              className="w-full rounded-xl bg-[var(--color-primary)] py-2.5 sm:py-3 text-sm font-semibold text-white hover:opacity-90 transition-opacity flex items-center justify-center"
+              className="w-full rounded-xl border border-[var(--landing-primary)]/25 bg-white py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50 transition-colors flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
             >
-              Back to restaurants
+              All restaurants
             </Link>
           </div>
         </div>

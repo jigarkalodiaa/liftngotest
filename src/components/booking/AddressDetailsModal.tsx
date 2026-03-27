@@ -14,6 +14,8 @@ interface AddressDetailsModalProps {
   onEditDrop?: () => void;
   /** Called when user taps Swap locations; parent should swap pickup/drop (and sender/receiver) in storage and state */
   onSwapLocations?: () => void;
+  /** Food flow: show note that restaurant pickup is fixed */
+  pickupReadOnly?: boolean;
   pickup: SavedLocation | null;
   drop: SavedLocation | null;
   sender: PersonDetails | null;
@@ -29,6 +31,7 @@ export default function AddressDetailsModal({
   onEditPickup,
   onEditDrop,
   onSwapLocations,
+  pickupReadOnly,
   pickup,
   drop,
   sender,
@@ -120,21 +123,26 @@ export default function AddressDetailsModal({
                         {sender.name}{sender.name && sender.mobile ? ' | ' : ''}{sender.mobile}
                       </p>
                     )}
+                    {pickupReadOnly && pickup && (
+                      <p className="mt-1.5 text-[11px] text-gray-400">Restaurant pickup — not editable</p>
+                    )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={onEditPickup}
-                    aria-label="Edit pickup location"
-                    className="flex-shrink-0 rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-[var(--color-primary)]"
-                  >
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213 3 21l1.787-4.5L16.862 3.487z" />
-                    </svg>
-                  </button>
+                  {onEditPickup ? (
+                    <button
+                      type="button"
+                      onClick={onEditPickup}
+                      aria-label="Edit pickup location"
+                      className="flex-shrink-0 rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-[var(--color-primary)]"
+                    >
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213 3 21l1.787-4.5L16.862 3.487z" />
+                      </svg>
+                    </button>
+                  ) : null}
                 </div>
 
                 {/* Swap locations */}
-                {pickup && drop && onSwapLocations && (
+                {pickup && drop && onSwapLocations ? (
                   <div className="flex justify-end py-0.5">
                     <button
                       type="button"
@@ -148,7 +156,7 @@ export default function AddressDetailsModal({
                       </svg>
                     </button>
                   </div>
-                )}
+                ) : null}
 
                 {/* Drop */}
                 <div className="flex items-start justify-between gap-2">

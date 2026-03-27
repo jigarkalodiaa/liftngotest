@@ -14,9 +14,10 @@ import {
   setDropLocation,
   setSenderDetails,
   setReceiverDetails,
+  type DeliveryGoodsDescription,
 } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
-import type { ServiceId } from '@/types/booking';
+import type { ServiceId, SavedLocation, PersonDetails } from '@/types/booking';
 import type { GoodTypeOption } from '@/data/goodTypes';
 import { GOOD_TYPES } from '@/data/goodTypes';
 import { PageContainer } from '@/components/ui';
@@ -38,14 +39,19 @@ const GST_AMOUNT = 8;
 const PLATFORM_FEE = 10;
 const TOTAL_AMOUNT = TRIP_FARE + GST_AMOUNT + PLATFORM_FEE;
 
+/** All-in delivery charge shown on payment when booking from restaurant food flow */
+const FOOD_PAYMENT_FLAT_INR = 50;
+
 export default function PaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const fromFood = searchParams.get('from') === 'food';
   const [vehicle, setVehicle] = useState<ServiceId | null>(null);
-  const [pickup, setPickup] = useState(getPickupLocation());
-  const [drop, setDrop] = useState(getDropLocation());
-  const [sender, setSender] = useState(getSenderDetails());
-  const [receiver, setReceiver] = useState(getReceiverDetails());
+  /** SSR + hydration: always null until useEffect sync — never read localStorage in useState initializer */
+  const [pickup, setPickup] = useState<SavedLocation | null>(null);
+  const [drop, setDrop] = useState<SavedLocation | null>(null);
+  const [sender, setSender] = useState<PersonDetails | null>(null);
+  const [receiver, setReceiver] = useState<PersonDetails | null>(null);
   const [showAddressDetailsModal, setShowAddressDetailsModal] = useState(false);
   const [showGstModal, setShowGstModal] = useState(false);
   const [gstin, setGstin] = useState('');
@@ -56,7 +62,7 @@ export default function PaymentPage() {
   const [showGoodTypesModal, setShowGoodTypesModal] = useState(false);
   const [showRestrictedList, setShowRestrictedList] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
-  const [deliveryGoods, setDeliveryGoods] = useState(getDeliveryGoodsDescription());
+  const [deliveryGoods, setDeliveryGoods] = useState<DeliveryGoodsDescription | null>(null);
 
   const syncFromStorage = useCallback(() => {
     setVehicle(getSelectedService() ?? 'threeWheeler');
@@ -77,9 +83,9 @@ export default function PaymentPage() {
     if (searchParams.get('openAddressModal') === '1') {
       syncFromStorage();
       setShowAddressDetailsModal(true);
-      router.replace(ROUTES.PAYMENT, { scroll: false });
+      router.replace(fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT, { scroll: false });
     }
-  }, [searchParams, router, syncFromStorage]);
+  }, [searchParams, router, syncFromStorage, fromFood]);
 
   const vehicleName = vehicle === 'walk' ? 'Big Saver' : vehicle === 'twoWheeler' ? 'Two Wheeler' : 'Tata Ace';
   const vehicleSubtitle = 'Quick Fleet ride';
@@ -127,8 +133,16 @@ export default function PaymentPage() {
           onViewRestrictedList={() => setShowRestrictedList(true)}
           deliveryGoods={deliveryGoods}
         />
-        <CouponSection appliedCoupon={appliedCoupon} onToggleCoupon={() => setAppliedCoupon((c) => (c ? null : 'extra400'))} />
-        <PriceDetailsSection tripFare={TRIP_FARE} gst={GST_AMOUNT} platformFee={PLATFORM_FEE} totalAmount={TOTAL_AMOUNT} />
+        {!fromFood && (
+          <CouponSection appliedCoupon={appliedCoupon} onToggleCoupon={() => setAppliedCoupon((c) => (c ? null : 'extra400'))} />
+        )}
+        <PriceDetailsSection
+          tripFare={TRIP_FARE}
+          gst={GST_AMOUNT}
+          platformFee={PLATFORM_FEE}
+          totalAmount={TOTAL_AMOUNT}
+          foodFlatInr={fromFood ? FOOD_PAYMENT_FLAT_INR : undefined}
+        />
         <p className="mt-6 text-center" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray500 }}>
           By Placing the order, you agree to Liftngo Terms of use and Privacy Policy
         </p>
@@ -157,9 +171,13 @@ export default function PaymentPage() {
         setBusinessName={setBusinessName}
         gstin={gstin}
         businessName={businessName}
+        fromFood={fromFood}
       />
 
-      <PaymentFooterBar onBookNow={() => router.push(ROUTES.BOOKING)} />
+      <PaymentFooterBar
+        onBookNow={() => router.push(ROUTES.BOOKING)}
+        totalInr={fromFood ? FOOD_PAYMENT_FLAT_INR : undefined}
+      />
     </div>
   );
 }

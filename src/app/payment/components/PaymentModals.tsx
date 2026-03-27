@@ -26,6 +26,8 @@ interface PaymentModalsProps {
   vehicleName: string;
   vehicleSubtitle: string;
   vehicleImage: string;
+  /** Food flow: pickup is restaurant — hide pickup edit & swap in address modal */
+  fromFood?: boolean;
   showGstModal: boolean;
   setShowGstModal: (v: boolean) => void;
   setGstin: (v: string) => void;
@@ -36,7 +38,11 @@ interface PaymentModalsProps {
 
 export default function PaymentModals(props: PaymentModalsProps) {
   const router = useRouter();
-  const returnToPayment = encodeURIComponent(`${ROUTES.PAYMENT}?openAddressModal=1`);
+  const returnToPayment = encodeURIComponent(
+    props.fromFood
+      ? `${ROUTES.PAYMENT}?from=food&openAddressModal=1`
+      : `${ROUTES.PAYMENT}?openAddressModal=1`
+  );
 
   return (
     <>
@@ -50,15 +56,20 @@ export default function PaymentModals(props: PaymentModalsProps) {
       <AddressDetailsModal
         isOpen={props.showAddressDetailsModal}
         onClose={() => props.setShowAddressDetailsModal(false)}
-        onEditPickup={() => {
-          props.setShowAddressDetailsModal(false);
-          router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup&returnTo=${returnToPayment}`);
-        }}
+        onEditPickup={
+          props.fromFood
+            ? undefined
+            : () => {
+                props.setShowAddressDetailsModal(false);
+                router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=pickup&returnTo=${returnToPayment}`);
+              }
+        }
         onEditDrop={() => {
           props.setShowAddressDetailsModal(false);
           router.push(`${ROUTES.PICKUP_LOCATION_EDIT}?type=drop&returnTo=${returnToPayment}`);
         }}
-        onSwapLocations={props.onSwapLocations}
+        onSwapLocations={props.fromFood ? undefined : props.onSwapLocations}
+        pickupReadOnly={props.fromFood}
         pickup={props.pickup}
         drop={props.drop}
         sender={props.sender}

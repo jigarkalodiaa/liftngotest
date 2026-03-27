@@ -52,13 +52,31 @@ export default function TripOptionsPage() {
   useEffect(() => {
     setPickup(getPickupLocation());
     setDrop(getDropLocation());
-    setStop(getStopLocation());
     setSender(getSenderDetails());
     setReceiver(getReceiverDetails());
-    setStopDetails(getStopDetails());
+    if (fromFood) {
+      setStop(null);
+      setStopDetails(null);
+      setStopLocation(null);
+      clearStopDetails();
+    } else {
+      setStop(getStopLocation());
+      setStopDetails(getStopDetails());
+    }
     const saved = getSelectedService();
-    if (saved) setSelected(SERVICE_TO_OPTION[saved] ?? 'two');
-  }, []);
+    if (fromFood) {
+      if (saved === 'walk' || saved === 'twoWheeler') {
+        const id = SERVICE_TO_OPTION[saved];
+        setSelected(id);
+        setSelectedService(OPTION_TO_SERVICE[id]);
+      } else {
+        setSelected('two');
+        setSelectedService('twoWheeler');
+      }
+    } else if (saved) {
+      setSelected(SERVICE_TO_OPTION[saved] ?? 'two');
+    }
+  }, [fromFood]);
 
   const handleSwapLocations = () => {
     if (!pickup || !drop) return;
@@ -143,37 +161,43 @@ export default function TripOptionsPage() {
                             </div>
                           </>
                         )}
+                        {fromFood && pickup && (
+                          <p className="mt-1.5 text-[11px] text-gray-400">Restaurant pickup — not editable</p>
+                        )}
                       </div>
-                      <button
-                        type="button"
-                        aria-label="Edit pickup"
-                        onClick={() => router.push(`${ROUTES.PICKUP_LOCATION}?step=1`)}
-                        className="h-9 w-9 flex-shrink-0 rounded-full grid place-items-center hover:bg-gray-100 transition-colors"
-                        style={{ color: theme.colors.textMuted }}
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213 3 21l1.787-4.5L16.862 3.487z" />
-                        </svg>
-                      </button>
+                      {!fromFood && (
+                        <button
+                          type="button"
+                          aria-label="Edit pickup"
+                          onClick={() => router.push(`${ROUTES.PICKUP_LOCATION}?step=1`)}
+                          className="h-9 w-9 flex-shrink-0 rounded-full grid place-items-center hover:bg-gray-100 transition-colors"
+                          style={{ color: theme.colors.textMuted }}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213 3 21l1.787-4.5L16.862 3.487z" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
 
-                    {/* Swap button */}
-                    <div className="flex justify-end py-0.5">
-                      <button
-                        type="button"
-                        aria-label="Swap locations"
-                        onClick={handleSwapLocations}
-                        className="h-9 w-9 rounded-full grid place-items-center text-white flex-shrink-0"
-                        style={{ backgroundColor: theme.colors.primary }}
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
-                        </svg>
-                      </button>
-                    </div>
+                    {!fromFood && (
+                      <div className="flex justify-end py-0.5">
+                        <button
+                          type="button"
+                          aria-label="Swap locations"
+                          onClick={handleSwapLocations}
+                          className="h-9 w-9 rounded-full grid place-items-center text-white flex-shrink-0"
+                          style={{ backgroundColor: theme.colors.primary }}
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
 
                     {/* Optional Stop */}
-                    {stop && (
+                    {!fromFood && stop && (
                       <>
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
@@ -222,7 +246,11 @@ export default function TripOptionsPage() {
                       <button
                         type="button"
                         aria-label="Edit drop"
-                        onClick={() => router.push(`${ROUTES.PICKUP_LOCATION}?step=2`)}
+                        onClick={() =>
+                          router.push(
+                            `${ROUTES.PICKUP_LOCATION}?step=2${fromFood ? '&from=food' : ''}`
+                          )
+                        }
                         className="h-9 w-9 flex-shrink-0 rounded-full grid place-items-center hover:bg-gray-100 transition-colors"
                         style={{ color: theme.colors.textMuted }}
                       >
@@ -235,21 +263,22 @@ export default function TripOptionsPage() {
                 </div>
               </div>
 
-              {/* Add Stop */}
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-2 py-3.5 border-t transition-colors hover:bg-gray-50"
-                style={{ borderColor: theme.colors.borderLight }}
-                onClick={() => router.push(ROUTES.ADD_STOP)}
-              >
-                <span
-                  className="h-7 w-7 rounded-full grid place-items-center flex-shrink-0 font-medium"
-                  style={{ borderWidth: 1.5, borderStyle: 'solid', borderColor: theme.colors.border, color: theme.colors.gray500 }}
+              {!fromFood && (
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-center gap-2 py-3.5 border-t transition-colors hover:bg-gray-50"
+                  style={{ borderColor: theme.colors.borderLight }}
+                  onClick={() => router.push(ROUTES.ADD_STOP)}
                 >
-                  +
-                </span>
-                <span className="font-semibold" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray800 }}>Add Stop</span>
-              </button>
+                  <span
+                    className="h-7 w-7 rounded-full grid place-items-center flex-shrink-0 font-medium"
+                    style={{ borderWidth: 1.5, borderStyle: 'solid', borderColor: theme.colors.border, color: theme.colors.gray500 }}
+                  >
+                    +
+                  </span>
+                  <span className="font-semibold" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray800 }}>Add Stop</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -283,42 +312,45 @@ export default function TripOptionsPage() {
             image="/dashboard/service-2wheeler.png"
             note="Orders can be picked up within 1 km only."
           />
-          <OptionCard
-            id="three"
-            selected={selected}
-            setSelected={(id) => {
-              setSelected(id);
-              setSelectedService(OPTION_TO_SERVICE[id]);
-            }}
-            title="Faster to your door"
-            subtitle="Three wheeler / 500 kg"
-            price="₹450"
-            oldPrice="₹495"
-            image="/dashboard/service-3wheeler.png"
-          />
-
-          {/* Bottom: Book Now (outline) + Schedule later (filled) */}
-          <div className="mt-5 flex gap-3">
-            
-          <button
-              type="button"
-              className="flex-1 rounded-xl py-3.5 font-semibold text-white transition-opacity hover:opacity-95"
-              style={{
-                backgroundColor: theme.colors.primary,
-                fontSize: theme.fontSizes.xl,
+          {!fromFood && (
+            <OptionCard
+              id="three"
+              selected={selected}
+              setSelected={(id) => {
+                setSelected(id);
+                setSelectedService(OPTION_TO_SERVICE[id]);
               }}
-              onClick={() => router.push(ROUTES.SCHEDULE_LATER)}
-            >
-              Schedule later
-            </button>
+              title="Faster to your door"
+              subtitle="Three wheeler / 500 kg"
+              price="₹450"
+              oldPrice="₹495"
+              image="/dashboard/service-3wheeler.png"
+            />
+          )}
+
+          <div className={`mt-5 flex gap-3 ${fromFood ? 'flex-col' : ''}`}>
+            {!fromFood && (
+              <button
+                type="button"
+                className="flex-1 rounded-xl py-3.5 font-semibold text-white transition-opacity hover:opacity-95"
+                style={{
+                  backgroundColor: theme.colors.primary,
+                  fontSize: theme.fontSizes.xl,
+                }}
+                onClick={() => router.push(ROUTES.SCHEDULE_LATER)}
+              >
+                Schedule later
+              </button>
+            )}
             <button
               type="button"
-              className="flex-1 rounded-xl border py-3.5 font-semibold transition-opacity hover:opacity-90"
+              className={`rounded-xl py-3.5 font-semibold transition-opacity hover:opacity-95 ${fromFood ? 'w-full text-white' : 'flex-1 border'}`}
               style={{
-                backgroundColor: theme.colors.white,
-                borderColor: theme.colors.primary,
-                color: theme.colors.primary,
+                backgroundColor: fromFood ? theme.colors.primary : theme.colors.white,
+                borderColor: fromFood ? undefined : theme.colors.primary,
+                color: fromFood ? theme.colors.white : theme.colors.primary,
                 fontSize: theme.fontSizes.xl,
+                ...(fromFood ? {} : { borderWidth: 1, borderStyle: 'solid' as const }),
               }}
               onClick={() =>
                 router.push(fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT)
@@ -326,7 +358,6 @@ export default function TripOptionsPage() {
             >
               Book Now
             </button>
-           
           </div>
         </div>
       </div>

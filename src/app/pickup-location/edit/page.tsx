@@ -1,10 +1,18 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useGeolocation } from '@/hooks';
 import { RECENT_SEARCHES } from '@/data/mockLocations';
-import { setPickupLocation, setDropLocation, setSenderDetails, setReceiverDetails } from '@/lib/storage';
+import {
+  setPickupLocation,
+  setDropLocation,
+  setSenderDetails,
+  setReceiverDetails,
+  getPickupLocation,
+  getDropLocation,
+  savedLocationHasAddress,
+} from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
 import type { SavedLocation } from '@/types/booking';
 
@@ -14,8 +22,23 @@ function EditPickupLocationContent() {
   const type = searchParams.get('type') === 'drop' ? 'drop' : 'pickup';
   const rawReturnTo = searchParams.get('returnTo');
   const returnTo = rawReturnTo && rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//') ? rawReturnTo : null;
+  const emptyDraft = searchParams.get('empty') === '1';
   const { isLoading, error, getLocation } = useGeolocation();
   const [searchValue, setSearchValue] = useState('');
+
+  useEffect(() => {
+    if (emptyDraft) {
+      setSearchValue('');
+      return;
+    }
+    if (type === 'drop') {
+      const d = getDropLocation();
+      setSearchValue(savedLocationHasAddress(d) ? d.address : '');
+    } else {
+      const p = getPickupLocation();
+      setSearchValue(savedLocationHasAddress(p) ? p.address : '');
+    }
+  }, [type, emptyDraft]);
 
   const handleUseCurrentLocation = async () => {
     const result = await getLocation();
@@ -165,6 +188,7 @@ function EditPickupLocationContent() {
               if (type !== 'pickup') {
                 const params = new URLSearchParams({ type: 'pickup' });
                 if (returnTo) params.set('returnTo', returnTo);
+                if (emptyDraft) params.set('empty', '1');
                 router.replace(`${ROUTES.PICKUP_LOCATION_EDIT}?${params.toString()}`);
               }
             }}
@@ -179,6 +203,7 @@ function EditPickupLocationContent() {
               if (type !== 'drop') {
                 const params = new URLSearchParams({ type: 'drop' });
                 if (returnTo) params.set('returnTo', returnTo);
+                if (emptyDraft) params.set('empty', '1');
                 router.replace(`${ROUTES.PICKUP_LOCATION_EDIT}?${params.toString()}`);
               }
             }}

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { ROUTES } from '@/lib/constants';
 import { CloseIcon } from '@/components/ui';
-import { getLoggedIn, setLoggedIn, clearAuthToken } from '@/lib/storage';
+import { isUserAuthenticated, setLoggedIn, clearAuthToken } from '@/lib/storage';
 
 type MenuItem = { label: string; href: string; authOnly?: boolean };
 
@@ -16,7 +16,7 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
     title: 'Preference',
     items: [
       { label: 'Home', href: ROUTES.HOME },
-      { label: 'My Details', href: ROUTES.DASHBOARD },
+      { label: 'My Details', href: ROUTES.MY_DETAILS, authOnly: true },
       { label: 'Trip history', href: ROUTES.HISTORY, authOnly: true },
     ],
   },
@@ -46,11 +46,11 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (isOpen) setIsLoggedIn(getLoggedIn());
+    if (isOpen) setIsAuthenticated(isUserAuthenticated());
   }, [isOpen]);
 
   // Focus close button when menu opens for keyboard/screen reader users
@@ -103,7 +103,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </h3>
               <ul className="space-y-1">
                 {section.items
-                  .filter((item) => !item.authOnly || isLoggedIn)
+                  .filter((item) => !item.authOnly || isAuthenticated)
                   .map((item) => (
                   <li key={item.label}>
                     <button
@@ -123,7 +123,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     </button>
                   </li>
                 ))}
-                {section.title === 'Preference' && isLoggedIn && (
+                {section.title === 'Preference' && isAuthenticated && (
                   <li>
                     <button
                       type="button"

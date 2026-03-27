@@ -15,7 +15,7 @@ export interface BlogCardProps {
 export default function BlogCard({ title, snippet, imageSrc, imageAlt, href }: BlogCardProps) {
   return (
     <article
-      className="w-[212px] md:w-full h-[268px] md:h-full md:min-h-[300px] flex-shrink-0 md:flex-shrink rounded-[12px] overflow-hidden bg-white relative border border-gray-200/80"
+      className="w-[212px] md:w-full h-[268px] md:h-full md:min-h-[300px] flex-shrink-0 md:flex-shrink rounded-xl overflow-hidden bg-white relative border border-gray-200/80"
       style={{
         boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
         scrollSnapAlign: 'start',

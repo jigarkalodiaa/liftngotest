@@ -13,7 +13,7 @@ export default function AppDownloadSection() {
     >
       <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-col items-center">
         <div
-          className="w-full max-w-[334px] rounded-[24px] border p-6 sm:p-8 flex flex-col items-center gap-8 min-h-[279px]"
+          className="w-full max-w-[334px] rounded-xl border p-6 sm:p-8 flex flex-col items-center gap-8 min-h-[279px]"
           style={{
             borderWidth: '1px',
             borderColor: 'var(--landing-primary)',
