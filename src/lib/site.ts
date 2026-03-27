@@ -6,30 +6,36 @@
 export const SITE_URL = 'https://liftngo.com';
 export const SITE_NAME = 'Liftngo';
 
+/** Primary mark served from `/public` (PNG — official Liftngo Logistics artwork). */
+export const LOGO_PATH = '/logo.png';
+/** Absolute URL for JSON-LD, manifests, and share metadata. */
+export const LOGO_URL = `${SITE_URL}${LOGO_PATH}`;
+
 /** Meta title (browser tab / search results). */
-export const META_TITLE = 'Liftngo | Smart Logistics & Goods Transport Platform';
+export const META_TITLE =
+  'Liftngo | Logistics in Khatu Shyam Ji & B2B Delivery in Noida / Delhi NCR';
 
 /** Meta description (search results / snippets). */
 export const SITE_DESCRIPTION =
-  'Liftngo is a technology-driven logistics platform that connects customers with verified drivers for fast, affordable, and reliable goods transportation and last-mile delivery services.';
+  'Liftngo is the logistics platform for Khatu Shyam Ji (Rajasthan) and for B2B in Noida & Delhi NCR: food & shop delivery near the temple, multi-vehicle booking (2W–4W), verified partners. Not pan-India—focused operating areas.';
 
 /** Short description (footer, cards, manifest). */
 export const SHORT_DESCRIPTION =
-  'Liftngo is a logistics platform that connects customers with drivers to provide fast, affordable, and reliable goods transportation and last-mile delivery services.';
+  'Hyperlocal logistics in Khatu Shyam Ji and B2B logistics in Noida & Delhi NCR—multi-vehicle goods transport with upfront pricing.';
 
-/** OG title. */
-export const OG_TITLE = 'Liftngo | Smart Logistics Platform';
+/** OG title — B2B-first; cargo / logistics only (not passenger or generic megacity app). */
+export const OG_TITLE =
+  'Liftngo | B2B & Hyperlocal Goods Logistics — Khatu Shyam Ji & Noida / Delhi NCR';
 
 /** OG description. */
 export const OG_DESCRIPTION =
-  'Liftngo is a technology-enabled logistics platform providing fast and affordable goods transport and last-mile delivery services.';
+  'B2B logistics in Noida & Delhi NCR and hyperlocal goods delivery in Khatu Shyam Ji: multi-vehicle cargo (2W–4W), verified partners, warehouse and corporate lanes—not passenger transport or pan-India sprawl.';
 
 /** Twitter card title. */
-export const TWITTER_TITLE = 'Liftngo | Smart Logistics Platform';
+export const TWITTER_TITLE = OG_TITLE;
 
 /** Twitter card description. */
-export const TWITTER_DESCRIPTION =
-  'Liftngo connects customers with drivers for fast and affordable goods delivery services.';
+export const TWITTER_DESCRIPTION = OG_DESCRIPTION;
 
 /** Hero / marketing tagline. */
 export const SITE_TAGLINE = 'Smart Logistics for Everyday Transport';
@@ -39,6 +45,24 @@ export const ONE_LINE_PITCH =
   'Liftngo is a digital logistics platform that connects customers with drivers for seamless, affordable, and efficient goods transportation.';
 
 export const SEO_KEYWORDS = [
+  'logistics in khatu shyam ji',
+  'delivery service khatu',
+  'local delivery khatu',
+  'temple logistics khatu',
+  'goods transport khatu',
+  'b2b logistics noida',
+  'logistics company delhi ncr',
+  'corporate delivery solutions',
+  'bulk delivery services noida',
+  'warehouse logistics delhi ncr',
+  'hyperlocal logistics india',
+  'last mile delivery solutions',
+  'EV cargo delivery',
+  'business logistics platform',
+  'logistics in Khatu',
+  'goods transport near me',
+  'B2B logistics India',
+  'hyperlocal delivery service',
   'liftngo logistics',
   'goods transport platform',
   'last mile delivery service',
@@ -50,24 +74,32 @@ export const SEO_KEYWORDS = [
   'driver network logistics',
 ];
 
-/** Full URL for default OG/Twitter image (per spec). */
-export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
+/**
+ * Default share image (OG / Twitter / JSON-LD). Ship a 1200×630 PNG/WebP at `/og-image.png` in production;
+ * until then we use the hero illustration so crawlers resolve a real URL.
+ */
+export const OG_IMAGE_PATH = '/hero-delivery.svg';
+
+/** Absolute URL for default OG/Twitter image. */
+export const DEFAULT_OG_IMAGE = `${SITE_URL}${OG_IMAGE_PATH}`;
 
 /** Full project description (About, structured data). */
 export const PROJECT_DESCRIPTION =
-  'Liftngo is a B2B-oriented, technology-driven logistics platform for sending and receiving goods: it connects businesses and teams with verified drivers and fleet operators for structured bookings, transparent pricing, and last-mile delivery within cities and local regions. The product follows a clear logistics pattern—pickup, transit, and handoff—rather than treating delivery as a generic add-on. Liftngo organizes the traditionally unstructured local transport ecosystem with digital booking, route-aware operations, and efficient partner management. Customers book vehicles for parcels, retail inventory, groceries, and commercial materials; the platform supports real-time booking, tracking, and scale across cities while empowering merchants and driver partners with a dependable service network.';
+  'Liftngo is a focused logistics platform—not pan-India. We operate hyperlocal goods transport around Khatu Shyam Ji (Rajasthan) for vendors, food outlets, shops, and temple-corridor runs, and we are building B2B logistics in Noida and Delhi NCR with multi-vehicle booking (2W, 3W, 4W), verified partners, and corporate-friendly handoffs. EV cargo is used where lanes fit; the product emphasises upfront fares, repeat routes, and completion-based incentives rather than passenger-style rides.';
 
 /** Mission & vision (for About and structured data). */
 export const MISSION =
-  'We exist so every business—from a corner store to a growing distributor—can ship goods with enterprise-grade confidence: clear pricing, verified partners, and live visibility from first pickup to final handoff.';
+  'Make local goods movement dependable for businesses: honest pricing, EV-first short-haul capacity, and drivers who are incentivised around punctuality and completions—so every handoff protects your reputation.';
 
 export const VISION =
-  'A future where local goods movement runs on trust and data, not phone calls and guesswork—and where Liftngo is the quiet infrastructure behind every shipment that arrives exactly as promised.';
+  'Become the default goods transport partner in Khatu Shyam Ji and a trusted B2B logistics brand in Noida and Delhi NCR—deep density in each city before expanding further.';
 
 /** Brand object for shared use. */
 export const BRAND = {
   name: SITE_NAME,
   url: SITE_URL,
+  logoUrl: LOGO_URL,
+  logoPath: LOGO_PATH,
   description: SITE_DESCRIPTION,
   shortDescription: SHORT_DESCRIPTION,
   tagline: SITE_TAGLINE,

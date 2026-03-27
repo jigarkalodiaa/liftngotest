@@ -3,6 +3,12 @@ import Link from 'next/link';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
+import {
+  indiaPhotoBangaloreLoadedTruck,
+  indiaPhotoFoodTable,
+  indiaPhotoFreightBoxes,
+  indiaPhotoWarehouseLogistics,
+} from '@/config/indiaLogisticsImages';
 
 export const metadata = generatePageMetadata({
   title: `Promotions & Offers | ${SITE_NAME}`,
@@ -18,8 +24,8 @@ const PROMOS = [
     cta: 'Book now',
     href: '/pickup-location',
     highlight: true,
-    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80',
-    alt: 'First order offer',
+    image: indiaPhotoBangaloreLoadedTruck(800),
+    alt: 'Indian city logistics — first booking offer',
   },
   {
     title: 'Driver referral bonus',
@@ -27,8 +33,8 @@ const PROMOS = [
     cta: 'Learn more',
     href: '/careers',
     highlight: false,
-    image: 'https://images.unsplash.com/photo-1522071820081-009b0126c71f?w=800&q=80',
-    alt: 'Referral program',
+    image: indiaPhotoFreightBoxes(800),
+    alt: 'Parcels and cartons — driver partner referral for goods logistics',
   },
   {
     title: 'Food delivery – order & get it delivered',
@@ -36,8 +42,8 @@ const PROMOS = [
     cta: 'Find restaurants',
     href: '/find-restaurant',
     highlight: false,
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80',
-    alt: 'Food delivery',
+    image: indiaPhotoFoodTable(800),
+    alt: 'Indian dining table — order food for delivery',
   },
 ];
 
@@ -49,8 +55,8 @@ export default function PromotionsPage() {
         <section className="relative overflow-hidden bg-gray-900">
           <div className="absolute inset-0">
             <Image
-              src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=1600&q=80"
-              alt="Offers and promotions"
+              src={indiaPhotoWarehouseLogistics(1600)}
+              alt="Warehouse and B2B logistics — Liftngo promotions for goods transport"
               fill
               className="object-cover opacity-60"
               priority

@@ -7,16 +7,16 @@ export default function DeliveryPromise() {
   return (
     <>
       <ContentWithImage
-        imageSrc="/dashboard/hero-delivery.png"
-        imageAlt="Delivery – everything you crave, delivered"
-        title="Everything you crave, We will delivered."
-        description="Your dedicated advisor plans and manages all deliveries—no coordination hurdles."
+        imageSrc="/hero-delivery.svg"
+        imageAlt="Liftngo goods logistics — packages and delivery operations"
+        title="Goods delivered with clear coordination"
+        description="Your operations team gets predictable handoffs—pickup, vehicle class, and proof-oriented delivery—not ad-hoc ride hail."
       />
       <ContentWithImage
-        imageSrc="/hero-delivery.svg"
-        imageAlt="LiftnGo delivery"
-        title="Everything you crave, We will delivered."
-        description="GST-compliant billing options for per-trip or monthly bulk payments."
+        imageSrc="/services/three-wheeler.svg"
+        imageAlt="Three-wheeler cargo — compact goods transport"
+        title="Billing that fits B2B"
+        description="GST-aware options for per-trip or recurring lanes—aligned with how shops and warehouses actually pay."
       />
     </>
   );

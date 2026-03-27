@@ -8,6 +8,7 @@ import type { ServiceId, DefaultTrip } from '@/types/booking';
 import {
   getPickupLocation,
   getSenderDetails,
+  getSelectedService,
   setPickupLocation,
   setDropLocation,
   setSenderDetails,
@@ -17,6 +18,7 @@ import {
   getCustomDefaultTrips,
 } from '@/lib/storage';
 import { ROUTES, PICKUP_LOCATION_MODE_DEFAULTS } from '@/lib/constants';
+import { LOGO_PATH, SITE_NAME } from '@/lib/site';
 import { getGreetingDisplayName } from '@/lib/greeting';
 import { DEFAULT_TRIPS } from '@/data/defaultTrips';
 import { PageContainer } from '@/components/ui';
@@ -58,6 +60,11 @@ export default function DashboardPage() {
   }, [syncPickupFromStorage, syncCustomDefaultTrips]);
 
   useEffect(() => {
+    const stored = getSelectedService();
+    if (stored) setActiveService(stored);
+  }, []);
+
+  useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!getLoggedIn()) {
       router.replace(ROUTES.HOME);
@@ -70,6 +77,8 @@ export default function DashboardPage() {
       syncPickupFromStorage();
       syncUserName();
       syncCustomDefaultTrips();
+      const stored = getSelectedService();
+      if (stored) setActiveService(stored);
     };
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
@@ -80,6 +89,7 @@ export default function DashboardPage() {
       { id: 'walk' as const, label: 'Walk', image: '/dashboard/service-walk.png' },
       { id: 'twoWheeler' as const, label: '2 Wheeler', image: '/dashboard/service-2wheeler.png' },
       { id: 'threeWheeler' as const, label: '3 Wheeler', image: '/dashboard/service-3wheeler.png' },
+      { id: 'fourWheeler' as const, label: '4 Wheeler', image: '/services/four-wheeler.svg' },
     ],
     []
   );
@@ -167,6 +177,11 @@ export default function DashboardPage() {
     router.push(`${ROUTES.PICKUP_LOCATION}?step=1&mode=${PICKUP_LOCATION_MODE_DEFAULTS}`);
   }, [router]);
 
+  const handleSelectService = useCallback((id: ServiceId) => {
+    setActiveService(id);
+    setSelectedService(id);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Dim overlay when menu open */}
@@ -179,11 +194,10 @@ export default function DashboardPage() {
 
       <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
-      {/* Choose trip – bottom sheet (scrollable) */}
+      {/* Choose trip – bottom sheet (only mounted when open so a hidden layer never blocks taps) */}
+      {isChooseTripOpen ? (
       <div
-        className={`fixed inset-0 z-[80] transition-opacity ${
-          isChooseTripOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+        className="fixed inset-0 z-[80] transition-opacity opacity-100"
         role="dialog"
         aria-modal="true"
         aria-label="Choose trip"
@@ -326,7 +340,7 @@ export default function DashboardPage() {
                 })}
               </div>
 
-              {/* Add More Default Location – primary blue */}
+              {/* Add More Default Location – primary */}
               <button
                 type="button"
                 onClick={handleAddMoreDefaultLocation}
@@ -342,26 +356,27 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      ) : null}
 
-      <PageContainer className="pb-10">
-        {/* Header – LiftnGo LOGISTICS logo + hamburger */}
-        <header className="pt-4 pb-2">
-          <div className="flex items-center justify-between">
+      <PageContainer className="relative z-0 pb-10 pt-3 sm:pt-4">
+        {/* Header – glass bar matches marketing Header; sticky + full-bleed within viewport */}
+        <header className="liftngo-header-glass sticky top-3 z-30 mb-6 rounded-full px-4 py-2.5 sm:px-5 sm:py-3">
+          <div className="flex items-center justify-between gap-3">
             <Image
-              src="/logo.png"
-              alt="LiftnGo Logistics – Goods transport & last-mile delivery"
-              width={160}
-              height={48}
-              className="h-9 w-auto"
+              src={LOGO_PATH}
+              alt={`${SITE_NAME} — logistics`}
+              width={200}
+              height={56}
+              className="h-9 w-auto max-w-[200px] object-contain"
               priority
             />
             <button
               type="button"
               onClick={() => setIsMenuOpen(true)}
               aria-label="Open menu"
-              className="h-10 w-10 rounded-full border border-gray-200 bg-white shadow-sm grid place-items-center hover:bg-gray-50 transition-colors"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-[#1A1D3A] transition-colors hover:bg-[#1A1D3A]/[0.08]"
             >
-              <svg className="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
@@ -369,7 +384,10 @@ export default function DashboardPage() {
         </header>
 
         {/* Greeting */}
-        <h1 className="font-bold mt-2" style={{ fontSize: theme.fontSizes['3xl'], color: theme.colors.gray800 }}>
+        <h1
+          className="break-words text-2xl font-bold leading-tight sm:text-3xl"
+          style={{ color: theme.colors.gray800 }}
+        >
           Hi, {userName}
         </h1>
 
@@ -377,7 +395,7 @@ export default function DashboardPage() {
         <button
           type="button"
           onClick={() => router.push(ROUTES.PICKUP_LOCATION)}
-          className="mt-4 w-full rounded-2xl border border-gray-200 bg-white px-4 py-4 shadow-sm text-left flex items-center gap-3 hover:bg-gray-50/80 transition-colors"
+          className="mt-5 flex min-h-[3.5rem] min-w-0 w-full items-center gap-3.5 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-left shadow-sm transition-colors hover:bg-gray-50/80 sm:mt-6"
         >
           <span className="flex h-5 w-5 shrink-0 text-gray-400" aria-hidden>
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -385,14 +403,20 @@ export default function DashboardPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 10a2 2 0 110-4 2 2 0 010 4z" />
             </svg>
           </span>
-          <span className={`font-medium ${pickup?.name || pickup?.address ? '' : ''}`} style={{ fontSize: theme.fontSizes.md, color: pickup?.name || pickup?.address ? theme.colors.gray900 : theme.colors.gray400 }}>
+          <span
+            className="min-w-0 flex-1 text-left font-medium leading-snug line-clamp-2"
+            style={{
+              fontSize: theme.fontSizes.md,
+              color: pickup?.name || pickup?.address ? theme.colors.gray900 : theme.colors.gray400,
+            }}
+          >
             {pickup?.name || pickup?.address || 'Enter Pickup Location'}
           </span>
         </button>
 
-        {/* Instant Delivery – Figma card: light grey bg, shadow, blue button, illustration */}
+        {/* Instant Delivery – card: light grey bg, shadow, primary CTA, illustration */}
         <div
-          className="mt-5 rounded-2xl overflow-hidden p-5 sm:p-6"
+          className="mt-6 rounded-2xl overflow-hidden p-5 sm:p-6"
           style={{
             backgroundColor: theme.colors.surface,
             boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)',
@@ -415,13 +439,10 @@ export default function DashboardPage() {
               <button
                 type="button"
                 onClick={() => setIsChooseTripOpen(true)}
-                className="inline-flex items-center justify-center text-white font-medium hover:opacity-95 transition-opacity"
+                className="inline-flex min-h-11 w-full max-w-[10.5rem] items-center justify-center px-6 text-sm font-medium text-white transition-opacity hover:opacity-95 sm:w-auto sm:text-base"
                 style={{
                   backgroundColor: theme.colors.primary,
-                  width: 134,
-                  height: 44,
                   borderRadius: theme.radius.standard,
-                  fontSize: theme.fontSizes.md,
                 }}
               >
                 Book Now
@@ -432,8 +453,9 @@ export default function DashboardPage() {
                 src="/dashboard/dashboard.png"
                 alt=""
                 fill
+                priority
                 className="object-contain object-right"
-                sizes="40px"
+                sizes="(max-width: 640px) 140px, 220px"
               />
             </div>
           </div>
@@ -464,13 +486,10 @@ export default function DashboardPage() {
               <button
                 type="button"
                 onClick={() => router.push(ROUTES.FIND_RESTAURANT)}
-                className="inline-flex items-center justify-center text-white font-medium hover:opacity-95 transition-opacity"
+                className="inline-flex min-h-11 w-full max-w-[10.5rem] items-center justify-center px-6 text-sm font-medium text-white transition-opacity hover:opacity-95 sm:w-auto sm:text-base"
                 style={{
                   backgroundColor: theme.colors.primary,
-                  width: 134,
-                  height: 44,
                   borderRadius: theme.radius.standard,
-                  fontSize: theme.fontSizes.md,
                 }}
               >
                 Order food
@@ -489,23 +508,23 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Choose service – heading + three cards */}
+        {/* Choose service — walk → 4W */}
         <h2 className="mt-8 text-center font-normal" style={{ fontSize: theme.fontSizes.lg, color: theme.colors.gray800 }}>Choose service</h2>
-        <div className="mt-3 grid grid-cols-3 gap-3">
+        <div className="relative z-10 mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {services.map((s) => {
             const active = s.id === activeService;
             return (
               <button
                 key={s.id}
                 type="button"
-                onClick={() => setActiveService(s.id)}
+                onClick={() => handleSelectService(s.id)}
                 className={`rounded-2xl bg-white px-2 pt-4 pb-3 text-center transition-all border ${
                   active ? 'shadow-md ring-1' : 'border-gray-200 shadow-sm hover:shadow-md'
                 }`}
                 style={active ? { borderColor: `${theme.colors.primary}66`, boxShadow: `0 0 0 1px ${theme.colors.primary}33` } : undefined}
               >
-                <div className="relative mx-auto h-[72px] w-[80px]">
-                  <Image src={s.image} alt={s.label} fill className="object-contain" sizes="80px" />
+                <div className="relative mx-auto h-[72px] w-[80px] pointer-events-none">
+                  <Image src={s.image} alt="" fill className="object-contain" sizes="80px" />
                 </div>
                 <div className="mt-2 font-medium" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray800 }}>{s.label}</div>
               </button>
@@ -513,21 +532,25 @@ export default function DashboardPage() {
           })}
         </div>
 
-        {/* Bottom hero – delivery person + tablet + pin */}
-        <div className="relative mt-8 rounded-3xl bg-gradient-to-b from-gray-50 to-blue-50/30 px-4 pt-6 pb-6 overflow-hidden min-h-[200px]">
-          <div className="relative mx-auto h-[200px] w-full max-w-[340px]">
-            <Image
-              src="/dashboard/hero-delivery.png"
-              alt=""
-              fill
-              className="object-contain"
-              sizes="(max-width: 340px) 100vw, 340px"
+        {/* Bottom hero – same animated asset as landing Hero */}
+        <div className="relative mt-8 rounded-3xl bg-gradient-to-b from-gray-50 to-[var(--landing-bg)]/60 px-4 pt-6 pb-6 overflow-hidden">
+          <div className="relative mx-auto h-[min(52vw,260px)] w-full max-w-[340px] sm:h-[280px]">
+            <img
+              src="/images/liftngohero.gif"
+              alt="LiftNGo — goods logistics and delivery"
+              width={1024}
+              height={1024}
+              className="h-full w-full object-contain object-center"
+              decoding="async"
             />
           </div>
         </div>
 
         {/* Tagline – light grey, two lines */}
-        <p className="mt-6 leading-[1.2] font-bold tracking-tight text-center sm:text-left" style={{ fontSize: theme.fontSizes['4xl'], color: theme.colors.gray400 }}>
+        <p
+          className="mt-6 text-center text-2xl font-bold leading-tight tracking-tight sm:text-left sm:text-3xl md:text-4xl"
+          style={{ color: theme.colors.gray400 }}
+        >
           Goods time pe
           <br />
           <span style={{ color: theme.colors.gray500 }}>Business prime pe</span>

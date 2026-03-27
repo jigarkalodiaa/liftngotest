@@ -11,8 +11,7 @@ interface FeatureCardProps {
 
 function FeatureCard({ illustration, illustrationAlt, title, description }: FeatureCardProps) {
   return (
-    <div className="flex flex-row gap-3 sm:gap-8 lg:gap-10 items-center text-left">
-      {/* Left: illustration on light peach/orange organic blob */}
+    <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:gap-8 sm:text-left lg:gap-10">
       <div className="flex-shrink-0">
         <div
           className="relative w-20 h-20 sm:w-40 sm:h-40 lg:w-44 lg:h-44 flex items-center justify-center p-2 sm:p-4 bg-[var(--landing-orange)]/15"
@@ -31,7 +30,6 @@ function FeatureCard({ illustration, illustrationAlt, title, description }: Feat
         </div>
       </div>
 
-      {/* Right: heading + description, left-aligned */}
       <div className="min-w-0 flex-1">
         <h3 className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-3">
           {title}
@@ -46,25 +44,25 @@ function FeatureCard({ illustration, illustrationAlt, title, description }: Feat
 
 const FEATURES = [
   {
-    illustration: '/icons/parcel.png',
-    illustrationAlt: 'Parcel delivery – book and track rides with LiftnGo',
-    title: 'Experience the Liftngo',
+    illustration: '/hero-delivery.svg',
+    illustrationAlt: 'Goods delivery — book cargo trips with Liftngo logistics',
+    title: 'Book goods deliveries',
     description:
-      'Book rides in seconds, track in real-time, and travel comfortably with verified drivers at affordable fares.',
+      'Enter pickup and drop, choose 2W–4W cargo, and track handoffs. Built for boxes and commercial loads—not passenger rides.',
   },
   {
-    illustration: '/icons/phone.png',
-    illustrationAlt: 'LiftnGo app for customers and drivers',
-    title: 'Get the Liftngo App',
+    illustration: '/icons/app.svg',
+    illustrationAlt: 'Liftngo app for bookings and logistics',
+    title: 'Get the Liftngo app',
     description:
-      'Seamless for customers & drivers. Install the app today and unlock smart earnings.',
+      'Customers and driver partners use one platform tuned for goods: fares, vehicle class, and completion-first logistics.',
   },
   {
-    illustration: '/icons/scooter.png',
-    illustrationAlt: 'Become a driver partner with LiftnGo',
-    title: 'Become a driver',
+    illustration: '/icons/driver.svg',
+    illustrationAlt: 'Driver partner — delivery and cargo trips',
+    title: 'Partner as a driver',
     description:
-      'Start earning with Liftngo. Flexible hours, instant payouts, and complete ride control.',
+      'Earn on delivery and cargo trips with transparent payouts. We optimise for completed goods movement, not cab-style ratings.',
   },
 ];
 

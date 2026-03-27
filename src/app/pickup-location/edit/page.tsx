@@ -15,6 +15,7 @@ import {
 } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
 import type { SavedLocation } from '@/types/booking';
+import PickupAuthGuard from '@/components/auth/PickupAuthGuard';
 
 function EditPickupLocationContent() {
   const router = useRouter();
@@ -151,7 +152,7 @@ function EditPickupLocationContent() {
           <div className="text-[13px] font-semibold text-gray-700">
             {type === 'drop' ? 'Recent Drop Locations' : 'Recent Pickup Locations'}
           </div>
-          <button type="button" className="text-[12px] font-medium text-blue-500">
+          <button type="button" className="text-[12px] font-medium text-[var(--color-primary)]">
             Clear All
           </button>
         </div>
@@ -220,7 +221,9 @@ function EditPickupLocationContent() {
 export default function EditPickupLocationPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center p-4">Loading...</div>}>
-      <EditPickupLocationContent />
+      <PickupAuthGuard>
+        <EditPickupLocationContent />
+      </PickupAuthGuard>
     </Suspense>
   );
 }

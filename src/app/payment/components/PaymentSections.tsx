@@ -10,7 +10,8 @@ import { parsePrice } from '@/data/restaurantsKhatushyam';
 const VEHICLE_LABELS: Record<ServiceId, { name: string; subtitle: string; image: string }> = {
   walk: { name: 'Big Saver', subtitle: 'Quick Fleet ride', image: '/dashboard/service-walk.png' },
   twoWheeler: { name: 'Two Wheeler', subtitle: 'Quick Fleet ride', image: '/dashboard/service-2wheeler.png' },
-  threeWheeler: { name: 'Tata Ace', subtitle: 'Quick Fleet ride', image: '/dashboard/service-3wheeler.png' },
+  threeWheeler: { name: 'Three Wheeler', subtitle: 'Quick Fleet ride', image: '/dashboard/service-3wheeler.png' },
+  fourWheeler: { name: 'Four Wheeler', subtitle: 'Mini truck cargo', image: '/services/four-wheeler.svg' },
 };
 
 export function PaymentHeader({ onBack }: { onBack: () => void }) {

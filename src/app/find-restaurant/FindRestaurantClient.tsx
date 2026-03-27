@@ -194,7 +194,7 @@ export default function FindRestaurantClient() {
                   borderWidth: '1px',
                   backgroundColor: 'rgba(255, 255, 255, 0.9)',
                   backdropFilter: 'blur(12px)',
-                  boxShadow: '0 4px 24px -4px rgba(74, 44, 204, 0.15)',
+                  boxShadow: '0 4px 24px -4px rgba(44, 45, 91, 0.15)',
                 }}
               >
                 <div className="flex flex-1 min-w-0 p-4 sm:p-5 gap-4">

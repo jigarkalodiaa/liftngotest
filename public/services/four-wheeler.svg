@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none" aria-hidden="true">
+  <rect width="160" height="120" rx="16" fill="#F8FAFC"/>
+  <path d="M18 88c24-10 40-10 64 0 24 10 44 8 66-4" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/>
+  <!-- cabin + bed (4-wheel mini truck style) -->
+  <path d="M38 58h48c12 0 22 10 22 22v6H38V58z" fill="#059669"/>
+  <path d="M86 58h28l18 14c6 4 8 10 8 18v8H86V58z" fill="#047857"/>
+  <rect x="46" y="64" width="22" height="12" rx="2" fill="#A7F3D0"/>
+  <path d="M92 68h20" stroke="#A7F3D0" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- four wheels -->
+  <circle cx="52" cy="90" r="11" fill="#0F172A"/>
+  <circle cx="52" cy="90" r="4.5" fill="#6EE7B7"/>
+  <circle cx="82" cy="90" r="11" fill="#0F172A"/>
+  <circle cx="82" cy="90" r="4.5" fill="#6EE7B7"/>
+  <circle cx="112" cy="90" r="11" fill="#0F172A"/>
+  <circle cx="112" cy="90" r="4.5" fill="#6EE7B7"/>
+  <circle cx="138" cy="90" r="11" fill="#0F172A"/>
+  <circle cx="138" cy="90" r="4.5" fill="#6EE7B7"/>
+</svg>

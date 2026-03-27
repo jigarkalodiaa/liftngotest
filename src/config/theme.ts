@@ -12,7 +12,7 @@ export const colors = {
   primary: '#2C2D5B',
   primaryHover: '#23244a',
   /** LiftnGo landing accent (find-restaurant, download section) – sync with --landing-primary in globals.css */
-  landingPrimary: '#4A2CCC',
+  landingPrimary: '#2C2D5B',
   whatsappGreen: '#25D366',
 
   // Neutrals
@@ -42,7 +42,7 @@ export const colors = {
   textMuted: '#6B7280',
   surface: '#F8FAFC',
   surfaceMuted: '#FAFAFA',
-  primaryTint: '#EEF0FF',
+  primaryTint: '#ECECF4',
   /** Warning / restricted notice box */
   warningBg: '#FFFBEB',
   warningBorder: '#FDE68A',

@@ -219,7 +219,7 @@ export default function AddStopPage() {
         {/* Recent search */}
         <div className="mt-6 flex items-center justify-between">
           <div className="text-[13px] font-semibold text-gray-700">Recent Search</div>
-          <button type="button" className="text-[12px] font-medium text-blue-500">
+          <button type="button" className="text-[12px] font-medium text-[var(--color-primary)]">
             Clear All
           </button>
         </div>

@@ -1,15 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { ROUTES } from '@/lib/constants';
+import { SITE_NAME, LOGO_PATH } from '@/lib/site';
 import { CloseIcon } from '@/components/ui';
 import { isUserAuthenticated, setLoggedIn, clearAuthToken } from '@/lib/storage';
 
 type MenuItem = { label: string; href: string; authOnly?: boolean };
-
-/** Delay (ms) before navigating after menu close – should match drawer’s CSS transition (duration-300 = 300ms). */
-const MENU_CLOSE_MS = 300;
 
 const menuSections: { title: string; items: MenuItem[] }[] = [
   {
@@ -23,6 +23,9 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
   {
     title: 'LiftnGo',
     items: [
+      { label: 'Book delivery', href: ROUTES.BOOK_DELIVERY },
+      { label: 'Khatu Shyam Ji logistics', href: ROUTES.KHATU_SHYAM_LOGISTICS },
+      { label: 'Noida & NCR B2B', href: ROUTES.NOIDA_B2B_LOGISTICS },
       { label: 'Why Choose', href: '/about' },
       { label: 'How LiftnGo Works', href: '/#features' },
       { label: 'Offers', href: '/promotions' },
@@ -31,7 +34,7 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
   {
     title: 'Other',
     items: [
-      { label: 'FAQs', href: '/#faq' },
+      { label: 'FAQs', href: '/faq' },
       { label: 'Customer Support', href: '/about' },
       { label: 'Terms & Conditions', href: '/terms' },
       { label: 'Privacy Policy', href: '/privacy' },
@@ -67,11 +70,6 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     router.push(ROUTES.HOME);
   };
 
-  const handleNavClick = (href: string) => {
-    onClose();
-    setTimeout(() => router.push(href), MENU_CLOSE_MS);
-  };
-
   return (
     <div
       className={`fixed top-0 right-0 h-full w-[85vw] max-w-[280px] sm:w-80 sm:max-w-none bg-white z-[60] shadow-2xl transform transition-transform duration-300 ease-out motion-reduce:transition-none ${
@@ -82,12 +80,25 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
       aria-modal="true"
     >
       <div className="flex flex-col h-full">
-        {/* Close button */}
-        <div className="flex justify-end p-4">
+        <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-4 py-3">
+          <Link
+            href={ROUTES.HOME}
+            className="flex min-w-0 shrink items-center py-1"
+            onClick={onClose}
+            aria-label={`${SITE_NAME} home`}
+          >
+            <Image
+              src={LOGO_PATH}
+              alt={SITE_NAME}
+              width={180}
+              height={52}
+              className="h-8 w-auto max-w-[9.5rem] object-contain object-left"
+            />
+          </Link>
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="p-2 text-gray-500 hover:text-gray-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded-full"
+            className="shrink-0 p-2 text-gray-500 hover:text-gray-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded-full"
             aria-label="Close menu"
           >
             <CloseIcon />
@@ -106,9 +117,9 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   .filter((item) => !item.authOnly || isAuthenticated)
                   .map((item) => (
                   <li key={item.label}>
-                    <button
-                      type="button"
-                      onClick={() => handleNavClick(item.href)}
+                    <Link
+                      href={item.href}
+                      onClick={() => onClose()}
                       className="flex w-full items-center justify-between py-3 text-left text-gray-600 hover:text-gray-900 transition-colors group"
                     >
                       <div className="flex items-center gap-3">
@@ -120,7 +131,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                       </svg>
-                    </button>
+                    </Link>
                   </li>
                 ))}
                 {section.title === 'Preference' && isAuthenticated && (

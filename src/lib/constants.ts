@@ -21,12 +21,18 @@ export const STORAGE_KEYS = {
   CUSTOM_DEFAULT_TRIPS: 'custom_default_trips',
   /** Menu → My Details: name, phones, emergency contact, AC no, address */
   USER_PROFILE: 'liftngo_user_profile',
+  /** Persisted food menu cart while browsing / after login (keyed by `restaurantId`). */
+  FOOD_ORDER_CART_DRAFT: 'liftngo_food_order_cart_draft',
 } as const;
 
 /** sessionStorage — cleared when the tab closes; not shared across tabs. */
 export const SESSION_KEYS = {
-  /** After OTP success, navigate here if set (e.g. landing “Enter pickup” → /pickup-location). */
+  /**
+   * After OTP success, navigate here (pathname + optional `?query`). Must stay under `/pickup-location` only.
+   */
   POST_LOGIN_PATH: 'liftngo_post_login_path',
+  /** One-shot banner copy on /login (e.g. “Please login to continue…”). */
+  LOGIN_CONTINUATION_MESSAGE: 'liftngo_login_continuation_message',
 } as const;
 
 export const ROUTES = {
@@ -42,8 +48,26 @@ export const ROUTES = {
   BOOKING: '/booking',
   TRIP_COMPLETE: '/trip-complete',
   ABOUT: '/about',
+  /** SEO / marketing: B2B delivery positioning (linked from About highlights). */
+  ABOUT_B2B_LOGISTICS: '/about/b2b-logistics',
+  /** Three-wheel cargo: EV + CNG/diesel/petrol (About highlight). */
+  ABOUT_THREE_WHEEL_CARGO: '/about/electric-three-wheel-cargo',
+  /** Khatu Shyam Ji corridor: supply chain + trusted discovery (About highlight). */
+  ABOUT_KHATU_SUPPLY_CHAIN: '/about/khatu-supply-chain',
+  /** SEO / conversion landing pages. */
+  LOGISTICS_KHATU: '/logistics-khatu',
+  B2B_TRANSPORT: '/b2b-transport',
+  BOOK_DELIVERY: '/book-delivery',
+  /** Location SEO: hyperlocal Khatu Shyam Ji */
+  KHATU_SHYAM_LOGISTICS: '/khatu-shyam-logistics',
+  /** Location SEO: B2B Noida & Delhi NCR */
+  NOIDA_B2B_LOGISTICS: '/noida-b2b-logistics',
   HISTORY: '/history',
   FIND_RESTAURANT: '/find-restaurant',
+  /** Dedicated login screen (food booking & guarded flows redirect here). */
+  LOGIN: '/login',
+  /** Marketing alias → restaurant discovery (see next.config redirect). */
+  FOOD_MENU: '/food-menu',
 } as const;
 
 /** `?mode=` on `/pickup-location` — dashboard “Add more default location” (pickup → drop, then trip options). */

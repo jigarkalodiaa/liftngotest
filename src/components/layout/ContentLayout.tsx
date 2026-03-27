@@ -10,7 +10,7 @@ import { Header, Footer, PageWrapper } from '@/components/landing';
 export default function ContentLayout({ children }: { children: ReactNode }) {
   return (
     <PageWrapper headerSlot={<Header />}>
-      <div className="min-h-screen flex flex-col bg-[var(--landing-bg)]">
+      <div className="flex min-h-[100dvh] min-h-screen flex-col bg-[var(--landing-bg)]">
         {children}
         <Footer />
       </div>

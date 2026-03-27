@@ -1,52 +1,47 @@
-import JsonLd, {
-  websiteJsonLd,
-  organizationJsonLd,
-  localBusinessJsonLd,
-  faqPageJsonLd,
-} from '@/components/JsonLd';
+import dynamic from 'next/dynamic';
+import JsonLd from '@/components/JsonLd';
+import { buildHomepageSeoGraph } from '@/lib/structuredData/homepageGraph';
 import {
   Header,
   Hero,
-  Features,
-  ServiceSection,
-  QuickRidesSection,
-  AppDownloadSection,
-  BlogSection,
-  FaqSection,
   Footer,
   PageWrapper,
 } from '@/components/landing';
-import { META_TITLE, SITE_DESCRIPTION, SITE_URL } from '@/lib/site';
+import HomeSeoContent from '@/components/landing/HomeSeoContent';
+import TestimonialsSection from '@/components/landing/TestimonialsSection';
+import { generatePageMetadata } from '@/lib/seo';
+import { META_TITLE, SITE_DESCRIPTION, SEO_KEYWORDS } from '@/lib/site';
 
-export const metadata = {
+const Features = dynamic(() => import('@/components/landing/Features'));
+const ServiceSection = dynamic(() => import('@/components/landing/ServiceSection'));
+const QuickRidesSection = dynamic(() => import('@/components/landing/QuickRidesSection'));
+const AppDownloadSection = dynamic(() => import('@/components/landing/AppDownloadSection'));
+const BlogSection = dynamic(() => import('@/components/landing/BlogSection'));
+const FaqSection = dynamic(() => import('@/components/landing/FaqSection'));
+
+export const metadata = generatePageMetadata({
   title: META_TITLE,
   description: SITE_DESCRIPTION,
-  openGraph: {
-    url: SITE_URL,
-    type: 'website' as const,
-  },
-  alternates: {
-    canonical: SITE_URL,
-  },
-};
+  path: '',
+  keywords: [...SEO_KEYWORDS],
+});
 
 export default function Home() {
   return (
     <PageWrapper headerSlot={<Header />}>
-      <JsonLd data={websiteJsonLd} />
-      <JsonLd data={organizationJsonLd} />
-      <JsonLd data={localBusinessJsonLd} />
-      <JsonLd data={faqPageJsonLd} />
+      <JsonLd data={buildHomepageSeoGraph()} />
       <main
-        className="w-full min-h-screen flex flex-col"
+        className="flex min-h-[100dvh] min-h-screen w-full flex-col overflow-x-clip"
         aria-label="LiftnGo home: logistics, delivery, and transport services"
       >
         <Hero />
+        <HomeSeoContent />
         <Features />
         <ServiceSection />
         <QuickRidesSection />
         <AppDownloadSection />
         <BlogSection />
+        <TestimonialsSection />
         <FaqSection />
       </main>
       <Footer />

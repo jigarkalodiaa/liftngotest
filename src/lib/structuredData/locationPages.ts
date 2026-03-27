@@ -1,0 +1,223 @@
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, LOGO_URL } from '@/lib/site';
+
+const ORGANIZATION_ID = `${SITE_URL}/#organization`;
+const WEBSITE_ID = `${SITE_URL}/#website`;
+
+function supportTel(): string | undefined {
+  const raw = process.env.NEXT_PUBLIC_SUPPORT_PHONE?.replace(/\D/g, '') ?? '';
+  if (raw.length < 10) return undefined;
+  return `+91${raw.slice(-10)}`;
+}
+
+type FaqItem = { question: string; answer: string };
+
+/** Khatu Shyam Ji landing — LocalBusiness (place-focused) + WebPage + FAQ + breadcrumbs. */
+export function buildKhatuShyamLogisticsGraph({
+  pageUrl,
+  title,
+  description,
+  faq,
+}: {
+  pageUrl: string;
+  title: string;
+  description: string;
+  faq: FaqItem[];
+}) {
+  const pageId = `${pageUrl}#webpage`;
+  const localId = `${pageUrl}#localBusiness`;
+  const tel = supportTel();
+
+  const local: Record<string, unknown> = {
+    '@type': 'LocalBusiness',
+    '@id': localId,
+    name: `${SITE_NAME} — Khatu Shyam Ji logistics`,
+    description:
+      'Hyperlocal goods transport and delivery for Khatu Shyam Ji: temple corridor vendors, food outlets, shops, and small businesses. On-demand booking via Liftngo.',
+    url: pageUrl,
+    image: DEFAULT_OG_IMAGE,
+    priceRange: '₹₹',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Khatu Shyam Ji area',
+      addressLocality: 'Khatu',
+      addressRegion: 'Rajasthan',
+      addressCountry: 'IN',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 27.7486,
+      longitude: 75.3932,
+    },
+    areaServed: {
+      '@type': 'Place',
+      name: 'Khatu Shyam Ji, Rajasthan',
+    },
+    parentOrganization: { '@id': ORGANIZATION_ID },
+  };
+  if (tel) local.telephone = tel;
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': ORGANIZATION_ID,
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: { '@type': 'ImageObject', url: LOGO_URL },
+      },
+      {
+        '@type': 'WebSite',
+        '@id': WEBSITE_ID,
+        name: SITE_NAME,
+        url: SITE_URL,
+        publisher: { '@id': ORGANIZATION_ID },
+      },
+      {
+        '@type': 'WebPage',
+        '@id': pageId,
+        url: pageUrl,
+        name: title,
+        description,
+        inLanguage: 'en-IN',
+        isPartOf: { '@id': WEBSITE_ID },
+        about: { '@id': localId },
+        publisher: { '@id': ORGANIZATION_ID },
+      },
+      local,
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: 'Khatu Shyam Ji logistics', item: pageUrl },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faq.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: { '@type': 'Answer', text: item.answer },
+        })),
+      },
+    ],
+  };
+}
+
+/** Noida / Delhi NCR B2B — Organization + LocalBusiness (Noida) + Service + WebPage + FAQ + breadcrumbs. */
+export function buildNoidaB2bLogisticsGraph({
+  pageUrl,
+  title,
+  description,
+  faq,
+}: {
+  pageUrl: string;
+  title: string;
+  description: string;
+  faq: FaqItem[];
+}) {
+  const pageId = `${pageUrl}#webpage`;
+  const serviceId = `${pageUrl}#b2b-service`;
+  const localNoidaId = `${pageUrl}#localBusinessNoida`;
+  const tel = supportTel();
+
+  const localNoida: Record<string, unknown> = {
+    '@type': 'LocalBusiness',
+    '@id': localNoidaId,
+    name: `${SITE_NAME} — B2B logistics Noida & Delhi NCR`,
+    description:
+      'Corporate delivery solutions, bulk delivery services, and warehouse logistics for Noida and Delhi National Capital Region. Multi-vehicle cargo booking and verified vendor network.',
+    url: pageUrl,
+    image: DEFAULT_OG_IMAGE,
+    priceRange: '₹₹₹',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Noida',
+      addressRegion: 'Uttar Pradesh',
+      addressCountry: 'IN',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 28.5355,
+      longitude: 77.391,
+    },
+    areaServed: [
+      { '@type': 'City', name: 'Noida' },
+      { '@type': 'AdministrativeArea', name: 'Delhi National Capital Region' },
+    ],
+    parentOrganization: { '@id': ORGANIZATION_ID },
+  };
+  if (tel) localNoida.telephone = tel;
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': ORGANIZATION_ID,
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: { '@type': 'ImageObject', url: LOGO_URL },
+        description:
+          'Liftngo operates hyperlocal and B2B goods logistics in Khatu Shyam Ji (Rajasthan) and Delhi NCR, starting from Noida—multi-vehicle booking and verified partner network.',
+        areaServed: [
+          { '@type': 'AdministrativeArea', name: 'Noida', containedInPlace: { '@type': 'AdministrativeArea', name: 'Uttar Pradesh' } },
+          { '@type': 'AdministrativeArea', name: 'Delhi NCR' },
+          { '@type': 'Place', name: 'Khatu Shyam Ji', address: { '@type': 'PostalAddress', addressRegion: 'Rajasthan', addressCountry: 'IN' } },
+        ],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': WEBSITE_ID,
+        name: SITE_NAME,
+        url: SITE_URL,
+        publisher: { '@id': ORGANIZATION_ID },
+      },
+      {
+        '@type': 'WebPage',
+        '@id': pageId,
+        url: pageUrl,
+        name: title,
+        description,
+        inLanguage: 'en-IN',
+        isPartOf: { '@id': WEBSITE_ID },
+        publisher: { '@id': ORGANIZATION_ID },
+        about: [{ '@id': serviceId }, { '@id': localNoidaId }],
+      },
+      localNoida,
+      {
+        '@type': 'Service',
+        '@id': serviceId,
+        name: `${SITE_NAME} — B2B logistics (Noida & Delhi NCR)`,
+        serviceType: 'Business logistics and corporate delivery',
+        description:
+          'B2B logistics for Noida and Delhi NCR: dedicated delivery coordination, verified vendor ecosystem, multi-vehicle booking (2W, 3W, 4W), bulk and inventory movement for retail, electronics, and offices.',
+        provider: { '@id': ORGANIZATION_ID },
+        areaServed: [
+          { '@type': 'City', name: 'Noida' },
+          { '@type': 'AdministrativeArea', name: 'Delhi National Capital Region' },
+        ],
+        offers: {
+          '@type': 'Offer',
+          url: `${SITE_URL}/book-delivery`,
+          availability: 'https://schema.org/InStock',
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: 'Noida B2B logistics', item: pageUrl },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faq.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: { '@type': 'Answer', text: item.answer },
+        })),
+      },
+    ],
+  };
+}

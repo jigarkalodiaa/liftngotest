@@ -3,15 +3,26 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-/** Icons matching Figma: scooter, coins, steering wheel — white on orange circle */
+/** Icons: scooter, rupee (INR), steering wheel — white on orange circle */
 const ScooterIcon = () => (
   <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
     <path d="M19 10c-.1 0-.2 0-.3-.1l-1.7-1.7-2.5 2.5-1.4-1.4 2.5-2.5-1.6-1.6c-.2-.2-.2-.5 0-.7s.5-.2.7 0l1.9 1.9 2.2-2.2 1.4 1.4-2.2 2.2 1.6 1.6c.2.2.2.5 0 .7-.1.1-.2.1-.4.1zM7 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-3c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1zm10 3c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-3c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z" />
   </svg>
 );
-const CoinsIcon = () => (
-  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.08-.73-2.12-1.64H8.04c.06 1.58 1.14 2.6 2.83 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-1.81-1.49-2.67-3.64-3.16z" />
+const RupeeIcon = () => (
+  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" aria-hidden>
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.35" />
+    <text
+      x="12"
+      y="16.25"
+      textAnchor="middle"
+      fill="currentColor"
+      fontSize="12"
+      fontWeight="700"
+      fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif"
+    >
+      ₹
+    </text>
   </svg>
 );
 const SteeringWheelIcon = () => (
@@ -27,7 +38,7 @@ const FEATURES = [
     text: 'Your dedicated advisor plans and manages all deliveries no coordination hassles.',
   },
   {
-    icon: <CoinsIcon />,
+    icon: <RupeeIcon />,
     text: 'GST-compliant billing options for per-trip or monthly bulk payments.',
   },
   {
@@ -53,9 +64,10 @@ export default function QuickRidesSection() {
         {/* 4-image collage: 3 columns — left tall portrait, middle 2 stacked squares, right tall portrait; max height 178px */}
         <div
           className="
-            w-full max-w-4xl mx-auto mb-10 lg:mb-14
+            w-full max-w-4xl mx-auto mb-10 lg:mb-14 min-h-0
             grid grid-cols-3 grid-rows-2 gap-3 sm:gap-4
-            h-[178px] max-h-[178px]
+            aspect-[2.15/1] max-h-[min(52vw,17.5rem)] min-h-[7.5rem]
+            sm:max-h-[min(42vw,19rem)] lg:max-h-[20rem]
           "
         >
           {/* Image 1: Large portrait (left) — delivery driver + van + boxes, full height */}

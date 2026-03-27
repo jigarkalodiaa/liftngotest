@@ -1,5 +1,3 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -9,13 +7,15 @@ export interface BlogCardProps {
   imageSrc: string;
   imageAlt: string;
   href: string;
+  /** First visible card on home can set LCP priority */
+  priority?: boolean;
 }
 
 /** Single blog card: image top, dark blue overlay with title, snippet, Read More + arrow. Equal height on desktop; Read More aligned at bottom. */
-export default function BlogCard({ title, snippet, imageSrc, imageAlt, href }: BlogCardProps) {
+export default function BlogCard({ title, snippet, imageSrc, imageAlt, href, priority = false }: BlogCardProps) {
   return (
     <article
-      className="w-[212px] md:w-full h-[268px] md:h-full md:min-h-[300px] flex-shrink-0 md:flex-shrink rounded-xl overflow-hidden bg-white relative border border-gray-200/80"
+      className="relative h-[min(70vw,17rem)] w-[min(86vw,20rem)] flex-shrink-0 overflow-hidden rounded-xl border border-gray-200/80 bg-white sm:h-[min(58vw,18rem)] sm:w-[min(72vw,22rem)] md:h-full md:min-h-[300px] md:w-full md:flex-shrink"
       style={{
         boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
         scrollSnapAlign: 'start',
@@ -27,7 +27,9 @@ export default function BlogCard({ title, snippet, imageSrc, imageAlt, href }: B
           alt={imageAlt}
           fill
           className="object-cover"
-          sizes="(max-width: 768px) 212px, 33vw"
+          sizes="(max-width: 768px) 90vw, 33vw"
+          loading={priority ? 'eager' : 'lazy'}
+          priority={priority}
         />
         <div
           className="absolute inset-x-0 bottom-0 left-0 right-0 pt-12 px-3 pb-3 flex flex-col min-h-[55%]"

@@ -67,6 +67,15 @@ export function IconLayers({ className = 'h-6 w-6' }: { className?: string }) {
   );
 }
 
+/** EV / power — fleet and low running-cost story */
+export function IconEv({ className = 'h-6 w-6' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+      <path d="M13 2 4 14h7l-1 8 10-14h-7l2-6Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function IconHeadset({ className = 'h-6 w-6' }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>

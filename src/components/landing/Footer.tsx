@@ -2,22 +2,23 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { SITE_NAME, BRAND } from '@/lib/site';
+import { SITE_NAME, BRAND, LOGO_PATH } from '@/lib/site';
+import { ROUTES } from '@/lib/constants';
 import { SOCIAL_LINKS } from '@/config/env';
 
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-12 w-full">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-col items-center text-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-2xl lg:max-w-none place-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 w-full max-w-2xl lg:max-w-none place-items-center">
           <div className="col-span-1 sm:col-span-2 lg:col-span-1 flex flex-col items-center">
             <Link href="/" className="flex items-center justify-center mb-4" aria-label={`${SITE_NAME} home`}>
               <Image
-                src="/logo.png"
+                src={LOGO_PATH}
                 alt={SITE_NAME}
-                width={140}
-                height={42}
-                className="h-9 w-auto object-contain object-center brightness-0 invert"
+                width={180}
+                height={52}
+                className="h-9 w-auto max-w-[200px] object-contain object-center"
               />
             </Link>
             <p className="text-gray-400 text-sm max-w-xs">{BRAND?.shortDescription ?? ''}</p>
@@ -34,12 +35,37 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col items-center">
+            <h4 className="font-semibold mb-4">Corridors</h4>
+            <ul className="space-y-2 text-sm text-gray-400">
+              <li>
+                <Link href={ROUTES.KHATU_SHYAM_LOGISTICS} className="hover:text-white transition-colors">
+                  Khatu Shyam Ji logistics
+                </Link>
+              </li>
+              <li>
+                <Link href={ROUTES.NOIDA_B2B_LOGISTICS} className="hover:text-white transition-colors">
+                  Noida &amp; Delhi NCR B2B
+                </Link>
+              </li>
+              <li><Link href="/logistics-khatu" className="hover:text-white transition-colors">Logistics in Khatu</Link></li>
+              <li><Link href="/b2b-transport" className="hover:text-white transition-colors">B2B transport</Link></li>
+              <li><Link href="/book-delivery" className="hover:text-white transition-colors">Book delivery</Link></li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col items-center">
             <h4 className="font-semibold mb-4">Service</h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li><Link href="/services" className="hover:text-white transition-colors">Our services</Link></li>
               <li><Link href="/services/walk" className="hover:text-white transition-colors">Walk</Link></li>
               <li><Link href="/services/2-wheeler" className="hover:text-white transition-colors">2 Wheeler</Link></li>
               <li><Link href="/services/3-wheeler" className="hover:text-white transition-colors">3 Wheeler</Link></li>
+              <li><Link href="/services/4-wheeler" className="hover:text-white transition-colors">4 Wheeler</Link></li>
+              <li>
+                <Link href="/services#fleet-roadmap" className="hover:text-white transition-colors text-gray-500">
+                  More vehicles (soon)
+                </Link>
+              </li>
             </ul>
           </div>
 

@@ -1,33 +1,11 @@
-'use client';
+import BlogCard from './BlogCard';
+import { getPostsForHomeSection } from '@/lib/blog';
+import Link from 'next/link';
 
-import { BlogCard } from '@/components/landing';
-
-const BLOG_POSTS = [
-  {
-    title: 'How LiftnGo Makes Local Logistics Faster and Easier',
-    snippet: "In today's fast-moving world, sending goods from one place...",
-    imageSrc: '/dashboard/hero-delivery.png',
-    imageAlt: 'Logistics and delivery',
-    href: '/blog',
-  },
-  {
-    title: '5 Situations Where Lift Can Save Your Day',
-    snippet: 'There are many everyday situations where transporting goods...',
-    imageSrc: '/icons/quickrides.png',
-    imageAlt: 'Track rides on the app',
-    href: '/blog',
-  },
-  {
-    title: 'Why Last-Mile Delivery Matters for Your Business',
-    snippet: 'Efficient last-mile delivery can transform customer experience...',
-    imageSrc: '/icons/fooddelivery.png',
-    imageAlt: 'Last-mile delivery',
-    href: '/blog',
-  },
-];
-
-/** Section: "Blogs" – radial gradient background, horizontal sliding carousel of cards. */
+/** Section: "Blogs" — radial gradient background, horizontal sliding carousel of cards. */
 export default function BlogSection() {
+  const posts = getPostsForHomeSection(3);
+
   return (
     <section
       id="blogs"
@@ -38,11 +16,18 @@ export default function BlogSection() {
       }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
-        <h2 id="blogs-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
-          Blogs
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6 sm:mb-8">
+          <h2 id="blogs-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 text-center sm:text-left">
+            Blogs
+          </h2>
+          <Link
+            href="/blog"
+            className="text-center sm:text-right text-sm font-semibold text-[var(--color-primary)] hover:underline"
+          >
+            View all articles
+          </Link>
+        </div>
 
-        {/* Mobile: horizontal carousel; desktop: centered grid, equal-height cards */}
         <div
           className="scrollbar-hide flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto md:overflow-visible overflow-y-hidden scroll-smooth pb-2 md:pb-0"
           style={{
@@ -50,8 +35,16 @@ export default function BlogSection() {
             WebkitOverflowScrolling: 'touch',
           }}
         >
-          {BLOG_POSTS.map((post) => (
-            <BlogCard key={post.title} {...post} />
+          {posts.map((post, i) => (
+            <BlogCard
+              key={post.slug}
+              title={post.title}
+              snippet={post.excerpt}
+              imageSrc={post.featuredImage}
+              imageAlt={post.featuredImageAlt}
+              href={`/blog/${post.slug}`}
+              priority={i === 0}
+            />
           ))}
         </div>
       </div>
