@@ -27,23 +27,23 @@ export const LOGO_PATH = '/logo.png';
 /** Absolute URL for JSON-LD, manifests, and share metadata. */
 export const LOGO_URL = `${SITE_URL}${LOGO_PATH}`;
 
-/** Meta title (browser tab / search results) — ~50–55 chars for SERP. */
-export const META_TITLE = 'Liftngo | Khatu & Noida B2B Goods Logistics';
+/** Meta title — target ~50–60 chars (Semrush / SERP tooling). */
+export const META_TITLE = 'Liftngo Logistics | B2B Delivery in Khatu & Delhi NCR';
 
-/** Meta description — ~100–130 chars for snippets. */
+/** Meta description — target ~100–130 chars. */
 export const SITE_DESCRIPTION =
-  'Goods logistics in Khatu Shyam Ji (Rajasthan) and B2B delivery in Noida & Delhi NCR. Book 2W–4W vehicles with upfront pricing—focused corridors, not pan-India.';
+  'Fast and reliable logistics in Khatu Shyam Ji and Delhi NCR. Book goods delivery with Liftngo—upfront pricing.';
 
 /** Short description (footer, cards, manifest). */
 export const SHORT_DESCRIPTION =
   'Hyperlocal logistics in Khatu Shyam Ji and B2B logistics in Noida & Delhi NCR—multi-vehicle goods transport with upfront pricing.';
 
-/** OG title — concise for shares. */
-export const OG_TITLE = 'Liftngo — B2B & Hyperlocal Goods Logistics';
+/** OG title (can match or complement META_TITLE). */
+export const OG_TITLE = 'Liftngo Logistics | B2B & hyperlocal goods delivery';
 
-/** OG description. */
+/** OG description — aligned length with SITE_DESCRIPTION. */
 export const OG_DESCRIPTION =
-  'B2B and hyperlocal goods transport in Khatu Shyam Ji and Noida / Delhi NCR. Multi-vehicle booking (2W–4W), upfront fares, verified partners—cargo-first, not pan-India.';
+  'Reliable logistics in Khatu Shyam Ji & Delhi NCR. Book 2W–4W delivery with Liftngo today.';
 
 /** Twitter card title. */
 export const TWITTER_TITLE = OG_TITLE;

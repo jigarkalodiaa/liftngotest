@@ -4,6 +4,8 @@ import {
   SITE_NAME,
   SEO_KEYWORDS,
   OG_IMAGE_PATH,
+  OG_IMAGE_WIDTH,
+  OG_IMAGE_HEIGHT,
   absoluteShareImageUrl,
 } from "@/lib/site";
 
@@ -35,6 +37,8 @@ export function generatePageMetadata({
 }: PageSEOProps): Metadata {
   const url = `${SITE_URL}${path}`;
   const imageUrl = absoluteShareImageUrl(image);
+  const ogW = image === OG_IMAGE_PATH ? OG_IMAGE_WIDTH : 1200;
+  const ogH = image === OG_IMAGE_PATH ? OG_IMAGE_HEIGHT : 630;
 
   return {
     title: useAbsoluteTitle ? { absolute: title } : title,
@@ -55,8 +59,8 @@ export function generatePageMetadata({
       images: [
         {
           url: imageUrl,
-          width: 1200,
-          height: 630,
+          width: ogW,
+          height: ogH,
           alt: title,
         },
       ],

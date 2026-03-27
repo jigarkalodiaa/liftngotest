@@ -34,8 +34,9 @@ export function buildKhatuShyamLogisticsGraph({
     description:
       'Hyperlocal goods transport and delivery for Khatu Shyam Ji: temple corridor vendors, food outlets, shops, and small businesses. On-demand booking via Liftngo.',
     url: pageUrl,
-    image: DEFAULT_OG_IMAGE,
-    priceRange: '₹₹',
+    image: { '@type': 'ImageObject', url: DEFAULT_OG_IMAGE },
+    /** ASCII — some validators flag non-Latin `priceRange` */
+    priceRange: '$$',
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Khatu Shyam Ji area',
@@ -94,6 +95,7 @@ export function buildKhatuShyamLogisticsGraph({
       },
       {
         '@type': 'FAQPage',
+        '@id': `${pageUrl}#faqpage`,
         mainEntity: faq.map((item) => ({
           '@type': 'Question',
           name: item.question,
@@ -128,10 +130,11 @@ export function buildNoidaB2bLogisticsGraph({
     description:
       'Corporate delivery solutions, bulk delivery services, and warehouse logistics for Noida and Delhi National Capital Region. Multi-vehicle cargo booking and verified vendor network.',
     url: pageUrl,
-    image: DEFAULT_OG_IMAGE,
-    priceRange: '₹₹₹',
+    image: { '@type': 'ImageObject', url: DEFAULT_OG_IMAGE },
+    priceRange: '$$$',
     address: {
       '@type': 'PostalAddress',
+      streetAddress: 'Noida & Delhi NCR service area',
       addressLocality: 'Noida',
       addressRegion: 'Uttar Pradesh',
       addressCountry: 'IN',
@@ -201,6 +204,7 @@ export function buildNoidaB2bLogisticsGraph({
           '@type': 'Offer',
           url: `${SITE_URL}/book-delivery`,
           availability: 'https://schema.org/InStock',
+          priceCurrency: 'INR',
         },
       },
       {
@@ -212,6 +216,7 @@ export function buildNoidaB2bLogisticsGraph({
       },
       {
         '@type': 'FAQPage',
+        '@id': `${pageUrl}#faqpage`,
         mainEntity: faq.map((item) => ({
           '@type': 'Question',
           name: item.question,

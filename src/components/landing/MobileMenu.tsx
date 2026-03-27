@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { ROUTES } from '@/lib/constants';
 import { SITE_NAME, LOGO_PATH } from '@/lib/site';
 import { CloseIcon } from '@/components/ui';
@@ -47,7 +47,7 @@ interface MobileMenuProps {
   onClose: () => void;
 }
 
-export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -63,12 +63,12 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     }
   }, [isOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     clearAuthToken();
     setLoggedIn(false);
     onClose();
     router.push(ROUTES.HOME);
-  };
+  }, [onClose, router]);
 
   return (
     <div
@@ -97,8 +97,9 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           </Link>
           <button
             ref={closeButtonRef}
+            type="button"
             onClick={onClose}
-            className="shrink-0 p-2 text-gray-500 hover:text-gray-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 rounded-full"
+            className="grid min-h-11 min-w-11 shrink-0 place-items-center rounded-full p-0 text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             aria-label="Close menu"
           >
             <CloseIcon />
@@ -120,7 +121,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <Link
                       href={item.href}
                       onClick={() => onClose()}
-                      className="flex w-full items-center justify-between py-3 text-left text-gray-600 hover:text-gray-900 transition-colors group"
+                      className="flex min-h-11 w-full items-center justify-between py-3 text-left text-base text-gray-600 transition-colors hover:text-gray-900 group"
                     >
                       <div className="flex items-center gap-3">
                         <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -139,7 +140,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="flex w-full items-center justify-between py-3 text-gray-600 hover:text-gray-900 transition-colors group"
+                      className="flex min-h-11 w-full items-center justify-between py-3 text-left text-base text-gray-600 transition-colors hover:text-gray-900 group"
                     >
                       <div className="flex items-center gap-3">
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -161,3 +162,5 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     </div>
   );
 }
+
+export default memo(MobileMenu);

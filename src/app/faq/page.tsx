@@ -12,7 +12,8 @@ const PAGE_URL = `${SITE_URL}${PATH}`;
 
 export const metadata = generatePageMetadata({
   title: `Frequently asked questions | ${SITE_NAME}`,
-  description: `Answers about Liftngo hyperlocal logistics, B2B delivery in Noida & Delhi NCR, Khatu Shyam Ji, booking, vehicles, EV cargo, food orders, billing, and support.`,
+  description:
+    'Liftngo FAQ: hyperlocal Khatu logistics, B2B Noida & Delhi NCR, booking, vehicles, EV cargo, billing & support.',
   path: PATH,
   keywords: [
     'Liftngo FAQ',
