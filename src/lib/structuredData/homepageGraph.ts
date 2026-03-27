@@ -46,7 +46,7 @@ export function buildHomepageSeoGraph() {
           addressCountry: 'IN',
         },
       },
-      { '@type': 'City', name: 'Noida', containedInPlace: { '@type': 'AdministrativeArea', name: 'Delhi NCR' } },
+      { '@type': 'AdministrativeArea', name: 'Noida' },
       { '@type': 'AdministrativeArea', name: 'Delhi National Capital Region' },
     ],
     knowsAbout: [
@@ -67,13 +67,6 @@ export function buildHomepageSeoGraph() {
       areaServed: 'IN',
     };
   }
-
-  organization.openingHoursSpecification = {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-    opens: '00:00',
-    closes: '23:59',
-  };
 
   const sameAs = getOrganizationSameAs();
   if (sameAs.length > 0) {

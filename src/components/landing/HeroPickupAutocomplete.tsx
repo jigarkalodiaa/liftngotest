@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, memo } from 'react';
 import { loadGoogleMapsPlaces } from '@/lib/googleMapsLoader';
 import { GOOGLE_MAP_KEY } from '@/config/env';
 
@@ -21,7 +21,7 @@ interface HeroPickupAutocompleteProps {
  * Landing hero pickup field with Google Places Autocomplete (up to 5 suggestions).
  * Falls back to a plain input when NEXT_PUBLIC_GOOGLE_MAP_KEY is unset or load fails.
  */
-export default function HeroPickupAutocomplete({
+function HeroPickupAutocomplete({
   value,
   onChange,
   onPickSuggestion,
@@ -35,14 +35,20 @@ export default function HeroPickupAutocomplete({
   const [suggestions, setSuggestions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(false);
   const [mapsReady, setMapsReady] = useState(false);
+  /** Defer Maps JS until user focuses input — improves LCP / INP on landing. */
+  const [mapsRequested, setMapsRequested] = useState(false);
   /** No key, script failed, or Places unavailable — plain text input only. */
   const [placesUnavailable, setPlacesUnavailable] = useState(() => !GOOGLE_MAP_KEY.trim());
   const serviceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const seqRef = useRef(0);
 
+  const requestMaps = useCallback(() => {
+    if (apiKey) setMapsRequested(true);
+  }, [apiKey]);
+
   useEffect(() => {
-    if (!apiKey) return;
+    if (!apiKey || !mapsRequested) return;
     let cancelled = false;
     loadGoogleMapsPlaces(apiKey)
       .then(() => {
@@ -57,7 +63,7 @@ export default function HeroPickupAutocomplete({
     return () => {
       cancelled = true;
     };
-  }, [apiKey]);
+  }, [apiKey, mapsRequested]);
 
   const fetchPredictions = useCallback(
     (input: string) => {
@@ -137,11 +143,18 @@ export default function HeroPickupAutocomplete({
         value={value}
         disabled={disabled}
         onChange={(e) => {
+          requestMaps();
           const v = e.target.value;
           onChange(v);
           setOpen(true);
         }}
-        onFocus={() => setOpen(true)}
+        onFocus={() => {
+          requestMaps();
+          setOpen(true);
+        }}
+        onPointerDown={() => {
+          requestMaps();
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
             setOpen(false);
@@ -183,3 +196,5 @@ export default function HeroPickupAutocomplete({
     </div>
   );
 }
+
+export default memo(HeroPickupAutocomplete);

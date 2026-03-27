@@ -1,8 +1,11 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { useMenu, useLandingPickup } from './PageWrapper';
 import HeroPickupAutocomplete from './HeroPickupAutocomplete';
+import HeroMotionIllustration from './HeroMotionIllustration';
+import { HERO_LCP_IMAGE } from './constants/heroAssets';
 import { getLandingPickupLocation, setLandingPickupLocation, setPostLoginPath } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
 import { trackBookNowClick } from '@/lib/analytics';
@@ -78,7 +81,19 @@ function Hero() {
           <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-1 pt-3 sm:pt-4 px-1">
             Khatu Shyam Ji hyperlocal · Noida &amp; Delhi NCR B2B · EV where it fits
           </p>
-          <p className="text-sm text-gray-400 mb-10 sm:mb-14">*Other fees apply</p>
+          <p className="text-sm text-gray-400 mb-6 sm:mb-8">*Other fees apply</p>
+
+          <div className="relative mx-auto mb-8 w-full max-w-md min-h-[180px] sm:mb-10 sm:max-w-lg sm:min-h-[220px]">
+            <Image
+              src={HERO_LCP_IMAGE}
+              alt="Liftngo — B2B and hyperlocal goods logistics delivery"
+              width={1200}
+              height={800}
+              priority
+              sizes="(max-width: 640px) 100vw, 36rem"
+              className="h-auto w-full object-contain object-center"
+            />
+          </div>
 
           <div className="relative z-10 mx-auto w-full max-w-lg text-left">
             <div className="flex min-h-14 min-w-0 items-center gap-2 rounded-2xl border border-gray-200 bg-white px-2 py-1 shadow-sm sm:h-14 sm:py-0">
@@ -142,21 +157,7 @@ function Hero() {
             aria-hidden
           />
 
-          <div className="mt-10 sm:mt-12 flex justify-center px-1">
-            <div className="relative mx-auto aspect-square w-full max-w-md min-w-0 sm:max-w-lg">
-              {/* Hero illustration — replaceable asset in /public */}
-              <img
-                src="/images/liftngohero.gif"
-                alt="Liftngo — food and goods delivery"
-                width={1024}
-                height={1024}
-                className="h-full w-full object-contain object-center"
-                sizes="(max-width: 640px) 100vw, 28rem"
-                fetchPriority="high"
-                decoding="async"
-              />
-            </div>
-          </div>
+          <HeroMotionIllustration />
         </div>
       </div>
     </section>

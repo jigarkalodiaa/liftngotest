@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import dynamic from "next/dynamic";
 import { Geist, Geist_Mono } from "next/font/google";
 import {
   SITE_URL,
@@ -17,8 +18,10 @@ import {
   FAVICON_PATH,
 } from "@/lib/site";
 import QueryProvider from "@/components/providers/QueryProvider";
-import GoogleAnalytics from "@/components/Analytics";
 import "./globals.css";
+
+/** GA off critical path — no SSR, loads after hydration. */
+const GoogleAnalytics = dynamic(() => import("@/components/Analytics"), { ssr: false });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -117,6 +120,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-IN">
+      <head>
+        <link rel="preload" as="image" href="/hero-liftngo-landing.jpg" fetchPriority="high" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-dvh overflow-x-clip antialiased`}
       >
