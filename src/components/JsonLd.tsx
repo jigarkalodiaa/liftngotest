@@ -1,5 +1,6 @@
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, PROJECT_DESCRIPTION, LOGO_URL } from '@/lib/site';
 import { FAQ_ITEMS } from '@/data/faq';
+import { getOrganizationSameAs } from '@/lib/social';
 
 interface JsonLdProps {
   /** Structured data – must be server/site-controlled only; never pass user input. */
@@ -15,39 +16,39 @@ export default function JsonLd({ data }: JsonLdProps) {
   );
 }
 
+/** WebSite only — no SearchAction (site has no /search route; invalid SearchAction breaks rich-result validation). */
 export const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: SITE_NAME,
   url: SITE_URL,
   description: SITE_DESCRIPTION,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
-    },
-    'query-input': 'required name=search_term_string',
-  },
 };
 
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
 
-export const organizationJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  '@id': ORGANIZATION_ID,
-  name: SITE_NAME,
-  url: SITE_URL,
-  logo: LOGO_URL,
-  description: SITE_DESCRIPTION,
-  contactPoint: {
-    '@type': 'ContactPoint',
-    contactType: 'customer service',
-    availableLanguage: ['English', 'Hindi'],
-  },
-};
+/** Organization with ImageObject logo and sameAs (required shape for Google). */
+export function buildOrganizationJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': ORGANIZATION_ID,
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: {
+      '@type': 'ImageObject',
+      url: LOGO_URL,
+    },
+    description: SITE_DESCRIPTION,
+    sameAs: getOrganizationSameAs(),
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      availableLanguage: ['English', 'Hindi'],
+    },
+  };
+}
 
 /** About page: AboutPage + WebSite + Organization + BreadcrumbList (single graph). */
 export function buildAboutPageJsonLd({
@@ -202,10 +203,13 @@ export function buildWebPageJsonLd({
 export const localBusinessJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'LocalBusiness',
-  '@id': `${SITE_URL}/#organization`,
+  '@id': `${SITE_URL}/#localBusiness`,
   name: SITE_NAME,
   url: SITE_URL,
-  logo: LOGO_URL,
+  logo: {
+    '@type': 'ImageObject',
+    url: LOGO_URL,
+  },
   description: SITE_DESCRIPTION,
   image: LOGO_URL,
   priceRange: '₹₹',

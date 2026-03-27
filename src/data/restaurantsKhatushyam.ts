@@ -18,6 +18,15 @@ export interface Restaurant {
   address?: string;
   phone?: string;
   menu: MenuItem[];
+  /** Hero image on find-restaurant cards (falls back to first menu photo). */
+  coverImage?: string;
+  /** Short badge line e.g. "Fast delivery · Pure veg · Near temple" */
+  listingTags?: string;
+  rating?: number;
+  /** e.g. "~3 min from temple" */
+  distanceLabel?: string;
+  /** Typical delivery window copy for listing cards */
+  deliveryEstimate?: string;
 }
 
 export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
@@ -27,6 +36,12 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     description: 'Pure veg restaurant near Khatushyam Ji temple. North Indian & Rajasthani thalis.',
     address: 'Near Khatushyam Ji Temple, Khatushyam Ji',
     phone: '+91 98291 12345',
+    coverImage:
+      'https://images.unsplash.com/photo-1626772852518-223156298e84?auto=format&w=800&q=88&fit=crop',
+    listingTags: 'Fast pickup · Pure veg · Near temple',
+    rating: 4.9,
+    distanceLabel: '~2 min from temple',
+    deliveryEstimate: 'Est. delivery 25–40 min',
     menu: [
       {
         name: 'Rajasthani Thali',
@@ -72,6 +87,12 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     description: 'Classic dhaba-style vegetarian food. Quick service for pilgrims.',
     address: 'Main Road, Khatushyam Ji',
     phone: '+91 98291 23456',
+    coverImage:
+      'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&w=800&q=88&fit=crop',
+    listingTags: 'Quick service · Pure veg · Pilgrim favourite',
+    rating: 4.8,
+    distanceLabel: 'Main road · Temple lane',
+    deliveryEstimate: 'Est. delivery 20–35 min',
     menu: [
       {
         name: 'Rajma Chawal',
@@ -117,6 +138,12 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     description: 'Prasad & meals for devotees. Simple, hygienic vegetarian meals.',
     address: 'Temple Road, Khatushyam Ji',
     phone: '+91 98291 34567',
+    coverImage:
+      'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&w=800&q=88&fit=crop',
+    listingTags: 'Prasad & meals · Hygienic · Temple road',
+    rating: 4.9,
+    distanceLabel: '~4 min walk',
+    deliveryEstimate: 'Est. delivery 30–45 min',
     menu: [
       {
         name: 'Prasad Thali',
@@ -162,6 +189,12 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     description: 'Multi-cuisine veg restaurant. Comfortable seating for families.',
     address: 'Near Bus Stand, Khatushyam Ji',
     phone: '+91 98291 45678',
+    coverImage:
+      'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&w=800&q=88&fit=crop',
+    listingTags: 'Family friendly · Pure veg · Near bus stand',
+    rating: 4.7,
+    distanceLabel: '~6 min from temple',
+    deliveryEstimate: 'Est. delivery 35–50 min',
     menu: [
       {
         name: 'Veg Biryani',
@@ -202,6 +235,15 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     ],
   },
 ];
+
+const DEFAULT_RESTAURANT_COVER =
+  'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&w=800&q=88&fit=crop';
+
+export function getRestaurantCoverImage(r: Restaurant): string {
+  if (r.coverImage) return r.coverImage;
+  const first = r.menu.find((m) => m.image)?.image;
+  return first ?? DEFAULT_RESTAURANT_COVER;
+}
 
 export function getRestaurantById(id: string): Restaurant | undefined {
   return RESTAURANTS_KHATUSHYAM.find((r) => r.id === id);

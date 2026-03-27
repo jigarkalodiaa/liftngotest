@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import {
   SITE_URL,
   SITE_NAME,
-  SITE_DESCRIPTION,
   SEO_KEYWORDS,
   OG_IMAGE_PATH,
+  absoluteShareImageUrl,
 } from "@/lib/site";
 
 interface PageSEOProps {
@@ -13,6 +13,13 @@ interface PageSEOProps {
   path?: string;
   image?: string;
   noIndex?: boolean;
+  /** When `noIndex` is true: if also true, sets `robots.follow` to false (e.g. login). */
+  nofollow?: boolean;
+  /**
+   * Use `{ absolute: title }` so the root layout `title.template` does not append the site name twice
+   * (e.g. when `title` already includes the brand).
+   */
+  useAbsoluteTitle?: boolean;
   keywords?: string[];
 }
 
@@ -22,17 +29,22 @@ export function generatePageMetadata({
   path = "",
   image = OG_IMAGE_PATH,
   noIndex = false,
+  nofollow = false,
+  useAbsoluteTitle = false,
   keywords = [],
 }: PageSEOProps): Metadata {
   const url = `${SITE_URL}${path}`;
-  const imageUrl = image.startsWith("http") ? image : `${SITE_URL}${image}`;
+  const imageUrl = absoluteShareImageUrl(image);
 
   return {
-    title,
+    title: useAbsoluteTitle ? { absolute: title } : title,
     description,
     keywords: keywords.length > 0 ? keywords : SEO_KEYWORDS,
     alternates: {
       canonical: url,
+      languages: {
+        "en-IN": url,
+      },
     },
     openGraph: {
       title,
@@ -57,7 +69,7 @@ export function generatePageMetadata({
       images: [imageUrl],
     },
     robots: noIndex
-      ? { index: false, follow: false }
+      ? { index: false, follow: !nofollow }
       : { index: true, follow: true },
   };
 }
@@ -73,6 +85,8 @@ export function generateArticleMetadata({
   tags,
   keywords = [],
   noIndex = false,
+  nofollow = false,
+  useAbsoluteTitle = false,
 }: PageSEOProps & {
   publishedTime: string;
   modifiedTime?: string;
@@ -85,6 +99,8 @@ export function generateArticleMetadata({
     path,
     image,
     noIndex,
+    nofollow,
+    useAbsoluteTitle,
     keywords,
   });
 

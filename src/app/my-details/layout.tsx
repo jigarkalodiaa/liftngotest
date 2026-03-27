@@ -6,6 +6,8 @@ export const metadata = generatePageMetadata({
   description: `View and update your profile on ${SITE_NAME}.`,
   path: '/my-details',
   keywords: ['profile', 'my details', 'account'],
+  noIndex: true,
+  useAbsoluteTitle: true,
 });
 
 export default function MyDetailsLayout({ children }: { children: React.ReactNode }) {

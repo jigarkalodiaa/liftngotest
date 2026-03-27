@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getCityBySlug, getCityDescription } from '@/data/seoCities';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/lib/site';
-import JsonLd, { websiteJsonLd, organizationJsonLd } from '@/components/JsonLd';
+import JsonLd, { websiteJsonLd, buildOrganizationJsonLd } from '@/components/JsonLd';
 import { Header, Hero, Features, FoodDelivery, Footer, PageWrapper } from '@/components/landing';
 
 type Props = { params: Promise<{ citySlug: string }> };
@@ -49,7 +49,7 @@ export default async function CityPage({ params }: Props) {
   return (
     <PageWrapper>
       <JsonLd data={websiteJsonLd} />
-      <JsonLd data={organizationJsonLd} />
+      <JsonLd data={buildOrganizationJsonLd()} />
       <JsonLd data={cityJsonLd} />
       <Header />
       <main>

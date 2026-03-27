@@ -19,9 +19,32 @@ const DISALLOW_APP_SHELL = [
   '/pickup-location/',
 ] as const;
 
+/**
+ * Link-preview crawlers must be allowed to fetch HTML for `/dashboard` and other app shells,
+ * or WhatsApp/Facebook show only the hostname with no `og:title` / `og:image`.
+ * @see https://developers.facebook.com/docs/sharing/webmasters/web-crawlers
+ */
+const DISALLOW_FOR_SOCIAL_ONLY = ['/api/', '/private/', '/_next/'] as const;
+
+const SOCIAL_AND_PREVIEW_USER_AGENTS = [
+  'facebookexternalhit',
+  'Facebot',
+  'Twitterbot',
+  'LinkedInBot',
+  'Slackbot',
+  'WhatsApp',
+  'Pinterest',
+  'Discordbot',
+] as const;
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
+      {
+        userAgent: [...SOCIAL_AND_PREVIEW_USER_AGENTS],
+        allow: '/',
+        disallow: [...DISALLOW_FOR_SOCIAL_ONLY],
+      },
       {
         userAgent: '*',
         allow: '/',

@@ -1,11 +1,13 @@
-import type { Metadata } from 'next';
+import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'Finding driver',
+export const metadata = generatePageMetadata({
+  title: `Finding driver | ${SITE_NAME}`,
   description: `Your ${SITE_NAME} booking is being confirmed.`,
-  robots: { index: false, follow: true },
-};
+  path: '/booking',
+  noIndex: true,
+  useAbsoluteTitle: true,
+});
 
 export default function BookingLayout({
   children,

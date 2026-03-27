@@ -9,14 +9,27 @@ import { ROUTES, SESSION_KEYS, STORAGE_KEYS } from './constants';
 
 const ALLOWED_POST_LOGIN_PATHS = new Set<string>([ROUTES.PICKUP_LOCATION, ROUTES.PICKUP_LOCATION_EDIT]);
 
-/** Allow only pickup booking URLs (main flow + map edit) — no open redirects. */
+function isAllowedFindRestaurantPostLoginPath(pathOnly: string): boolean {
+  if (pathOnly === ROUTES.FIND_RESTAURANT) return true;
+  const prefix = `${ROUTES.FIND_RESTAURANT}/`;
+  if (!pathOnly.startsWith(prefix)) return false;
+  const slug = pathOnly.slice(prefix.length);
+  if (!slug || slug.includes('/') || slug.includes('..')) return false;
+  return /^[a-z0-9-]+$/i.test(slug);
+}
+
+/** Allow pickup booking URLs, food menu listing, and `/find-restaurant/[slug]` — no open redirects. */
 export function sanitizePostLoginRedirectTarget(raw: string): string | null {
   const t = raw.trim();
   if (t.includes('//') || t.includes('\\')) return null;
-  const q = t.indexOf('?');
-  const pathOnly = q === -1 ? t : t.slice(0, q);
-  if (!ALLOWED_POST_LOGIN_PATHS.has(pathOnly)) return null;
-  return q === -1 ? pathOnly : t;
+  const hashIdx = t.indexOf('#');
+  const beforeHash = hashIdx === -1 ? t : t.slice(0, hashIdx);
+  const q = beforeHash.indexOf('?');
+  const pathOnly = q === -1 ? beforeHash : beforeHash.slice(0, q);
+  if (!pathOnly.startsWith('/')) return null;
+  if (ALLOWED_POST_LOGIN_PATHS.has(pathOnly)) return t;
+  if (isAllowedFindRestaurantPostLoginPath(pathOnly)) return t;
+  return null;
 }
 
 function safeParse<T>(raw: string | null, guard: (v: unknown) => v is T): T | null {

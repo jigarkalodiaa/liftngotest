@@ -58,11 +58,10 @@ export default function AppDownloadSection() {
                 <div className="flex h-full w-full items-center justify-center rounded-lg bg-white p-2">
                   <Image
                     src={LOGO_PATH}
-                    alt=""
+                    alt={`${SITE_NAME} — customer app`}
                     width={72}
                     height={40}
                     className="h-auto w-full max-h-10 object-contain"
-                    aria-hidden
                   />
                 </div>
               </div>
@@ -80,11 +79,10 @@ export default function AppDownloadSection() {
                 <div className="flex h-full w-full items-center justify-center rounded-lg bg-white p-2">
                   <Image
                     src={LOGO_PATH}
-                    alt=""
+                    alt={`${SITE_NAME} — driver app`}
                     width={72}
                     height={40}
                     className="h-auto w-full max-h-10 object-contain"
-                    aria-hidden
                   />
                 </div>
               </div>

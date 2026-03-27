@@ -20,5 +20,10 @@ export async function generateMetadata({ params }: Props) {
   const { id } = await params;
   const restaurant = getRestaurantById(id);
   if (!restaurant) return { title: 'Restaurant not found' };
-  return { title: `${restaurant.name} – Menu | Find Restaurant | LiftnGo` };
+  const desc =
+    restaurant.description.length > 155 ? `${restaurant.description.slice(0, 152)}…` : restaurant.description;
+  return {
+    title: `${restaurant.name} – Menu & order | Food delivery Khatu Shyam Ji | LiftnGo`,
+    description: `${desc} Order on LiftnGo and book delivery to your door.`,
+  };
 }

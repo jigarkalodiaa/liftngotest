@@ -3,33 +3,47 @@
  * Single source of truth for URL, SEO, and copy.
  */
 
-export const SITE_URL = 'https://liftngo.com';
+function stripTrailingSlashes(url: string): string {
+  return url.replace(/\/+$/, '');
+}
+
+/**
+ * Canonical site origin for metadata, JSON-LD, sitemap, and OG URLs.
+ * Set `NEXT_PUBLIC_SITE_URL` in production (e.g. https://www.goliftngo.com) so share cards match the live domain.
+ */
+export const SITE_URL = stripTrailingSlashes(
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.goliftngo.com'
+);
 export const SITE_NAME = 'Liftngo';
+
+/**
+ * Browser / Google SERP favicon (square, ≥48×48; PNG in `/public`).
+ * Distinct from header logo (`LOGO_PATH`).
+ */
+export const FAVICON_PATH = '/favicon.png';
 
 /** Primary mark served from `/public` (PNG — official Liftngo Logistics artwork). */
 export const LOGO_PATH = '/logo.png';
 /** Absolute URL for JSON-LD, manifests, and share metadata. */
 export const LOGO_URL = `${SITE_URL}${LOGO_PATH}`;
 
-/** Meta title (browser tab / search results). */
-export const META_TITLE =
-  'Liftngo | Logistics in Khatu Shyam Ji & B2B Delivery in Noida / Delhi NCR';
+/** Meta title (browser tab / search results) — ~50–55 chars for SERP. */
+export const META_TITLE = 'Liftngo | Khatu & Noida B2B Goods Logistics';
 
-/** Meta description (search results / snippets). */
+/** Meta description — ~100–130 chars for snippets. */
 export const SITE_DESCRIPTION =
-  'Liftngo is the logistics platform for Khatu Shyam Ji (Rajasthan) and for B2B in Noida & Delhi NCR: food & shop delivery near the temple, multi-vehicle booking (2W–4W), verified partners. Not pan-India—focused operating areas.';
+  'Goods logistics in Khatu Shyam Ji (Rajasthan) and B2B delivery in Noida & Delhi NCR. Book 2W–4W vehicles with upfront pricing—focused corridors, not pan-India.';
 
 /** Short description (footer, cards, manifest). */
 export const SHORT_DESCRIPTION =
   'Hyperlocal logistics in Khatu Shyam Ji and B2B logistics in Noida & Delhi NCR—multi-vehicle goods transport with upfront pricing.';
 
-/** OG title — B2B-first; cargo / logistics only (not passenger or generic megacity app). */
-export const OG_TITLE =
-  'Liftngo | B2B & Hyperlocal Goods Logistics — Khatu Shyam Ji & Noida / Delhi NCR';
+/** OG title — concise for shares. */
+export const OG_TITLE = 'Liftngo — B2B & Hyperlocal Goods Logistics';
 
 /** OG description. */
 export const OG_DESCRIPTION =
-  'B2B logistics in Noida & Delhi NCR and hyperlocal goods delivery in Khatu Shyam Ji: multi-vehicle cargo (2W–4W), verified partners, warehouse and corporate lanes—not passenger transport or pan-India sprawl.';
+  'B2B and hyperlocal goods transport in Khatu Shyam Ji and Noida / Delhi NCR. Multi-vehicle booking (2W–4W), upfront fares, verified partners—cargo-first, not pan-India.';
 
 /** Twitter card title. */
 export const TWITTER_TITLE = OG_TITLE;
@@ -75,13 +89,35 @@ export const SEO_KEYWORDS = [
 ];
 
 /**
- * Default share image (OG / Twitter / JSON-LD). Ship a 1200×630 PNG/WebP at `/og-image.png` in production;
- * until then we use the hero illustration so crawlers resolve a real URL.
+ * Default share asset (OG / Twitter / `generatePageMetadata`).
+ * Raster only (JPG/PNG/WebP). Source: branded “B2B Logistics Simplified” banner in `/public`.
  */
-export const OG_IMAGE_PATH = '/hero-delivery.svg';
+export const OG_IMAGE_PATH = '/og-image.jpg';
 
-/** Absolute URL for default OG/Twitter image. */
-export const DEFAULT_OG_IMAGE = `${SITE_URL}${OG_IMAGE_PATH}`;
+/** Bump when replacing the file so Facebook/WhatsApp invalidate cached previews. */
+export const OG_IMAGE_CACHE_VERSION = '3';
+
+/** Actual dimensions of `/public/og-image.jpg` (update if you replace the file). */
+export const OG_IMAGE_WIDTH = 1024;
+export const OG_IMAGE_HEIGHT = 682;
+
+export const OG_IMAGE_ALT =
+  'LiftnGo Logistics — B2B Logistics Simplified for Khatu Shyam Ji and Delhi NCR; delivery partner illustration.';
+
+/** Absolute URL for default OG/Twitter image (includes cache-buster query). */
+export const DEFAULT_OG_IMAGE = `${SITE_URL}${OG_IMAGE_PATH}?v=${OG_IMAGE_CACHE_VERSION}`;
+
+/** Resolve a root-relative image path or absolute URL for Open Graph / Twitter. */
+export function absoluteShareImageUrl(imagePathOrUrl: string): string {
+  if (imagePathOrUrl.startsWith('http://') || imagePathOrUrl.startsWith('https://')) {
+    return /[?&]v=/.test(imagePathOrUrl)
+      ? imagePathOrUrl
+      : `${imagePathOrUrl}${imagePathOrUrl.includes('?') ? '&' : '?'}v=${OG_IMAGE_CACHE_VERSION}`;
+  }
+  const path = imagePathOrUrl.startsWith('/') ? imagePathOrUrl : `/${imagePathOrUrl}`;
+  const base = `${SITE_URL}${path}`;
+  return /[?&]v=/.test(base) ? base : `${base}${base.includes('?') ? '&' : '?'}v=${OG_IMAGE_CACHE_VERSION}`;
+}
 
 /** Full project description (About, structured data). */
 export const PROJECT_DESCRIPTION =
