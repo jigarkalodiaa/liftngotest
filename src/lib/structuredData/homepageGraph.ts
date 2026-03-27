@@ -5,12 +5,15 @@ import {
   SITE_DESCRIPTION,
   PROJECT_DESCRIPTION,
   LOGO_URL,
+  DEFAULT_OG_IMAGE,
 } from '@/lib/site';
 import { getOrganizationSameAs } from '@/lib/social';
 
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
 const SERVICE_ID = `${SITE_URL}/#logistics-service`;
+const LOCAL_KHATU_ID = `${SITE_URL}/#localBusinessKhatu`;
+const LOCAL_NOIDA_ID = `${SITE_URL}/#localBusinessNoida`;
 
 function supportTelephone(): string | undefined {
   const raw = process.env.NEXT_PUBLIC_SUPPORT_PHONE?.replace(/\D/g, '') ?? '';
@@ -19,7 +22,7 @@ function supportTelephone(): string | undefined {
 }
 
 /**
- * Single JSON-LD graph for homepage: WebSite, Organization, LocalBusiness, Service, FAQPage.
+ * Homepage JSON-LD @graph: WebSite, Organization, LocalBusiness (Khatu + Noida), Service, FAQPage.
  * Avoids emitting duplicate standalone Organization scripts.
  */
 export function buildHomepageSeoGraph() {
@@ -65,30 +68,68 @@ export function buildHomepageSeoGraph() {
     };
   }
 
+  organization.openingHoursSpecification = {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    opens: '00:00',
+    closes: '23:59',
+  };
+
   const sameAs = getOrganizationSameAs();
   if (sameAs.length > 0) {
     organization.sameAs = sameAs;
   }
 
-  const localBusiness: Record<string, unknown> = {
+  organization.subOrganization = [{ '@id': LOCAL_KHATU_ID }, { '@id': LOCAL_NOIDA_ID }];
+
+  /** Khatu corridor — valid LocalBusiness (street + geo + ImageObject). */
+  const localKhatu: Record<string, unknown> = {
     '@type': 'LocalBusiness',
-    '@id': `${SITE_URL}/#localBusiness`,
-    name: SITE_NAME,
-    image: LOGO_URL,
-    url: SITE_URL,
+    '@id': LOCAL_KHATU_ID,
+    name: `${SITE_NAME} — Khatu Shyam Ji logistics`,
+    url: `${SITE_URL}/khatu-shyam-logistics`,
+    image: { '@type': 'ImageObject', url: DEFAULT_OG_IMAGE },
     description: SITE_DESCRIPTION,
-    /** ASCII label — some validators reject non-ASCII in priceRange */
-    priceRange: 'Mid-range',
+    priceRange: '$$',
     address: {
       '@type': 'PostalAddress',
+      streetAddress: 'Khatu Shyam Ji area',
       addressLocality: 'Khatu',
       addressRegion: 'Rajasthan',
       addressCountry: 'IN',
     },
+    geo: { '@type': 'GeoCoordinates', latitude: 27.7486, longitude: 75.3932 },
+    areaServed: { '@type': 'Place', name: 'Khatu Shyam Ji, Rajasthan' },
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      opens: '00:00',
+      closes: '23:59',
+    },
+    parentOrganization: { '@id': ORGANIZATION_ID },
+  };
+  if (tel) localKhatu.telephone = tel;
+
+  /** Noida / NCR B2B — valid LocalBusiness with streetAddress. */
+  const localNoida: Record<string, unknown> = {
+    '@type': 'LocalBusiness',
+    '@id': LOCAL_NOIDA_ID,
+    name: `${SITE_NAME} — B2B logistics Noida & Delhi NCR`,
+    url: `${SITE_URL}/noida-b2b-logistics`,
+    image: { '@type': 'ImageObject', url: DEFAULT_OG_IMAGE },
+    description: SITE_DESCRIPTION,
+    priceRange: '$$$',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Noida & Delhi NCR service area',
+      addressLocality: 'Noida',
+      addressRegion: 'Uttar Pradesh',
+      addressCountry: 'IN',
+    },
+    geo: { '@type': 'GeoCoordinates', latitude: 28.5355, longitude: 77.391 },
     areaServed: [
-      { '@type': 'Place', name: 'Khatu Shyam Ji, Rajasthan' },
       { '@type': 'City', name: 'Noida' },
-      { '@type': 'AdministrativeArea', name: 'Delhi NCR' },
+      { '@type': 'AdministrativeArea', name: 'Delhi National Capital Region' },
     ],
     openingHoursSpecification: {
       '@type': 'OpeningHoursSpecification',
@@ -98,10 +139,7 @@ export function buildHomepageSeoGraph() {
     },
     parentOrganization: { '@id': ORGANIZATION_ID },
   };
-
-  if (tel) {
-    localBusiness.telephone = tel;
-  }
+  if (tel) localNoida.telephone = tel;
 
   const service: Record<string, unknown> = {
     '@type': 'Service',
@@ -119,6 +157,7 @@ export function buildHomepageSeoGraph() {
     offers: {
       '@type': 'Offer',
       availability: 'https://schema.org/InStock',
+      priceCurrency: 'INR',
       url: `${SITE_URL}/book-delivery`,
     },
   };
@@ -147,7 +186,7 @@ export function buildHomepageSeoGraph() {
 
   return {
     '@context': 'https://schema.org',
-    '@graph': [website, organization, localBusiness, service, faq],
+    '@graph': [website, organization, localKhatu, localNoida, service, faq],
   };
 }
 

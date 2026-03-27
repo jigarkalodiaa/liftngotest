@@ -1,5 +1,4 @@
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, PROJECT_DESCRIPTION, LOGO_URL } from '@/lib/site';
-import { FAQ_ITEMS } from '@/data/faq';
 import { getOrganizationSameAs } from '@/lib/social';
 
 interface JsonLdProps {
@@ -182,6 +181,7 @@ export function buildWebPageJsonLd({
   if (faqMainEntity?.length) {
     graph.push({
       '@type': 'FAQPage',
+      '@id': `${pageUrl}#faqpage`,
       mainEntity: faqMainEntity.map((item) => ({
         '@type': 'Question',
         name: item.question,
@@ -198,39 +198,3 @@ export function buildWebPageJsonLd({
     '@graph': graph,
   };
 }
-
-/** LocalBusiness schema for local/logistics SEO. */
-export const localBusinessJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  '@id': `${SITE_URL}/#localBusiness`,
-  name: SITE_NAME,
-  url: SITE_URL,
-  logo: {
-    '@type': 'ImageObject',
-    url: LOGO_URL,
-  },
-  description: SITE_DESCRIPTION,
-  image: LOGO_URL,
-  priceRange: '₹₹',
-  openingHoursSpecification: {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-    opens: '00:00',
-    closes: '23:59',
-  },
-};
-
-/** FAQPage schema for FAQ section (rich results in search). */
-export const faqPageJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: FAQ_ITEMS.map((item) => ({
-    '@type': 'Question',
-    name: item.question,
-    acceptedAnswer: {
-      '@type': 'Answer',
-      text: item.answer,
-    },
-  })),
-};

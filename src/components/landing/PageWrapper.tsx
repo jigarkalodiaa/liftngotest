@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
   useEffect,
   ReactNode,
@@ -81,10 +82,20 @@ export default function PageWrapper({ children, headerSlot }: PageWrapperProps) 
     return () => window.clearTimeout(t);
   }, [pickupDraft]);
 
-  const openMenu = () => setIsMenuOpen(true);
-  const closeMenu = () => setIsMenuOpen(false);
-  const openLogin = () => setIsLoginOpen(true);
-  const closeLogin = () => setIsLoginOpen(false);
+  const openMenu = useCallback(() => setIsMenuOpen(true), []);
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+  const openLogin = useCallback(() => setIsLoginOpen(true), []);
+  const closeLogin = useCallback(() => setIsLoginOpen(false), []);
+
+  const menuContextValue = useMemo(
+    () => ({ isMenuOpen, openMenu, closeMenu, isLoginOpen, openLogin, closeLogin }),
+    [isMenuOpen, closeMenu, closeLogin, isLoginOpen, openLogin, openMenu],
+  );
+
+  const pickupContextValue = useMemo(
+    () => ({ pickupDraft, setPickupDraft }),
+    [pickupDraft, setPickupDraft],
+  );
 
   useEffect(() => {
     if (pathname === '/' && getAuthToken()) {
@@ -105,14 +116,13 @@ export default function PageWrapper({ children, headerSlot }: PageWrapperProps) 
   }, [isMenuOpen, isLoginOpen]);
 
   return (
-    <LandingPickupContext.Provider value={{ pickupDraft, setPickupDraft }}>
-      <MenuContext.Provider value={{ isMenuOpen, openMenu, closeMenu, isLoginOpen, openLogin, closeLogin }}>
+    <LandingPickupContext.Provider value={pickupContextValue}>
+      <MenuContext.Provider value={menuContextValue}>
         <div
           className={`relative min-h-[100dvh] min-h-screen overflow-x-clip bg-[var(--landing-bg)] ${isMenuOpen || isLoginOpen ? 'overflow-y-hidden' : ''}`}
         >
           {headerSlot}
 
-          {/* Backdrop: same 300ms ease-out as menu for in-sync transition; tap/click to close */}
           <div
             role="button"
             tabIndex={-1}
@@ -125,14 +135,9 @@ export default function PageWrapper({ children, headerSlot }: PageWrapperProps) 
             aria-hidden="true"
           />
 
-          {/* Main content – never moves; menu overlays on top */}
-          <div className="relative min-h-[100dvh] min-h-screen bg-[var(--landing-bg)]">
-            {children}
-          </div>
+          {children}
 
           <MobileMenu isOpen={isMenuOpen} onClose={closeMenu} />
-
-          {/* Login Modal */}
           <LoginModal isOpen={isLoginOpen} onClose={closeLogin} />
         </div>
       </MenuContext.Provider>

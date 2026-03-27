@@ -32,13 +32,16 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
   adjustFontFallback: true,
 });
 
+/** Renders `<meta name="viewport" content="width=device-width, initial-scale=1" />` (plus theme-color). */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  userScalable: true,
   themeColor: "#2C2D5B",
 };
 
@@ -114,9 +117,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en-IN">
-      <head>
-        <link rel="preload" href="/images/liftngohero.gif" as="image" type="image/gif" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-dvh overflow-x-clip antialiased`}
       >

@@ -7,23 +7,41 @@ import {
   Footer,
   PageWrapper,
 } from '@/components/landing';
-import HomeSeoContent from '@/components/landing/HomeSeoContent';
-import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import { generatePageMetadata } from '@/lib/seo';
 import { META_TITLE, SITE_DESCRIPTION, SEO_KEYWORDS } from '@/lib/site';
 
-const Features = dynamic(() => import('@/components/landing/Features'));
-const ServiceSection = dynamic(() => import('@/components/landing/ServiceSection'));
-const QuickRidesSection = dynamic(() => import('@/components/landing/QuickRidesSection'));
-const AppDownloadSection = dynamic(() => import('@/components/landing/AppDownloadSection'));
-const BlogSection = dynamic(() => import('@/components/landing/BlogSection'));
-const FaqSection = dynamic(() => import('@/components/landing/FaqSection'));
+const sectionLoading = (minH: string) => () => <div className={`${minH} w-full shrink-0`} aria-hidden />;
+
+const HomeSeoContent = dynamic(() => import('@/components/landing/HomeSeoContent'), {
+  loading: sectionLoading('min-h-48'),
+});
+const Features = dynamic(() => import('@/components/landing/Features'), { loading: sectionLoading('min-h-40') });
+const ServiceSection = dynamic(() => import('@/components/landing/ServiceSection'), {
+  loading: sectionLoading('min-h-48'),
+});
+const QuickRidesSection = dynamic(() => import('@/components/landing/QuickRidesSection'), {
+  loading: sectionLoading('min-h-36'),
+});
+const AppDownloadSection = dynamic(() => import('@/components/landing/AppDownloadSection'), {
+  loading: sectionLoading('min-h-40'),
+});
+const BlogSection = dynamic(() => import('@/components/landing/BlogSection'), {
+  loading: sectionLoading('min-h-56'),
+});
+const TestimonialsSection = dynamic(() => import('@/components/landing/TestimonialsSection'), {
+  loading: sectionLoading('min-h-36'),
+});
+const FaqSection = dynamic(() => import('@/components/landing/FaqSection'), {
+  loading: sectionLoading('min-h-48'),
+});
 
 export const metadata = generatePageMetadata({
   title: META_TITLE,
   description: SITE_DESCRIPTION,
   path: '',
   keywords: [...SEO_KEYWORDS],
+  /** Root `title.template` would append `| Liftngo` twice otherwise. */
+  useAbsoluteTitle: true,
 });
 
 export default function Home() {

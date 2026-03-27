@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { useMenu, useLandingPickup } from './PageWrapper';
 import HeroPickupAutocomplete from './HeroPickupAutocomplete';
 import { getLandingPickupLocation, setLandingPickupLocation, setPostLoginPath } from '@/lib/storage';
@@ -8,13 +8,13 @@ import { ROUTES } from '@/lib/constants';
 import { trackBookNowClick } from '@/lib/analytics';
 
 /** Hero: ₹0 DELIVERY FEE, pickup input, Use my current location, illustration. */
-export default function Hero() {
+function Hero() {
   const { openLogin } = useMenu();
   const { pickupDraft: location, setPickupDraft: setLocation } = useLandingPickup();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleUseCurrentLocation = async () => {
+  const handleUseCurrentLocation = useCallback(async () => {
     setError('');
     setIsLoading(true);
     if (!navigator.geolocation) {
@@ -53,9 +53,9 @@ export default function Hero() {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-  };
+  }, [setLocation]);
 
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     trackBookNowClick('hero_pickup_continue');
     const fromInput = location.trim();
     const fromDraft = getLandingPickupLocation()?.trim() ?? '';
@@ -63,7 +63,7 @@ export default function Hero() {
     setLandingPickupLocation(merged || null);
     setPostLoginPath(ROUTES.PICKUP_LOCATION);
     openLogin();
-  };
+  }, [location, openLogin]);
 
   return (
     <section className="relative bg-[var(--landing-bg)] pt-6 sm:pt-8 pb-12 lg:pb-20">
@@ -103,7 +103,7 @@ export default function Hero() {
                 type="button"
                 onClick={handleContinue}
                 disabled={isLoading}
-                className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:w-11"
+                className="flex h-11 w-11 min-h-[44px] min-w-[44px] flex-shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:w-11"
                 aria-label="Continue"
               >
                 <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -162,3 +162,5 @@ export default function Hero() {
     </section>
   );
 }
+
+export default memo(Hero);
