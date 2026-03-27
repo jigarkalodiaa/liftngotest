@@ -8,8 +8,9 @@ export const DEFAULT_TRIPS: DefaultTrip[] = [
     fromAddress: 'Vaibhav Khand, Indirapuram, Ghaziabad, Uttar',
     toName: 'HRC Professionals Hub,',
     toAddress: 'Middle Circle, Vaibhav Khand, Indirapuram, Ghaziabad, Uttar Pradesh 201014',
-    contactName: 'Prateek Jha',
-    contactPhone: '9065847341',
+    /** Empty so quick-book does not overwrite the user’s real name in storage; they enter details in pickup flow. */
+    contactName: '',
+    contactPhone: '',
   },
   {
     id: 't2',
@@ -17,7 +18,7 @@ export const DEFAULT_TRIPS: DefaultTrip[] = [
     fromAddress: 'Vaibhav Khand, Indirapuram, Ghaziabad, Uttar',
     toName: 'HRC Professionals Hub,',
     toAddress: 'Middle Circle, Vaibhav Khand, Indirapuram, Ghaziabad, Uttar Pradesh 201014',
-    contactName: 'Prateek Jha',
-    contactPhone: '9065847341',
+    contactName: '',
+    contactPhone: '',
   },
 ];

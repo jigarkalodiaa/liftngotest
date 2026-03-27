@@ -235,12 +235,38 @@ export function PriceDetailsSection({
   gst,
   platformFee,
   totalAmount,
+  foodFlatInr,
 }: {
   tripFare: number;
   gst: number;
   platformFee: number;
   totalAmount: number;
+  /** When set (`payment?from=food`), show one fixed all-in line + total only */
+  foodFlatInr?: number;
 }) {
+  if (foodFlatInr != null && foodFlatInr > 0) {
+    return (
+      <section className="mt-5">
+        <h2 id="price-details-title" className="font-bold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>
+          Price Details
+        </h2>
+        <p className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray500 }}>
+          Fixed food delivery charge (includes taxes &amp; fees)
+        </p>
+        <div className="mt-3 space-y-2" style={{ fontSize: theme.fontSizes.base }}>
+          <div className="flex justify-between">
+            <span style={{ color: theme.colors.gray700 }}>Delivery fee</span>
+            <span style={{ color: theme.colors.gray900 }}>₹{foodFlatInr}</span>
+          </div>
+        </div>
+        <div className="mt-3 flex justify-between items-center pt-3 border-t" style={{ borderColor: theme.colors.border }}>
+          <span className="font-bold" style={{ fontSize: theme.fontSizes.md, color: theme.colors.gray900 }}>Total Amount</span>
+          <span className="font-bold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>₹{foodFlatInr}</span>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="mt-5">
       <h2 id="price-details-title" className="font-bold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>
@@ -271,7 +297,14 @@ export function PriceDetailsSection({
   );
 }
 
-export function PaymentFooterBar({ onBookNow }: { onBookNow: () => void }) {
+export function PaymentFooterBar({
+  onBookNow,
+  totalInr,
+}: {
+  onBookNow: () => void;
+  /** When set, show amount on the primary CTA (e.g. food flat ₹50) */
+  totalInr?: number;
+}) {
   return (
     <div
       className="fixed inset-x-0 bottom-0 border-t py-4"
@@ -284,7 +317,7 @@ export function PaymentFooterBar({ onBookNow }: { onBookNow: () => void }) {
           className="w-full rounded-2xl py-3.5 font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ backgroundColor: theme.colors.primary, fontSize: theme.fontSizes.lg }}
         >
-          Book now
+          {totalInr != null ? `Pay ₹${totalInr}` : 'Book now'}
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
           </svg>

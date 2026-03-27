@@ -37,6 +37,8 @@
   --font-size-2xl: 1.25rem;
   --font-size-3xl: 1.5rem;
   --font-size-4xl: 1.75rem;
+  /** Standard corner radius for cards, buttons, inputs (Tailwind `rounded-*` maps here) */
+  --radius-standard: 10px;
 }
 
 @theme inline {
@@ -48,6 +50,16 @@
   --color-landing-primary: var(--landing-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Uniform 10px — rounded-sm through rounded-4xl and default `rounded` */
+  --radius-xs: 10px;
+  --radius-sm: 10px;
+  --radius-md: 10px;
+  --radius-lg: 10px;
+  --radius-xl: 10px;
+  --radius-2xl: 10px;
+  --radius-3xl: 10px;
+  --radius-4xl: 10px;
+  --radius: 10px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -83,6 +95,7 @@ input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
   min-height: 56px;
+  border-radius: var(--radius-standard);
 }
 
 /* Bottom sheet / modal slide-up animation */

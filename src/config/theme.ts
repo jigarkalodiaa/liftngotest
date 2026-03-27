@@ -60,10 +60,16 @@ export const fontSizes = {
   '4xl': '1.75rem', // 28px
 } as const;
 
-/** For inline styles: theme.colors.primary, theme.fontSizes.md */
+/** Border radius for inline styles — matches `--radius-standard` / Tailwind rounded-* in globals.css */
+export const radius = {
+  standard: '10px',
+} as const;
+
+/** For inline styles: theme.colors.primary, theme.fontSizes.md, theme.radius.standard */
 export const theme = {
   colors,
   fontSizes,
+  radius,
 } as const;
 
 export default theme;

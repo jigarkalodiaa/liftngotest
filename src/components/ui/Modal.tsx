@@ -90,7 +90,7 @@ export default function Modal({
       />
       <div
         ref={panelRef}
-        className={`relative w-full max-w-[520px] rounded-t-3xl bg-white shadow-2xl sm:rounded-[28px] ${panelClassName}`}
+        className={`relative w-full max-w-[520px] rounded-t-xl bg-white shadow-2xl sm:rounded-xl ${panelClassName}`}
       >
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <h2 id={titleId} className="text-[18px] font-bold text-gray-900">

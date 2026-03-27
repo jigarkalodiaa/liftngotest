@@ -253,19 +253,21 @@ export default function BookingPage() {
               </div>
             )}
 
-            {/* Cancel ride – red outline, white bg (screenshot style) */}
-            <div
-              className="mt-6 transition-all duration-400 ease-out"
-              style={{ transform: cancelButtonVisible ? 'translateY(0)' : 'translateY(24px)', opacity: cancelButtonVisible ? 1 : 0 }}
-            >
-              <button
-                type="button"
-                onClick={() => setShowCancelReasonModal(true)}
-                className="w-full rounded-2xl border-2 border-red-500 bg-white py-3.5 text-[16px] font-semibold text-red-500 hover:bg-red-50 transition-colors"
+            {/* Cancel ride – hidden once driver arrived / trip ready to complete */}
+            {!driverArrived && (
+              <div
+                className="mt-6 transition-all duration-400 ease-out"
+                style={{ transform: cancelButtonVisible ? 'translateY(0)' : 'translateY(24px)', opacity: cancelButtonVisible ? 1 : 0 }}
               >
-                Cancel ride
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => setShowCancelReasonModal(true)}
+                  className="w-full rounded-2xl border-2 border-red-500 bg-white py-3.5 text-[16px] font-semibold text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  Cancel ride
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

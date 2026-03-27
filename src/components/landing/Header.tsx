@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { useMenu } from './PageWrapper';
 import { SITE_NAME } from '@/lib/site';
-import { clearPostLoginPath } from '@/lib/storage';
+import { clearPostLoginPath, getAuthToken } from '@/lib/storage';
 
 const HEADER_BAR_HEIGHT = 56;
 const HEADER_TOP_GAP = 24;
@@ -20,6 +21,11 @@ const DESKTOP_NAV_LINKS = [
 /** Sticky header that stays in place; content scrolls under it. Glass effect + shadow so it feels like it’s hovering. */
 export default function Header() {
   const { openMenu, openLogin } = useMenu();
+  const [hasAuthToken, setHasAuthToken] = useState(false);
+
+  useEffect(() => {
+    setHasAuthToken(Boolean(getAuthToken()));
+  }, []);
 
   return (
     <>
@@ -31,7 +37,7 @@ export default function Header() {
         style={{ paddingBottom: 0 }}
       >
         <div
-          className="pointer-events-auto mx-auto flex h-14 max-w-7xl items-center justify-between rounded-xl border border-black/[0.06] bg-[var(--landing-bg)]/85 px-4 shadow-sm backdrop-blur-md sm:px-6 md:h-[56px] md:rounded-[12px]"
+          className="pointer-events-auto mx-auto flex h-14 max-w-7xl items-center justify-between rounded-xl border border-black/[0.06] bg-[var(--landing-bg)]/85 px-4 shadow-sm backdrop-blur-md sm:px-6 md:h-[56px] md:rounded-xl"
           style={{
             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04)',
           }}
@@ -59,15 +65,17 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <button
-              onClick={() => {
-                clearPostLoginPath();
-                openLogin();
-              }}
-              className="rounded-xl bg-[var(--color-primary)] px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            >
-              Login
-            </button>
+            {!hasAuthToken && (
+              <button
+                onClick={() => {
+                  clearPostLoginPath();
+                  openLogin();
+                }}
+                className="rounded-xl bg-[var(--color-primary)] px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+              >
+                Login
+              </button>
+            )}
             <button
               onClick={openMenu}
               className="p-2 sm:p-2.5 rounded-xl text-gray-800 hover:bg-black/5 transition-colors"
