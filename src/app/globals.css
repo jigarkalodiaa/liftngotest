@@ -12,6 +12,14 @@
   --landing-primary: #2C2D5B;
   /** WhatsApp brand green for Send order via WhatsApp button */
   --whatsapp-green: #25D366;
+  /* Khatu vertical — saffron / warm gold (Launch & temple corridor) */
+  --khatu-saffron: #c2410c;
+  --khatu-saffron-soft: #ea580c;
+  --khatu-gold: #b45309;
+  --khatu-cream: #faf7f2;
+  --khatu-ivory: #fffefb;
+  --khatu-stone: #1c1917;
+  --khatu-stone-muted: #57534e;
   /* Extended palette from theme.ts for Tailwind/utility use */
   --color-gray-50: #F9FAFB;
   --color-gray-100: #F3F4F6;
