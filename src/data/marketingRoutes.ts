@@ -6,6 +6,10 @@
 export const MARKETING_PATHS: { path: string; priority: number; changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never' }[] = [
   { path: '/', priority: 1, changeFrequency: 'weekly' },
   { path: '/khatu-shyam-logistics', priority: 0.98, changeFrequency: 'weekly' },
+  { path: '/khatu/hotels', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/khatu/travel', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/khatu/marketplace', priority: 0.88, changeFrequency: 'weekly' },
+  { path: '/khatu/guide', priority: 0.86, changeFrequency: 'weekly' },
   { path: '/noida-b2b-logistics', priority: 0.98, changeFrequency: 'weekly' },
   { path: '/logistics-khatu', priority: 0.95, changeFrequency: 'weekly' },
   { path: '/b2b-transport', priority: 0.9, changeFrequency: 'weekly' },

@@ -23,6 +23,10 @@ export const STORAGE_KEYS = {
   USER_PROFILE: 'liftngo_user_profile',
   /** Persisted food menu cart while browsing / after login (keyed by `restaurantId`). */
   FOOD_ORDER_CART_DRAFT: 'liftngo_food_order_cart_draft',
+  /** Dashboard zone: geo + zone id (`khatu` | `default`) for location-aware UI. */
+  DASHBOARD_USER_LOCATION: 'liftngo_dashboard_user_location',
+  /** Khatu marketplace cart (single-shop, persisted). */
+  KHATU_MARKETPLACE_CART: 'liftngo_khatu_marketplace_cart',
 } as const;
 
 /** sessionStorage — cleared when the tab closes; not shared across tabs. */
@@ -31,8 +35,12 @@ export const SESSION_KEYS = {
    * After OTP success, navigate here (pathname + optional `?query`). Must stay under `/pickup-location` only.
    */
   POST_LOGIN_PATH: 'liftngo_post_login_path',
+  /** One tab: user skipped / dismissed location prompt (optional). */
+  DASHBOARD_LOCATION_PROMPT_DISMISSED: 'liftngo_dashboard_location_prompt_dismissed',
   /** One-shot banner copy on /login (e.g. “Please login to continue…”). */
   LOGIN_CONTINUATION_MESSAGE: 'liftngo_login_continuation_message',
+  /** After `POST /api/book-ride` — read on `/booking/ride`. */
+  KHATU_RIDE_BOOKING: 'liftngo_khatu_ride_booking',
 } as const;
 
 export const ROUTES = {
@@ -58,6 +66,7 @@ export const ROUTES = {
   LOGISTICS_KHATU: '/logistics-khatu',
   B2B_TRANSPORT: '/b2b-transport',
   BOOK_DELIVERY: '/book-delivery',
+  PROMOTIONS: '/promotions',
   /** Location SEO: hyperlocal Khatu Shyam Ji */
   KHATU_SHYAM_LOGISTICS: '/khatu-shyam-logistics',
   /** Location SEO: B2B Noida & Delhi NCR */
@@ -68,6 +77,16 @@ export const ROUTES = {
   LOGIN: '/login',
   /** Marketing alias → restaurant discovery (see next.config redirect). */
   FOOD_MENU: '/food-menu',
+  /** Khatu vertical — temples, rides, marketplace, guide. */
+  KHATU_HOTELS: '/khatu/hotels',
+  KHATU_TRAVEL: '/khatu/travel',
+  KHATU_MARKETPLACE: '/khatu/marketplace',
+  KHATU_MARKETPLACE_CHECKOUT: '/khatu/marketplace/checkout',
+  KHATU_GUIDE: '/khatu/guide',
+  /** Interstitial after `POST /api/book-ride` (sessionStorage holds quote). */
+  BOOKING_RIDE: '/booking/ride',
+  /** Prefix for `GET` hotel detail booking flow: `${ROUTES.BOOKING_HOTEL}/${id}`. */
+  BOOKING_HOTEL: '/booking/hotel',
 } as const;
 
 /** `?mode=` on `/pickup-location` — dashboard “Add more default location” (pickup → drop, then trip options). */
