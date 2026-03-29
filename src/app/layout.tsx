@@ -116,9 +116,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-IN">
+    <html lang="en-IN" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-dvh overflow-x-clip antialiased`}
+        suppressHydrationWarning
       >
         <GoogleAnalytics />
         <QueryProvider>{children}</QueryProvider>

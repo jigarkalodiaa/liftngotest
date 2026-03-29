@@ -5,6 +5,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { theme } from '@/config/theme';
 import type { ServiceId } from '@/types/booking';
 import type { DeliveryGoodsDescription } from '@/lib/storage';
+import type { HotelBookingDraft } from '@/types/booking';
 import { parsePrice } from '@/data/restaurantsKhatushyam';
 
 const VEHICLE_LABELS: Record<ServiceId, { name: string; subtitle: string; image: string }> = {
@@ -106,6 +107,52 @@ export function GstSection({
   );
 }
 
+export function HotelStaySummarySection({ draft }: { draft: HotelBookingDraft }) {
+  return (
+    <section className="mt-5">
+      <h2 className="font-semibold" style={{ fontSize: theme.fontSizes.md, color: theme.colors.gray900 }}>
+        Hotel booking
+      </h2>
+      <div
+        className="mt-2 rounded-2xl border p-4"
+        style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.white }}
+      >
+        <p className="font-medium" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray900 }}>
+          {draft.hotelName}
+        </p>
+        <p className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray600 }}>
+          {draft.addressLine} · {draft.distanceKmFromTemple.toFixed(1)} km from mandir
+        </p>
+        <ul className="mt-3 space-y-1.5" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray700 }}>
+          <li>
+            <span className="font-medium text-gray-900">Stay: </span>
+            {draft.checkIn} → {draft.checkOut} ({draft.nights} night{draft.nights === 1 ? '' : 's'})
+          </li>
+          <li>
+            <span className="font-medium text-gray-900">Guests: </span>
+            {draft.guests}
+          </li>
+          <li>
+            <span className="font-medium text-gray-900">Listed rate: </span>₹{draft.pricePerNight}/night
+          </li>
+          <li>
+            <span className="font-medium text-gray-900">Est. total: </span>₹{draft.estimatedTotalInr.toLocaleString('en-IN')}
+          </li>
+        </ul>
+        {draft.guestNote ? (
+          <p className="mt-3 text-xs leading-relaxed" style={{ color: theme.colors.gray500 }}>
+            Your note: {draft.guestNote}
+          </p>
+        ) : null}
+        <p className="mt-3 text-xs leading-relaxed" style={{ color: theme.colors.gray500 }}>
+          You already sent full details to the property via WhatsApp. Paying here confirms your Liftngo booking record;
+          final tariff may be adjusted by the hotel.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export function GoodsSection({
   goodTypeTitle,
   weightKg,
@@ -122,6 +169,12 @@ export function GoodsSection({
   deliveryGoods?: DeliveryGoodsDescription | null;
 }) {
   const isFoodOrder = deliveryGoods && deliveryGoods.items.length > 0;
+  const merchantOrderHeading =
+    isFoodOrder && deliveryGoods
+      ? deliveryGoods.source === 'marketplace'
+        ? `Shop order — ${deliveryGoods.restaurantName}`
+        : `Food order from ${deliveryGoods.restaurantName}`
+      : '';
 
   return (
     <section className="mt-5">
@@ -135,7 +188,7 @@ export function GoodsSection({
         {isFoodOrder ? (
           <>
             <p className="font-medium" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray900 }}>
-              Food order from {deliveryGoods.restaurantName}
+              {merchantOrderHeading}
             </p>
             <ul className="mt-3 space-y-2" style={{ fontSize: theme.fontSizes.sm }}>
               {deliveryGoods.items.map((item) => (
@@ -237,6 +290,7 @@ export function PriceDetailsSection({
   platformFee,
   totalAmount,
   foodFlatInr,
+  hotelStay,
 }: {
   tripFare: number;
   gst: number;
@@ -244,7 +298,48 @@ export function PriceDetailsSection({
   totalAmount: number;
   /** When set (`payment?from=food`), show one fixed all-in line + total only */
   foodFlatInr?: number;
+  /** Khatu hotel — estimated stay total for payment step */
+  hotelStay?: {
+    totalInr: number;
+    nights: number;
+    pricePerNight: number;
+    checkIn: string;
+    checkOut: string;
+    guests: number;
+  };
 }) {
+  if (hotelStay != null && hotelStay.totalInr > 0) {
+    return (
+      <section className="mt-5">
+        <h2 id="price-details-title" className="font-bold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>
+          Price details
+        </h2>
+        <p className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray500 }}>
+          Estimated stay (per listing). Hotel may confirm final amount on WhatsApp.
+        </p>
+        <div className="mt-3 space-y-2" style={{ fontSize: theme.fontSizes.base }}>
+          <div className="flex justify-between">
+            <span style={{ color: theme.colors.gray700 }}>
+              ₹{hotelStay.pricePerNight} × {hotelStay.nights} night{hotelStay.nights === 1 ? '' : 's'}
+            </span>
+            <span style={{ color: theme.colors.gray900 }}>₹{hotelStay.totalInr.toLocaleString('en-IN')}</span>
+          </div>
+          <p className="text-xs" style={{ color: theme.colors.gray500 }}>
+            {hotelStay.checkIn} → {hotelStay.checkOut} · {hotelStay.guests} guest{hotelStay.guests === 1 ? '' : 's'}
+          </p>
+        </div>
+        <div className="mt-3 flex justify-between items-center border-t pt-3" style={{ borderColor: theme.colors.border }}>
+          <span className="font-bold" style={{ fontSize: theme.fontSizes.md, color: theme.colors.gray900 }}>
+            Pay to confirm
+          </span>
+          <span className="font-bold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>
+            ₹{hotelStay.totalInr.toLocaleString('en-IN')}
+          </span>
+        </div>
+      </section>
+    );
+  }
+
   if (foodFlatInr != null && foodFlatInr > 0) {
     return (
       <section className="mt-5">

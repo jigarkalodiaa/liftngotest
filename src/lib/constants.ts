@@ -8,6 +8,8 @@ export const STORAGE_KEYS = {
   PICKUP_LOCATION: 'pickup_location',
   DROP_LOCATION: 'drop_location',
   STOP_LOCATION: 'stop_location',
+  /** JSON array of {@link BookingStopWaypoint} — preferred; legacy {@link STORAGE_KEYS.STOP_LOCATION} migrated on read. */
+  STOP_WAYPOINTS: 'stop_waypoints',
   SENDER_DETAILS: 'sender_details',
   RECEIVER_DETAILS: 'receiver_details',
   STOP_DETAILS: 'stop_details',
@@ -27,6 +29,12 @@ export const STORAGE_KEYS = {
   DASHBOARD_USER_LOCATION: 'liftngo_dashboard_user_location',
   /** Khatu marketplace cart (single-shop, persisted). */
   KHATU_MARKETPLACE_CART: 'liftngo_khatu_marketplace_cart',
+  /** Payload for `/payment?from=khatu_hotel` + WhatsApp handoff to property. */
+  HOTEL_BOOKING_DRAFT: 'liftngo_hotel_booking_draft',
+  HOTEL_BOOKING_HISTORY: 'liftngo_hotel_booking_history',
+  FOOD_DELIVERY_HISTORY: 'liftngo_food_delivery_history',
+  MARKETPLACE_ORDER_HISTORY: 'liftngo_marketplace_order_history',
+  SALASAR_RIDE_HISTORY: 'liftngo_salasar_ride_history',
 } as const;
 
 /** sessionStorage — cleared when the tab closes; not shared across tabs. */
@@ -91,6 +99,9 @@ export const ROUTES = {
 
 /** `?mode=` on `/pickup-location` — dashboard “Add more default location” (pickup → drop, then trip options). */
 export const PICKUP_LOCATION_MODE_DEFAULTS = 'defaults';
+
+/** `?from=` on `/trip-options` and `/pickup-location` — intercity ride from Khatu travel; passenger fleets only (walk + 2W). */
+export const TRIP_OPTIONS_FROM_KHATU_TRAVEL = 'khatu-travel';
 
 import { DEMO_OTP, SUPPORT_PHONE } from '@/config/env';
 

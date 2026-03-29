@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useKhatuOrderMutation } from '@/hooks/useKhatuData';
 import { ROUTES } from '@/lib/constants';
+import { appendMarketplaceHistoryFromCheckout } from '@/lib/storage';
 import { Card, PageHeader } from '@/components/ui';
 import {
   MARKETPLACE_DELIVERY_FLAT_INR,
@@ -43,14 +44,24 @@ export default function MarketplaceCheckoutPage() {
   const grand = subtotal + MARKETPLACE_DELIVERY_FLAT_INR;
 
   const placeOrder = async () => {
-    if (!shopId || items.length === 0) return;
+    const sid = shopId;
+    if (!sid || items.length === 0) return;
+    const displayShopName = shopName?.trim() ? shopName : 'Marketplace shop';
     try {
       const res = await mutation.mutateAsync({
-        shopId,
+        shopId: sid,
         items: items.map((i) => ({ id: i.productId, quantity: i.quantity })),
         totalAmount: grand,
         address: address.trim(),
         contactPhone: contactPhone.trim(),
+      });
+      appendMarketplaceHistoryFromCheckout({
+        orderRef: res.orderId,
+        shopName: displayShopName,
+        shopId: sid,
+        summaryLines: items.map((i) => ({ name: i.name, quantity: i.quantity })),
+        totalDisplay: `₹${grand.toLocaleString('en-IN')}`,
+        deliveryAddress: address.trim(),
       });
       setPlaced({ orderId: res.orderId });
     } catch {

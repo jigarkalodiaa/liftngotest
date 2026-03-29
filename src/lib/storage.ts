@@ -3,7 +3,19 @@
  * Centralizes localStorage keys and parsing; safe for SSR (no-op when window is undefined).
  */
 
-import type { SavedLocation, PersonDetails, ServiceId, DefaultTrip } from '@/types/booking';
+import type {
+  SavedLocation,
+  PersonDetails,
+  ServiceId,
+  DefaultTrip,
+  BookingStopWaypoint,
+  HotelBookingDraft,
+  HotelHistoryItem,
+  FoodDeliveryHistoryItem,
+  MarketplaceOrderHistoryItem,
+  SalasarRideHistoryItem,
+} from '@/types/booking';
+import type { SavedKhatuRideBooking } from '@/lib/khatuSessionStorage';
 import type { UserProfile } from '@/types/userProfile';
 import { ROUTES, SESSION_KEYS, STORAGE_KEYS } from './constants';
 
@@ -70,6 +82,109 @@ function isPersonDetails(v: unknown): v is PersonDetails {
   );
 }
 
+function isBookingStopWaypoint(v: unknown): v is BookingStopWaypoint {
+  if (typeof v !== 'object' || v === null) return false;
+  const o = v as BookingStopWaypoint;
+  return typeof o.id === 'string' && isSavedLocation(o.location) && isPersonDetails(o.contact);
+}
+
+function makeStopId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `st-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+const LEGACY_SINGLE_STOP_ID = 'liftngo-legacy-stop';
+
+function normalizeWaypoint(w: BookingStopWaypoint): BookingStopWaypoint {
+  return {
+    id: w.id,
+    location: normalizeSavedLocation(w.location as SavedLocation & { contact?: string }),
+    contact: {
+      name: w.contact.name.trim(),
+      mobile: (w.contact.mobile || '').replace(/\D/g, ''),
+    },
+  };
+}
+
+function parseStopWaypointsFromStorage(raw: string | null): BookingStopWaypoint[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(isBookingStopWaypoint).map((w) => normalizeWaypoint(w));
+  } catch {
+    return [];
+  }
+}
+
+function buildLegacyWaypointFromKeys(): BookingStopWaypoint | null {
+  if (typeof window === 'undefined') return null;
+  const rawLoc = safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_LOCATION), isSavedLocation);
+  if (!savedLocationHasAddress(rawLoc)) return null;
+  const details = safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
+  return {
+    id: LEGACY_SINGLE_STOP_ID,
+    location: normalizeSavedLocation(rawLoc),
+    contact: details ? { name: details.name, mobile: details.mobile.replace(/\D/g, '') } : { name: '', mobile: '' },
+  };
+}
+
+function syncLegacyStopKeys(waypoints: BookingStopWaypoint[]): void {
+  try {
+    const first = waypoints[0];
+    if (first && savedLocationHasAddress(first.location)) {
+      window.localStorage?.setItem(STORAGE_KEYS.STOP_LOCATION, JSON.stringify(first.location));
+      window.localStorage?.setItem(STORAGE_KEYS.STOP_DETAILS, JSON.stringify(first.contact));
+    } else {
+      window.localStorage?.removeItem(STORAGE_KEYS.STOP_LOCATION);
+      window.localStorage?.removeItem(STORAGE_KEYS.STOP_DETAILS);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+/** All intermediate stops in order; migrates legacy single `stop_location` + `stop_details` on first read. */
+export function getStopWaypoints(): BookingStopWaypoint[] {
+  if (typeof window === 'undefined') return [];
+  let list = parseStopWaypointsFromStorage(window.localStorage.getItem(STORAGE_KEYS.STOP_WAYPOINTS));
+  if (list.length > 0) return list;
+  const legacy = buildLegacyWaypointFromKeys();
+  if (!legacy) return [];
+  try {
+    list = [legacy];
+    window.localStorage.setItem(STORAGE_KEYS.STOP_WAYPOINTS, JSON.stringify(list));
+    syncLegacyStopKeys(list);
+  } catch {
+    return [legacy];
+  }
+  return list;
+}
+
+export function setStopWaypoints(waypoints: BookingStopWaypoint[]): void {
+  try {
+    const normalized = waypoints
+      .filter((w) => savedLocationHasAddress(w.location))
+      .map((w) => normalizeWaypoint(w));
+    if (normalized.length === 0) {
+      window?.localStorage?.removeItem(STORAGE_KEYS.STOP_WAYPOINTS);
+      syncLegacyStopKeys([]);
+    } else {
+      window?.localStorage?.setItem(STORAGE_KEYS.STOP_WAYPOINTS, JSON.stringify(normalized));
+      syncLegacyStopKeys(normalized);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+/** New intermediate stop id (stable UUID when available). */
+export function makeBookingStopId(): string {
+  return makeStopId();
+}
+
 function isDefaultTrip(v: unknown): v is DefaultTrip {
   const o = v as DefaultTrip;
   return (
@@ -126,9 +241,9 @@ export function getDropLocation(): SavedLocation | null {
 }
 
 export function getStopLocation(): SavedLocation | null {
-  if (typeof window === 'undefined') return null;
-  const raw = safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_LOCATION), isSavedLocation);
-  return raw ? normalizeSavedLocation(raw) : null;
+  const w = getStopWaypoints();
+  const loc = w[0]?.location;
+  return savedLocationHasAddress(loc) ? loc : null;
 }
 
 export function getSenderDetails(): PersonDetails | null {
@@ -143,6 +258,8 @@ export function getReceiverDetails(): PersonDetails | null {
 
 export function getStopDetails(): PersonDetails | null {
   if (typeof window === 'undefined') return null;
+  const w = getStopWaypoints();
+  if (w[0]) return w[0].contact;
   return safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
 }
 
@@ -264,12 +381,25 @@ export function setDropLocation(loc: SavedLocation): void {
 }
 
 export function setStopLocation(loc: SavedLocation | null): void {
-  try {
-    if (loc) window?.localStorage?.setItem(STORAGE_KEYS.STOP_LOCATION, JSON.stringify(loc));
-    else window?.localStorage?.removeItem(STORAGE_KEYS.STOP_LOCATION);
-  } catch {
-    // ignore
+  if (typeof window === 'undefined') return;
+  if (!loc) {
+    setStopWaypoints([]);
+    return;
   }
+  const norm = normalizeSavedLocation(loc as SavedLocation & { contact?: string });
+  const w = getStopWaypoints();
+  if (w.length === 0) {
+    const orphan = safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
+    setStopWaypoints([
+      {
+        id: makeStopId(),
+        location: norm,
+        contact: orphan ? { name: orphan.name, mobile: orphan.mobile.replace(/\D/g, '') } : { name: '', mobile: '' },
+      },
+    ]);
+    return;
+  }
+  setStopWaypoints(w.map((item, i) => (i === 0 ? { ...item, location: norm } : item)));
 }
 
 export function setSenderDetails(d: PersonDetails): void {
@@ -297,17 +427,28 @@ export function clearReceiverDetails(): void {
 }
 
 export function setStopDetails(d: PersonDetails): void {
-  try {
-    window?.localStorage?.setItem(STORAGE_KEYS.STOP_DETAILS, JSON.stringify(d));
-  } catch {
-    // ignore
+  if (typeof window === 'undefined') return;
+  const w = getStopWaypoints();
+  const nextContact: PersonDetails = { name: d.name.trim(), mobile: d.mobile.replace(/\D/g, '') };
+  if (w.length === 0) {
+    try {
+      window.localStorage.setItem(STORAGE_KEYS.STOP_DETAILS, JSON.stringify(nextContact));
+    } catch {
+      // ignore
+    }
+    return;
   }
+  setStopWaypoints(w.map((item, i) => (i === 0 ? { ...item, contact: nextContact } : item)));
 }
 
 /** Clear stop details (call when stop location is removed to keep storage consistent). */
 export function clearStopDetails(): void {
   try {
+    const w = getStopWaypoints();
     window?.localStorage?.removeItem(STORAGE_KEYS.STOP_DETAILS);
+    if (w.length > 0) {
+      setStopWaypoints(w.map((item, i) => (i === 0 ? { ...item, contact: { name: '', mobile: '' } } : item)));
+    }
   } catch {
     // ignore
   }
@@ -399,32 +540,45 @@ export function consumeLoginContinuationMessage(): string | null {
   }
 }
 
-/** Restaurant food order for delivery – set when user books delivery from Find Restaurant flow. */
+/** Restaurant / marketplace order for delivery — cleared on standard bookings and trip complete. */
 export interface DeliveryGoodsDescription {
+  /** Restaurant or shop display name */
   restaurantName: string;
   items: { name: string; quantity: number; price: string }[];
+  /** Omit or `restaurant` = Find Restaurant; `marketplace` = Khatu marketplace shop. */
+  source?: 'restaurant' | 'marketplace';
 }
 
 function isDeliveryGoodsDescription(v: unknown): v is DeliveryGoodsDescription {
   const o = v as DeliveryGoodsDescription;
-  return (
-    typeof v === 'object' &&
-    v !== null &&
-    'restaurantName' in v &&
-    'items' in v &&
-    typeof o.restaurantName === 'string' &&
-    Array.isArray(o.items) &&
-    o.items.every(
-      (i) =>
-        typeof i === 'object' &&
-        i !== null &&
-        'name' in i &&
-        'quantity' in i &&
-        'price' in i &&
-        typeof (i as { name: string; quantity: number; price: string }).name === 'string' &&
-        typeof (i as { name: string; quantity: number; price: string }).quantity === 'number' &&
-        typeof (i as { name: string; quantity: number; price: string }).price === 'string'
-    )
+  if (
+    typeof v !== 'object' ||
+    v === null ||
+    !('restaurantName' in o) ||
+    !('items' in o) ||
+    typeof o.restaurantName !== 'string' ||
+    !Array.isArray(o.items)
+  ) {
+    return false;
+  }
+  if (
+    'source' in o &&
+    o.source !== undefined &&
+    o.source !== 'restaurant' &&
+    o.source !== 'marketplace'
+  ) {
+    return false;
+  }
+  return o.items.every(
+    (i) =>
+      typeof i === 'object' &&
+      i !== null &&
+      'name' in i &&
+      'quantity' in i &&
+      'price' in i &&
+      typeof (i as { name: string; quantity: number; price: string }).name === 'string' &&
+      typeof (i as { name: string; quantity: number; price: string }).quantity === 'number' &&
+      typeof (i as { name: string; quantity: number; price: string }).price === 'string'
   );
 }
 
@@ -445,6 +599,293 @@ export function setDeliveryGoodsDescription(data: DeliveryGoodsDescription): voi
 export function clearDeliveryGoodsDescription(): void {
   try {
     window?.localStorage?.removeItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION);
+  } catch {
+    // ignore
+  }
+}
+
+function isHotelAvailabilityValue(s: unknown): s is HotelBookingDraft['availability'] {
+  return s === 'available' || s === 'few' || s === 'full';
+}
+
+function isHotelBookingDraft(v: unknown): v is HotelBookingDraft {
+  const o = v as HotelBookingDraft;
+  if (typeof v !== 'object' || v === null) return false;
+  if (typeof o.hotelId !== 'string' || typeof o.hotelName !== 'string' || typeof o.addressLine !== 'string')
+    return false;
+  if (typeof o.distanceKmFromTemple !== 'number' || typeof o.pricePerNight !== 'number') return false;
+  if (!isHotelAvailabilityValue(o.availability)) return false;
+  if (typeof o.parking !== 'boolean' || typeof o.ac !== 'boolean' || typeof o.familyRooms !== 'boolean') return false;
+  if (!(o.rating === null || typeof o.rating === 'number')) return false;
+  if (typeof o.liftngoVerified !== 'boolean') return false;
+  if (typeof o.checkIn !== 'string' || typeof o.checkOut !== 'string') return false;
+  if (typeof o.guests !== 'number' || typeof o.guestNote !== 'string') return false;
+  if (typeof o.nights !== 'number' || typeof o.estimatedTotalInr !== 'number') return false;
+  if (typeof o.ownerWhatsAppDigits !== 'string') return false;
+  return true;
+}
+
+function isHotelHistoryItem(v: unknown): v is HotelHistoryItem {
+  const o = v as HotelHistoryItem;
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    typeof o.id === 'string' &&
+    typeof o.hotelId === 'string' &&
+    typeof o.hotelName === 'string' &&
+    typeof o.addressLine === 'string' &&
+    typeof o.checkIn === 'string' &&
+    typeof o.checkOut === 'string' &&
+    typeof o.guests === 'number' &&
+    typeof o.nights === 'number' &&
+    typeof o.amount === 'string' &&
+    (o.status === 'confirmed' || o.status === 'cancelled') &&
+    typeof o.bookedAtLabel === 'string' &&
+    (o.guestNote === undefined || typeof o.guestNote === 'string')
+  );
+}
+
+export function getHotelBookingDraft(): HotelBookingDraft | null {
+  if (typeof window === 'undefined') return null;
+  return safeParse(window.localStorage.getItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT), isHotelBookingDraft);
+}
+
+export function setHotelBookingDraft(data: HotelBookingDraft): void {
+  try {
+    window?.localStorage?.setItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT, JSON.stringify(data));
+  } catch {
+    // ignore
+  }
+}
+
+export function clearHotelBookingDraft(): void {
+  try {
+    window?.localStorage?.removeItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT);
+  } catch {
+    // ignore
+  }
+}
+
+const HISTORY_MAX = 50;
+
+export function getHotelBookingHistory(): HotelHistoryItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.HOTEL_BOOKING_HISTORY) || 'null') as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(isHotelHistoryItem);
+  } catch {
+    return [];
+  }
+}
+
+/** Append a confirmed stay and return the row (max 50 in storage). */
+export function appendHotelBookingHistoryFromDraft(draft: HotelBookingDraft): HotelHistoryItem {
+  const bookedAt = new Date();
+  const bookedAtLabel = bookedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const item: HotelHistoryItem = {
+    id: `stay-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    hotelId: draft.hotelId,
+    hotelName: draft.hotelName,
+    addressLine: draft.addressLine,
+    checkIn: draft.checkIn,
+    checkOut: draft.checkOut,
+    guests: draft.guests,
+    nights: draft.nights,
+    amount: `₹${draft.estimatedTotalInr.toLocaleString('en-IN')}`,
+    status: 'confirmed',
+    bookedAtLabel,
+    guestNote: draft.guestNote?.trim() ? draft.guestNote.trim() : undefined,
+  };
+  try {
+    const prev = getHotelBookingHistory();
+    window?.localStorage?.setItem(STORAGE_KEYS.HOTEL_BOOKING_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+  } catch {
+    // ignore
+  }
+  return item;
+}
+
+function isFoodDeliveryHistoryItem(v: unknown): v is FoodDeliveryHistoryItem {
+  const o = v as FoodDeliveryHistoryItem;
+  if (typeof v !== 'object' || v === null) return false;
+  if (typeof o.id !== 'string' || typeof o.restaurantName !== 'string' || !Array.isArray(o.items)) return false;
+  if (typeof o.amount !== 'string' || o.status !== 'confirmed' || typeof o.bookedAtLabel !== 'string') return false;
+  return o.items.every(
+    (i) =>
+      typeof i === 'object' &&
+      i !== null &&
+      typeof (i as { name: string; quantity: number; price: string }).name === 'string' &&
+      typeof (i as { name: string; quantity: number; price: string }).quantity === 'number' &&
+      typeof (i as { name: string; quantity: number; price: string }).price === 'string'
+  );
+}
+
+function isMarketplaceOrderHistoryItem(v: unknown): v is MarketplaceOrderHistoryItem {
+  const o = v as MarketplaceOrderHistoryItem;
+  if (typeof v !== 'object' || v === null) return false;
+  if (typeof o.id !== 'string' || typeof o.orderRef !== 'string' || typeof o.shopName !== 'string') return false;
+  if (!Array.isArray(o.summaryLines) || typeof o.totalDisplay !== 'string' || o.status !== 'confirmed') return false;
+  if (typeof o.bookedAtLabel !== 'string') return false;
+  return o.summaryLines.every(
+    (i) =>
+      typeof i === 'object' &&
+      i !== null &&
+      typeof (i as { name: string; quantity: number }).name === 'string' &&
+      typeof (i as { name: string; quantity: number }).quantity === 'number'
+  );
+}
+
+function isSalasarRideHistoryItem(v: unknown): v is SalasarRideHistoryItem {
+  const o = v as SalasarRideHistoryItem;
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    typeof o.id === 'string' &&
+    typeof o.bookingRef === 'string' &&
+    typeof o.routeLabel === 'string' &&
+    typeof o.fromPlace === 'string' &&
+    typeof o.toPlace === 'string' &&
+    typeof o.vehicleLabel === 'string' &&
+    typeof o.estimateInr === 'number' &&
+    typeof o.distanceKm === 'number' &&
+    typeof o.typicalMinutes === 'number' &&
+    (o.status === 'quoted' || o.status === 'confirmed') &&
+    typeof o.bookedAtLabel === 'string'
+  );
+}
+
+export function getFoodDeliveryHistory(): FoodDeliveryHistoryItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.FOOD_DELIVERY_HISTORY) || 'null') as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(isFoodDeliveryHistoryItem);
+  } catch {
+    return [];
+  }
+}
+
+export function getMarketplaceOrderHistory(): MarketplaceOrderHistoryItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY) || 'null') as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(isMarketplaceOrderHistoryItem);
+  } catch {
+    return [];
+  }
+}
+
+export function getSalasarRideHistory(): SalasarRideHistoryItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.SALASAR_RIDE_HISTORY) || 'null') as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(isSalasarRideHistoryItem);
+  } catch {
+    return [];
+  }
+}
+
+/** Restaurant food only (`delivery_goods.source !== 'marketplace'`). */
+export function appendFoodDeliveryHistory(
+  goods: DeliveryGoodsDescription,
+  amountDisplay: string,
+  pickupName?: string | null
+): void {
+  if (goods.source === 'marketplace') return;
+  const bookedAtLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const item: FoodDeliveryHistoryItem = {
+    id: `food-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    restaurantName: goods.restaurantName,
+    items: goods.items.map((i) => ({ ...i })),
+    amount: amountDisplay,
+    status: 'confirmed',
+    bookedAtLabel,
+    pickupName: pickupName?.trim() || undefined,
+  };
+  try {
+    const prev = getFoodDeliveryHistory();
+    window?.localStorage?.setItem(STORAGE_KEYS.FOOD_DELIVERY_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+  } catch {
+    // ignore
+  }
+}
+
+/** Marketplace pay-after-delivery path (uses `restaurantName` + items on goods blob). */
+export function appendMarketplaceHistoryFromDeliveryGoods(
+  goods: DeliveryGoodsDescription,
+  totalDisplay: string,
+  deliveryAddressHint?: string | null
+): void {
+  if (goods.source !== 'marketplace') return;
+  const bookedAtLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const item: MarketplaceOrderHistoryItem = {
+    id: `mp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    orderRef: `DEL-${Date.now().toString(36).toUpperCase()}`,
+    shopName: goods.restaurantName,
+    summaryLines: goods.items.map((i) => ({ name: i.name, quantity: i.quantity })),
+    totalDisplay,
+    status: 'confirmed',
+    bookedAtLabel,
+    deliveryAddress: deliveryAddressHint?.trim() || undefined,
+  };
+  try {
+    const prev = getMarketplaceOrderHistory();
+    window?.localStorage?.setItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+  } catch {
+    // ignore
+  }
+}
+
+export function appendMarketplaceHistoryFromCheckout(entry: {
+  orderRef: string;
+  shopName: string;
+  shopId: string;
+  summaryLines: { name: string; quantity: number }[];
+  totalDisplay: string;
+  deliveryAddress?: string;
+}): void {
+  const bookedAtLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const item: MarketplaceOrderHistoryItem = {
+    id: `mp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    orderRef: entry.orderRef,
+    shopName: entry.shopName,
+    shopId: entry.shopId,
+    summaryLines: entry.summaryLines,
+    totalDisplay: entry.totalDisplay,
+    status: 'confirmed',
+    bookedAtLabel,
+    deliveryAddress: entry.deliveryAddress?.trim() || undefined,
+  };
+  try {
+    const prev = getMarketplaceOrderHistory();
+    window?.localStorage?.setItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+  } catch {
+    // ignore
+  }
+}
+
+/** When the user continues from `/booking/ride` into pickup flow (quote captured). */
+export function appendSalasarRideHistoryFromQuote(booking: SavedKhatuRideBooking): void {
+  const bookedAtLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const item: SalasarRideHistoryItem = {
+    id: `ride-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    bookingRef: booking.bookingRef,
+    routeLabel: booking.route.label,
+    fromPlace: booking.route.from,
+    toPlace: booking.route.to,
+    vehicleLabel: booking.vehicle.label,
+    estimateInr: booking.estimateInr,
+    distanceKm: booking.route.distanceKm,
+    typicalMinutes: booking.route.typicalMinutes,
+    status: 'quoted',
+    bookedAtLabel,
+  };
+  try {
+    const prev = getSalasarRideHistory();
+    window?.localStorage?.setItem(STORAGE_KEYS.SALASAR_RIDE_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
   } catch {
     // ignore
   }
@@ -531,4 +972,49 @@ export function clearUserProfile(): void {
   } catch {
     // ignore
   }
+}
+
+/**
+ * Deletes cookies readable via `document.cookie` (typically `path=/`, non-HttpOnly).
+ * HttpOnly cookies set by the server cannot be cleared from JavaScript.
+ */
+function clearAccessibleCookies(): void {
+  if (typeof document === 'undefined') return;
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+  const epoch = 'Thu, 01 Jan 1970 00:00:00 GMT';
+  const pairs = document.cookie.split(';');
+  const names = new Set<string>();
+  for (const part of pairs) {
+    const eq = part.indexOf('=');
+    const name = (eq >= 0 ? part.slice(0, eq) : part).trim();
+    if (name) names.add(name);
+  }
+  for (const name of names) {
+    document.cookie = `${name}=;expires=${epoch};path=/`;
+    if (hostname) {
+      document.cookie = `${name}=;expires=${epoch};path=/;domain=${hostname}`;
+      if (!hostname.startsWith('.')) {
+        document.cookie = `${name}=;expires=${epoch};path=/;domain=.${hostname}`;
+      }
+    }
+  }
+}
+
+/**
+ * Full client logout: wipe `localStorage`, `sessionStorage`, and non-HttpOnly cookies for this origin.
+ * Call from the Logout UI. Server HttpOnly session cookies require a server `Set-Cookie` /logout if used.
+ */
+export function performFullClientLogout(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.clear();
+  } catch {
+    /* private mode / blocked */
+  }
+  try {
+    window.sessionStorage.clear();
+  } catch {
+    /* ignore */
+  }
+  clearAccessibleCookies();
 }

@@ -210,8 +210,8 @@ function DashboardPageContent() {
   const onFlagshipBookNow = useCallback(() => {
     setActiveService('twoWheeler');
     setSelectedService('twoWheeler');
-    setIsChooseTripOpen(true);
-  }, []);
+    router.push(ROUTES.PICKUP_LOCATION);
+  }, [router]);
 
   return (
     <div

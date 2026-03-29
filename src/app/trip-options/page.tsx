@@ -1,27 +1,37 @@
 'use client';
 
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import type { SavedLocation, PersonDetails } from '@/types/booking';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import type { SavedLocation, PersonDetails, BookingStopWaypoint } from '@/types/booking';
 import {
   getPickupLocation,
   getDropLocation,
-  getStopLocation,
   getSenderDetails,
   getReceiverDetails,
-  getStopDetails,
   getSelectedService,
+  getStopWaypoints,
+  savedLocationHasAddress,
   setPickupLocation,
   setDropLocation,
   setSenderDetails,
   setReceiverDetails,
-  setStopLocation,
   setSelectedService,
-  clearStopDetails,
+  setStopWaypoints,
+  clearDeliveryGoodsDescription,
 } from '@/lib/storage';
-import { ROUTES } from '@/lib/constants';
+import { ROUTES, TRIP_OPTIONS_FROM_KHATU_TRAVEL } from '@/lib/constants';
+import { readKhatuRideBooking } from '@/lib/khatuSessionStorage';
+import { getKhatuRouteDefaultLocations, KHATU_RIDE_VEHICLE_OPTIONS, khatuVehicleImage } from '@/data/khatuTravel';
+import type { RideVehicleType, TravelRouteId } from '@/types/khatu';
 import { theme } from '@/config/theme';
+
+type KhatuQuoteVehicle = {
+  type: RideVehicleType;
+  label: string;
+  estimateInr: number;
+  comfortTag?: string;
+};
 
 type OptionId = 'walk' | 'two' | 'three' | 'four';
 
@@ -41,15 +51,33 @@ const OPTION_TO_SERVICE: Record<OptionId, 'walk' | 'twoWheeler' | 'threeWheeler'
 
 export default function TripOptionsPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const fromFood = searchParams.get('from') === 'food';
+  const fromKhatuTravel = searchParams.get('from') === TRIP_OPTIONS_FROM_KHATU_TRAVEL;
+  /** Walk + 2W only (no 3W / 4W cargo) — same list as food delivery. */
+  const passengerFleetsOnly = fromFood || fromKhatuTravel;
   const [pickup, setPickup] = useState<SavedLocation | null>(null);
   const [drop, setDrop] = useState<SavedLocation | null>(null);
-  const [stop, setStop] = useState<SavedLocation | null>(null);
+  const [stops, setStops] = useState<BookingStopWaypoint[]>([]);
   const [sender, setSender] = useState<PersonDetails | null>(null);
   const [receiver, setReceiver] = useState<PersonDetails | null>(null);
-  const [stopDetails, setStopDetails] = useState<PersonDetails | null>(null);
   const [selected, setSelected] = useState<OptionId>('two');
+
+  const khatuQuoteVehicle = useMemo((): KhatuQuoteVehicle | null => {
+    if (!fromKhatuTravel || typeof window === 'undefined') return null;
+    const booking = readKhatuRideBooking();
+    if (!booking?.vehicle?.type) return null;
+    const type = booking.vehicle.type as RideVehicleType;
+    if (type !== 'two_wheeler' && type !== 'hatchback' && type !== 'sedan' && type !== 'suv') return null;
+    const opt = KHATU_RIDE_VEHICLE_OPTIONS.find((v) => v.type === type);
+    return {
+      type,
+      label: opt?.label ?? booking.vehicle.label,
+      estimateInr: booking.estimateInr,
+      comfortTag: opt?.comfortTag,
+    };
+  }, [fromKhatuTravel]);
 
   useEffect(() => {
     setPickup(getPickupLocation());
@@ -57,16 +85,50 @@ export default function TripOptionsPage() {
     setSender(getSenderDetails());
     setReceiver(getReceiverDetails());
     if (fromFood) {
-      setStop(null);
-      setStopDetails(null);
-      setStopLocation(null);
-      clearStopDetails();
+      setStops([]);
+      setStopWaypoints([]);
     } else {
-      setStop(getStopLocation());
-      setStopDetails(getStopDetails());
+      clearDeliveryGoodsDescription();
+      setStops(getStopWaypoints());
+    }
+  }, [fromFood]);
+
+  useEffect(() => {
+    if (pathname !== ROUTES.TRIP_OPTIONS || fromFood) return;
+    setStops(getStopWaypoints());
+  }, [pathname, fromFood]);
+
+  useEffect(() => {
+    if (!fromKhatuTravel) return;
+    const booking = readKhatuRideBooking();
+    const routeId = booking?.route?.id as TravelRouteId | undefined;
+    if (routeId !== 'khatu-salasar' && routeId !== 'khatu-ringus' && routeId !== 'ringus-khatu') return;
+    const defaults = getKhatuRouteDefaultLocations(routeId);
+    const pickupSaved = getPickupLocation();
+    const dropSaved = getDropLocation();
+    if (!savedLocationHasAddress(pickupSaved)) {
+      setPickupLocation(defaults.pickup);
+      setPickup(defaults.pickup);
+    }
+    if (!savedLocationHasAddress(dropSaved)) {
+      setDropLocation(defaults.drop);
+      setDrop(defaults.drop);
+    }
+  }, [fromKhatuTravel]);
+
+  useEffect(() => {
+    if (fromKhatuTravel && khatuQuoteVehicle) {
+      if (khatuQuoteVehicle.type === 'two_wheeler') {
+        setSelected('two');
+        setSelectedService('twoWheeler');
+      } else {
+        setSelected('four');
+        setSelectedService('fourWheeler');
+      }
+      return;
     }
     const saved = getSelectedService();
-    if (fromFood) {
+    if (passengerFleetsOnly) {
       if (saved === 'walk' || saved === 'twoWheeler') {
         const id = SERVICE_TO_OPTION[saved];
         setSelected(id);
@@ -78,7 +140,31 @@ export default function TripOptionsPage() {
     } else if (saved) {
       setSelected(SERVICE_TO_OPTION[saved] ?? 'two');
     }
-  }, [fromFood]);
+  }, [passengerFleetsOnly, fromKhatuTravel, khatuQuoteVehicle]);
+
+  const khatuBikeMatch = Boolean(fromKhatuTravel && khatuQuoteVehicle?.type === 'two_wheeler');
+  const showKhatuCarOption = Boolean(
+    fromKhatuTravel && khatuQuoteVehicle && khatuQuoteVehicle.type !== 'two_wheeler',
+  );
+  /** Khatu corridor passenger quote: hide walking / courier options so only the booked vehicle class shows. */
+  const hideKhatuWalkAndCourier = fromKhatuTravel && Boolean(khatuQuoteVehicle);
+
+  const twoCardTitle = khatuBikeMatch && khatuQuoteVehicle ? khatuQuoteVehicle.label : 'Faster to your door';
+  const twoCardSubtitle = khatuBikeMatch
+    ? 'Two wheeler · matches your Khatu travel quote'
+    : 'Two wheeler / 40kg';
+  const twoCardPrice =
+    khatuBikeMatch && khatuQuoteVehicle ? `₹${khatuQuoteVehicle.estimateInr}` : '₹160';
+  const twoCardOldPrice =
+    khatuBikeMatch && khatuQuoteVehicle
+      ? `₹${Math.round(khatuQuoteVehicle.estimateInr * 1.1)}`
+      : '₹195';
+  const twoCardImage = khatuBikeMatch ? khatuVehicleImage('two_wheeler') : '/dashboard/service-2wheeler.png';
+  const twoCardNote = fromFood
+    ? 'Orders can be picked up within 1 km only.'
+    : khatuBikeMatch
+      ? 'Same vehicle as on Khatu travel.'
+      : undefined;
 
   const handleSwapLocations = () => {
     if (!pickup || !drop) return;
@@ -112,12 +198,24 @@ export default function TripOptionsPage() {
           <div className="relative z-10 flex items-center px-4 pt-6 pb-2">
             <button
               type="button"
-              aria-label={fromFood ? 'Back to delivery address' : 'Back to dashboard'}
-              onClick={() =>
-                router.push(
-                  fromFood ? `${ROUTES.PICKUP_LOCATION}?step=2&from=food` : ROUTES.DASHBOARD
-                )
+              aria-label={
+                fromFood
+                  ? 'Back to delivery address'
+                  : fromKhatuTravel
+                    ? 'Back to Khatu travel'
+                    : 'Back to dashboard'
               }
+              onClick={() => {
+                if (fromFood) {
+                  router.push(`${ROUTES.PICKUP_LOCATION}?step=2&from=food`);
+                  return;
+                }
+                if (fromKhatuTravel) {
+                  router.push(ROUTES.KHATU_TRAVEL);
+                  return;
+                }
+                router.push(ROUTES.DASHBOARD);
+              }}
               className="h-10 w-10 rounded-full grid place-items-center"
               style={{ backgroundColor: theme.colors.white, color: theme.colors.gray700 }}
             >
@@ -158,9 +256,11 @@ export default function TripOptionsPage() {
                         {pickup && (
                           <>
                             <div className="mt-0.5" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray500 }}>{pickup.address}</div>
-                            <div className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray400 }}>
-                              {sender ? `${sender.name} | ${sender.mobile}` : pickup.contact}
-                            </div>
+                            {!fromKhatuTravel ? (
+                              <div className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray400 }}>
+                                {sender ? `${sender.name} | ${sender.mobile}` : pickup.contact}
+                              </div>
+                            ) : null}
                           </>
                         )}
                         {fromFood && pickup && (
@@ -171,7 +271,12 @@ export default function TripOptionsPage() {
                         <button
                           type="button"
                           aria-label="Edit pickup"
-                          onClick={() => router.push(`${ROUTES.PICKUP_LOCATION}?step=1`)}
+                          onClick={() => {
+                            const q = new URLSearchParams({ step: '1' });
+                            if (fromFood) q.set('from', 'food');
+                            else if (fromKhatuTravel) q.set('from', TRIP_OPTIONS_FROM_KHATU_TRAVEL);
+                            router.push(`${ROUTES.PICKUP_LOCATION}?${q.toString()}`);
+                          }}
                           className="h-9 w-9 flex-shrink-0 rounded-full grid place-items-center hover:bg-gray-100 transition-colors"
                           style={{ color: theme.colors.textMuted }}
                         >
@@ -198,37 +303,48 @@ export default function TripOptionsPage() {
                       </div>
                     )}
 
-                    {/* Optional Stop */}
-                    {!fromFood && stop && (
-                      <>
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <div className="font-bold" style={{ fontSize: theme.fontSizes.lg, color: theme.colors.gray900 }}>{stop.name}</div>
-                            <div className="mt-0.5" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray500 }}>{stop.address}</div>
-                            <div className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray400 }}>
-                              {stopDetails ? `${stopDetails.name} | ${stopDetails.mobile}` : stop.contact}
+                    {/* Intermediate stops */}
+                    {!fromFood &&
+                      stops.map((wp, stopIndex) => (
+                        <div key={wp.id} className="transition-opacity duration-200">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div className="font-bold" style={{ fontSize: theme.fontSizes.lg, color: theme.colors.gray900 }}>
+                                {wp.location.name}
+                                <span className="ms-2 align-middle text-[11px] font-semibold text-gray-400">
+                                  · Stop {stopIndex + 1}
+                                </span>
+                              </div>
+                              <div className="mt-0.5" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray500 }}>
+                                {wp.location.address}
+                              </div>
+                              {!fromKhatuTravel ? (
+                                <div className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray400 }}>
+                                  {wp.contact?.name || wp.contact?.mobile
+                                    ? `${wp.contact.name} | ${wp.contact.mobile}`
+                                    : wp.location.contact}
+                                </div>
+                              ) : null}
                             </div>
+                            <button
+                              type="button"
+                              aria-label={`Remove stop ${stopIndex + 1}`}
+                              onClick={() => {
+                                const next = stops.filter((s) => s.id !== wp.id);
+                                setStops(next);
+                                setStopWaypoints(next);
+                              }}
+                              className="h-8 w-8 rounded-full border grid place-items-center flex-shrink-0"
+                              style={{ borderColor: theme.colors.border, color: theme.colors.gray500 }}
+                            >
+                              ×
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            aria-label="Remove stop"
-                            onClick={() => {
-                              setStop(null);
-                              setStopDetails(null);
-                              setStopLocation(null);
-                              clearStopDetails();
-                            }}
-                            className="h-8 w-8 rounded-full border grid place-items-center flex-shrink-0"
-                            style={{ borderColor: theme.colors.border, color: theme.colors.gray500 }}
-                          >
-                            ×
-                          </button>
+                          <div className="flex justify-end py-0.5">
+                            <div className="h-9 w-9" />
+                          </div>
                         </div>
-                        <div className="flex justify-end py-0.5">
-                          <div className="h-9 w-9" />
-                        </div>
-                      </>
-                    )}
+                      ))}
 
                     {/* Drop */}
                     <div className="flex items-start justify-between gap-2">
@@ -239,20 +355,23 @@ export default function TripOptionsPage() {
                         {drop && (
                           <>
                             <div className="mt-0.5" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray500 }}>{drop.address}</div>
-                            <div className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray400 }}>
-                              {receiver ? `${receiver.name} | ${receiver.mobile}` : drop.contact}
-                            </div>
+                            {!fromKhatuTravel ? (
+                              <div className="mt-1" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray400 }}>
+                                {receiver ? `${receiver.name} | ${receiver.mobile}` : drop.contact}
+                              </div>
+                            ) : null}
                           </>
                         )}
                       </div>
                       <button
                         type="button"
                         aria-label="Edit drop"
-                        onClick={() =>
-                          router.push(
-                            `${ROUTES.PICKUP_LOCATION}?step=2${fromFood ? '&from=food' : ''}`
-                          )
-                        }
+                        onClick={() => {
+                          const q = new URLSearchParams({ step: '2' });
+                          if (fromFood) q.set('from', 'food');
+                          else if (fromKhatuTravel) q.set('from', TRIP_OPTIONS_FROM_KHATU_TRAVEL);
+                          router.push(`${ROUTES.PICKUP_LOCATION}?${q.toString()}`);
+                        }}
                         className="h-9 w-9 flex-shrink-0 rounded-full grid place-items-center hover:bg-gray-100 transition-colors"
                         style={{ color: theme.colors.textMuted }}
                       >
@@ -261,6 +380,12 @@ export default function TripOptionsPage() {
                         </svg>
                       </button>
                     </div>
+                    {fromKhatuTravel && pickup && drop ? (
+                      <p className="text-[11px] leading-snug" style={{ color: theme.colors.gray500 }}>
+                        Default corridor pickup & drop for this route (Khatu · Ringus · Salasar). Tap edit to
+                        refine the exact point.
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -287,34 +412,57 @@ export default function TripOptionsPage() {
 
         {/* Trip options list + bottom buttons */}
         <div className="flex-1 px-4 pt-4 pb-6" style={{ backgroundColor: theme.colors.white }}>
-          <OptionCard
-            id="walk"
-            selected={selected}
-            setSelected={(id) => {
-              setSelected(id);
-              setSelectedService(OPTION_TO_SERVICE[id]);
-            }}
-            title="Big Saver"
-            subtitle="Walking"
-            price="₹75"
-            oldPrice="₹105"
-            image="/dashboard/service-walk.png"
-          />
-          <OptionCard
-            id="two"
-            selected={selected}
-            setSelected={(id) => {
-              setSelected(id);
-              setSelectedService(OPTION_TO_SERVICE[id]);
-            }}
-            title="Faster to your door"
-            subtitle="Two wheeler / 40kg"
-            price="₹160"
-            oldPrice="₹195"
-            image="/dashboard/service-2wheeler.png"
-            note="Orders can be picked up within 1 km only."
-          />
-          {!fromFood && (
+          {!hideKhatuWalkAndCourier ? (
+            <OptionCard
+              id="walk"
+              selected={selected}
+              setSelected={(id) => {
+                setSelected(id);
+                setSelectedService(OPTION_TO_SERVICE[id]);
+              }}
+              title="Big Saver"
+              subtitle="Walking"
+              price="₹75"
+              oldPrice="₹105"
+              image="/dashboard/service-walk.png"
+            />
+          ) : null}
+          {!showKhatuCarOption ? (
+            <OptionCard
+              id="two"
+              selected={selected}
+              setSelected={(id) => {
+                setSelected(id);
+                setSelectedService(OPTION_TO_SERVICE[id]);
+              }}
+              title={twoCardTitle}
+              subtitle={twoCardSubtitle}
+              price={twoCardPrice}
+              oldPrice={twoCardOldPrice}
+              image={twoCardImage}
+              note={twoCardNote}
+            />
+          ) : null}
+          {showKhatuCarOption && khatuQuoteVehicle ? (
+            <OptionCard
+              id="four"
+              selected={selected}
+              setSelected={(id) => {
+                setSelected(id);
+                setSelectedService(OPTION_TO_SERVICE[id]);
+              }}
+              title={khatuQuoteVehicle.label}
+              subtitle={
+                khatuQuoteVehicle.comfortTag
+                  ? `${khatuQuoteVehicle.comfortTag} · passenger car`
+                  : 'Passenger car · matches your Khatu travel quote'
+              }
+              price={`₹${khatuQuoteVehicle.estimateInr}`}
+              oldPrice={`₹${Math.round(khatuQuoteVehicle.estimateInr * 1.08)}`}
+              image={khatuVehicleImage(khatuQuoteVehicle.type)}
+            />
+          ) : null}
+          {!passengerFleetsOnly && (
             <>
               <OptionCard
                 id="three"
@@ -389,7 +537,7 @@ type OptionCardProps = {
   title: string;
   subtitle: string;
   price: string;
-  oldPrice: string;
+  oldPrice?: string;
   image: string;
   note?: string;
 };
@@ -427,7 +575,11 @@ function OptionCard({
           </div>
           <div className="text-right flex-shrink-0">
             <div className="font-semibold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>{price}</div>
-            <div className="mt-0.5 line-through" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray400 }}>{oldPrice}</div>
+            {oldPrice ? (
+              <div className="mt-0.5 line-through" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray400 }}>
+                {oldPrice}
+              </div>
+            ) : null}
           </div>
         </div>
         {note && (

@@ -10,6 +10,8 @@ type MarketplaceProductCardProps = {
   product: KhatuShopProduct;
   shopId: string;
   shopName: string;
+  merchantWhatsApp?: string;
+  pickupAddressLine?: string;
   onWrongShop: () => void;
 };
 
@@ -17,6 +19,8 @@ export default function MarketplaceProductCard({
   product,
   shopId,
   shopName,
+  merchantWhatsApp,
+  pickupAddressLine,
   onWrongShop,
 }: MarketplaceProductCardProps) {
   const addOrIncrement = useMarketplaceCartStore((s) => s.addOrIncrement);
@@ -25,13 +29,23 @@ export default function MarketplaceProductCard({
   const line = items.find((i) => i.productId === product.id);
   const qty = line?.quantity ?? 0;
 
+  const shopMeta = {
+    merchantWhatsApp: merchantWhatsApp?.replace(/\D/g, '') ?? null,
+    pickupAddressLine: pickupAddressLine?.trim() || null,
+  };
+
   const addOne = () => {
-    const r = addOrIncrement(shopId, shopName, {
-      productId: product.id,
-      name: product.name,
-      price: product.priceInr,
-      image: product.image,
-    });
+    const r = addOrIncrement(
+      shopId,
+      shopName,
+      {
+        productId: product.id,
+        name: product.name,
+        price: product.priceInr,
+        image: product.image,
+      },
+      shopMeta
+    );
     if (r === 'different_shop') onWrongShop();
   };
 

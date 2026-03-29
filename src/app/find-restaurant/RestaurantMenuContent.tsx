@@ -259,6 +259,7 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
     setDeliveryGoodsDescription({
       restaurantName: restaurant.name,
       items: cart.map((c) => ({ name: c.name, quantity: c.quantity, price: c.price })),
+      source: 'restaurant',
     });
 
     if (!isUserAuthenticated()) {

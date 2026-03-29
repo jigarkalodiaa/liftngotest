@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import PageHeader from '@/components/ui/PageHeader';
 import { ROUTES } from '@/lib/constants';
 import { clearKhatuRideBooking, readKhatuRideBooking, type SavedKhatuRideBooking } from '@/lib/khatuSessionStorage';
+import { appendSalasarRideHistoryFromQuote } from '@/lib/storage';
 
 export default function BookingRidePage() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function BookingRidePage() {
   }, []);
 
   const continueFlow = () => {
+    const snap = readKhatuRideBooking();
+    if (snap) appendSalasarRideHistoryFromQuote(snap);
     clearKhatuRideBooking();
     router.push(`${ROUTES.PICKUP_LOCATION}?step=1&from=khatu_ride`);
   };

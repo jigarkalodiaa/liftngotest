@@ -5,13 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import {
   estimateKhatuRideFareInr,
+  getKhatuRouteDefaultLocations,
   khatuVehicleImage,
   KHATU_RIDE_VEHICLE_OPTIONS,
   KHATU_TRAVEL_ROUTES,
 } from '@/data/khatuTravel';
 import { useBookRideMutation } from '@/hooks/useKhatuData';
 import { SectionHeader } from '@/components/ui';
-import { ROUTES } from '@/lib/constants';
+import { ROUTES, TRIP_OPTIONS_FROM_KHATU_TRAVEL } from '@/lib/constants';
+import { setPickupLocation, setDropLocation } from '@/lib/storage';
 import { saveKhatuRideBooking } from '@/lib/khatuSessionStorage';
 import type { RideVehicleType, TravelRouteId } from '@/types/khatu';
 import KhatuScreenShell from '@/features/khatu/common/KhatuScreenShell';
@@ -52,8 +54,11 @@ export default function KhatuTravelPage() {
         vehicleType,
         note: note.trim() || undefined,
       });
+      const { pickup, drop } = getKhatuRouteDefaultLocations(routeId);
+      setPickupLocation(pickup);
+      setDropLocation(drop);
       saveKhatuRideBooking(res);
-      router.push(ROUTES.BOOKING_RIDE);
+      router.push(`${ROUTES.TRIP_OPTIONS}?from=${TRIP_OPTIONS_FROM_KHATU_TRAVEL}`);
     } catch {
       /* surfaced below */
     }

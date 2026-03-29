@@ -7,7 +7,8 @@ import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { ROUTES } from '@/lib/constants';
 import { SITE_NAME, LOGO_PATH } from '@/lib/site';
 import { CloseIcon } from '@/components/ui';
-import { isUserAuthenticated, setLoggedIn, clearAuthToken } from '@/lib/storage';
+import { isUserAuthenticated, performFullClientLogout } from '@/lib/storage';
+import { clearMarketplaceCartOnLogout } from '@/features/khatu/marketplace/cartStore';
 
 type MenuItem = { label: string; href: string; authOnly?: boolean };
 
@@ -64,8 +65,8 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   }, [isOpen]);
 
   const handleLogout = useCallback(() => {
-    clearAuthToken();
-    setLoggedIn(false);
+    clearMarketplaceCartOnLogout();
+    performFullClientLogout();
     onClose();
     router.push(ROUTES.HOME);
   }, [onClose, router]);

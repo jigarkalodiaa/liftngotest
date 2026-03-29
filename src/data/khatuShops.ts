@@ -10,6 +10,8 @@ export const KHATU_SHOPS: KhatuShop[] = [
     liftngoVerified: true,
     popular: true,
     rating: 4.7,
+    merchantWhatsApp: '918588808581',
+    pickupAddressLine: 'Shyam Prasad House — near Khatu Shyam Ji mandir main bazaar (Liftngo pickup point)',
   },
   {
     id: 'mandir-sacred-store',
@@ -19,6 +21,8 @@ export const KHATU_SHOPS: KhatuShop[] = [
     distanceKm: 0.45,
     liftngoVerified: true,
     rating: 4.5,
+    merchantWhatsApp: '918588808581',
+    pickupAddressLine: 'Mandir Sacred Store — Khatu Shyam Ji temple lane (Liftngo pickup)',
   },
   {
     id: 'khatu-devotion-bazaar',
@@ -29,6 +33,8 @@ export const KHATU_SHOPS: KhatuShop[] = [
     liftngoVerified: true,
     popular: true,
     rating: 4.4,
+    merchantWhatsApp: '918588808581',
+    pickupAddressLine: 'Khatu Devotion Bazaar — corridor market, Khatu Shyam Ji (Liftngo pickup)',
   },
 ];
 
