@@ -10,6 +10,11 @@ import {
   getReceiverDetails,
   getDeliveryGoodsDescription,
   clearDeliveryGoodsDescription,
+  getHotelBookingDraft,
+  clearHotelBookingDraft,
+  appendHotelBookingHistoryFromDraft,
+  appendFoodDeliveryHistory,
+  appendMarketplaceHistoryFromDeliveryGoods,
   setPickupLocation,
   setDropLocation,
   setSenderDetails,
@@ -17,7 +22,7 @@ import {
   type DeliveryGoodsDescription,
 } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
-import type { ServiceId, SavedLocation, PersonDetails } from '@/types/booking';
+import type { ServiceId, SavedLocation, PersonDetails, HotelBookingDraft } from '@/types/booking';
 import type { GoodTypeOption } from '@/data/goodTypes';
 import { GOOD_TYPES } from '@/data/goodTypes';
 import { PageContainer } from '@/components/ui';
@@ -27,6 +32,7 @@ import {
   VehicleCard,
   AddressCta,
   GstSection,
+  HotelStaySummarySection,
   GoodsSection,
   CouponSection,
   PriceDetailsSection,
@@ -46,6 +52,7 @@ export default function PaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromFood = searchParams.get('from') === 'food';
+  const fromKhatuHotel = searchParams.get('from') === 'khatu_hotel';
   const [vehicle, setVehicle] = useState<ServiceId | null>(null);
   /** SSR + hydration: always null until useEffect sync — never read localStorage in useState initializer */
   const [pickup, setPickup] = useState<SavedLocation | null>(null);
@@ -63,6 +70,7 @@ export default function PaymentPage() {
   const [showRestrictedList, setShowRestrictedList] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [deliveryGoods, setDeliveryGoods] = useState<DeliveryGoodsDescription | null>(null);
+  const [hotelDraft, setHotelDraft] = useState<HotelBookingDraft | null>(null);
 
   const syncFromStorage = useCallback(() => {
     setVehicle(getSelectedService() ?? 'threeWheeler');
@@ -70,10 +78,32 @@ export default function PaymentPage() {
     setDrop(getDropLocation());
     setSender(getSenderDetails());
     setReceiver(getReceiverDetails());
-    setDeliveryGoods(getDeliveryGoodsDescription());
-  }, []);
+
+    if (fromKhatuHotel) {
+      const h = getHotelBookingDraft();
+      setHotelDraft(h);
+      if (getDeliveryGoodsDescription()) clearDeliveryGoodsDescription();
+      setDeliveryGoods(null);
+    } else {
+      clearHotelBookingDraft();
+      setHotelDraft(null);
+      if (fromFood) {
+        setDeliveryGoods(getDeliveryGoodsDescription());
+      } else {
+        if (getDeliveryGoodsDescription()) clearDeliveryGoodsDescription();
+        setDeliveryGoods(null);
+      }
+    }
+  }, [fromFood, fromKhatuHotel]);
 
   useEffect(() => { syncFromStorage(); }, [syncFromStorage]);
+
+  useEffect(() => {
+    if (!fromKhatuHotel) return;
+    if (!getHotelBookingDraft()) {
+      router.replace(ROUTES.KHATU_HOTELS);
+    }
+  }, [fromKhatuHotel, router]);
   useEffect(() => {
     window.addEventListener('focus', syncFromStorage);
     return () => window.removeEventListener('focus', syncFromStorage);
@@ -83,9 +113,11 @@ export default function PaymentPage() {
     if (searchParams.get('openAddressModal') === '1') {
       syncFromStorage();
       setShowAddressDetailsModal(true);
-      router.replace(fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT, { scroll: false });
+      const q =
+        fromKhatuHotel ? `${ROUTES.PAYMENT}?from=khatu_hotel` : fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT;
+      router.replace(q, { scroll: false });
     }
-  }, [searchParams, router, syncFromStorage, fromFood]);
+  }, [searchParams, router, syncFromStorage, fromFood, fromKhatuHotel]);
 
   const vehicleName =
     vehicle === 'walk'
@@ -122,40 +154,60 @@ export default function PaymentPage() {
     <div className="min-h-screen" style={{ backgroundColor: theme.colors.white }}>
       <PageContainer className="pb-32 pt-4">
         <PaymentHeader
-          onBack={() =>
-            router.push(
-              searchParams.get('from') === 'food'
-                ? `${ROUTES.TRIP_OPTIONS}?from=food`
-                : ROUTES.TRIP_OPTIONS
-            )
-          }
+          onBack={() => {
+            if (fromKhatuHotel && hotelDraft) {
+              router.push(`${ROUTES.BOOKING_HOTEL}/${hotelDraft.hotelId}`);
+              return;
+            }
+            if (fromFood) {
+              router.push(`${ROUTES.TRIP_OPTIONS}?from=food`);
+              return;
+            }
+            router.push(ROUTES.TRIP_OPTIONS);
+          }}
         />
         <VehicleCard serviceId={vehicle} />
         <AddressCta onClick={openAddressModal} />
         <GstSection gstin={gstin} businessName={businessName} onAddOrEdit={() => setShowGstModal(true)} />
-        <GoodsSection
-          goodTypeTitle={selectedGoodType?.title ?? ''}
-          weightKg={weightKg}
-          packages={packages}
-          onChangeGoods={() => {
-            if (deliveryGoods) {
-              clearDeliveryGoodsDescription();
-              setDeliveryGoods(null);
-            }
-            setShowGoodTypesModal(true);
-          }}
-          onViewRestrictedList={() => setShowRestrictedList(true)}
-          deliveryGoods={deliveryGoods}
-        />
-        {!fromFood && (
-          <CouponSection appliedCoupon={appliedCoupon} onToggleCoupon={() => setAppliedCoupon((c) => (c ? null : 'extra400'))} />
+        {fromKhatuHotel && hotelDraft ? (
+          <HotelStaySummarySection draft={hotelDraft} />
+        ) : (
+          <GoodsSection
+            goodTypeTitle={selectedGoodType?.title ?? ''}
+            weightKg={weightKg}
+            packages={packages}
+            onChangeGoods={() => {
+              if (deliveryGoods) {
+                clearDeliveryGoodsDescription();
+                setDeliveryGoods(null);
+              }
+              setShowGoodTypesModal(true);
+            }}
+            onViewRestrictedList={() => setShowRestrictedList(true)}
+            deliveryGoods={deliveryGoods}
+          />
         )}
+        {!fromFood && !fromKhatuHotel ? (
+          <CouponSection appliedCoupon={appliedCoupon} onToggleCoupon={() => setAppliedCoupon((c) => (c ? null : 'extra400'))} />
+        ) : null}
         <PriceDetailsSection
           tripFare={TRIP_FARE}
           gst={GST_AMOUNT}
           platformFee={PLATFORM_FEE}
           totalAmount={TOTAL_AMOUNT}
           foodFlatInr={fromFood ? FOOD_PAYMENT_FLAT_INR : undefined}
+          hotelStay={
+            fromKhatuHotel && hotelDraft
+              ? {
+                  totalInr: hotelDraft.estimatedTotalInr,
+                  nights: hotelDraft.nights,
+                  pricePerNight: hotelDraft.pricePerNight,
+                  checkIn: hotelDraft.checkIn,
+                  checkOut: hotelDraft.checkOut,
+                  guests: hotelDraft.guests,
+                }
+              : undefined
+          }
         />
         <p className="mt-6 text-center" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray500 }}>
           By Placing the order, you agree to Liftngo Terms of use and Privacy Policy
@@ -186,11 +238,38 @@ export default function PaymentPage() {
         gstin={gstin}
         businessName={businessName}
         fromFood={fromFood}
+        fromKhatuHotel={fromKhatuHotel}
       />
 
       <PaymentFooterBar
-        onBookNow={() => router.push(ROUTES.BOOKING)}
-        totalInr={fromFood ? FOOD_PAYMENT_FLAT_INR : undefined}
+        onBookNow={() => {
+          if (fromKhatuHotel && hotelDraft) {
+            appendHotelBookingHistoryFromDraft(hotelDraft);
+            clearHotelBookingDraft();
+            setHotelDraft(null);
+            router.push(ROUTES.HISTORY);
+            return;
+          }
+          if (fromFood && deliveryGoods) {
+            const amt = `₹${FOOD_PAYMENT_FLAT_INR.toLocaleString('en-IN')}`;
+            const addrHint = drop?.address?.trim() || pickup?.address?.trim() || undefined;
+            if (deliveryGoods.source === 'marketplace') {
+              appendMarketplaceHistoryFromDeliveryGoods(deliveryGoods, amt, addrHint);
+            } else {
+              appendFoodDeliveryHistory(deliveryGoods, amt, pickup?.name);
+            }
+            clearDeliveryGoodsDescription();
+            setDeliveryGoods(null);
+          }
+          router.push(ROUTES.BOOKING);
+        }}
+        totalInr={
+          fromKhatuHotel && hotelDraft
+            ? hotelDraft.estimatedTotalInr
+            : fromFood
+              ? FOOD_PAYMENT_FLAT_INR
+              : undefined
+        }
       />
     </div>
   );

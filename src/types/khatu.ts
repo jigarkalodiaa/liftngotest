@@ -17,6 +17,8 @@ export interface KhatuHotel {
   /** Liftngo on-ground verified */
   liftngoVerified: boolean;
   addressLine: string;
+  /** E.164 digits (e.g. 91…) — hotel / front desk WhatsApp for booking requests. */
+  ownerWhatsApp?: string;
 }
 
 /** Marketplace product categories — religious, prasad & temple-local retail only (no food service). */
@@ -32,6 +34,10 @@ export interface KhatuShop {
   liftngoVerified: true;
   popular?: boolean;
   rating?: number;
+  /** E.164 digits only (e.g. 91…) for `wa.me` order messages. */
+  merchantWhatsApp?: string;
+  /** Pickup point shown to riders (counter / shop address). */
+  pickupAddressLine?: string;
 }
 
 export interface KhatuShopProduct {

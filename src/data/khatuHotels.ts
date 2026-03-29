@@ -18,6 +18,7 @@ export const KHATU_HOTELS: KhatuHotel[] = [
     rating: 4.4,
     liftngoVerified: true,
     addressLine: 'Near Khatu Shyam Ji temple approach',
+    ownerWhatsApp: '918588808581',
   },
   {
     id: 'mandir-view-dharamshala',
@@ -35,6 +36,7 @@ export const KHATU_HOTELS: KhatuHotel[] = [
     rating: 4.1,
     liftngoVerified: true,
     addressLine: 'Walking distance from main gate',
+    ownerWhatsApp: '918588808581',
   },
   {
     id: 'ringas-highway-stay',
@@ -52,6 +54,7 @@ export const KHATU_HOTELS: KhatuHotel[] = [
     rating: 4.0,
     liftngoVerified: true,
     addressLine: 'Ringus–Khatu road',
+    ownerWhatsApp: '918588808581',
   },
   {
     id: 'baba-guest-house',
@@ -68,6 +71,7 @@ export const KHATU_HOTELS: KhatuHotel[] = [
     rating: null,
     liftngoVerified: true,
     addressLine: 'Bazaar lane, Khatu',
+    ownerWhatsApp: '918588808581',
   },
   {
     id: 'salasar-pilgrim-inn',
@@ -84,5 +88,6 @@ export const KHATU_HOTELS: KhatuHotel[] = [
     rating: 4.6,
     liftngoVerified: true,
     addressLine: 'En route Salasar corridor',
+    ownerWhatsApp: '918588808581',
   },
 ];
