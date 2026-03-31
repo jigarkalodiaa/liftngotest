@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 
 /** Icons: scooter, rupee (INR), steering wheel — white on orange circle */

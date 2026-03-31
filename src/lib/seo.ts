@@ -32,7 +32,15 @@ interface PageSEOProps {
  */
 function stripTrailingBrandForTitleTemplate(raw: string): string {
   let t = raw.trim();
-  const suffixes = [` | ${SITE_NAME} Blog`, ` | ${SITE_NAME}`, " | Liftngo", " | LiftnGo"];
+  const suffixes = [
+    ` | ${SITE_NAME} Blog`,
+    ` | ${SITE_NAME}`,
+    " | Liftngo",
+    " | LiftnGo",
+    ` — ${SITE_NAME}`,
+    " — Liftngo",
+    " — LiftnGo",
+  ];
   let changed = true;
   while (changed) {
     changed = false;

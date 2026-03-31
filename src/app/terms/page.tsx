@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';

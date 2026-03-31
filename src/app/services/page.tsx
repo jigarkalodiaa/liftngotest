@@ -2,7 +2,7 @@ import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, SITE_URL, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import JsonLd, { buildWebPageJsonLd } from '@/components/JsonLd';
 import { indiaPhotoBangaloreLoadedTruck } from '@/config/indiaLogisticsImages';
 import { COMING_SOON_VEHICLES, SERVICES_INDEX_FAQ, servicesIndexItemListSchema } from '@/data/vehicleFleet';

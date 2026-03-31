@@ -2,7 +2,7 @@ import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 
 export const metadata = generatePageMetadata({
   title: `3 Wheeler Delivery | ${SITE_NAME}`,
@@ -74,6 +74,38 @@ export default function ThreeWheelerServicePage() {
               </Link>
             </div>
           </div>
+
+          <section
+            className="mt-14 rounded-2xl border border-gray-200 bg-gray-50/80 p-6 sm:p-8"
+            aria-labelledby="three-wheeler-detail"
+          >
+            <h2 id="three-wheeler-detail" className="text-xl font-semibold text-gray-900">
+              Three-wheeler cargo: the workhorse lane for {BRAND.name}
+            </h2>
+            <div className="mt-4 space-y-4 text-gray-600 leading-relaxed">
+              <p>
+                Electric and ICE three-wheelers sit in the sweet spot between bike agility and mini-truck deck space—ideal for cartons of apparel,
+                bottled water crates, printing jobs, and bulk sweets headed to a single counter. {BRAND.name} routes these as{' '}
+                <strong className="text-gray-800">goods bookings</strong>, meaning load, secure, and unload—not detours that treat your cargo like
+                a backpack afterthought.
+              </p>
+              <p>
+                In wholesale-heavy pockets of <strong className="text-gray-800">Delhi NCR</strong>, three-wheel shuttles often beat repeated two-wheel
+                round trips once the stack grows past a single saddle bag. Around holy-day peaks near <strong className="text-gray-800">Khatu Shyam Ji</strong>,
+                the same vehicle class moves prasad-ready batches when a bike would crush packaging. When you outgrow cubic capacity or need tie-down
+                rails for unstable stacks, move to{' '}
+                <Link href="/services/4-wheeler" className="font-semibold text-[var(--color-primary)] hover:underline">
+                  four-wheel / mini truck
+                </Link>{' '}
+                instead of improvising height on a three-wheel deck.
+              </p>
+              <p>
+                GST-ready invoices and per-trip versus retainer pricing are available for commercial accounts; solo shippers still get upfront
+                estimates on the consumer booking path. If your loading dock has strict time windows, add that to trip notes so dispatch routes a
+                partner who already knows the facility—not a random rider learning gate protocols mid-handoff.
+              </p>
+            </div>
+          </section>
         </div>
       </main>
     </ContentLayout>

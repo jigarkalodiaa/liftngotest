@@ -2,7 +2,7 @@ import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { indiaPhotoBangaloreLoadedTruck } from '@/config/indiaLogisticsImages';
 
 export const metadata = generatePageMetadata({
@@ -87,6 +87,35 @@ export default function FourWheelerServicePage() {
               </div>
             </div>
           </div>
+
+          <section
+            className="mt-14 rounded-2xl border border-gray-200 bg-gray-50/80 p-6 sm:p-8"
+            aria-labelledby="four-wheeler-detail"
+          >
+            <h2 id="four-wheeler-detail" className="text-xl font-semibold text-gray-900">
+              Mini trucks when stacks, not slogans, drive the decision
+            </h2>
+            <div className="mt-4 space-y-4 text-gray-600 leading-relaxed">
+              <p>
+                Four-wheel cargo on {BRAND.name} is for intra-city legs where a wider deck, strap rails, and higher legal payload reduce the
+                number of shuttles you pay for. Think wholesale fruit to a retail row, event sets with awkward dimensions, appliance bundles, or
+                back-office furniture—loads where a three-wheeler becomes a game of Tetris and breakage risk rises fast.
+              </p>
+              <p>
+                Powertrain availability depends on the lane: <strong className="text-gray-800">EV cargo</strong> slots help quieter corridors and
+                clients with sustainability reporting, while CNG, diesel, and petrol vehicles still win on certain gradients and turnaround times.
+                We do not pretend every postcode has identical fleet depth; booking surfaces what is realistically assignable with an upfront estimate
+                instead of bait-and-switch tariffs after you have promised your customer a truck.
+              </p>
+              <p>
+                For B2B programmes—fixed morning pulls from a warehouse, or evening returns from retail—pair mini-truck bookings with the ops
+                contact on our <Link href="/b2b-transport" className="font-semibold text-[var(--color-primary)] hover:underline">B2B transport</Link>{' '}
+                page so dispatch, proof of delivery, and escalation paths match your SLA. If today&apos;s shipment is only a few cartons, downshift to{' '}
+                <Link href="/services/3-wheeler" className="font-semibold text-[var(--color-primary)] hover:underline">three-wheeler</Link>{' '}
+                to avoid burning deck space you are not using.
+              </p>
+            </div>
+          </section>
         </div>
       </main>
     </ContentLayout>

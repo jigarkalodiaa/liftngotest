@@ -72,6 +72,29 @@ export default function BookDeliveryPage() {
           <Link href={ROUTES.B2B_TRANSPORT} className="font-medium text-[var(--color-primary)] hover:underline">B2B transport</Link>
           ? Those guides link back here when you&apos;re ready to book.
         </p>
+        <h2 className="mt-12 text-xl font-semibold text-gray-900">Who books goods transport on Liftngo</h2>
+        <p className="mt-3 text-gray-600 leading-relaxed">
+          Shopkeepers near Khatu Mandir use us for restocks during peak darshan hours; guest-houses move provisions in fewer trips; offices in
+          Noida consolidate documents and small electronics with a two-wheeler slot instead of dispatching staff. The platform is built for{' '}
+          <strong className="text-gray-800">cargo handoffs</strong>, not commuter rides—so fares, incentives, and support scripts assume you care
+          about weight, queue time, and proof of delivery.
+        </p>
+        <p className="mt-4 text-gray-600 leading-relaxed">
+          You can book same-day when the lane has capacity, or line up pickup and drop addresses ahead of a festival weekend. Add intermediate
+          stops if you are doing multi-point handoffs (for example, sweets to a counter and printed material to a back office). If your menu or
+          catalogue came from our{' '}
+          <Link href="/find-restaurant" className="font-medium text-[var(--color-primary)] hover:underline">
+            restaurant partners
+          </Link>
+          , the flow still lands here so a rider matches the shipment your customer expects.
+        </p>
+        <h2 className="mt-10 text-xl font-semibold text-gray-900">Fair estimates and support</h2>
+        <p className="mt-3 text-gray-600 leading-relaxed">
+          We show an estimate before you confirm because surprise surcharges destroy trust in logistics. Waiting time, tolls, or oversized
+          items may adjust the final amount—those exceptions should be rare and documented in trip notes. If something goes wrong, reach support
+          with your booking reference; we route issues to the ops desk that owns the corridor, not a generic chatbot that pretends every city is
+          identical.
+        </p>
         <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
           <TrackedLink
             href={ROUTES.PICKUP_LOCATION}

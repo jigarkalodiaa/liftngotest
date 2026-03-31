@@ -3,6 +3,8 @@ import { SITE_URL } from '@/lib/site';
 import { MARKETING_PATHS } from '@/data/marketingRoutes';
 import { SEO_CITIES } from '@/data/seoCities';
 import { getAllPosts } from '@/lib/blog';
+import { RESTAURANTS_KHATUSHYAM } from '@/data/restaurantsKhatushyam';
+import { KHATU_SHOPS } from '@/data/khatuShops';
 
 function entry(
   path: string,
@@ -37,7 +39,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const path = `/${city.slug}`;
     if (seen.has(path)) continue;
     seen.add(path);
-    out.push(entry(path, 0.9, 'weekly'));
+    out.push(entry(path, 0.93, 'weekly'));
+  }
+
+  for (const r of RESTAURANTS_KHATUSHYAM) {
+    const path = `/find-restaurant/${r.id}`;
+    if (seen.has(path)) continue;
+    seen.add(path);
+    out.push(entry(path, 0.7, 'weekly'));
+  }
+
+  for (const shop of KHATU_SHOPS) {
+    const path = `/khatu/marketplace/${shop.id}`;
+    if (seen.has(path)) continue;
+    seen.add(path);
+    out.push(entry(path, 0.78, 'weekly'));
   }
 
   for (const post of getAllPosts()) {
@@ -48,7 +64,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE}${path}`,
       lastModified: new Date(post.modifiedAt ?? post.publishedAt),
       changeFrequency: 'monthly',
-      priority: 0.65,
+      priority: post.featured ? 0.72 : 0.66,
     });
   }
 

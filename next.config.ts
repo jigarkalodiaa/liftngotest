@@ -11,9 +11,15 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    /**
+     * Unsplash is served via imgix. Allow main host + subdomains so `/ _next/image` never
+     * fails host matching (some CDNs redirect or use alternate hostnames).
+     */
     remotePatterns: [
-      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
-      { protocol: 'https', hostname: 'picsum.photos', pathname: '/**' },
+      { protocol: "https", hostname: "images.unsplash.com", pathname: "/**" },
+      { protocol: "https", hostname: "plus.unsplash.com", pathname: "/**" },
+      { protocol: "https", hostname: "media.unsplash.com", pathname: "/**" },
+      { protocol: "https", hostname: "picsum.photos", pathname: "/**" },
     ],
   },
   async headers() {

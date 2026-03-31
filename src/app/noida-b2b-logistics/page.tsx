@@ -1,6 +1,6 @@
 import ContentLayout from '@/components/layout/ContentLayout';
 import JsonLd from '@/components/JsonLd';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import { noidaB2bLogisticsVisual } from '@/config/locationPageVisuals';
 import { generatePageMetadata } from '@/lib/seo';
@@ -258,18 +258,8 @@ export default function NoidaB2bLogisticsPage() {
                 </Link>
               </li>
               <li>
-                <Link href="/b2b-logistics-noida" className="hover:underline">
-                  Short URL: b2b logistics Noida
-                </Link>
-              </li>
-              <li>
-                <Link href="/khatu-shyam-logistics" className="hover:underline">
+                <Link href={ROUTES.KHATU_SHYAM_LOGISTICS} className="hover:underline">
                   Khatu Shyam Ji logistics (hyperlocal)
-                </Link>
-              </li>
-              <li>
-                <Link href="/delivery-khatu" className="hover:underline">
-                  Short URL: delivery Khatu
                 </Link>
               </li>
               <li>

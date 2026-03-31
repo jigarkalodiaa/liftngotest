@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import type { BlogPost } from '@/types/blog';
 import { estimateReadingMinutes } from '@/lib/blog';

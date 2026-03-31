@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { Minus, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui';
 import type { KhatuShopProduct } from '@/types/khatu';

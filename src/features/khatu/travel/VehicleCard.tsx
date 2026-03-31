@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { Users } from 'lucide-react';
 import { Badge } from '@/components/ui';
 import type { RideVehicleType } from '@/types/khatu';

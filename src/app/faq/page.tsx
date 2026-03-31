@@ -61,6 +61,22 @@ export default function FaqPage() {
             Everything about booking, corridors (Khatu Shyam Ji · Noida / Delhi NCR), vehicles, food flows, and support—in one
             place.
           </p>
+          <div className="mt-8 space-y-4 text-base leading-relaxed text-gray-600">
+            <p>
+              Liftngo serves two very different geographies with the same product principle:{' '}
+              <strong className="text-gray-800">upfront fares, cargo-appropriate vehicles, and completions that protect your brand</strong>.
+              Around <strong className="text-gray-800">Khatu Shyam Ji</strong>, we focus on temple-town vendors, restaurant partners, marketplace
+              shops, and small businesses that need dependable short hops when footfall spikes. In <strong className="text-gray-800">Noida and Delhi NCR</strong>, we emphasise B2B
+              lanes—warehouses, retail, offices—where two-wheeler documents, three-wheeler cartons, or four-wheel mini trucks each have a natural
+              fit.
+            </p>
+            <p>
+              Food partners list menus on Liftngo so devotees and travellers can order transparently; WhatsApp often confirms tweaks with the
+              kitchen before a rider is booked. Hotel stays and Salasar-corridor rides have their own flows, but every path eventually needs
+              accurate pickup and drop on the map. If your question is not covered below, email support with a booking reference so the right
+              ops queue can respond. We would rather give a precise answer for your corridor than paste a generic script.
+            </p>
+          </div>
           <div className="mt-10 sm:mt-12">
             <FaqAccordionList items={FAQ_ITEMS} />
           </div>

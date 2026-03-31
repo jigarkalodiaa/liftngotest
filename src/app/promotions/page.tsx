@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
@@ -30,7 +30,7 @@ const PROMOS = [
   {
     title: 'Driver referral bonus',
     description: 'Refer a driver to the platform and earn a bonus when they complete their first trips. Grow with us and help expand the network.',
-    cta: 'Learn more',
+    cta: 'Careers and driver referrals',
     href: '/careers',
     highlight: false,
     image: indiaPhotoFreightBoxes(800),
@@ -118,6 +118,36 @@ export default function PromotionsPage() {
               </article>
             ))}
           </div>
+
+          <section
+            className="mt-14 rounded-2xl border border-gray-200 bg-white/80 p-6 sm:p-8 text-left"
+            aria-labelledby="promotions-policies"
+          >
+            <h2 id="promotions-policies" className="text-xl font-semibold text-gray-900">
+              How Liftngo promotions work
+            </h2>
+            <div className="mt-4 space-y-4 text-gray-600 leading-relaxed">
+              <p>
+                Campaigns on this page highlight seasonal demand—festival weekends around <strong className="text-gray-800">Khatu Shyam Ji</strong>,
+                hotel stays when darshan queues peak, and B2B lanes in <strong className="text-gray-800">Noida</strong> when wholesale restocks spike.
+                Each tile links to the flow it belongs to:{' '}
+                <strong className="text-gray-800">book delivery</strong> for ad-hoc goods,{' '}
+                <strong className="text-gray-800">restaurant menus</strong> when customers order food through verified partners, and{' '}
+                <strong className="text-gray-800">EV cargo</strong> when payload and timing suit electric three- or four-wheel slots on our network.
+              </p>
+              <p>
+                Discounts and limited-time codes apply only where the stated city and vehicle class are available; we do not advertise corridors
+                we cannot serve competently. EV incentives may require minimum distance or quiet-time windows so charging and turnaround stay
+                honest. Hotel bundles usually pair a stay with hyperlocal transport guidance rather than implying nationwide air connectivity—read the
+                partner&apos;s cancellation and ID policies before you confirm.
+              </p>
+              <p>
+                If an offer conflicts with in-app pricing, the booking screen at confirmation wins. Support can reconcile edge cases when you share
+                a screenshot and booking reference. For recurring B2B lanes, ask our ops team whether a <strong className="text-gray-800">pilot contract</strong> fits better than
+                promotional codes that reset every month.
+              </p>
+            </div>
+          </section>
 
           <p className="mt-10 text-sm text-gray-500 text-center">
             Offers may vary by city and service. See in-app or website for latest terms.

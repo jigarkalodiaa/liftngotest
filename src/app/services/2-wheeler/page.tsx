@@ -2,7 +2,7 @@ import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 
 export const metadata = generatePageMetadata({
   title: `2 Wheeler Delivery | ${SITE_NAME}`,
@@ -74,6 +74,43 @@ export default function TwoWheelerServicePage() {
               </Link>
             </div>
           </div>
+
+          <section
+            className="mt-14 rounded-2xl border border-gray-200 bg-gray-50/80 p-6 sm:p-8"
+            aria-labelledby="two-wheeler-detail"
+          >
+            <h2 id="two-wheeler-detail" className="text-xl font-semibold text-gray-900">
+              When two-wheeler goods delivery makes sense on {BRAND.name}
+            </h2>
+            <div className="mt-4 space-y-4 text-gray-600 leading-relaxed">
+              <p>
+                Scooters and motorcycles are not a universal substitute for vans—but they dominate certain lanes. Think medium envelopes,
+                single-bag retail, pharma strips, short-run food handoffs, and laptop-sized electronics where parking near a booth matters more
+                than deck area. We match those bookings with partners who run <strong className="text-gray-800">cargo-first routines</strong>: insulated
+                boxes where needed, rain covers during monsoon bursts, and clear handoff notes so receivers are not guessing which packet belongs
+                to which invoice.
+              </p>
+              <p>
+                Dense micro-markets around <strong className="text-gray-800">Khatu Shyam Ji</strong> benefit from two-wheel pacing when cars cannot
+                approach a stall; in <strong className="text-gray-800">Noida and Delhi NCR</strong>, offices often prefer a two-wheel slot for
+                inter-building document shuttles instead of tying up security approvals for a four-wheeler. If weight, dimensions, or stacked
+                cartons exceed what a safe saddle load allows, step up to{' '}
+                <Link href="/services/3-wheeler" className="font-semibold text-[var(--color-primary)] hover:underline">
+                  three-wheel cargo
+                </Link>{' '}
+                or{' '}
+                <Link href="/services/4-wheeler" className="font-semibold text-[var(--color-primary)] hover:underline">
+                  mini truck
+                </Link>{' '}
+                rather than forcing an unsafe trip.
+              </p>
+              <p>
+                Fares stay visible before confirmation; if waiting time spikes because a counter is slow, that should surface in trip updates
+                rather than as a mystery add-on. For recurring legs—same pickup cluster every Tuesday—ask our ops team about B2B pilots so
+                incentives align with repeatability, not one-off surge chasing.
+              </p>
+            </div>
+          </section>
         </div>
       </main>
     </ContentLayout>

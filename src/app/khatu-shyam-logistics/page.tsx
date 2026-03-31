@@ -1,10 +1,10 @@
 import ContentLayout from '@/components/layout/ContentLayout';
 import JsonLd from '@/components/JsonLd';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import { khatuShyamImageFocus, khatuShyamLogisticsVisual } from '@/config/locationPageVisuals';
 import { generatePageMetadata } from '@/lib/seo';
-import { SITE_URL } from '@/lib/site';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
 import { buildKhatuShyamLogisticsGraph } from '@/lib/structuredData/locationPages';
 import { KHATU_SHYAM_LANDING_FAQ } from '@/data/khatuShyamLandingFaq';
@@ -12,14 +12,15 @@ import LocationPageCtas from '@/components/marketing/LocationPageCtas';
 
 const PATH = '/khatu-shyam-logistics';
 const PAGE_URL = `${SITE_URL}${PATH}`;
-const TITLE = 'Logistics Services in Khatu Shyam Ji | Delivery & Goods Transport — Liftngo';
+/** Document title base; layout template appends `| ${SITE_NAME}`. */
+const PAGE_META_TITLE = 'Khatu Shyam Ji logistics | Goods delivery';
 const DESCRIPTION =
   'Logistics in Khatu Shyam Ji for shops, food vendors, and temple-area businesses: fast local delivery when crowds and narrow lanes slow everyone down. Reliable goods transport in Khatu—book cargo 2W–4W, not passenger autos. Liftngo.';
 
 const BOOK_CTA = 'Book Delivery Now';
 
 export const metadata = generatePageMetadata({
-  title: TITLE,
+  title: PAGE_META_TITLE,
   description: DESCRIPTION,
   path: PATH,
   keywords: [
@@ -164,7 +165,7 @@ export default function KhatuShyamLogisticsPage() {
       <JsonLd
         data={buildKhatuShyamLogisticsGraph({
           pageUrl: PAGE_URL,
-          title: TITLE,
+          title: `${PAGE_META_TITLE} | ${SITE_NAME}`,
           description: DESCRIPTION,
           faq: faqForSchema,
         })}
@@ -409,11 +410,6 @@ export default function KhatuShyamLogisticsPage() {
               <li>
                 <Link href={ROUTES.BOOK_DELIVERY} className="inline-flex text-sm font-medium hover:underline">
                   Book delivery (step-by-step)
-                </Link>
-              </li>
-              <li>
-                <Link href="/delivery-khatu" className="inline-flex text-sm font-medium hover:underline">
-                  Short link: delivery Khatu
                 </Link>
               </li>
               <li>

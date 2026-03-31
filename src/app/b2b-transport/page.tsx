@@ -3,17 +3,18 @@ import JsonLd, { buildWebPageJsonLd } from '@/components/JsonLd';
 import TrackedLink from '@/components/TrackedLink';
 import Link from 'next/link';
 import { generatePageMetadata } from '@/lib/seo';
-import { SITE_URL } from '@/lib/site';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
 
 const PATH = ROUTES.B2B_TRANSPORT;
 const PAGE_URL = `${SITE_URL}${PATH}`;
-const PAGE_TITLE = 'B2B Logistics India | Wholesale & Commercial Goods Transport — Liftngo';
+/** Document title base; layout template appends `| ${SITE_NAME}` (~60 chars total). */
+const PAGE_META_TITLE = 'B2B logistics India | Wholesale & commercial transport';
 const PAGE_DESCRIPTION =
   'Liftngo is built for B2B logistics India: dependable goods transport for wholesalers, retailers, and ops teams. Hyperlocal delivery service with walk-through-4W modes, EV cargo delivery where efficient, and upfront fares for every leg.';
 
 export const metadata = generatePageMetadata({
-  title: PAGE_TITLE,
+  title: PAGE_META_TITLE,
   description: PAGE_DESCRIPTION,
   path: PATH,
   keywords: [
@@ -33,7 +34,7 @@ export default function B2bTransportPage() {
       <JsonLd
         data={buildWebPageJsonLd({
           pageUrl: PAGE_URL,
-          name: PAGE_TITLE,
+          name: `${PAGE_META_TITLE} | ${SITE_NAME}`,
           description: PAGE_DESCRIPTION,
           breadcrumb: [
             { name: 'Home', url: SITE_URL },
@@ -61,6 +62,29 @@ export default function B2bTransportPage() {
         <p className="mt-3 text-gray-600 leading-relaxed">
           Repeat routes, predictable handoffs, and vehicle classes that match payload—from light documents on two-wheelers to{' '}
           <strong className="text-gray-800">EV cargo delivery</strong> and four-wheel mini trucks for denser loads.
+        </p>
+        <h2 className="mt-10 text-xl font-semibold text-gray-900">Why teams choose Liftngo for B2B legs</h2>
+        <p className="mt-3 text-gray-600 leading-relaxed">
+          Wholesale and retail chains often move dozens of small trips every week. Phone-based “tempo booking” breaks down when contacts
+          are busy, lanes are congested, or proof of delivery is missing. Liftngo standardises the same flow your ops desk already wants:
+          a single place to request a vehicle, see an estimate, and track completion—without mixing passenger-style ride jargon with cargo
+          work.
+        </p>
+        <p className="mt-4 text-gray-600 leading-relaxed">
+          We focus on two dense geographies today: <strong className="text-gray-800">hyperlocal goods corridors around Khatu Shyam Ji</strong>{' '}
+          (temple-town vendors, prasad partners, food outlets, and small businesses) and{' '}
+          <strong className="text-gray-800">B2B-oriented logistics in Noida and wider Delhi NCR</strong>, where multi-stop and recurring lanes
+          matter more than nationwide coverage claims. Electric three- and four-wheel cargo appears on routes where it genuinely fits;
+          otherwise we prioritise reliability and clear communication over buzzwords.
+        </p>
+        <p className="mt-4 text-gray-600 leading-relaxed">
+          If you are evaluating a partner for pilot lanes, start with a predictable route—same pickup cluster, same drop window—and measure
+          punctuality, damage rates, and how often you re-book without disputes. Those metrics matter more than a glossy tariff grid that
+          hides surge or waiting charges. When you are ready, use{' '}
+          <Link href={ROUTES.BOOK_DELIVERY} className="font-medium text-[var(--color-primary)] hover:underline">
+            Book delivery
+          </Link>{' '}
+          to turn the estimate into a live job, or read our about pages for deeper positioning on EV cargo and supply-chain realities.
         </p>
         <h2 className="mt-10 text-xl font-semibold text-gray-900">Explore more</h2>
         <ul className="mt-3 space-y-2 text-[var(--color-primary)] font-medium">

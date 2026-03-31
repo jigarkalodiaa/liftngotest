@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 
 /** Food delivery section: image on top, "Everything you crave, delivered.", description. */
 export default function FoodDelivery() {

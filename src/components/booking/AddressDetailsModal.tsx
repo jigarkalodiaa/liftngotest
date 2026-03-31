@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { useEffect } from 'react';
 import type { SavedLocation, PersonDetails } from '@/types/booking';
 import { CloseIcon } from '@/components/ui/IconButton';

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import ContentLayout from '@/components/layout/ContentLayout';
 import JsonLd from '@/components/JsonLd';

@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import { ChevronRight, MapPin, Star } from 'lucide-react';
 import { Badge, Card } from '@/components/ui';

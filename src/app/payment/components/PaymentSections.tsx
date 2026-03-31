@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import PageHeader from '@/components/ui/PageHeader';
 import { theme } from '@/config/theme';
 import type { ServiceId } from '@/types/booking';
