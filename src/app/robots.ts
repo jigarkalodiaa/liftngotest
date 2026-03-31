@@ -1,11 +1,14 @@
 import { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-/** Logged-in or transactional flows — keep out of index to avoid thin/duplicates. */
+/**
+ * Logged-in or transactional flows — keep out of index to avoid thin/duplicates.
+ * Do NOT disallow `/_next/` — Google must fetch JS/CSS/static chunks under `/_next/static/`
+ * to render pages; blocking it creates hundreds of "blocked resource" crawl errors.
+ */
 const DISALLOW_APP_SHELL = [
   '/api/',
   '/private/',
-  '/_next/',
   '/dashboard',
   '/history',
   '/my-details',
@@ -24,7 +27,7 @@ const DISALLOW_APP_SHELL = [
  * or WhatsApp/Facebook show only the hostname with no `og:title` / `og:image`.
  * @see https://developers.facebook.com/docs/sharing/webmasters/web-crawlers
  */
-const DISALLOW_FOR_SOCIAL_ONLY = ['/api/', '/private/', '/_next/'] as const;
+const DISALLOW_FOR_SOCIAL_ONLY = ['/api/', '/private/'] as const;
 
 const SOCIAL_AND_PREVIEW_USER_AGENTS = [
   'facebookexternalhit',

@@ -1,5 +1,9 @@
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, PROJECT_DESCRIPTION, LOGO_URL } from '@/lib/site';
-import { getOrganizationSameAs } from '@/lib/social';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
+import {
+  ORGANIZATION_SCHEMA_ID,
+  WEBSITE_SCHEMA_ID,
+  buildPrimaryOrganizationNode,
+} from '@/lib/structuredData/organizationShared';
 
 interface JsonLdProps {
   /** Structured data – must be server/site-controlled only; never pass user input. */
@@ -24,28 +28,11 @@ export const websiteJsonLd = {
   description: SITE_DESCRIPTION,
 };
 
-const ORGANIZATION_ID = `${SITE_URL}/#organization`;
-const WEBSITE_ID = `${SITE_URL}/#website`;
-
-/** Organization with ImageObject logo and sameAs (required shape for Google). */
+/** Standalone Organization script (same node as homepage @graph; logo + optional phone + sameAs). */
 export function buildOrganizationJsonLd() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
-    '@id': ORGANIZATION_ID,
-    name: SITE_NAME,
-    url: SITE_URL,
-    logo: {
-      '@type': 'ImageObject',
-      url: LOGO_URL,
-    },
-    description: SITE_DESCRIPTION,
-    sameAs: getOrganizationSameAs(),
-    contactPoint: {
-      '@type': 'ContactPoint',
-      contactType: 'customer service',
-      availableLanguage: ['English', 'Hindi'],
-    },
+    ...buildPrimaryOrganizationNode(),
   };
 }
 
@@ -64,12 +51,7 @@ export function buildAboutPageJsonLd({
   const aboutId = `${pageUrl}#webpage`;
   const graph: Record<string, unknown>[] = [
     {
-      '@type': 'Organization',
-      '@id': ORGANIZATION_ID,
-      name: SITE_NAME,
-      url: SITE_URL,
-      logo: { '@type': 'ImageObject', url: LOGO_URL },
-      description: PROJECT_DESCRIPTION,
+      ...buildPrimaryOrganizationNode(),
       areaServed: [
         {
           '@type': 'Place',
@@ -95,10 +77,10 @@ export function buildAboutPageJsonLd({
     },
     {
       '@type': 'WebSite',
-      '@id': WEBSITE_ID,
+      '@id': WEBSITE_SCHEMA_ID,
       name: SITE_NAME,
       url: SITE_URL,
-      publisher: { '@id': ORGANIZATION_ID },
+      publisher: { '@id': ORGANIZATION_SCHEMA_ID },
     },
     {
       '@type': 'AboutPage',
@@ -107,8 +89,8 @@ export function buildAboutPageJsonLd({
       name: title,
       description,
       inLanguage: 'en-IN',
-      isPartOf: { '@id': WEBSITE_ID },
-      about: { '@id': ORGANIZATION_ID },
+      isPartOf: { '@id': WEBSITE_SCHEMA_ID },
+      about: { '@id': ORGANIZATION_SCHEMA_ID },
       primaryImageOfPage: {
         '@type': 'ImageObject',
         url: heroImageUrl,
@@ -164,8 +146,8 @@ export function buildWebPageJsonLd({
       name,
       description,
       inLanguage: 'en-IN',
-      isPartOf: { '@id': WEBSITE_ID },
-      publisher: { '@id': ORGANIZATION_ID },
+      isPartOf: { '@id': WEBSITE_SCHEMA_ID },
+      publisher: { '@id': ORGANIZATION_SCHEMA_ID },
     },
     {
       '@type': 'BreadcrumbList',

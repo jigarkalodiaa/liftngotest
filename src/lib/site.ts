@@ -27,6 +27,10 @@ export const LOGO_PATH = '/logo.png';
 /** Absolute URL for JSON-LD, manifests, and share metadata. */
 export const LOGO_URL = `${SITE_URL}${LOGO_PATH}`;
 
+/** Pixel dimensions of `LOGO_PATH` for Schema.org `logo` (Google prefers width + height). Update if the file changes. */
+export const LOGO_IMAGE_WIDTH = 1024;
+export const LOGO_IMAGE_HEIGHT = 1024;
+
 /** Meta title — target ~50–60 chars (Semrush / SERP tooling). */
 export const META_TITLE = 'Liftngo Logistics | B2B Delivery in Khatu & Delhi NCR';
 
