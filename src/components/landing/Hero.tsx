@@ -7,8 +7,13 @@ import { getLandingPickupLocation, setLandingPickupLocation, setPostLoginPath } 
 import { ROUTES } from '@/lib/constants';
 import { trackBookNowClick } from '@/lib/analytics';
 
+export type HeroProps = {
+  /** Use `h2` when the page already has a primary `h1` (e.g. city SEO landings). */
+  heroTitleLevel?: 'h1' | 'h2';
+};
+
 /** Hero: ₹0 DELIVERY FEE, pickup input, Use my current location, illustration. */
-function Hero() {
+function Hero({ heroTitleLevel = 'h1' }: HeroProps) {
   const { openLogin } = useMenu();
   const { pickupDraft: location, setPickupDraft: setLocation } = useLandingPickup();
   const [isLoading, setIsLoading] = useState(false);
@@ -65,13 +70,17 @@ function Hero() {
     openLogin();
   }, [location, openLogin]);
 
+  const TitleTag = heroTitleLevel === 'h2' ? 'h2' : 'h1';
+  const titleClass =
+    'text-balance pt-6 text-[clamp(1.25rem,4.2vw,2.75rem)] font-bold leading-tight tracking-tight text-gray-900 sm:text-3xl lg:text-5xl max-w-4xl mx-auto';
+
   return (
     <section className="relative bg-[var(--landing-bg)] pt-6 sm:pt-8 pb-12 lg:pb-20">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-balance pt-6 text-[clamp(1.25rem,4.2vw,2.75rem)] font-bold leading-tight tracking-tight text-gray-900 sm:text-3xl lg:text-5xl max-w-4xl mx-auto">
+          <TitleTag className={titleClass}>
             Hyperlocal &amp; B2B goods logistics
-          </h1>
+          </TitleTag>
           <p className="mt-2 text-[clamp(1.35rem,5.5vw,3.75rem)] font-bold leading-tight text-[var(--landing-orange)] sm:text-4xl lg:text-6xl max-w-4xl mx-auto">
             ₹0 delivery fee on first order
           </p>

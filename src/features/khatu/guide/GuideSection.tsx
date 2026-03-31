@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 

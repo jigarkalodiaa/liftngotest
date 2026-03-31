@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import BottomSheet from '@/components/ui/BottomSheet';
 import { theme } from '@/config/theme';
 

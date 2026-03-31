@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { SITE_NAME, LOGO_PATH } from '@/lib/site';
 
 /**

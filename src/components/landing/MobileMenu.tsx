@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { ROUTES } from '@/lib/constants';

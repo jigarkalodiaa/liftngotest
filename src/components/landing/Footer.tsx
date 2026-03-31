@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { SITE_NAME, BRAND, LOGO_PATH } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
 import { SOCIAL_LINKS } from '@/config/env';

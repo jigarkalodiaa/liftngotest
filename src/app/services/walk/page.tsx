@@ -2,7 +2,7 @@ import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 
 export const metadata = generatePageMetadata({
   title: `Walk Delivery | ${SITE_NAME}`,
@@ -74,6 +74,38 @@ export default function WalkServicePage() {
               </Link>
             </div>
           </div>
+
+          <section
+            className="mt-14 rounded-2xl border border-gray-200 bg-gray-50/80 p-6 sm:p-8"
+            aria-labelledby="walk-delivery-detail"
+          >
+            <h2 id="walk-delivery-detail" className="text-xl font-semibold text-gray-900">
+              Walk delivery for the last few hundred metres
+            </h2>
+            <div className="mt-4 space-y-4 text-gray-600 leading-relaxed">
+              <p>
+                Some handoffs never needed a motor at all: same-building notarisation drops, lobby-to-lobby documents inside a campus, or sealed
+                envelopes between adjoining markets where kicking over an engine wastes more time than walking. {BRAND.name} lists walk delivery so
+                ops teams can book <strong className="text-gray-800">predictable pedestrian legs</strong> with the same tracking hygiene as a
+                two-wheel trip—without pretending a scooter improves a fifty-metre staircase climb.
+              </p>
+              <p>
+                We still verify identity, limit payloads to what is safe to carry on foot, and capture proof at the receiver when your business
+                requires it. Festival-week crowds near <strong className="text-gray-800">Khatu Shyam Ji</strong> sometimes make walk mode the fastest
+                honest option; in <strong className="text-gray-800">Noida IT parks</strong>, security turnstiles favour foot couriers during peak badge
+                queues. If the lane opens up later, upgrade the booking to{' '}
+                <Link href="/services/2-wheeler" className="font-semibold text-[var(--color-primary)] hover:underline">
+                  two-wheeler
+                </Link>{' '}
+                cargo rather than double-charging for redundant vehicles.
+              </p>
+              <p>
+                Pricing stays small because distance and dwell time stay small—if your requirement actually spans multiple kilometres with
+                heavy bags, choose a vehicle class that matches physics. Honest classification keeps customers from surprise cancellations and
+                keeps partners from injury claims after optimistic “walk” requests that were really mini-truck work.
+              </p>
+            </div>
+          </section>
         </div>
       </main>
     </ContentLayout>

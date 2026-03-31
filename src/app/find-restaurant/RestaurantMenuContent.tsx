@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { useState, useMemo, useEffect, useRef } from 'react';
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Restaurant } from '@/data/restaurantsKhatushyam';
@@ -347,6 +347,37 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
             )}
           </div>
         </header>
+
+        <section
+          className="mt-6 rounded-2xl border border-[var(--landing-primary)]/15 bg-gradient-to-br from-white to-amber-50/30 p-5 sm:p-6 text-gray-700"
+          aria-labelledby={`about-${restaurant.id}`}
+        >
+          <h2 id={`about-${restaurant.id}`} className="text-lg font-semibold text-gray-900">
+            About {restaurant.name} on Liftngo
+          </h2>
+          <p className="mt-3 text-sm sm:text-base leading-relaxed">
+            {restaurant.description}
+          </p>
+          <p className="mt-4 text-sm sm:text-base leading-relaxed">
+            Devotees and travellers around <strong className="text-gray-800">Khatu Shyam Ji</strong> often want hot meals without guessing stall
+            quality. We list this kitchen with transparent menu prices so you can compare items before you confirm. After you build a cart, share
+            delivery details on WhatsApp so the outlet can acknowledge prep time and any day-specific substitutions (for example festival specials
+            or sold-out staples).
+          </p>
+          <p className="mt-4 text-sm sm:text-base leading-relaxed">
+            A <strong className="text-gray-800">Liftngo rider</strong> handles the goods leg: they meet the restaurant at handoff, ride with
+            insulated packaging where needed, and complete at your pin with proof you can reference if something is delayed. That separation—
+            kitchen confirmation, then rider booking—reduces the chaos of temple-town phone tag during peak hours.
+          </p>
+          <p className="mt-4 text-sm text-gray-600 leading-relaxed">
+            Browsing other tuck shops or dhabas? See the{' '}
+            <Link href="/find-restaurant" className="font-semibold text-[var(--color-primary)] hover:underline">
+              full directory of Liftngo food partners near Khatu Shyam Ji
+            </Link>
+            . For non-food parcels, use the main <Link href="/book-delivery" className="font-semibold text-[var(--color-primary)] hover:underline">book delivery</Link>{' '}
+            flow instead.
+          </p>
+        </section>
 
         <div id="menu" className="space-y-6">
           {Object.entries(groupedMenu).map(([category, items]) => (

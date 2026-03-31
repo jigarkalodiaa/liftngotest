@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { ChevronRight, Star } from 'lucide-react';

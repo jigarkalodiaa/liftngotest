@@ -36,6 +36,20 @@ export default function CareersPage() {
             <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl">
               We’re building the future of local logistics. Join us to help move goods faster, support drivers, and simplify last-mile delivery for everyone.
             </p>
+            <p className="mt-6 text-base text-gray-600 leading-relaxed max-w-3xl">
+              {SITE_NAME} is a <strong className="text-gray-800">goods-first logistics platform</strong>. That means product, operations, and
+              partnerships teams obsess over pickup punctuality, commercial vehicle utilisation, and honest pricing—not driver churn masked as
+              “growth.” We run deep programmes around{' '}
+              <strong className="text-gray-800">Khatu Shyam Ji</strong> (hyperlocal temple-town vendors, food partners, and marketplace shops)
+              and <strong className="text-gray-800">Delhi NCR</strong>, starting with Noida for structured B2B lanes. We are deliberately not a
+              pan-India consumer gimmick; we want people who enjoy owning density in a geography before expanding.
+            </p>
+            <p className="mt-4 text-base text-gray-600 leading-relaxed max-w-3xl">
+              Roles span engineering (routing, reliability, fraud prevention), operations (launch playbooks, escalation), driver success
+              (verification, training, payouts), growth (city launches, content), and partner success (restaurants, hotels, wholesale). Whether
+              you build software or talk to drivers on the ground, you will see the same metrics: completion rate, on-time handoffs, and repeat
+              bookings—not vanity trip counts from joyrides.
+            </p>
           </div>
 
           <section className="mb-14">

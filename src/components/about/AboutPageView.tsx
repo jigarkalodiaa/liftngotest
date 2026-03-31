@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import { ABOUT_FLEET_IMAGES, ABOUT_HERO_IMAGE } from '@/config/aboutImages';
 import { BRAND, MISSION, VISION } from '@/lib/site';

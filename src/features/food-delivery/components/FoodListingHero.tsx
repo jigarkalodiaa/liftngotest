@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { FOOD_LISTING_HERO_IMAGE } from '@/features/food-delivery/constants';
 import { scrollToElementId } from '@/features/food-delivery/utils/scrollToElementId';
 

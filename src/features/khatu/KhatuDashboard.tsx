@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Image from '@/components/OptimizedImage';
 import { Landmark } from 'lucide-react';
 import type { ServiceId } from '@/types/booking';
 import { PageContainer } from '@/components/ui';
