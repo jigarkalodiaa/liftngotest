@@ -25,6 +25,27 @@ interface PageSEOProps {
   keywords?: string[];
 }
 
+/**
+ * Root layout uses `title.template: "%s | Liftngo"`. Titles passed here often already end with
+ * `| Liftngo` or `| LiftnGo`, which produced duplicate SERP titles (e.g. "| LiftnGo | Liftngo").
+ * Strip trailing brand segment(s), longest suffix first.
+ */
+function stripTrailingBrandForTitleTemplate(raw: string): string {
+  let t = raw.trim();
+  const suffixes = [` | ${SITE_NAME} Blog`, ` | ${SITE_NAME}`, " | Liftngo", " | LiftnGo"];
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const s of suffixes) {
+      if (t.endsWith(s)) {
+        t = t.slice(0, -s.length).trimEnd();
+        changed = true;
+      }
+    }
+  }
+  return t;
+}
+
 export function generatePageMetadata({
   title,
   description,
@@ -40,8 +61,11 @@ export function generatePageMetadata({
   const ogW = image === OG_IMAGE_PATH ? OG_IMAGE_WIDTH : 1200;
   const ogH = image === OG_IMAGE_PATH ? OG_IMAGE_HEIGHT : 630;
 
+  const titleForTemplate = useAbsoluteTitle ? title.trim() : stripTrailingBrandForTitleTemplate(title);
+  const resolvedTitle = useAbsoluteTitle ? title.trim() : `${titleForTemplate} | ${SITE_NAME}`;
+
   return {
-    title: useAbsoluteTitle ? { absolute: title } : title,
+    title: useAbsoluteTitle ? { absolute: title.trim() } : titleForTemplate,
     description,
     keywords: keywords.length > 0 ? keywords : SEO_KEYWORDS,
     alternates: {
@@ -51,7 +75,7 @@ export function generatePageMetadata({
       },
     },
     openGraph: {
-      title,
+      title: resolvedTitle,
       description,
       url,
       siteName: SITE_NAME,
@@ -61,14 +85,14 @@ export function generatePageMetadata({
           url: imageUrl,
           width: ogW,
           height: ogH,
-          alt: title,
+          alt: resolvedTitle,
         },
       ],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: resolvedTitle,
       description,
       images: [imageUrl],
     },
