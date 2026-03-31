@@ -1,5 +1,6 @@
 import type { BlogPost } from '@/types/blog';
-import { SITE_NAME, SITE_URL, LOGO_URL } from '@/lib/site';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { WEBSITE_SCHEMA_ID, schemaOrgLogo } from '@/lib/structuredData/organizationShared';
 
 export function buildBlogPostingJsonLd(post: BlogPost, pageUrl: string) {
   const imageUrl = post.featuredImage.startsWith('http')
@@ -33,10 +34,7 @@ export function buildBlogPostingJsonLd(post: BlogPost, pageUrl: string) {
       '@type': 'Organization',
       name: SITE_NAME,
       url: SITE_URL,
-      logo: {
-        '@type': 'ImageObject',
-        url: LOGO_URL,
-      },
+      logo: schemaOrgLogo(),
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
@@ -48,7 +46,7 @@ export function buildBlogPostingJsonLd(post: BlogPost, pageUrl: string) {
     inLanguage: 'en-IN',
     isPartOf: {
       '@type': 'WebSite',
-      '@id': `${SITE_URL}/#website`,
+      '@id': WEBSITE_SCHEMA_ID,
       name: SITE_NAME,
       url: SITE_URL,
     },

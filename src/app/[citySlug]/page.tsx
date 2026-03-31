@@ -2,8 +2,13 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCityBySlug, getCityDescription } from '@/data/seoCities';
 import { generatePageMetadata } from '@/lib/seo';
-import { SITE_URL } from '@/lib/site';
-import JsonLd, { websiteJsonLd, buildOrganizationJsonLd } from '@/components/JsonLd';
+import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from '@/lib/site';
+import JsonLd from '@/components/JsonLd';
+import {
+  ORGANIZATION_SCHEMA_ID,
+  WEBSITE_SCHEMA_ID,
+  buildPrimaryOrganizationNode,
+} from '@/lib/structuredData/organizationShared';
 import { Header, Hero, Features, FoodDelivery, Footer, PageWrapper } from '@/components/landing';
 
 type Props = { params: Promise<{ citySlug: string }> };
@@ -38,19 +43,41 @@ export default async function CityPage({ params }: Props) {
 
   const description = getCityDescription(city.name, city.region);
 
-  const cityJsonLd = {
+  const pageUrl = `${SITE_URL}/${city.slug}`;
+  const citySeoGraph = {
     '@context': 'https://schema.org',
-    '@type': 'Place',
-    name: `${city.name} - Goods Transport`,
-    description,
-    url: `${SITE_URL}/${city.slug}`,
+    '@graph': [
+      buildPrimaryOrganizationNode(),
+      {
+        '@type': 'WebSite',
+        '@id': WEBSITE_SCHEMA_ID,
+        name: SITE_NAME,
+        url: SITE_URL,
+        description: SITE_DESCRIPTION,
+        publisher: { '@id': ORGANIZATION_SCHEMA_ID },
+      },
+      {
+        '@type': 'WebPage',
+        '@id': `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: city.title,
+        description,
+        inLanguage: 'en-IN',
+        isPartOf: { '@id': WEBSITE_SCHEMA_ID },
+        publisher: { '@id': ORGANIZATION_SCHEMA_ID },
+      },
+      {
+        '@type': 'Place',
+        name: `${city.name} - Goods Transport`,
+        description,
+        url: pageUrl,
+      },
+    ],
   };
 
   return (
     <PageWrapper>
-      <JsonLd data={websiteJsonLd} />
-      <JsonLd data={buildOrganizationJsonLd()} />
-      <JsonLd data={cityJsonLd} />
+      <JsonLd data={citySeoGraph} />
       <Header />
       <main>
         <section className="bg-[var(--landing-bg)] py-12 px-4">

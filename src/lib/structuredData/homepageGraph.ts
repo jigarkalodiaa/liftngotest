@@ -1,40 +1,25 @@
 import { HOMEPAGE_FAQ_PREVIEW } from '@/data/faq';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, DEFAULT_OG_IMAGE } from '@/lib/site';
 import {
-  SITE_URL,
-  SITE_NAME,
-  SITE_DESCRIPTION,
-  PROJECT_DESCRIPTION,
-  LOGO_URL,
-  DEFAULT_OG_IMAGE,
-} from '@/lib/site';
-import { getOrganizationSameAs } from '@/lib/social';
+  ORGANIZATION_SCHEMA_ID,
+  WEBSITE_SCHEMA_ID,
+  buildPrimaryOrganizationNode,
+  supportTelephoneE164,
+} from '@/lib/structuredData/organizationShared';
 
-const ORGANIZATION_ID = `${SITE_URL}/#organization`;
-const WEBSITE_ID = `${SITE_URL}/#website`;
 const SERVICE_ID = `${SITE_URL}/#logistics-service`;
 const LOCAL_KHATU_ID = `${SITE_URL}/#localBusinessKhatu`;
 const LOCAL_NOIDA_ID = `${SITE_URL}/#localBusinessNoida`;
-
-function supportTelephone(): string | undefined {
-  const raw = process.env.NEXT_PUBLIC_SUPPORT_PHONE?.replace(/\D/g, '') ?? '';
-  if (raw.length < 10) return undefined;
-  return `+91${raw.slice(-10)}`;
-}
 
 /**
  * Homepage JSON-LD @graph: WebSite, Organization, LocalBusiness (Khatu + Noida), Service, FAQPage.
  * Avoids emitting duplicate standalone Organization scripts.
  */
 export function buildHomepageSeoGraph() {
-  const tel = supportTelephone();
+  const tel = supportTelephoneE164();
 
   const organization: Record<string, unknown> = {
-    '@type': 'Organization',
-    '@id': ORGANIZATION_ID,
-    name: SITE_NAME,
-    url: SITE_URL,
-    logo: { '@type': 'ImageObject', url: LOGO_URL },
-    description: PROJECT_DESCRIPTION,
+    ...buildPrimaryOrganizationNode(),
     areaServed: [
       {
         '@type': 'Place',
@@ -56,31 +41,8 @@ export function buildHomepageSeoGraph() {
       'goods transport',
       'last-mile logistics',
     ],
+    subOrganization: [{ '@id': LOCAL_KHATU_ID }, { '@id': LOCAL_NOIDA_ID }],
   };
-
-  if (tel) {
-    organization.contactPoint = {
-      '@type': 'ContactPoint',
-      telephone: tel,
-      contactType: 'customer service',
-      availableLanguage: ['English', 'Hindi'],
-      areaServed: 'IN',
-    };
-  }
-
-  organization.openingHoursSpecification = {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-    opens: '00:00',
-    closes: '23:59',
-  };
-
-  const sameAs = getOrganizationSameAs();
-  if (sameAs.length > 0) {
-    organization.sameAs = sameAs;
-  }
-
-  organization.subOrganization = [{ '@id': LOCAL_KHATU_ID }, { '@id': LOCAL_NOIDA_ID }];
 
   /** Khatu corridor — valid LocalBusiness (street + geo + ImageObject). */
   const localKhatu: Record<string, unknown> = {
@@ -106,7 +68,7 @@ export function buildHomepageSeoGraph() {
       opens: '00:00',
       closes: '23:59',
     },
-    parentOrganization: { '@id': ORGANIZATION_ID },
+    parentOrganization: { '@id': ORGANIZATION_SCHEMA_ID },
   };
   if (tel) localKhatu.telephone = tel;
 
@@ -137,7 +99,7 @@ export function buildHomepageSeoGraph() {
       opens: '00:00',
       closes: '23:59',
     },
-    parentOrganization: { '@id': ORGANIZATION_ID },
+    parentOrganization: { '@id': ORGANIZATION_SCHEMA_ID },
   };
   if (tel) localNoida.telephone = tel;
 
@@ -148,7 +110,7 @@ export function buildHomepageSeoGraph() {
     serviceType: 'Logistics and transport service',
     description:
       'Focused goods transport: Khatu Shyam Ji hyperlocal (temple corridor, shops, food) and B2B logistics in Noida & Delhi NCR. Walk through 4W booking, EV where lanes fit—upfront pricing, not pan-India spray.',
-    provider: { '@id': ORGANIZATION_ID },
+    provider: { '@id': ORGANIZATION_SCHEMA_ID },
     areaServed: [
       { '@type': 'Place', name: 'Khatu Shyam Ji' },
       { '@type': 'City', name: 'Noida' },
@@ -164,11 +126,11 @@ export function buildHomepageSeoGraph() {
 
   const website = {
     '@type': 'WebSite',
-    '@id': WEBSITE_ID,
+    '@id': WEBSITE_SCHEMA_ID,
     name: SITE_NAME,
     url: SITE_URL,
     description: SITE_DESCRIPTION,
-    publisher: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_SCHEMA_ID },
   };
 
   const faq = {

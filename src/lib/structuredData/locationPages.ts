@@ -1,13 +1,10 @@
-import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, LOGO_URL } from '@/lib/site';
-
-const ORGANIZATION_ID = `${SITE_URL}/#organization`;
-const WEBSITE_ID = `${SITE_URL}/#website`;
-
-function supportTel(): string | undefined {
-  const raw = process.env.NEXT_PUBLIC_SUPPORT_PHONE?.replace(/\D/g, '') ?? '';
-  if (raw.length < 10) return undefined;
-  return `+91${raw.slice(-10)}`;
-}
+import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from '@/lib/site';
+import {
+  ORGANIZATION_SCHEMA_ID,
+  WEBSITE_SCHEMA_ID,
+  buildPrimaryOrganizationNode,
+  supportTelephoneE164,
+} from '@/lib/structuredData/organizationShared';
 
 type FaqItem = { question: string; answer: string };
 
@@ -25,7 +22,7 @@ export function buildKhatuShyamLogisticsGraph({
 }) {
   const pageId = `${pageUrl}#webpage`;
   const localId = `${pageUrl}#localBusiness`;
-  const tel = supportTel();
+  const tel = supportTelephoneE164();
 
   const local: Record<string, unknown> = {
     '@type': 'LocalBusiness',
@@ -53,26 +50,20 @@ export function buildKhatuShyamLogisticsGraph({
       '@type': 'Place',
       name: 'Khatu Shyam Ji, Rajasthan',
     },
-    parentOrganization: { '@id': ORGANIZATION_ID },
+    parentOrganization: { '@id': ORGANIZATION_SCHEMA_ID },
   };
   if (tel) local.telephone = tel;
 
   return {
     '@context': 'https://schema.org',
     '@graph': [
-      {
-        '@type': 'Organization',
-        '@id': ORGANIZATION_ID,
-        name: SITE_NAME,
-        url: SITE_URL,
-        logo: { '@type': 'ImageObject', url: LOGO_URL },
-      },
+      buildPrimaryOrganizationNode(),
       {
         '@type': 'WebSite',
-        '@id': WEBSITE_ID,
+        '@id': WEBSITE_SCHEMA_ID,
         name: SITE_NAME,
         url: SITE_URL,
-        publisher: { '@id': ORGANIZATION_ID },
+        publisher: { '@id': ORGANIZATION_SCHEMA_ID },
       },
       {
         '@type': 'WebPage',
@@ -81,9 +72,9 @@ export function buildKhatuShyamLogisticsGraph({
         name: title,
         description,
         inLanguage: 'en-IN',
-        isPartOf: { '@id': WEBSITE_ID },
+        isPartOf: { '@id': WEBSITE_SCHEMA_ID },
         about: { '@id': localId },
-        publisher: { '@id': ORGANIZATION_ID },
+        publisher: { '@id': ORGANIZATION_SCHEMA_ID },
       },
       local,
       {
@@ -121,7 +112,7 @@ export function buildNoidaB2bLogisticsGraph({
   const pageId = `${pageUrl}#webpage`;
   const serviceId = `${pageUrl}#b2b-service`;
   const localNoidaId = `${pageUrl}#localBusinessNoida`;
-  const tel = supportTel();
+  const tel = supportTelephoneE164();
 
   const localNoida: Record<string, unknown> = {
     '@type': 'LocalBusiness',
@@ -148,7 +139,7 @@ export function buildNoidaB2bLogisticsGraph({
       { '@type': 'City', name: 'Noida' },
       { '@type': 'AdministrativeArea', name: 'Delhi National Capital Region' },
     ],
-    parentOrganization: { '@id': ORGANIZATION_ID },
+    parentOrganization: { '@id': ORGANIZATION_SCHEMA_ID },
   };
   if (tel) localNoida.telephone = tel;
 
@@ -156,11 +147,7 @@ export function buildNoidaB2bLogisticsGraph({
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'Organization',
-        '@id': ORGANIZATION_ID,
-        name: SITE_NAME,
-        url: SITE_URL,
-        logo: { '@type': 'ImageObject', url: LOGO_URL },
+        ...buildPrimaryOrganizationNode(),
         description:
           'Liftngo operates hyperlocal and B2B goods logistics in Khatu Shyam Ji (Rajasthan) and Delhi NCR, starting from Noida—multi-vehicle booking and verified partner network.',
         areaServed: [
@@ -171,10 +158,10 @@ export function buildNoidaB2bLogisticsGraph({
       },
       {
         '@type': 'WebSite',
-        '@id': WEBSITE_ID,
+        '@id': WEBSITE_SCHEMA_ID,
         name: SITE_NAME,
         url: SITE_URL,
-        publisher: { '@id': ORGANIZATION_ID },
+        publisher: { '@id': ORGANIZATION_SCHEMA_ID },
       },
       {
         '@type': 'WebPage',
@@ -183,8 +170,8 @@ export function buildNoidaB2bLogisticsGraph({
         name: title,
         description,
         inLanguage: 'en-IN',
-        isPartOf: { '@id': WEBSITE_ID },
-        publisher: { '@id': ORGANIZATION_ID },
+        isPartOf: { '@id': WEBSITE_SCHEMA_ID },
+        publisher: { '@id': ORGANIZATION_SCHEMA_ID },
         about: [{ '@id': serviceId }, { '@id': localNoidaId }],
       },
       localNoida,
@@ -195,7 +182,7 @@ export function buildNoidaB2bLogisticsGraph({
         serviceType: 'Business logistics and corporate delivery',
         description:
           'B2B logistics for Noida and Delhi NCR: dedicated delivery coordination, verified vendor ecosystem, multi-vehicle booking (2W, 3W, 4W), bulk and inventory movement for retail, electronics, and offices.',
-        provider: { '@id': ORGANIZATION_ID },
+        provider: { '@id': ORGANIZATION_SCHEMA_ID },
         areaServed: [
           { '@type': 'City', name: 'Noida' },
           { '@type': 'AdministrativeArea', name: 'Delhi National Capital Region' },

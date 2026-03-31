@@ -247,7 +247,7 @@ export default function PaymentPage() {
             appendHotelBookingHistoryFromDraft(hotelDraft);
             clearHotelBookingDraft();
             setHotelDraft(null);
-            router.push(ROUTES.HISTORY);
+            router.push(`${ROUTES.HISTORY}?tab=hotel`);
             return;
           }
           if (fromFood && deliveryGoods) {
