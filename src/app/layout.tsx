@@ -18,6 +18,7 @@ import {
 } from "@/lib/site";
 import QueryProvider from "@/components/providers/QueryProvider";
 import GoogleAnalytics from "@/components/Analytics";
+import { ChatWidget } from "@/components/chatbot";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -122,7 +123,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <GoogleAnalytics />
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <ChatWidget />
+        </QueryProvider>
       </body>
     </html>
   );
