@@ -1,6 +1,7 @@
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
+import { BREADCRUMB_HOME, BREADCRUMB_SERVICES } from '@/lib/breadcrumbsNav';
 import Link from 'next/link';
 import Image from '@/components/OptimizedImage';
 
@@ -20,7 +21,13 @@ export const metadata = generatePageMetadata({
 
 export default function ThreeWheelerServicePage() {
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbs={[
+        BREADCRUMB_HOME,
+        BREADCRUMB_SERVICES,
+        { name: '3 wheeler cargo', path: '/services/3-wheeler' },
+      ]}
+    >
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <Link

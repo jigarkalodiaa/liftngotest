@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Choose vehicle and service for your ${SITE_NAME} trip.`,
   path: '/trip-options',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

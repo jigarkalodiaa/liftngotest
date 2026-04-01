@@ -2,6 +2,7 @@ import Image from '@/components/OptimizedImage';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 import {
   indiaPhotoBangaloreLoadedTruck,
   indiaPhotoMumbaiLoading,
@@ -66,7 +67,7 @@ const SECTIONS: { title: string; content: string }[] = [
 
 export default function PrivacyPage() {
   return (
-    <ContentLayout>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, { name: 'Privacy', path: '/privacy' }]}>
       <main className="flex-1 bg-gray-50/80">
         {/* ① Hero */}
         <section className="relative min-h-[220px] overflow-hidden sm:min-h-[280px]">

@@ -9,7 +9,14 @@ export default function ShopHeader({ shop }: { shop: KhatuShop }) {
   return (
     <header className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
       <div className="relative aspect-[21/9] min-h-[140px] bg-stone-100 sm:aspect-[24/9]">
-        <Image src={shop.bannerImage} alt="" fill className="object-cover" priority sizes="100vw" />
+        <Image
+          src={shop.bannerImage}
+          alt={`${shop.name} — shop banner`}
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         <div className="absolute bottom-3 left-3 right-3 flex flex-wrap gap-1">
           <Badge variant="verified" className="border-0 bg-white/95 text-[var(--color-primary)] shadow-sm">

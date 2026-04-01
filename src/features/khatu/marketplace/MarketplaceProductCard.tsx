@@ -52,7 +52,13 @@ export default function MarketplaceProductCard({
   return (
     <article className="flex gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm sm:gap-4 sm:p-4">
       <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-xl bg-stone-50 sm:h-[110px] sm:w-[110px]">
-        <Image src={product.image} alt="" fill className="object-cover" sizes="110px" />
+        <Image
+          src={product.image}
+          alt={`${product.name} — product photo`}
+          fill
+          className="object-cover"
+          sizes="110px"
+        />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex flex-wrap gap-1">

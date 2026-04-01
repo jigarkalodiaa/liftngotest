@@ -36,7 +36,7 @@ export function buildOrganizationJsonLd() {
   };
 }
 
-/** About page: AboutPage + WebSite + Organization + BreadcrumbList (single graph). */
+/** About page: AboutPage + WebSite + Organization (breadcrumb JSON-LD via `BreadcrumbsBar`). */
 export function buildAboutPageJsonLd({
   pageUrl,
   title,
@@ -96,23 +96,6 @@ export function buildAboutPageJsonLd({
         url: heroImageUrl,
       },
     },
-    {
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: SITE_URL,
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'About',
-          item: pageUrl,
-        },
-      ],
-    },
   ];
 
   return {
@@ -122,6 +105,65 @@ export function buildAboutPageJsonLd({
 }
 
 type BreadcrumbItem = { name: string; url: string };
+
+/** Contact page — `ContactPage` type helps Google understand support intent (sitelinks context). */
+export function buildContactPageJsonLd({
+  pageUrl,
+  name,
+  description,
+  breadcrumb,
+  faqMainEntity,
+}: {
+  pageUrl: string;
+  name: string;
+  description: string;
+  /** Omit when using `BreadcrumbsBar` (avoids duplicate BreadcrumbList JSON-LD). */
+  breadcrumb?: BreadcrumbItem[];
+  faqMainEntity?: { question: string; answer: string }[];
+}) {
+  const pageId = `${pageUrl}#webpage`;
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'ContactPage',
+      '@id': pageId,
+      url: pageUrl,
+      name,
+      description,
+      inLanguage: 'en-IN',
+      isPartOf: { '@id': WEBSITE_SCHEMA_ID },
+      publisher: { '@id': ORGANIZATION_SCHEMA_ID },
+    },
+  ];
+
+  if (breadcrumb?.length) {
+    graph.push({
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumb.map((item, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: item.name,
+        item: item.url,
+      })),
+    });
+  }
+
+  if (faqMainEntity?.length) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${pageUrl}#faqpage`,
+      mainEntity: faqMainEntity.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: { '@type': 'Answer', text: item.answer },
+      })),
+    });
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  };
+}
 
 /** Marketing detail pages: WebPage + breadcrumbs (+ optional FAQ in same graph). */
 export function buildWebPageJsonLd({
@@ -134,7 +176,8 @@ export function buildWebPageJsonLd({
   pageUrl: string;
   name: string;
   description: string;
-  breadcrumb: BreadcrumbItem[];
+  /** Omit when using `BreadcrumbsBar` (avoids duplicate BreadcrumbList JSON-LD). */
+  breadcrumb?: BreadcrumbItem[];
   faqMainEntity?: { question: string; answer: string }[];
 }) {
   const pageId = `${pageUrl}#webpage`;
@@ -149,7 +192,10 @@ export function buildWebPageJsonLd({
       isPartOf: { '@id': WEBSITE_SCHEMA_ID },
       publisher: { '@id': ORGANIZATION_SCHEMA_ID },
     },
-    {
+  ];
+
+  if (breadcrumb?.length) {
+    graph.push({
       '@type': 'BreadcrumbList',
       itemListElement: breadcrumb.map((item, i) => ({
         '@type': 'ListItem',
@@ -157,8 +203,8 @@ export function buildWebPageJsonLd({
         name: item.name,
         item: item.url,
       })),
-    },
-  ];
+    });
+  }
 
   if (faqMainEntity?.length) {
     graph.push({

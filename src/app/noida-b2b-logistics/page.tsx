@@ -9,6 +9,7 @@ import { ROUTES } from '@/lib/constants';
 import { buildNoidaB2bLogisticsGraph } from '@/lib/structuredData/locationPages';
 import { NOIDA_B2B_LANDING_FAQ } from '@/data/noidaB2bLandingFaq';
 import LocationPageCtas from '@/components/marketing/LocationPageCtas';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 const PATH = '/noida-b2b-logistics';
 const PAGE_URL = `${SITE_URL}${PATH}`;
@@ -42,7 +43,10 @@ const faqForSchema = [...NOIDA_B2B_LANDING_FAQ].map((x) => ({
 
 export default function NoidaB2bLogisticsPage() {
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbNavVisible={false}
+      breadcrumbs={[BREADCRUMB_HOME, { name: 'Noida B2B logistics', path: PATH }]}
+    >
       <JsonLd
         data={buildNoidaB2bLogisticsGraph({
           pageUrl: PAGE_URL,

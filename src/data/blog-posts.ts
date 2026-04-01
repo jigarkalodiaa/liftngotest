@@ -1022,4 +1022,370 @@ export const BLOG_POSTS: BlogPost[] = [
       },
     ],
   },
+  {
+    slug: 'b2b-delivery-noida',
+    title: 'B2B Delivery in Noida: How Wholesale and Retail Teams Book Reliable Legs',
+    description:
+      'Practical guide to B2B delivery in Noida and Delhi NCR: dock windows, vehicle classes (2W–4W), GST rhythm, and why repeat lanes beat one-off surge pricing for goods transport.',
+    excerpt:
+      'Noida is not “just Delhi adjacent”—it is vendor parks, electronics retail, and office towers that punish vague dispatch.',
+    keywords: [
+      'B2B delivery Noida',
+      'goods transport Noida',
+      'Delhi NCR logistics',
+      'wholesale delivery Noida',
+      'commercial mini truck booking',
+    ],
+    publishedAt: '2026-04-02',
+    featured: true,
+    author: { name: 'Liftngo Editorial' },
+    featuredImage: imgHub,
+    featuredImageAlt: 'Industrial and logistics hub — B2B delivery context for Noida',
+    relatedSlugs: rel(
+      'delivery-cost-noida',
+      'b2b-logistics-noida-complete-guide-companies',
+      'hyperlocal-b2b-logistics-noida-manufacturing-hub',
+    ),
+    body: [
+      {
+        type: 'p',
+        segments: [
+          'If your ops team wakes up in ',
+          { text: 'Noida', href: '/noida-b2b-logistics' },
+          ', you already know the problem: not interstate mystery, but the twenty-kilometre shuttle that misses a dock window and costs you a retail shelf. ',
+          { text: 'B2B delivery in Noida', href: '/b2b-transport' },
+          ' succeeds when vehicle class, paperwork, and recurring lane memory line up—exactly where consumer-style “fastest bike” marketplaces fail.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'What B2B means on the ground in Sector belts and expressway-adjacent parks',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Wholesalers moving cartons between supplier rows and retail back rooms care about strap points, not star ratings. Electronics retailers care about damage photos. Offices moving sealed documents care about chain-of-custody language. The ',
+          { text: 'delivery service', href: '/book-delivery' },
+          ' layer has to speak freight, not commuter slang.',
+        ],
+      },
+      {
+        type: 'ul',
+        items: [
+          'Segment emergency “line-down” trips from Tuesday-morning milk runs so finance sees honest surcharges.',
+          'Publish internal SLAs: fifteen-minute docking tolerance, receiver OTP, photo-at-threshold—whatever your audit actually checks.',
+          'Right-size vehicles: 2W for inter-campus documents, 3W cargo for cartons, 4W when pallet mock-ups exceed safe 3W stacks.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Delhi NCR context: why “Noida only” is the wrong lens',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Drivers cross ',
+          { text: 'Delhi NCR', href: '/blog/liftngo-logistics-ecosystem-delhi-ncr' },
+          ' borders even when your ERP says “Noida.” Factor toll behaviour, odd-even memory, and festival routing into corridor playbooks—then freeze a pilot lane before you debate pan-NCR “coverage.”',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'GST, challans, and why finance joins the stand-up',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Small manufacturers and distributors cannot live in “we will fix the invoice later” territory. Ask whether your ',
+          { text: 'goods transport partner', href: '/gst-compliant-delivery-small-manufacturers-india' },
+          ' separates spot trips from retainer lanes, and whether receiver proofs map to your ERP line items.',
+        ],
+      },
+      {
+        type: 'h3',
+        text: 'Pilot checklist (four weeks)',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Pick one origin cluster and ≤3 drops with stable gate contacts.',
+          'Log minutes-at-gate; if security adds twelve minutes, your template ETA must swallow that.',
+          'Rotate vehicle class deliberately twice to learn breakage rates, not randomly to chase cheapest fare.',
+          'Review finance match weekly—GST drift is cheaper to fix in week two than month four.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'When leadership asks for “visibility”',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Visibility without timestamps is theatre. Export trip start, gate-in, handoff, and exception notes weekly. If your ',
+          { text: 'B2B transport partner', href: '/b2b-transport' },
+          ' cannot give that skeleton, you are buying anecdotes—not operations.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Linking back to what Liftngo ships today',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Book walk through ',
+          { text: 'four-wheel mini truck', href: '/services' },
+          ' modes when lanes allow; read ',
+          { text: 'hyperlocal B2B manufacturing notes', href: '/blog/hyperlocal-b2b-logistics-noida-manufacturing-hub' },
+          ' if you feed plants around Greater Noida. When pricing anxiety dominates, pair this article with ',
+          { text: 'delivery cost dynamics in Noida', href: '/blog/delivery-cost-noida' },
+          ' before you negotiate with leadership.',
+        ],
+      },
+      {
+        type: 'p',
+        segments: [
+          'Driver partners evaluating dense programmes should skim ',
+          { text: 'Become a driver', href: '/become-driver' },
+          '—cargo-first incentives matter more here than in passenger networks.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'logistics-khatu-shyam',
+    title: 'Logistics in Khatu Shyam Ji: Pilgrimage Peaks, Lanes, and Goods-First Delivery',
+    description:
+      'Long-form look at logistics in Khatu Shyam Ji: temple-town congestion, restaurant supply, vendor restocks, vehicle choice (2W–4W), and how hyperlocal goods transport differs from highway freight.',
+    excerpt:
+      'Footfall multiplies faster than phone books—structured booking wins when verbal promises collapse.',
+    keywords: [
+      'Khatu Shyam Ji logistics',
+      'temple town delivery',
+      'hyperlocal goods transport Rajasthan',
+      'Khatu delivery service',
+    ],
+    publishedAt: '2026-04-05',
+    author: { name: 'Liftngo Editorial' },
+    featuredImage: imgMarket,
+    featuredImageAlt: 'Market street India — Khatu Shyam Ji corridor logistics',
+    relatedSlugs: rel(
+      'how-logistics-works-khatu-shyam-ji-local-businesses',
+      'khatu-shyam-ji-pilgrimage-logistics-management',
+      'delivery-cost-noida',
+    ),
+    body: [
+      {
+        type: 'p',
+        segments: [
+          { text: 'Khatu Shyam Ji', href: '/khatu-shyam-logistics' },
+          ' compresses devotion, retail, and kitchen supply into corridors that were never designed for simultaneous procession and carton drops. Logistics here is not “same as Jaipur but smaller”—it is scheduling empathy: knowing when the lane dies, when ice melts, and when a compact ',
+          { text: 'three-wheel cargo', href: '/services/3-wheeler' },
+          ' beats pretending a full van can turn.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Inventory rhythm versus crowd rhythm',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Shops that win restock before peak footfall; kitchens that prep in waves; guest houses that launder linens on quiet mornings. ',
+          { text: 'Goods transport', href: '/khatu-goods-transport' },
+          ' fails when you optimistically batch everything into one heroic afternoon run. Split perishables, documents, and bulky stock so each booking matches a realistic vehicle.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Vehicle menu without passenger confusion',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Walk and 2W: documents, light food bags, samples—when the last hundred metres are faster on foot.',
+          '3W cargo: cartons, crates, midsize vendor loads—EV or ICE depending on lane, not marketing.',
+          '4W mini truck: when strap rails and height beat playing Tetris on a three-wheel deck.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Food partners, WhatsApp, and structured handoffs',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Kitchens confirm tweaks on WhatsApp; riders still need structured pickup metadata. Browse ',
+          { text: 'partner restaurants', href: '/find-restaurant' },
+          ', then book ',
+          { text: 'delivery service', href: '/book-delivery' },
+          ' so cargo incentives—not ride-hail games—own the trip.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'When to read B2B NCR context in parallel',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Temple-town operators sometimes supply Mumbai-facing relatives operating in ',
+          { text: 'Noida', href: '/noida-b2b-logistics' },
+          '. If your finance team lives in Delhi NCR while ops stay in Khatu, align vocabulary: proof-of-delivery in one ledger, ',
+          { text: 'B2B logistics India', href: '/b2b-transport' },
+          ' expectations in another.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Reverse logistics and waste legs',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Empty crates, spoiled batches, and linen returns need slots too. Treat reverse legs as capacity in your ',
+          { text: 'booking flow', href: '/book-delivery' },
+          ', not as favours—drivers plan round-trips when they trust the dispatcher.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Action list before the next peak',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Map three recurring lanes with named landmarks drivers can find without shouting.',
+          'Photograph load condition on first week of each festival season—disputes spike when everyone is tired.',
+          'Keep a fallback vehicle class documented when rain or processions invalidate your default choice.',
+        ],
+      },
+      {
+        type: 'p',
+        segments: [
+          'For pilgrimage-specific playbooks see ',
+          { text: 'pilgrimage logistics management', href: '/blog/khatu-shyam-ji-pilgrimage-logistics-management' },
+          '—it complements this corridor overview.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'delivery-cost-noida',
+    title: 'Delivery Cost in Noida: What Moves B2B and Retail Estimates (Delhi NCR)',
+    description:
+      'Transparent guide to delivery cost drivers in Noida and Delhi NCR: distance, vehicle class, gate time, demand surges, and how to compare quotes without getting burned.',
+    excerpt:
+      'Cheap trips that miss docks are the most expensive line item on your P&L.',
+    keywords: [
+      'delivery cost Noida',
+      'goods transport pricing Delhi NCR',
+      'B2B delivery rates',
+      'mini truck fare India',
+    ],
+    publishedAt: '2026-04-08',
+    author: { name: 'Liftngo Editorial' },
+    featuredImage: imgTruck,
+    featuredImageAlt: 'Commercial delivery truck — cost drivers for Noida corridors',
+    relatedSlugs: rel(
+      'b2b-delivery-noida',
+      'b2b-logistics-noida-complete-guide-companies',
+      'last-mile-delivery-challenges-india',
+    ),
+    body: [
+      {
+        type: 'p',
+        segments: [
+          'Talking about ',
+          { text: 'delivery cost in Noida', href: '/book-delivery' },
+          ' without naming vehicle class is how spreadsheets lie. A four-wheel mini truck quote that ignores your thirty-minute dock queue is “cheap” until overtime, returns, and apology credits arrive.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Core drivers everyone should publish internally',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Lane distance and realistic speed—not open-road fantasy maps.',
+          'Vehicle class minimum: 2W documents vs 3W cartons vs 4W pallets.',
+          'Waiting at origin and destination—especially retail kerbs and industrial estates.',
+          'Demand spikes during month-end, rain, and local event compression.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Delhi NCR is one labour market, many toll behaviours',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Trips starting in ',
+          { text: 'Noida', href: '/noida-b2b-logistics' },
+          ' may still traverse Delhi loops. If your procurement compares vendors on headline rupees only, rotate the same lane for two weeks with timestamped gate logs—you will learn who bakes reality into estimates.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'How Khatu benchmarking differs',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Hyperlocal ',
+          { text: 'Khatu Shyam Ji', href: '/khatu-shyam-logistics' },
+          ' pricing encodes crowd risk, not highway tariffs. If you import NCR spreadsheets into temple-town ops without adjusting, you will misread margin.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Negotiation frames that protect ops',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Ask for all-in pilot pricing on a fixed lane before debating national mandates.',
+          'Separate surge policy for festivals versus ordinary Tuesdays.',
+          'Require photo or OTP proof standards before finance signs retainer addenda.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Benchmarking EV and conventional cargo fairly',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Electric three-wheel cargo can win on short loops; diesel or CNG may still own certain gradients. Read ',
+          { text: 'EV cargo economics', href: '/blog/ev-cargo-cost-per-km-india-2024' },
+          ' before finance declares a fleet mandate—unit economics are lane-specific.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: 'Where to go next on Liftngo',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Open the ',
+          { text: 'services index', href: '/services' },
+          ' to compare walk through 4W modes, read ',
+          { text: 'B2B delivery Noida', href: '/blog/b2b-delivery-noida' },
+          ' for process depth, and book when pins are honest—estimates follow reality, not slides.',
+        ],
+      },
+      {
+        type: 'p',
+        segments: [
+          'Questions before you phone support? Try ',
+          { text: 'Contact', href: '/contact' },
+          ' after scanning ',
+          { text: 'FAQs', href: '/faq' },
+          '—include corridor, vehicle class, and booking ID to skip ping-pong.',
+        ],
+      },
+    ],
+  },
 ];

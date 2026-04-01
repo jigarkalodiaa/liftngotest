@@ -17,5 +17,8 @@ function shouldBypassNextOptimizer(src: ImageProps['src']): boolean {
  */
 export default function OptimizedImage(props: ImageProps) {
   const bypass = shouldBypassNextOptimizer(props.src);
-  return <NextImage {...props} unoptimized={bypass || props.unoptimized} />;
+  const loading = props.priority ? props.loading : (props.loading ?? 'lazy');
+  return (
+    <NextImage {...props} loading={loading} unoptimized={bypass || props.unoptimized} />
+  );
 }

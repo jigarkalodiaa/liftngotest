@@ -6,7 +6,13 @@ export default function NearbyPlaceCard({ place }: { place: KhatuNearbyPlace }) 
   return (
     <article className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
       <div className="relative aspect-[16/10] bg-stone-100">
-        <Image src={place.image} alt="" fill className="object-cover" sizes="320px" />
+        <Image
+          src={place.image}
+          alt={`${place.name} — near Khatu Shyam Ji`}
+          fill
+          className="object-cover"
+          sizes="320px"
+        />
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-[var(--khatu-stone)]">{place.name}</h3>

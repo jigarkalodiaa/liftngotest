@@ -7,6 +7,7 @@ export const metadata = generatePageMetadata({
   path: '/my-details',
   keywords: ['profile', 'my details', 'account'],
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

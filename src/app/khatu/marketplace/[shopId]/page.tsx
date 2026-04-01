@@ -3,6 +3,8 @@ import { generatePageMetadata } from '@/lib/seo';
 import { getKhatuShopById } from '@/data/khatuShops';
 import KhatuShopPage from '@/features/khatu/marketplace/KhatuShopPage';
 import { SITE_NAME } from '@/lib/site';
+import BreadcrumbsBar from '@/components/seo/BreadcrumbsBar';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 type PageProps = { params: Promise<{ shopId: string }> };
 
@@ -26,6 +28,18 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ShopRoute({ params }: PageProps) {
   const { shopId } = await params;
-  if (!getKhatuShopById(shopId)) notFound();
-  return <KhatuShopPage shopId={shopId} />;
+  const shop = getKhatuShopById(shopId);
+  if (!shop) notFound();
+  return (
+    <>
+      <BreadcrumbsBar
+        items={[
+          BREADCRUMB_HOME,
+          { name: 'Khatu marketplace', path: '/khatu/marketplace' },
+          { name: shop.name, path: `/khatu/marketplace/${shopId}` },
+        ]}
+      />
+      <KhatuShopPage shopId={shopId} />
+    </>
+  );
 }

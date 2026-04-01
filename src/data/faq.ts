@@ -90,9 +90,21 @@ export const FAQ_ITEMS: FaqItem[] = [
     answer:
       'Walk, 2-wheeler cargo, 3-wheeler, and 4-wheeler (mini truck–style) options appear based on your route and availability. Refrigerated and long-haul are on our roadmap—see Services for the latest fleet story.',
   },
+  {
+    id: '15',
+    question: 'Do you run B2B logistics in Noida and Delhi NCR?',
+    answer:
+      'Yes—Noida and wider Delhi NCR are focus corridors for commercial goods: supplier shuttles, retail runs, and documents. Pilot one repeatable lane, then expand when punctuality and proof-of-delivery meet your SLA.',
+  },
+  {
+    id: '16',
+    question: 'Is Khatu Shyam Ji covered for same-day goods delivery?',
+    answer:
+      'Hyperlocal delivery around Khatu Shyam Ji depends on demand and lane congestion—especially festival peaks. Start a booking with pickup and drop pins to see live vehicle options; WhatsApp helps coordinate recurring vendor patterns.',
+  },
 ];
 
 /** Shown on the homepage FAQ section; full list lives at `/faq`. */
-export const VISIBLE_FAQ_COUNT = 6;
+export const VISIBLE_FAQ_COUNT = 8;
 
 export const HOMEPAGE_FAQ_PREVIEW = FAQ_ITEMS.slice(0, VISIBLE_FAQ_COUNT);

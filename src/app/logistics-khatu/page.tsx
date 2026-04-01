@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 const PATH = ROUTES.LOGISTICS_KHATU;
 const PAGE_URL = `${SITE_URL}${PATH}`;
@@ -42,31 +43,18 @@ export const metadata = generatePageMetadata({
 
 export default function LogisticsKhatuPage() {
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbs={[BREADCRUMB_HOME, { name: 'Logistics in Khatu', path: PATH }]}
+    >
       <JsonLd
         data={buildWebPageJsonLd({
           pageUrl: PAGE_URL,
           name: PAGE_TITLE,
           description: PAGE_DESCRIPTION,
-          breadcrumb: [
-            { name: 'Home', url: SITE_URL },
-            { name: 'Logistics in Khatu', url: PAGE_URL },
-          ],
           faqMainEntity: LOCAL_FAQ,
         })}
       />
       <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
-        <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
-          <ol className="flex flex-wrap gap-2">
-            <li>
-              <Link href="/" className="hover:text-[var(--color-primary)]">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden>/</li>
-            <li className="text-gray-900 font-medium">Logistics in Khatu</li>
-          </ol>
-        </nav>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
           B2B logistics in Khatu &amp; hyperlocal goods transport
         </h1>

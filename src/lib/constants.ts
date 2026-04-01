@@ -81,6 +81,10 @@ export const ROUTES = {
   NOIDA_B2B_LOGISTICS: '/noida-b2b-logistics',
   HISTORY: '/history',
   FIND_RESTAURANT: '/find-restaurant',
+  /** Marketing: contact & sitelinks (support, social, addresses). */
+  CONTACT: '/contact',
+  /** Marketing: driver / partner onboarding (links to careers + requirements). */
+  BECOME_DRIVER: '/become-driver',
   /** Dedicated login screen (food booking & guarded flows redirect here). */
   LOGIN: '/login',
   /** Marketing alias → restaurant discovery (see next.config redirect). */

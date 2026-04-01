@@ -19,10 +19,13 @@ const HEADER_TOTAL_HEIGHT = HEADER_TOP_GAP + HEADER_BAR_HEIGHT;
 
 const DESKTOP_NAV_LINKS: { label: string; href: string; trackAs?: 'book_now_click' }[] = [
   { label: 'Book delivery', href: ROUTES.BOOK_DELIVERY, trackAs: 'book_now_click' },
-  { label: 'About', href: '/about' },
+  { label: 'B2B', href: ROUTES.B2B_TRANSPORT },
   { label: 'Services', href: '/services' },
+  { label: 'About', href: '/about' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Promotions', href: '/promotions' },
   { label: 'FAQs', href: '/faq' },
+  { label: 'Contact', href: ROUTES.CONTACT },
 ];
 
 const navLinkClass =

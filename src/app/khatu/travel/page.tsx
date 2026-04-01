@@ -1,5 +1,7 @@
 import { generatePageMetadata } from '@/lib/seo';
 import KhatuTravelPage from '@/features/khatu/travel/KhatuTravelPage';
+import BreadcrumbsBar from '@/components/seo/BreadcrumbsBar';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 export const metadata = generatePageMetadata({
   title: 'Book rides: Khatu · Salasar · Ringus | Liftngo',
@@ -10,5 +12,10 @@ export const metadata = generatePageMetadata({
 });
 
 export default function Page() {
-  return <KhatuTravelPage />;
+  return (
+    <>
+      <BreadcrumbsBar items={[BREADCRUMB_HOME, { name: 'Khatu travel', path: '/khatu/travel' }]} />
+      <KhatuTravelPage />
+    </>
+  );
 }

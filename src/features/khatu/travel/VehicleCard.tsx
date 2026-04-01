@@ -34,7 +34,7 @@ export default function VehicleCard({ option, selected, onSelect }: VehicleCardP
       <div className="relative h-[72px] w-[88px] shrink-0 overflow-hidden rounded-xl bg-[var(--khatu-cream)] ring-1 ring-stone-200/80">
         <Image
           src={option.imageSrc}
-          alt=""
+          alt={`${option.label} vehicle option`}
           fill
           className="object-contain p-2"
           sizes="88px"

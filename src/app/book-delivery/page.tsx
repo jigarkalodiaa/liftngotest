@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 const PATH = ROUTES.BOOK_DELIVERY;
 const PAGE_URL = `${SITE_URL}${PATH}`;
@@ -28,30 +29,17 @@ export const metadata = generatePageMetadata({
 
 export default function BookDeliveryPage() {
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbs={[BREADCRUMB_HOME, { name: 'Book delivery', path: PATH }]}
+    >
       <JsonLd
         data={buildWebPageJsonLd({
           pageUrl: PAGE_URL,
           name: PAGE_TITLE,
           description: PAGE_DESCRIPTION,
-          breadcrumb: [
-            { name: 'Home', url: SITE_URL },
-            { name: 'Book delivery', url: PAGE_URL },
-          ],
         })}
       />
       <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
-        <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
-          <ol className="flex flex-wrap gap-2">
-            <li>
-              <Link href="/" className="hover:text-[var(--color-primary)]">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden>/</li>
-            <li className="text-gray-900 font-medium">Book delivery</li>
-          </ol>
-        </nav>
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">Book delivery in three steps</h1>
         <ol className="mt-8 space-y-6 list-decimal pl-5 text-gray-700">
           <li>

@@ -1,5 +1,7 @@
 import { generatePageMetadata } from '@/lib/seo';
 import KhatuGuidePage from '@/features/khatu/guide/KhatuGuidePage';
+import BreadcrumbsBar from '@/components/seo/BreadcrumbsBar';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 export const metadata = generatePageMetadata({
   title: 'Khatu Shyam Ji travel guide | Liftngo',
@@ -10,5 +12,10 @@ export const metadata = generatePageMetadata({
 });
 
 export default function Page() {
-  return <KhatuGuidePage />;
+  return (
+    <>
+      <BreadcrumbsBar items={[BREADCRUMB_HOME, { name: 'Khatu guide', path: '/khatu/guide' }]} />
+      <KhatuGuidePage />
+    </>
+  );
 }

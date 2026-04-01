@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Pick a future date and time for your ${SITE_NAME} goods delivery booking.`,
   path: '/schedule-later',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

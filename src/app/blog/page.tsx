@@ -4,6 +4,7 @@ import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, SEO_KEYWORDS } from '@/lib/site';
 import { getPostsForListing } from '@/lib/blog';
 import BlogListingCard from '@/components/blog/BlogListingCard';
+import { BREADCRUMB_HOME, BREADCRUMB_BLOG } from '@/lib/breadcrumbsNav';
 
 export const metadata = generatePageMetadata({
   title: `Logistics Blog | B2B & Last-Mile Insights — ${SITE_NAME}`,
@@ -25,21 +26,9 @@ export default function BlogPage() {
   let priorityUsed = false;
 
   return (
-    <ContentLayout>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, BREADCRUMB_BLOG]}>
       <main className="flex-1">
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
-          <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
-            <ol className="flex flex-wrap gap-2">
-              <li>
-                <Link href="/" className="hover:text-[var(--color-primary)]">
-                  Home
-                </Link>
-              </li>
-              <li aria-hidden>/</li>
-              <li className="text-gray-900 font-medium">Blog</li>
-            </ol>
-          </nav>
-
           <header className="mb-12 max-w-3xl">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
               Liftngo logistics blog

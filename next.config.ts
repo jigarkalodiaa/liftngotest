@@ -2,9 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   compress: true,
+  async rewrites() {
+    return [{ source: '/.well-known/llms.txt', destination: '/llms.txt' }];
+  },
   async redirects() {
     return [
       { source: '/delivery-khatu', destination: '/khatu-shyam-logistics', permanent: true },
+      /** SEO aliases — one canonical URL per topic (sitelinks + crawl clarity). */
+      { source: '/b2b-logistics', destination: '/b2b-transport', permanent: true },
+      { source: '/khatu-delivery', destination: '/khatu-shyam-logistics', permanent: true },
       { source: '/b2b-logistics-noida', destination: '/noida-b2b-logistics', permanent: true },
       { source: '/food-menu', destination: '/find-restaurant', permanent: false },
     ];

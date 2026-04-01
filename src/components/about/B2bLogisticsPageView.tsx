@@ -57,28 +57,6 @@ export default function B2bLogisticsPageView() {
   return (
     <article className="flex-1">
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6 sm:pb-16 sm:pt-10 lg:px-8 lg:pt-14">
-        <nav className="mb-8 text-sm text-gray-500" aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-2">
-            <li>
-              <Link href="/" className="font-medium text-[var(--color-primary)] hover:underline">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden className="text-gray-300">
-              /
-            </li>
-            <li>
-              <Link href={ROUTES.ABOUT} className="font-medium text-[var(--color-primary)] hover:underline">
-                About
-              </Link>
-            </li>
-            <li aria-hidden className="text-gray-300">
-              /
-            </li>
-            <li className="font-medium text-gray-800">B2B logistics</li>
-          </ol>
-        </nav>
-
         <header className="mb-12 max-w-4xl">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-primary)] sm:text-sm">
             B2B goods transport · Last-mile delivery · Hyperlocal

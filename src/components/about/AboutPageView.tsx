@@ -150,20 +150,6 @@ export default function AboutPageView() {
   return (
     <article className="flex-1">
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6 sm:pb-16 sm:pt-10 lg:px-8 lg:pt-14">
-        <nav className="mb-8 text-sm text-gray-500" aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-2">
-            <li>
-              <Link href="/" className="font-medium text-[var(--color-primary)] hover:underline">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden className="text-gray-300">
-              /
-            </li>
-            <li className="font-medium text-gray-800">About</li>
-          </ol>
-        </nav>
-
         {/* Hero */}
         <section className="relative mb-14 overflow-hidden rounded-3xl border border-gray-100 bg-gradient-to-br from-[var(--color-primary)]/[0.06] via-white to-[var(--landing-primary)]/[0.08] px-6 py-10 shadow-sm sm:mb-16 sm:p-10 lg:p-12">
           <div
@@ -366,14 +352,17 @@ export default function AboutPageView() {
           </ol>
         </section>
 
-        <section className="mb-14 sm:mb-16">
+        <section className="mb-14 sm:mb-16" aria-labelledby="mission-vision-heading">
+          <h2 id="mission-vision-heading" className="sr-only">
+            Mission and vision
+          </h2>
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="rounded-3xl border border-[var(--landing-primary)]/25 bg-[var(--landing-primary)]/[0.07] p-6 sm:p-8">
-              <h2 className={textH3}>Mission</h2>
+              <h3 className={textH3}>Mission</h3>
               <p className={`mt-3 ${textBody} text-gray-800`}>{MISSION}</p>
             </div>
             <div className="rounded-3xl border border-[var(--color-primary)]/25 bg-[var(--color-primary)]/[0.06] p-6 sm:p-8">
-              <h2 className={textH3}>Vision</h2>
+              <h3 className={textH3}>Vision</h3>
               <p className={`mt-3 ${textBody} text-gray-800`}>{VISION}</p>
             </div>
           </div>

@@ -95,4 +95,19 @@ export const SERVICES_INDEX_FAQ = [
     answer:
       'Use three-wheelers for typical cartons and urban last-mile legs. Choose four-wheelers when weight, volume, or palletisation needs a wider deck and higher payload than a three-wheeler can safely carry.',
   },
+  {
+    question: 'Does Liftngo offer goods transport in Noida and Delhi NCR?',
+    answer:
+      'Yes—structured B2B and commercial legs are a focus in Noida and wider Delhi NCR. Pick vehicle class to match dock access and payload; see the Noida B2B landing for positioning. Estimates still depend on live corridor demand.',
+  },
+  {
+    question: 'Can I book the same modes for Khatu Shyam Ji hyperlocal delivery?',
+    answer:
+      'Walk, two-wheeler, three-wheeler cargo, and four-wheeler options apply when lanes and congestion allow. Festival peaks around Khatu Shyam Ji may narrow same-hour availability—book with realistic buffers and read the Khatu logistics page for context.',
+  },
+  {
+    question: 'Where can I read about delivery pricing patterns in Noida?',
+    answer:
+      'Our blog guide on delivery cost in Noida walks through estimate drivers—distance, vehicle class, and demand—without promising fantasy tariffs. Always confirm in the booking flow for your exact pickup and drop.',
+  },
 ] as const;

@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Complete payment and rate your driver on ${SITE_NAME}.`,
   path: '/trip-complete',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

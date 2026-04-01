@@ -30,6 +30,8 @@ export const MARKETING_PATHS: { path: string; priority: number; changeFrequency:
   { path: '/blog', priority: 0.76, changeFrequency: 'weekly' },
   { path: '/find-restaurant', priority: 0.74, changeFrequency: 'weekly' },
   { path: '/careers', priority: 0.68, changeFrequency: 'monthly' },
+  { path: '/contact', priority: 0.72, changeFrequency: 'monthly' },
+  { path: '/become-driver', priority: 0.7, changeFrequency: 'monthly' },
   { path: '/promotions', priority: 0.64, changeFrequency: 'monthly' },
   { path: '/privacy', priority: 0.25, changeFrequency: 'yearly' },
   { path: '/terms', priority: 0.25, changeFrequency: 'yearly' },

@@ -6,6 +6,7 @@ import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/constants';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 const PATH = '/faq';
 const PAGE_URL = `${SITE_URL}${PATH}`;
@@ -41,19 +42,10 @@ const faqJsonLd = {
 
 export default function FaqPage() {
   return (
-    <ContentLayout>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, { name: 'FAQs', path: PATH }]}>
       <JsonLd data={faqJsonLd} />
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
-          <nav className="mb-6 text-sm text-gray-600">
-            <Link href="/" className="font-medium text-[var(--landing-primary)] hover:underline">
-              Home
-            </Link>
-            <span aria-hidden className="mx-2">
-              /
-            </span>
-            <span className="text-gray-900">FAQs</span>
-          </nav>
           <h1 className="text-balance text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             Frequently asked questions
           </h1>

@@ -3,6 +3,7 @@ import ContentLayout from '@/components/layout/ContentLayout';
 import { getRestaurantById } from '@/data/restaurantsKhatushyam';
 import { generatePageMetadata } from '@/lib/seo';
 import RestaurantMenuContent from '../RestaurantMenuContent';
+import { BREADCRUMB_HOME, BREADCRUMB_FIND_RESTAURANT } from '@/lib/breadcrumbsNav';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -11,7 +12,13 @@ export default async function RestaurantMenuPage({ params }: Props) {
   const restaurant = getRestaurantById(id);
   if (!restaurant) notFound();
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbs={[
+        BREADCRUMB_HOME,
+        BREADCRUMB_FIND_RESTAURANT,
+        { name: restaurant.name, path: `/find-restaurant/${id}` },
+      ]}
+    >
       <RestaurantMenuContent restaurant={restaurant} />
     </ContentLayout>
   );

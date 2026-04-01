@@ -1,5 +1,7 @@
 import { generatePageMetadata } from '@/lib/seo';
 import KhatuHotelsPage from '@/features/khatu/hotels/KhatuHotelsPage';
+import BreadcrumbsBar from '@/components/seo/BreadcrumbsBar';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 export const metadata = generatePageMetadata({
   title: 'Trusted hotels near Khatu Shyam Ji | Liftngo',
@@ -15,5 +17,12 @@ export const metadata = generatePageMetadata({
 });
 
 export default function Page() {
-  return <KhatuHotelsPage />;
+  return (
+    <>
+      <BreadcrumbsBar
+        items={[BREADCRUMB_HOME, { name: 'Hotels near Khatu Shyam Ji', path: '/khatu/hotels' }]}
+      />
+      <KhatuHotelsPage />
+    </>
+  );
 }

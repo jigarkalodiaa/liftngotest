@@ -8,7 +8,7 @@ import {
 
 type FaqItem = { question: string; answer: string };
 
-/** Khatu Shyam Ji landing — LocalBusiness (place-focused) + WebPage + FAQ + breadcrumbs. */
+/** Khatu Shyam Ji landing — LocalBusiness (place-focused) + WebPage + FAQ (breadcrumb via `BreadcrumbsBar`). */
 export function buildKhatuShyamLogisticsGraph({
   pageUrl,
   title,
@@ -78,13 +78,6 @@ export function buildKhatuShyamLogisticsGraph({
       },
       local,
       {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-          { '@type': 'ListItem', position: 2, name: 'Khatu Shyam Ji logistics', item: pageUrl },
-        ],
-      },
-      {
         '@type': 'FAQPage',
         '@id': `${pageUrl}#faqpage`,
         mainEntity: faq.map((item) => ({
@@ -97,7 +90,7 @@ export function buildKhatuShyamLogisticsGraph({
   };
 }
 
-/** Noida / Delhi NCR B2B — Organization + LocalBusiness (Noida) + Service + WebPage + FAQ + breadcrumbs. */
+/** Noida / Delhi NCR B2B — Organization + LocalBusiness (Noida) + Service + WebPage + FAQ (breadcrumb via `BreadcrumbsBar`). */
 export function buildNoidaB2bLogisticsGraph({
   pageUrl,
   title,
@@ -193,13 +186,6 @@ export function buildNoidaB2bLogisticsGraph({
           availability: 'https://schema.org/InStock',
           priceCurrency: 'INR',
         },
-      },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-          { '@type': 'ListItem', position: 2, name: 'Noida B2B logistics', item: pageUrl },
-        ],
       },
       {
         '@type': 'FAQPage',

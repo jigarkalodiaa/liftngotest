@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ContentLayout from '@/components/layout/ContentLayout';
 import { RESTAURANTS_KHATUSHYAM, getRestaurantById } from '@/data/restaurantsKhatushyam';
+import { BREADCRUMB_HOME, BREADCRUMB_FIND_RESTAURANT } from '@/lib/breadcrumbsNav';
 import {
   FoodDeliveryFlowSteps,
   FoodDeliveryTrustSection,
@@ -30,7 +31,7 @@ export default function FindRestaurantClient() {
     : '';
 
   return (
-    <ContentLayout>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, BREADCRUMB_FIND_RESTAURANT]}>
       <main className="relative flex-1 min-h-screen bg-gradient-to-b from-[#FFF9F4] via-[var(--landing-bg)] to-white pb-28 sm:pb-32">
         <div
           role="status"

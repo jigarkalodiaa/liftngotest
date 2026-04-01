@@ -9,6 +9,7 @@ import { ROUTES } from '@/lib/constants';
 import { buildKhatuShyamLogisticsGraph } from '@/lib/structuredData/locationPages';
 import { KHATU_SHYAM_LANDING_FAQ } from '@/data/khatuShyamLandingFaq';
 import LocationPageCtas from '@/components/marketing/LocationPageCtas';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 const PATH = '/khatu-shyam-logistics';
 const PAGE_URL = `${SITE_URL}${PATH}`;
@@ -161,7 +162,10 @@ const benefits = [
 
 export default function KhatuShyamLogisticsPage() {
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbNavVisible={false}
+      breadcrumbs={[BREADCRUMB_HOME, { name: 'Khatu Shyam Ji logistics', path: PATH }]}
+    >
       <JsonLd
         data={buildKhatuShyamLogisticsGraph({
           pageUrl: PAGE_URL,
@@ -360,6 +364,57 @@ export default function KhatuShyamLogisticsPage() {
                   </div>
                 </li>
               ))}
+            </ul>
+          </section>
+
+          <section
+            className="mx-auto mt-14 max-w-3xl rounded-2xl border border-gray-200 bg-white p-6 sm:p-8"
+            aria-labelledby="khatu-depth-heading"
+          >
+            <h2 id="khatu-depth-heading" className="text-xl font-bold text-gray-900 sm:text-2xl">
+              Corridor depth: why Khatu Shyam Ji delivery is different
+            </h2>
+            <p className="mt-4 text-gray-600 leading-relaxed">
+              <strong className="text-gray-900">Goods transport</strong> near a high-trust mandir zone is not “faster equals better.” When
+              devotees crowd lanes, the winning shops are the ones that scheduled replenishment before the rush and chose vehicle classes that
+              fit the gate—not the ones that yelled loudest on WhatsApp. Liftngo treats{' '}
+              <Link href={ROUTES.KHATU_SHYAM_LOGISTICS} className="font-semibold text-[var(--color-primary)] hover:underline">
+                Khatu Shyam Ji logistics
+              </Link>{' '}
+              as infrastructure: short legs, cargo-only incentives, and estimates you see before someone rolls.
+            </p>
+            <h3 className="mt-8 text-lg font-semibold text-gray-900">How this pairs with Noida and Delhi NCR</h3>
+            <p className="mt-3 text-gray-600 leading-relaxed">
+              The same platform philosophy extends to <strong className="text-gray-900">B2B lanes in Noida</strong> and wider{' '}
+              <strong className="text-gray-900">Delhi NCR</strong>—different traffic physics, same insistence on documentation and completion.
+              If you operate in both geographies, compare{' '}
+              <Link href="/noida-b2b-logistics" className="font-semibold text-[var(--color-primary)] hover:underline">
+                Noida corporate delivery
+              </Link>{' '}
+              with this page before you standardise SOPs.
+            </p>
+            <ul className="mt-6 list-disc space-y-2 ps-5 text-gray-600">
+              <li>
+                Read the long-form guide:{' '}
+                <Link href="/blog/logistics-khatu-shyam" className="font-semibold text-[var(--color-primary)] hover:underline">
+                  Logistics and delivery service around Khatu Shyam Ji
+                </Link>
+                .
+              </li>
+              <li>
+                Booking walkthrough:{' '}
+                <Link href={ROUTES.BOOK_DELIVERY} className="font-semibold text-[var(--color-primary)] hover:underline">
+                  Book goods delivery online
+                </Link>
+                .
+              </li>
+              <li>
+                National B2B framing:{' '}
+                <Link href="/b2b-transport" className="font-semibold text-[var(--color-primary)] hover:underline">
+                  View B2B logistics services in India
+                </Link>
+                .
+              </li>
             </ul>
           </section>
 

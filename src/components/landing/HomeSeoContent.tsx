@@ -5,9 +5,13 @@ const SEO_LINKS: { href: string; label: string }[] = [
   { href: ROUTES.KHATU_SHYAM_LOGISTICS, label: 'Khatu Shyam Ji logistics' },
   { href: ROUTES.NOIDA_B2B_LOGISTICS, label: 'Noida B2B logistics' },
   { href: '/logistics-khatu', label: 'Logistics in Khatu' },
-  { href: '/b2b-transport', label: 'B2B transport India' },
+  { href: ROUTES.B2B_TRANSPORT, label: 'B2B transport India' },
   { href: ROUTES.ABOUT_B2B_LOGISTICS, label: 'B2B logistics detail' },
-  { href: '/book-delivery', label: 'Book delivery' },
+  { href: ROUTES.BOOK_DELIVERY, label: 'Book delivery' },
+  { href: '/services', label: 'Services (2W–4W)' },
+  { href: '/blog', label: 'Logistics blog' },
+  { href: ROUTES.CONTACT, label: 'Contact & support' },
+  { href: ROUTES.BECOME_DRIVER, label: 'Become a driver' },
 ];
 
 const linkTileClass =

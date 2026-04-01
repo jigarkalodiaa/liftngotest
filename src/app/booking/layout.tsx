@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Your ${SITE_NAME} booking is being confirmed.`,
   path: '/booking',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

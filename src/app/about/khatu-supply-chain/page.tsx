@@ -5,6 +5,7 @@ import { KHATU_SUPPLY_CHAIN_FAQ } from '@/data/khatuLogisticsSeo';
 import { generatePageMetadata } from '@/lib/seo';
 import { BRAND, SITE_NAME, SITE_URL } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
+import { BREADCRUMB_HOME, BREADCRUMB_ABOUT } from '@/lib/breadcrumbsNav';
 
 const PAGE_PATH = ROUTES.ABOUT_KHATU_SUPPLY_CHAIN;
 const PAGE_URL = `${SITE_URL}${PAGE_PATH}`;
@@ -38,17 +39,18 @@ const faqForLd = KHATU_SUPPLY_CHAIN_FAQ.map((item) => ({
 
 export default function KhatuSupplyChainPage() {
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbs={[
+        BREADCRUMB_HOME,
+        BREADCRUMB_ABOUT,
+        { name: 'Khatu supply chain', path: PAGE_PATH },
+      ]}
+    >
       <JsonLd
         data={buildWebPageJsonLd({
           pageUrl: PAGE_URL,
           name: PAGE_TITLE,
           description: PAGE_DESCRIPTION,
-          breadcrumb: [
-            { name: 'Home', url: SITE_URL },
-            { name: 'About', url: `${SITE_URL}${ROUTES.ABOUT}` },
-            { name: 'Khatu supply chain', url: PAGE_URL },
-          ],
           faqMainEntity: faqForLd,
         })}
       />

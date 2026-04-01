@@ -1,21 +1,27 @@
 import { generatePageMetadata } from '@/lib/seo';
-import { SITE_NAME, SITE_URL, BRAND } from '@/lib/site';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { ROUTES } from '@/lib/constants';
 import ContentLayout from '@/components/layout/ContentLayout';
 import Link from 'next/link';
 import Image from '@/components/OptimizedImage';
 import JsonLd, { buildWebPageJsonLd } from '@/components/JsonLd';
 import { indiaPhotoBangaloreLoadedTruck } from '@/config/indiaLogisticsImages';
 import { COMING_SOON_VEHICLES, SERVICES_INDEX_FAQ, servicesIndexItemListSchema } from '@/data/vehicleFleet';
+import { BREADCRUMB_HOME, BREADCRUMB_SERVICES } from '@/lib/breadcrumbsNav';
 
 const PAGE_PATH = '/services';
 const PAGE_URL = `${SITE_URL}${PAGE_PATH}`;
 
-const PAGE_TITLE = `Goods transport: Walk, 2W, 3W & 4W booking | ${SITE_NAME}`;
+/** No trailing `| Liftngo` — layout template adds brand once (~58 chars total). */
+const PAGE_META_TITLE = 'Goods transport: walk, 2W, 3W & 4W booking';
 
-const PAGE_DESCRIPTION = `${BRAND.name} offers walk delivery, two-wheeler, three-wheeler cargo, and four-wheeler mini trucks for last-mile and intra-city goods in India. Refrigerated cold chain, half-load, flatbed, and long-haul trucks are coming soon—see roadmap below.`;
+const PAGE_DESCRIPTION =
+  'Walk, two-wheeler, three-wheeler cargo, and mini truck booking for intra-city goods in India. Cold chain, half-load, flatbed, and long-haul—see roadmap below.';
+
+const PAGE_SCHEMA_NAME = `Goods transport services — walk through 4W | ${SITE_NAME}`;
 
 export const metadata = generatePageMetadata({
-  title: PAGE_TITLE,
+  title: PAGE_META_TITLE,
   description: PAGE_DESCRIPTION,
   path: PAGE_PATH,
   keywords: [
@@ -72,17 +78,13 @@ const faqForLd = SERVICES_INDEX_FAQ.map((item) => ({
 
 export default function ServicesPage() {
   return (
-    <ContentLayout>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, BREADCRUMB_SERVICES]}>
       <JsonLd data={servicesIndexItemListSchema()} />
       <JsonLd
         data={buildWebPageJsonLd({
           pageUrl: PAGE_URL,
-          name: PAGE_TITLE,
+          name: PAGE_SCHEMA_NAME,
           description: PAGE_DESCRIPTION,
-          breadcrumb: [
-            { name: 'Home', url: SITE_URL },
-            { name: 'Services', url: PAGE_URL },
-          ],
           faqMainEntity: faqForLd,
         })}
       />
@@ -97,8 +99,57 @@ export default function ServicesPage() {
             </p>
           </div>
 
-          <h2 className="sr-only">Available vehicle booking options</h2>
-          <div className="grid gap-6 sm:grid-cols-2">
+          <section className="mb-14 rounded-2xl border border-gray-100 bg-white p-6 sm:p-8 shadow-sm" aria-labelledby="services-corridors-heading">
+            <h2 id="services-corridors-heading" className="text-xl font-semibold text-gray-900 sm:text-2xl">
+              Where these services matter most
+            </h2>
+            <p className="mt-4 text-gray-600 leading-relaxed">
+              The same vehicle menu behaves differently by geography. Around <strong className="text-gray-800">Khatu Shyam Ji</strong>, narrow
+              streets and festival surges mean you often choose compact modes first; in <strong className="text-gray-800">Noida</strong> and{' '}
+              <strong className="text-gray-800">Delhi NCR</strong>, loading bays and B2B paperwork favour planned slots and occasionally{' '}
+              <Link href="/services/4-wheeler" className="font-semibold text-[var(--color-primary)] hover:underline">
+                mini-truck deck space
+              </Link>
+              . Liftngo stays <strong className="text-gray-800">goods-first</strong> in both: no passenger framing, transparent estimates where
+              the product supports them, and corridor pages that explain real constraints.
+            </p>
+            <h3 className="mt-8 text-lg font-semibold text-gray-900">Khatu Shyam Ji hyperlocal delivery</h3>
+            <p className="mt-3 text-gray-600 leading-relaxed">
+              Food vendors, shops, and temple-adjacent businesses use walk and two-wheel slots for light bags, then step up to{' '}
+              <Link href="/services/3-wheeler" className="font-semibold text-[var(--color-primary)] hover:underline">
+                three-wheeler cargo
+              </Link>{' '}
+              when cartons multiply. Read{' '}
+              <Link href="/blog/logistics-khatu-shyam" className="font-semibold text-[var(--color-primary)] hover:underline">
+                logistics notes for Khatu Shyam Ji
+              </Link>{' '}
+              or open the{' '}
+              <Link href={ROUTES.KHATU_SHYAM_LOGISTICS} className="font-semibold text-[var(--color-primary)] hover:underline">
+                Khatu delivery landing
+              </Link>{' '}
+              before peak season.
+            </p>
+            <h3 className="mt-8 text-lg font-semibold text-gray-900">Noida &amp; Delhi NCR B2B lanes</h3>
+            <p className="mt-3 text-gray-600 leading-relaxed">
+              Supplier shuttles and retail drops reward repeatability. Start from{' '}
+              <Link href={ROUTES.NOIDA_B2B_LOGISTICS} className="font-semibold text-[var(--color-primary)] hover:underline">
+                B2B logistics for Noida &amp; Delhi NCR
+              </Link>
+              , then align vehicle class with your dock—and read{' '}
+              <Link href="/blog/b2b-delivery-noida" className="font-semibold text-[var(--color-primary)] hover:underline">
+                B2B delivery in Noida
+              </Link>{' '}
+              for operational detail.
+            </p>
+          </section>
+
+          <h2 id="vehicle-types-heading" className="text-2xl font-semibold text-gray-900">
+            Book by vehicle type
+          </h2>
+          <p className="mt-2 max-w-2xl text-base text-gray-600">
+            Choose a mode that matches payload and lane—each page lists ideal use cases and how to book.
+          </p>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2" aria-labelledby="vehicle-types-heading">
             {SERVICES.map((s) => (
               <Link
                 key={s.slug}
@@ -110,6 +161,7 @@ export default function ServicesPage() {
                     src={s.image}
                     alt={`${s.name} delivery — ${SITE_NAME}`}
                     fill
+                    loading="lazy"
                     className="object-contain p-4 transition-transform group-hover:scale-105"
                     sizes="140px"
                   />
@@ -117,7 +169,7 @@ export default function ServicesPage() {
                 <h3 className="mb-2 text-xl font-semibold text-gray-900">{s.name}</h3>
                 <p className="flex-1 text-sm leading-relaxed text-gray-600">{s.description}</p>
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] transition-all group-hover:gap-2">
-                  Learn more
+                  View {s.name} service
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
@@ -170,12 +222,30 @@ export default function ServicesPage() {
             </ul>
           </section>
 
-          <div className="mt-14 text-center">
+          <div className="mt-14 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
             <Link
               href="/pickup-location"
-              className="inline-flex items-center justify-center rounded-xl bg-[var(--color-primary)] px-8 py-3.5 text-base font-semibold text-white hover:opacity-90 transition-opacity"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[var(--color-primary)] px-8 py-3.5 text-base font-semibold text-white hover:opacity-90 transition-opacity"
             >
               Book a delivery
+            </Link>
+            <Link
+              href={ROUTES.B2B_TRANSPORT}
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-base font-semibold text-gray-800 hover:bg-gray-50"
+            >
+              Explore B2B logistics services
+            </Link>
+            <Link
+              href={ROUTES.KHATU_SHYAM_LOGISTICS}
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--color-primary)]/35 bg-[var(--color-primary)]/8 px-8 py-3.5 text-base font-semibold text-[var(--color-primary)] hover:bg-[var(--color-primary)]/15"
+            >
+              Check Khatu delivery
+            </Link>
+            <Link
+              href={ROUTES.BECOME_DRIVER}
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-base font-semibold text-gray-800 hover:bg-gray-50"
+            >
+              Become a driver
             </Link>
           </div>
         </div>
