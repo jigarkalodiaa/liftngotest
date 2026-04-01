@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   compress: true,
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
   async rewrites() {
     return [{ source: '/.well-known/llms.txt', destination: '/llms.txt' }];
   },
@@ -17,6 +20,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    /** Longer cache for `/_next/image` optimized URLs (seconds). */
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     /**
      * Unsplash is served via imgix. Allow main host + subdomains so `/ _next/image` never
      * fails host matching (some CDNs redirect or use alternate hostnames).

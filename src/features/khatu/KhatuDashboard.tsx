@@ -171,13 +171,13 @@ export default function KhatuDashboard({
 
       <div className="relative mt-8 overflow-hidden rounded-3xl border border-amber-200/50 bg-gradient-to-b from-amber-100/40 to-[var(--landing-bg)]/80 px-4 pt-6 pb-6">
         <div className="relative mx-auto h-[min(52vw,260px)] w-full max-w-[340px] sm:h-[280px]">
-          <img
-            src="/images/liftngohero.gif"
+          <Image
+            src="/hero-delivery.svg"
             alt="LiftnGo — Khatu logistics"
-            width={1024}
-            height={1024}
+            width={400}
+            height={300}
             className="h-full w-full object-contain object-center"
-            decoding="async"
+            sizes="(max-width: 640px) 52vw, 340px"
           />
         </div>
       </div>
