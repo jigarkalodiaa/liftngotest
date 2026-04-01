@@ -25,10 +25,14 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
     title: 'LiftnGo',
     items: [
       { label: 'Book delivery', href: ROUTES.BOOK_DELIVERY },
+      { label: 'B2B transport', href: ROUTES.B2B_TRANSPORT },
+      { label: 'Services', href: '/services' },
       { label: 'Khatu Shyam Ji logistics', href: ROUTES.KHATU_SHYAM_LOGISTICS },
       { label: 'Noida & NCR B2B', href: ROUTES.NOIDA_B2B_LOGISTICS },
+      { label: 'Blog', href: '/blog' },
       { label: 'Why Choose', href: '/about' },
       { label: 'How LiftnGo Works', href: '/#features' },
+      { label: 'Become a driver', href: ROUTES.BECOME_DRIVER },
       { label: 'Offers', href: '/promotions' },
     ],
   },
@@ -36,7 +40,7 @@ const menuSections: { title: string; items: MenuItem[] }[] = [
     title: 'Other',
     items: [
       { label: 'FAQs', href: '/faq' },
-      { label: 'Customer Support', href: '/about' },
+      { label: 'Customer Support', href: ROUTES.CONTACT },
       { label: 'Terms & Conditions', href: '/terms' },
       { label: 'Privacy Policy', href: '/privacy' },
     ],

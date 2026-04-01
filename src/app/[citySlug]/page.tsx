@@ -12,6 +12,8 @@ import {
   buildPrimaryOrganizationNode,
 } from '@/lib/structuredData/organizationShared';
 import { Header, Hero, Features, FoodDelivery, Footer, PageWrapper } from '@/components/landing';
+import BreadcrumbsBar from '@/components/seo/BreadcrumbsBar';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 type Props = { params: Promise<{ citySlug: string }> };
 
@@ -82,6 +84,9 @@ export default async function CityPage({ params }: Props) {
       <JsonLd data={citySeoGraph} />
       <Header />
       <main>
+        <BreadcrumbsBar
+          items={[BREADCRUMB_HOME, { name: `${city.name} logistics`, path: `/${city.slug}` }]}
+        />
         <section className="bg-[var(--landing-bg)] py-12 px-4">
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">

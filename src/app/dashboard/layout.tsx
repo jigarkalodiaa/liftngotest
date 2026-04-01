@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Book goods transport, food delivery, and manage your trips on ${SITE_NAME}.`,
   path: '/dashboard',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

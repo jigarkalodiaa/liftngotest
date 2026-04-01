@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: 'Your Khatu corridor ride quote is saved. Complete pickup details next.',
   path: '/booking/ride',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

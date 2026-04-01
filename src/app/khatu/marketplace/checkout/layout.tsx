@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: 'Complete your Khatu marketplace order for Liftngo delivery.',
   path: '/khatu/marketplace/checkout',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

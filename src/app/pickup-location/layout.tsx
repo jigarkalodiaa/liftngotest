@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Enter pickup and drop location and contact details for your ${SITE_NAME} booking.`,
   path: '/pickup-location',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

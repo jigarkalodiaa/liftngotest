@@ -131,7 +131,13 @@ export default function CartDrawer({
           items.map((line) => (
             <div key={line.productId} className="flex gap-3 rounded-xl border border-stone-200 bg-white p-3">
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-stone-50">
-                <Image src={line.image} alt="" fill className="object-cover" sizes="56px" />
+                <Image
+                  src={line.image}
+                  alt={`${line.name} in cart`}
+                  fill
+                  className="object-cover"
+                  sizes="56px"
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-[var(--khatu-stone)]">{line.name}</p>

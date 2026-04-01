@@ -1,6 +1,7 @@
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 import Link from 'next/link';
 
 export const metadata = generatePageMetadata({
@@ -26,7 +27,7 @@ const OPEN_ROLES = [
 
 export default function CareersPage() {
   return (
-    <ContentLayout>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, { name: 'Careers', path: '/careers' }]}>
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="mb-12 sm:mb-16">

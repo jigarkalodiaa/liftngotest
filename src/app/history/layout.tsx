@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Your ride history on ${SITE_NAME}.`,
   path: '/history',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

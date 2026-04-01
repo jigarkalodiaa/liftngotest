@@ -5,6 +5,7 @@ import { B2B_LOGISTICS_FAQ } from '@/data/b2bLogisticsSeo';
 import { generatePageMetadata } from '@/lib/seo';
 import { BRAND, SITE_NAME, SITE_URL } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
+import { BREADCRUMB_HOME, BREADCRUMB_ABOUT } from '@/lib/breadcrumbsNav';
 
 const PAGE_PATH = ROUTES.ABOUT_B2B_LOGISTICS;
 const PAGE_URL = `${SITE_URL}${PAGE_PATH}`;
@@ -42,17 +43,18 @@ const faqForLd = B2B_LOGISTICS_FAQ.map((item) => ({
 
 export default function B2bLogisticsPage() {
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbs={[
+        BREADCRUMB_HOME,
+        BREADCRUMB_ABOUT,
+        { name: 'B2B logistics', path: PAGE_PATH },
+      ]}
+    >
       <JsonLd
         data={buildWebPageJsonLd({
           pageUrl: PAGE_URL,
           name: PAGE_TITLE,
           description: PAGE_DESCRIPTION,
-          breadcrumb: [
-            { name: 'Home', url: SITE_URL },
-            { name: 'About', url: `${SITE_URL}${ROUTES.ABOUT}` },
-            { name: 'B2B logistics', url: PAGE_URL },
-          ],
           faqMainEntity: faqForLd,
         })}
       />

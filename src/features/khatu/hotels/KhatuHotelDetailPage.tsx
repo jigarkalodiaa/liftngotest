@@ -42,7 +42,7 @@ export default function KhatuHotelDetailPage({ hotel }: { hotel: KhatuHotel }) {
         <div className="relative aspect-[16/10] bg-stone-200">
           <Image
             src={imgs[safe]}
-            alt=""
+            alt={`${hotel.name} — photo ${safe + 1} of ${imgs.length}`}
             fill
             className="object-cover"
             sizes="100vw"

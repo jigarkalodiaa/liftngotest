@@ -119,7 +119,14 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
         />
 
         <div className="relative mt-2 aspect-[16/9] overflow-hidden rounded-2xl bg-amber-100">
-          <Image src={img} alt="" fill className="object-cover" sizes="512px" priority />
+          <Image
+            src={img}
+            alt={`${hotel.name} — property photo`}
+            fill
+            className="object-cover"
+            sizes="512px"
+            priority
+          />
         </div>
 
         <div className="mt-4">

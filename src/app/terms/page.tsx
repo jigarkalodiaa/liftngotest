@@ -2,6 +2,7 @@ import Image from '@/components/OptimizedImage';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 import {
   indiaPhotoBangaloreAutos,
   indiaPhotoBangaloreLoadedTruck,
@@ -90,7 +91,7 @@ const SECTIONS = [
 
 export default function TermsPage() {
   return (
-    <ContentLayout>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, { name: 'Terms', path: '/terms' }]}>
       <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden bg-gray-900">

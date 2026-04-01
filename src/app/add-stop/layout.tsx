@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Add an intermediate stop to your ${SITE_NAME} trip.`,
   path: '/add-stop',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

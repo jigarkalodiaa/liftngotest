@@ -6,6 +6,7 @@ export const metadata = generatePageMetadata({
   description: `Confirm your booking and payment details on ${SITE_NAME}.`,
   path: '/payment',
   noIndex: true,
+  nofollow: true,
   useAbsoluteTitle: true,
 });
 

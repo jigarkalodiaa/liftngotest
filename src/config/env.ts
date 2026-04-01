@@ -26,6 +26,9 @@ export const DEMO_OTP = getEnv('NEXT_PUBLIC_DEMO_OTP', '');
 /** Demo/support phone for placeholders and contact links. Use NEXT_PUBLIC_SUPPORT_PHONE in .env.local. */
 export const SUPPORT_PHONE = getEnv('NEXT_PUBLIC_SUPPORT_PHONE', '');
 
+/** Public support email for /contact and JSON-LD when set. */
+export const SUPPORT_EMAIL = getEnv('NEXT_PUBLIC_SUPPORT_EMAIL', '');
+
 /** Twitter handle for meta (e.g. @liftngo). Use NEXT_PUBLIC_TWITTER_HANDLE in .env.local. */
 export const TWITTER_HANDLE = getEnv('NEXT_PUBLIC_TWITTER_HANDLE', '@liftngo');
 

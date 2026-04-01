@@ -40,7 +40,7 @@ export default function HotelCard({ hotel, imagePriority }: HotelCardProps) {
       <div className="relative aspect-[16/10] bg-stone-100">
         <Image
           src={imgs[safe]}
-          alt=""
+          alt={`${hotel.name} — stay near Khatu Shyam Ji`}
           fill
           className="object-cover"
           sizes="(max-width: 640px) 100vw, 640px"

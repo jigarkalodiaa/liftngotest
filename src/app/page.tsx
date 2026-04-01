@@ -15,6 +15,9 @@ const sectionLoading = (minH: string) => () => <div className={`${minH} w-full s
 const HomeSeoContent = dynamic(() => import('@/components/landing/HomeSeoContent'), {
   loading: sectionLoading('min-h-48'),
 });
+const HomeDeepAuthoritySection = dynamic(() => import('@/components/landing/HomeDeepAuthoritySection'), {
+  loading: sectionLoading('min-h-64'),
+});
 const Features = dynamic(() => import('@/components/landing/Features'), { loading: sectionLoading('min-h-40') });
 const ServiceSection = dynamic(() => import('@/components/landing/ServiceSection'), {
   loading: sectionLoading('min-h-48'),
@@ -54,6 +57,7 @@ export default function Home() {
       >
         <Hero />
         <HomeSeoContent />
+        <HomeDeepAuthoritySection />
         <Features />
         <ServiceSection />
         <QuickRidesSection />

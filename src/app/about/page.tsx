@@ -3,15 +3,20 @@ import AboutPageView from '@/components/about/AboutPageView';
 import JsonLd, { buildAboutPageJsonLd } from '@/components/JsonLd';
 import { ABOUT_HERO_IMAGE } from '@/config/aboutImages';
 import { generatePageMetadata } from '@/lib/seo';
-import { BRAND, SITE_NAME, SITE_URL } from '@/lib/site';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { BREADCRUMB_HOME, BREADCRUMB_ABOUT } from '@/lib/breadcrumbsNav';
 
 const ABOUT_PATH = '/about';
 const PAGE_URL = `${SITE_URL}${ABOUT_PATH}`;
-const PAGE_TITLE = `About ${SITE_NAME} | EV cargo & hyperlocal B2B logistics`;
-const PAGE_DESCRIPTION = `${BRAND.name} is a hyperlocal logistics company for intra-city goods transport: electric three-wheel cargo and light modes, B2B-first lanes, and deep service in Khatu and nearby markets. Not a passenger cab app—built for last-mile delivery, wholesalers, and reliable handoffs.`;
+/** Title base only; root layout adds `| Liftngo` (~55 chars total). */
+const PAGE_META_TITLE = 'About us | EV cargo & hyperlocal B2B';
+const PAGE_DESCRIPTION =
+  'Intra-city goods transport with electric and fuel cargo, B2B-first lanes, and depth around Khatu Shyam Ji—not a passenger app. Built for shops, wholesalers, and reliable handoffs.';
+/** Richer name for JSON-LD / social parity with on-page topic. */
+const PAGE_SCHEMA_NAME = `About ${SITE_NAME} — EV cargo & hyperlocal B2B logistics`;
 
 export const metadata = generatePageMetadata({
-  title: PAGE_TITLE,
+  title: PAGE_META_TITLE,
   description: PAGE_DESCRIPTION,
   path: ABOUT_PATH,
   image: ABOUT_HERO_IMAGE.src,
@@ -32,11 +37,11 @@ export const metadata = generatePageMetadata({
 
 export default function AboutPage() {
   return (
-    <ContentLayout>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, BREADCRUMB_ABOUT]}>
       <JsonLd
         data={buildAboutPageJsonLd({
           pageUrl: PAGE_URL,
-          title: PAGE_TITLE,
+          title: PAGE_SCHEMA_NAME,
           description: PAGE_DESCRIPTION,
           heroImageUrl: ABOUT_HERO_IMAGE.src,
         })}

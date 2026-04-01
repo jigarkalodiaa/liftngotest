@@ -13,7 +13,7 @@ export default function ShopCard({ shop, imagePriority }: { shop: KhatuShop; ima
         <div className="relative aspect-[16/9] bg-stone-100">
           <Image
             src={shop.bannerImage}
-            alt=""
+            alt={`${shop.name} — marketplace shop`}
             fill
             className="object-cover"
             sizes="(max-width:640px) 100vw, 540px"

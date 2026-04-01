@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { normalizeCanonicalPath } from "@/lib/canonicalPath";
 import {
   SITE_URL,
   SITE_NAME,
@@ -64,7 +65,8 @@ export function generatePageMetadata({
   useAbsoluteTitle = false,
   keywords = [],
 }: PageSEOProps): Metadata {
-  const url = `${SITE_URL}${path}`;
+  const canonicalPath = normalizeCanonicalPath(path ?? "");
+  const url = `${SITE_URL}${canonicalPath}`;
   const imageUrl = absoluteShareImageUrl(image);
   const ogW = image === OG_IMAGE_PATH ? OG_IMAGE_WIDTH : 1200;
   const ogH = image === OG_IMAGE_PATH ? OG_IMAGE_HEIGHT : 630;
@@ -106,7 +108,11 @@ export function generatePageMetadata({
     },
     robots: noIndex
       ? { index: false, follow: !nofollow }
-      : { index: true, follow: true },
+      : {
+          index: true,
+          follow: true,
+          googleBot: { index: true, follow: true },
+        },
   };
 }
 

@@ -130,6 +130,7 @@ export function buildHomepageSeoGraph() {
     name: SITE_NAME,
     url: SITE_URL,
     description: SITE_DESCRIPTION,
+    inLanguage: 'en-IN',
     publisher: { '@id': ORGANIZATION_SCHEMA_ID },
   };
 

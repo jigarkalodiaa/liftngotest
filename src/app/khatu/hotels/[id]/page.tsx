@@ -3,6 +3,8 @@ import { generatePageMetadata } from '@/lib/seo';
 import { KHATU_HOTELS } from '@/data/khatuHotels';
 import KhatuHotelDetailPage from '@/features/khatu/hotels/KhatuHotelDetailPage';
 import { SITE_NAME } from '@/lib/site';
+import BreadcrumbsBar from '@/components/seo/BreadcrumbsBar';
+import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -28,5 +30,16 @@ export default async function KhatuHotelDetailRoute({ params }: PageProps) {
   const { id } = await params;
   const hotel = KHATU_HOTELS.find((h) => h.id === id && h.liftngoVerified);
   if (!hotel) notFound();
-  return <KhatuHotelDetailPage hotel={hotel} />;
+  return (
+    <>
+      <BreadcrumbsBar
+        items={[
+          BREADCRUMB_HOME,
+          { name: 'Hotels near Khatu Shyam Ji', path: '/khatu/hotels' },
+          { name: hotel.name, path: `/khatu/hotels/${id}` },
+        ]}
+      />
+      <KhatuHotelDetailPage hotel={hotel} />
+    </>
+  );
 }

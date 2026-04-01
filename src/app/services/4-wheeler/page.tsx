@@ -1,6 +1,7 @@
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, BRAND } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
+import { BREADCRUMB_HOME, BREADCRUMB_SERVICES } from '@/lib/breadcrumbsNav';
 import Link from 'next/link';
 import Image from '@/components/OptimizedImage';
 import { indiaPhotoBangaloreLoadedTruck } from '@/config/indiaLogisticsImages';
@@ -25,7 +26,13 @@ export const metadata = generatePageMetadata({
 
 export default function FourWheelerServicePage() {
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbs={[
+        BREADCRUMB_HOME,
+        BREADCRUMB_SERVICES,
+        { name: '4 wheeler mini truck', path: '/services/4-wheeler' },
+      ]}
+    >
       <main className="flex-1">
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <Link

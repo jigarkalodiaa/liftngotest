@@ -15,7 +15,7 @@ import {
 import { generateArticleMetadata } from '@/lib/seo';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { buildBlogPostingJsonLd } from '@/lib/structuredData/blogPosting';
-import { buildBreadcrumbJsonLd } from '@/lib/structuredData/homepageGraph';
+import { BREADCRUMB_HOME, BREADCRUMB_BLOG } from '@/lib/breadcrumbsNav';
 
 export const dynamicParams = false;
 
@@ -55,35 +55,16 @@ export default async function BlogArticlePage({ params }: Props) {
   const related = getRelatedPosts(slug, 3);
 
   return (
-    <ContentLayout>
+    <ContentLayout
+      breadcrumbs={[
+        BREADCRUMB_HOME,
+        BREADCRUMB_BLOG,
+        { name: post.title, path: `/blog/${post.slug}` },
+      ]}
+    >
       <JsonLd data={buildBlogPostingJsonLd(post, pageUrl)} />
-      <JsonLd
-        data={buildBreadcrumbJsonLd([
-          { name: 'Home', path: '/' },
-          { name: 'Blog', path: '/blog' },
-          { name: post.title, path: `/blog/${post.slug}` },
-        ])}
-      />
       <main className="flex-1">
         <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-          <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
-            <ol className="flex flex-wrap items-center gap-2">
-              <li>
-                <Link href="/" className="hover:text-[var(--color-primary)]">
-                  Home
-                </Link>
-              </li>
-              <li aria-hidden>/</li>
-              <li>
-                <Link href="/blog" className="hover:text-[var(--color-primary)]">
-                  Blog
-                </Link>
-              </li>
-              <li aria-hidden>/</li>
-              <li className="line-clamp-1 font-medium text-gray-900 max-w-[12rem] sm:max-w-xs">{post.title}</li>
-            </ol>
-          </nav>
-
           <header className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-[2.5rem] leading-tight">
               {post.title}
