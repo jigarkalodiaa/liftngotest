@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       { source: '/khatu-delivery', destination: '/khatu-shyam-logistics', permanent: true },
       { source: '/b2b-logistics-noida', destination: '/noida-b2b-logistics', permanent: true },
       { source: '/food-menu', destination: '/find-restaurant', permanent: false },
+      /** Chatbot & short links → canonical booking flow */
+      { source: '/book', destination: '/book-delivery', permanent: false },
     ];
   },
   images: {
