@@ -40,23 +40,20 @@ export default function HeroPickupAutocomplete({
   const serviceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const seqRef = useRef(0);
+  const mapsLoadStartedRef = useRef(false);
 
-  useEffect(() => {
-    if (!apiKey) return;
-    let cancelled = false;
+  /** Defer Maps until interaction so first paint / LCP is not competing with ~100KB+ Places JS. */
+  const ensureMapsLoaded = useCallback(() => {
+    if (!apiKey || mapsLoadStartedRef.current) return;
+    mapsLoadStartedRef.current = true;
     loadGoogleMapsPlaces(apiKey)
       .then(() => {
-        if (cancelled || !window.google?.maps?.places) return;
+        if (!window.google?.maps?.places) return;
         serviceRef.current = new google.maps.places.AutocompleteService();
         setMapsReady(true);
         setPlacesUnavailable(false);
       })
-      .catch(() => {
-        if (!cancelled) setPlacesUnavailable(true);
-      });
-    return () => {
-      cancelled = true;
-    };
+      .catch(() => setPlacesUnavailable(true));
   }, [apiKey]);
 
   const fetchPredictions = useCallback(
@@ -141,7 +138,10 @@ export default function HeroPickupAutocomplete({
           onChange(v);
           setOpen(true);
         }}
-        onFocus={() => setOpen(true)}
+        onFocus={() => {
+          setOpen(true);
+          ensureMapsLoaded();
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
             setOpen(false);

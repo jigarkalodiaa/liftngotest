@@ -9,9 +9,11 @@ import {
   useEffect,
   ReactNode,
 } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
-import MobileMenu from './MobileMenu';
-import { LoginModal } from '@/components/auth';
+
+const MobileMenu = dynamic(() => import('./MobileMenu'), { ssr: false });
+const LoginModal = dynamic(() => import('@/components/auth/LoginModal'));
 import { getAuthToken, getLandingPickupLocation, setLandingPickupLocation } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
 

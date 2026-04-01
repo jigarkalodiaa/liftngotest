@@ -283,13 +283,13 @@ export default function DefaultDashboardView({
 
       <div className="relative mt-8 rounded-3xl bg-gradient-to-b from-gray-50 to-[var(--landing-bg)]/60 px-4 pt-6 pb-6 overflow-hidden">
         <div className="relative mx-auto h-[min(52vw,260px)] w-full max-w-[340px] sm:h-[280px]">
-          <img
-            src="/images/liftngohero.gif"
+          <Image
+            src="/hero-delivery.svg"
             alt="LiftNGo — goods logistics and delivery"
-            width={1024}
-            height={1024}
+            width={400}
+            height={300}
             className="h-full w-full object-contain object-center"
-            decoding="async"
+            sizes="(max-width: 640px) 52vw, 340px"
           />
         </div>
       </div>
