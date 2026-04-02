@@ -3,11 +3,10 @@
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
-
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+import { GA_ID, pageview } from '@/lib/gtag';
 
 /**
- * Tracks SPA route changes by firing a `config` hit on every pathname / search-params change.
+ * Tracks SPA route changes by firing a page_view on every pathname / search-params change.
  * Wrapped in `<Suspense>` because `useSearchParams()` requires it in App Router.
  */
 function PageViewTracker() {
@@ -15,33 +14,37 @@ function PageViewTracker() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!GA_ID || typeof window.gtag !== 'function') return;
-    const pagePath = searchParams.size
+    const url = searchParams.size
       ? `${pathname}?${searchParams.toString()}`
       : pathname;
-    window.gtag('config', GA_ID, { page_path: pagePath });
+    pageview(url);
   }, [pathname, searchParams]);
 
   return null;
 }
 
 /**
- * Google Analytics 4 — load only when `NEXT_PUBLIC_GA_MEASUREMENT_ID` is set.
- * Uses `afterInteractive` for reliable event capture.
- * `send_page_view: false` — page views are tracked manually by `PageViewTracker`.
+ * Google Analytics 4 — ALWAYS renders. No conditional guards.
+ * Hardcoded fallback in gtag.ts guarantees GA_ID is never empty.
+ *
+ * The initial `gtag('config')` sends the first page_view automatically.
+ * `PageViewTracker` handles subsequent SPA navigations.
  */
 export default function GoogleAnalytics() {
-  if (!GA_ID) return null;
-
   return (
     <>
-      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+        strategy="afterInteractive"
+      />
       <Script id="ga4-config" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
           gtag('js', new Date());
-          gtag('config', '${GA_ID}', { send_page_view: false, anonymize_ip: true });
+          gtag('config', '${GA_ID}', { anonymize_ip: true });
+          console.log('[GA4] Loaded — ID:', '${GA_ID}');
         `}
       </Script>
       <Suspense fallback={null}>
