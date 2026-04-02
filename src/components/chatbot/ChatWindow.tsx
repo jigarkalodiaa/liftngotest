@@ -15,8 +15,15 @@ import {
   getBotReply,
   typingDelayMs,
 } from '@/lib/chatEngine';
+import { IS_DEV } from '@/config/env';
 
 const SEND_THROTTLE_MS = 400;
+
+function devChatLog(message: string, payload?: Record<string, unknown>) {
+  if (!IS_DEV) return;
+  if (payload) console.debug('[Liftngo Chat]', message, payload);
+  else console.debug('[Liftngo Chat]', message);
+}
 const SESSION_KEY = 'liftngo_chat_session';
 /** Show WhatsApp escalation only after this many user-sent messages. */
 const WHATSAPP_AFTER_USER_MESSAGES = 10;
@@ -46,6 +53,7 @@ export default function ChatWindow({ onClose }: Props) {
       sessionStorage.setItem(SESSION_KEY, id);
     }
     sessionIdRef.current = id;
+    devChatLog('session ready', { sessionId: id });
   }, []);
 
   const userMessageCount = messages.filter((m) => m.role === 'user').length;
@@ -80,6 +88,14 @@ export default function ChatWindow({ onClose }: Props) {
       await new Promise((r) => setTimeout(r, typingDelayMs()));
 
       const result = getBotReply(trimmed, stateForEngine);
+      devChatLog('turn', {
+        user: trimmed,
+        replyPreview: result.reply.slice(0, 120),
+        captureLead: result.captureLead,
+        action: result.action,
+        nextLeadStep: result.nextLeadStep,
+        suggestedChips: result.suggestedChips,
+      });
 
       const appendAssistant = (content: string, chips?: string[]) => {
         setMessages((m) => [...m, { role: 'assistant', content, suggestionChips: chips }]);
@@ -173,12 +189,14 @@ export default function ChatWindow({ onClose }: Props) {
 
   const confirmRedirect = useCallback(() => {
     if (!pendingRedirectUrl) return;
+    devChatLog('redirect confirm', { url: pendingRedirectUrl });
     router.push(pendingRedirectUrl);
     setPendingRedirectUrl(null);
     onClose();
   }, [pendingRedirectUrl, router, onClose]);
 
   const cancelRedirect = useCallback(() => {
+    devChatLog('redirect cancelled');
     setPendingRedirectUrl(null);
     setMessages((m) => [
       ...m,
