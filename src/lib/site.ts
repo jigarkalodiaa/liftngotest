@@ -32,22 +32,22 @@ export const LOGO_IMAGE_WIDTH = 1024;
 export const LOGO_IMAGE_HEIGHT = 1024;
 
 /** Meta title — target ~50–60 chars (Semrush / SERP tooling). */
-export const META_TITLE = 'Liftngo Logistics | B2B Delivery in Khatu & Delhi NCR';
+export const META_TITLE = 'Khatu Delivery Service | Liftngo Logistics';
 
 /** Meta description — target ~100–130 chars. */
 export const SITE_DESCRIPTION =
-  'Fast and reliable logistics in Khatu Shyam Ji and Delhi NCR. Book goods delivery with Liftngo—upfront pricing.';
+  'Khatu delivery & logistics: ₹50 fixed delivery, 15–25 min ETA, no app. B2B for hotels, restaurants & suppliers — book on WhatsApp or online.';
 
 /** Short description (footer, cards, manifest). */
 export const SHORT_DESCRIPTION =
-  'Hyperlocal logistics in Khatu Shyam Ji and B2B logistics in Noida & Delhi NCR—multi-vehicle goods transport with upfront pricing.';
+  'Khatu delivery & logistics: ₹50 fixed, 15–25 min, no app. B2B partner for hotels, restaurants & suppliers in Khatu and Delhi NCR.';
 
 /** OG title (can match or complement META_TITLE). */
-export const OG_TITLE = 'Liftngo Logistics | B2B & hyperlocal goods delivery';
+export const OG_TITLE = 'Khatu’s fastest delivery network — Liftngo';
 
 /** OG description — aligned length with SITE_DESCRIPTION. */
 export const OG_DESCRIPTION =
-  'Reliable logistics in Khatu Shyam Ji & Delhi NCR. Book 2W–4W delivery with Liftngo today.';
+  'Khatu logistics & delivery: fixed ₹50, 15–25 minutes, no app. Hotels, restaurants & suppliers — partner with Liftngo.';
 
 /** Twitter card title. */
 export const TWITTER_TITLE = OG_TITLE;
@@ -63,6 +63,9 @@ export const ONE_LINE_PITCH =
   'Liftngo is a digital logistics platform that connects customers with drivers for seamless, affordable, and efficient goods transportation.';
 
 export const SEO_KEYWORDS = [
+  'khatu delivery',
+  'khatu logistics',
+  'hotel delivery khatu',
   'logistics in khatu shyam ji',
   'delivery service khatu',
   'local delivery khatu',

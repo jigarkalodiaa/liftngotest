@@ -5,7 +5,9 @@ import { useMenu, useLandingPickup } from './PageWrapper';
 import HeroPickupAutocomplete from './HeroPickupAutocomplete';
 import { getLandingPickupLocation, setLandingPickupLocation, setPostLoginPath } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
-import { trackBookNowClick } from '@/lib/analytics';
+import { trackBookNowClick, trackWhatsAppClick } from '@/lib/analytics';
+import { getSupportTelHref } from '@/lib/contactCta';
+import { getWhatsAppUrl } from '@/lib/whatsapp';
 
 export type HeroProps = {
   /** Use `h2` when the page already has a primary `h1` (e.g. city SEO landings). */
@@ -72,24 +74,49 @@ function Hero({ heroTitleLevel = 'h1' }: HeroProps) {
 
   const TitleTag = heroTitleLevel === 'h2' ? 'h2' : 'h1';
   const titleClass =
-    'text-balance pt-6 text-[clamp(1.25rem,4.2vw,2.75rem)] font-bold leading-tight tracking-tight text-gray-900 sm:text-3xl lg:text-5xl max-w-4xl mx-auto';
+    'text-balance pt-6 text-[clamp(1.35rem,4.5vw,2.75rem)] font-bold leading-tight tracking-tight text-gray-900 sm:text-4xl lg:text-5xl max-w-4xl mx-auto';
+
+  const telHref = getSupportTelHref();
+  const waHref = getWhatsAppUrl(
+    'Hi Liftngo — I want to book delivery in Khatu (pickup & drop to follow).'
+  );
 
   return (
     <section className="relative bg-[var(--landing-bg)] pt-6 sm:pt-8 pb-12 lg:pb-20">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="text-center">
-          <TitleTag className={titleClass}>
-            Hyperlocal &amp; B2B goods logistics
-          </TitleTag>
-          <p className="mt-2 text-[clamp(1.35rem,5.5vw,3.75rem)] font-bold leading-tight text-[var(--landing-orange)] sm:text-4xl lg:text-6xl max-w-4xl mx-auto">
-            ₹0 delivery fee on first order
+          <TitleTag className={titleClass}>Khatu&apos;s fastest delivery network</TitleTag>
+          <p className="mx-auto mt-3 max-w-2xl text-base font-semibold leading-snug text-gray-800 sm:text-lg md:text-xl px-1">
+            ₹50 fixed delivery · No app needed · 15–25 min delivery
           </p>
-          <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-1 pt-3 sm:pt-4 px-1">
-            Khatu Shyam Ji hyperlocal · Noida &amp; Delhi NCR B2B · EV where it fits
+          <p className="mx-auto mt-2 max-w-xl text-sm text-gray-500">
+            Khatu logistics for homes &amp; businesses — B2B for hotels, restaurants &amp; suppliers.
           </p>
-          <p className="text-sm text-gray-400 mb-10 sm:mb-14">*Other fees apply</p>
 
-          <div className="relative z-10 mx-auto w-full max-w-lg text-left">
+          {/* Above-the-fold CTAs — sticky within hero while section is in view */}
+          <div className="sticky top-[max(0.5rem,env(safe-area-inset-top))] z-30 mx-auto mt-8 flex w-full max-w-lg flex-col gap-3 sm:flex-row sm:justify-center">
+            <a
+              href={telHref}
+              className="flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-[var(--color-primary)] px-6 py-3 text-sm font-bold text-white shadow-md transition-opacity hover:opacity-95 sm:min-w-[160px] sm:flex-1"
+            >
+              Call now
+            </a>
+            {waHref ? (
+              <a
+                href={waHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-[48px] w-full items-center justify-center rounded-2xl bg-[#25D366] px-6 py-3 text-sm font-bold text-white shadow-md transition-opacity hover:opacity-95 sm:min-w-[180px] sm:flex-1"
+                onClick={() => trackWhatsAppClick('hero_book_whatsapp')}
+              >
+                Book on WhatsApp
+              </a>
+            ) : null}
+          </div>
+
+          <p className="mt-6 text-xs text-gray-400">Or enter pickup below to continue in the app</p>
+
+          <div className="relative z-10 mx-auto mt-6 w-full max-w-lg text-left">
             <div className="flex min-h-14 min-w-0 items-center gap-2 rounded-2xl border border-gray-200 bg-white px-2 py-1 shadow-sm sm:h-14 sm:py-0">
               <span className="flex flex-shrink-0 items-center pl-3 text-gray-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>

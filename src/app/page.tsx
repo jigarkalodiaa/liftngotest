@@ -7,6 +7,8 @@ import {
   Footer,
   PageWrapper,
 } from '@/components/landing';
+import HomeConversionSections from '@/components/landing/HomeConversionSections';
+import HomeMobileCtaDock from '@/components/landing/HomeMobileCtaDock';
 import { generatePageMetadata } from '@/lib/seo';
 import { META_TITLE, SITE_DESCRIPTION, SEO_KEYWORDS } from '@/lib/site';
 
@@ -52,10 +54,11 @@ export default function Home() {
     <PageWrapper headerSlot={<Header />}>
       <JsonLd data={buildHomepageSeoGraph()} />
       <main
-        className="flex min-h-[100dvh] min-h-screen w-full flex-col overflow-x-clip"
+        className="flex min-h-[100dvh] min-h-screen w-full flex-col overflow-x-clip pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-0"
         aria-label="LiftnGo home: logistics, delivery, and transport services"
       >
         <Hero />
+        <HomeConversionSections />
         <HomeSeoContent />
         <HomeDeepAuthoritySection />
         <Features />
@@ -66,6 +69,7 @@ export default function Home() {
         <TestimonialsSection />
         <FaqSection />
       </main>
+      <HomeMobileCtaDock />
       <Footer />
     </PageWrapper>
   );

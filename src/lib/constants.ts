@@ -83,6 +83,10 @@ export const ROUTES = {
   FIND_RESTAURANT: '/find-restaurant',
   /** Marketing: contact & sitelinks (support, social, addresses). */
   CONTACT: '/contact',
+  /** B2B vertical landings (Khatu). */
+  FOR_HOTELS: '/for-hotels',
+  FOR_RESTAURANTS: '/for-restaurants',
+  FOR_SUPPLIERS: '/for-suppliers',
   /** Marketing: driver / partner onboarding (links to careers + requirements). */
   BECOME_DRIVER: '/become-driver',
   /** Dedicated login screen (food booking & guarded flows redirect here). */
