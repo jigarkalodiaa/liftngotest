@@ -53,6 +53,21 @@ export default function Footer() {
               <li><Link href="/logistics-khatu" className="hover:text-white transition-colors">Logistics in Khatu</Link></li>
               <li><Link href="/b2b-transport" className="hover:text-white transition-colors">B2B transport</Link></li>
               <li><Link href="/book-delivery" className="hover:text-white transition-colors">Book delivery</Link></li>
+              <li>
+                <Link href={ROUTES.FOR_HOTELS} className="hover:text-white transition-colors">
+                  For hotels (B2B)
+                </Link>
+              </li>
+              <li>
+                <Link href={ROUTES.FOR_RESTAURANTS} className="hover:text-white transition-colors">
+                  For restaurants (B2B)
+                </Link>
+              </li>
+              <li>
+                <Link href={ROUTES.FOR_SUPPLIERS} className="hover:text-white transition-colors">
+                  For suppliers (B2B)
+                </Link>
+              </li>
             </ul>
           </div>
 
