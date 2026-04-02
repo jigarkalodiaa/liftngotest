@@ -4,22 +4,17 @@
  *
  * Every other file (Analytics.tsx, analytics.ts) imports from here
  * so the env-var name and safety checks live in exactly one place.
+ *
+ * Hardcoded fallback guarantees the tag always fires — even if the
+ * Vercel env var is missing, misspelled, or scoped to the wrong environment.
  */
 
-export const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? '';
-
-const isBrowser = typeof window !== 'undefined';
-
-if (isBrowser && !GA_ID) {
-  console.warn(
-    '[GA4] NEXT_PUBLIC_GA_ID is not set — analytics will not fire. ' +
-      'Add it to .env.local (dev) or Vercel Environment Variables (production).',
-  );
-}
+export const GA_ID: string =
+  process.env.NEXT_PUBLIC_GA_ID || 'G-JKQ7E01B2T';
 
 /** Send a page_view config hit for SPA navigations. */
 export function pageview(url: string): void {
-  if (!isBrowser || !GA_ID || typeof window.gtag !== 'function') return;
+  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
   window.gtag('config', GA_ID, { page_path: url });
 }
 
@@ -28,6 +23,6 @@ export function event(
   action: string,
   params?: Record<string, string | number | boolean>,
 ): void {
-  if (!isBrowser || typeof window.gtag !== 'function') return;
+  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
   window.gtag('event', action, params ?? {});
 }
