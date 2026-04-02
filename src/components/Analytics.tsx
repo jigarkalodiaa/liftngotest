@@ -3,8 +3,7 @@
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
-
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+import { GA_ID, pageview } from '@/lib/gtag';
 
 /**
  * Tracks SPA route changes by firing a `config` hit on every pathname / search-params change.
@@ -15,18 +14,18 @@ function PageViewTracker() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!GA_ID || typeof window.gtag !== 'function') return;
-    const pagePath = searchParams.size
+    if (!GA_ID) return;
+    const url = searchParams.size
       ? `${pathname}?${searchParams.toString()}`
       : pathname;
-    window.gtag('config', GA_ID, { page_path: pagePath });
+    pageview(url);
   }, [pathname, searchParams]);
 
   return null;
 }
 
 /**
- * Google Analytics 4 — load only when `NEXT_PUBLIC_GA_MEASUREMENT_ID` is set.
+ * Google Analytics 4 — load only when `NEXT_PUBLIC_GA_ID` is set.
  * Uses `afterInteractive` for reliable event capture.
  * `send_page_view: false` — page views are tracked manually by `PageViewTracker`.
  */

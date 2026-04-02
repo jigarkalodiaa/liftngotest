@@ -6,6 +6,8 @@
  * are silently dropped. Legitimate re-fires after the cooldown go through normally.
  */
 
+import { event as gtagEvent } from '@/lib/gtag';
+
 const DEDUP_MS = 2000;
 const _lastFired = new Map<string, number>();
 
@@ -24,7 +26,7 @@ export type AnalyticsEventName =
   | 'booking_completed';
 
 export function trackEvent(name: AnalyticsEventName, params?: Record<string, string | number | boolean>) {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+  if (typeof window === 'undefined') return;
 
   const key = params ? `${name}:${JSON.stringify(params)}` : name;
   const now = Date.now();
@@ -32,7 +34,7 @@ export function trackEvent(name: AnalyticsEventName, params?: Record<string, str
   if (last && now - last < DEDUP_MS) return;
 
   _lastFired.set(key, now);
-  window.gtag('event', name, params ?? {});
+  gtagEvent(name, params);
 }
 
 /* ─── existing helpers ─── */
