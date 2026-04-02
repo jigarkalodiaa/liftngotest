@@ -48,7 +48,7 @@ export const KHATU_SHYAM_LANDING_FAQ = [
   {
     question: 'Is Liftngo only for Khatu Shyam Ji?',
     answer:
-      'Hyperlocal operations are focused on Khatu Shyam Ji (Rajasthan). We also build B2B logistics in Noida and Delhi NCR—we do not claim pan-India generic coverage.',
+      'Hyperlocal operations are centred on Khatu Shyam Ji (Rajasthan). We also operate B2B logistics across Noida and Delhi NCR, giving businesses reliable, region-specific delivery they can depend on.',
   },
   {
     question: 'Can I contact Liftngo on WhatsApp for Khatu deliveries?',

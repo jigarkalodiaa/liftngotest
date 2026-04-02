@@ -58,7 +58,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: '9',
     question: 'Do you cover all of India?',
     answer:
-      'No. Liftngo is deliberately not pan-India marketing. We focus on high-trust hyperlocal and B2B lanes—especially Khatu Shyam Ji and the Noida / Delhi NCR corridor—rather than promising nationwide coverage we cannot operate consistently.',
+      'Liftngo currently serves Khatu Shyam Ji and the Delhi NCR region (Noida, Gurugram, Ghaziabad, Faridabad, and Delhi). We focus on deep coverage in these areas to ensure reliable service. For B2B clients with consistent volume in other cities, we can design dedicated trunk lanes — reach out via the Contact page.',
   },
   {
     id: '10',

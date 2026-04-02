@@ -100,8 +100,13 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: FAVICON_PATH, type: "image/png", sizes: "1024x1024" }],
-    apple: [{ url: FAVICON_PATH, type: "image/png", sizes: "1024x1024" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
   },
   manifest: "/manifest.json",
   ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {

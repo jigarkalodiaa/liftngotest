@@ -41,11 +41,11 @@ export default function HomeSeoContent() {
             Khatu Shyam Ji hyperlocal · Noida &amp; Delhi NCR B2B
           </h2>
           <p className="mx-auto mt-4 max-w-3xl text-center text-base leading-relaxed text-gray-700 sm:mt-5 sm:text-lg">
-            Liftngo is <strong className="font-semibold text-gray-900">not pan-India</strong>—we operate{' '}
-            <strong className="font-semibold text-gray-900">logistics in Khatu Shyam Ji</strong> for vendors, food, and shops, and{' '}
+            Liftngo delivers reliable{' '}
+            <strong className="font-semibold text-gray-900">logistics in Khatu Shyam Ji</strong> for vendors, food outlets, and shops, and{' '}
             <strong className="font-semibold text-gray-900">B2B logistics in Noida</strong> &amp; the wider{' '}
-            <strong className="font-semibold text-gray-900">Delhi NCR</strong> corridor. Multi-vehicle booking, upfront fares, EV where
-            lanes fit.
+            <strong className="font-semibold text-gray-900">Delhi NCR</strong> corridor. Book bike, auto, or mini truck with upfront
+            pricing, verified drivers, and real-time tracking.
           </p>
 
           <nav
