@@ -25,6 +25,7 @@ import { readKhatuRideBooking } from '@/lib/khatuSessionStorage';
 import { getKhatuRouteDefaultLocations, KHATU_RIDE_VEHICLE_OPTIONS, khatuVehicleImage } from '@/data/khatuTravel';
 import type { RideVehicleType, TravelRouteId } from '@/types/khatu';
 import { theme } from '@/config/theme';
+import { trackCheckPriceClick } from '@/lib/analytics';
 
 type KhatuQuoteVehicle = {
   type: RideVehicleType;
@@ -517,9 +518,10 @@ export default function TripOptionsPage() {
                 fontSize: theme.fontSizes.xl,
                 ...(fromFood ? {} : { borderWidth: 1, borderStyle: 'solid' as const }),
               }}
-              onClick={() =>
-                router.push(fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT)
-              }
+              onClick={() => {
+                trackCheckPriceClick(OPTION_TO_SERVICE[selected]);
+                router.push(fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT);
+              }}
             >
               Book Now
             </button>

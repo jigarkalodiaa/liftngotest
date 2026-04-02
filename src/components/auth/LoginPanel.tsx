@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { finalizeLoginSessionAfterOtp } from '@/lib/auth/finalizeLoginSession';
 import { getValidOtp } from '@/lib/constants';
 import { loginPhoneSchema, loginOtpSchema, MOBILE_LENGTH, normalizePhoneInput, type LoginPhoneForm } from '@/lib/validations';
+import { trackLoginStarted, trackOtpSent, trackOtpVerified } from '@/lib/analytics';
 
 type LoginStep = 'phone' | 'otp';
 
@@ -139,6 +140,8 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   );
 
   const onPhoneSubmit = useCallback(() => {
+    trackLoginStarted();
+    trackOtpSent();
     setStep('otp');
     setCountdown(30);
   }, []);
@@ -156,6 +159,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
       setOtp(['', '', '', '']);
       return;
     }
+    trackOtpVerified();
     const nextPath = finalizeLoginSessionAfterOtp(phoneNumber);
     setTimeout(() => onCompleted(nextPath), variant === 'page' ? 0 : 400);
   }, [otp, phoneNumber, onCompleted, variant]);

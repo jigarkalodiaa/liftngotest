@@ -23,6 +23,7 @@ import {
 } from '@/lib/storage';
 import { ROUTES, PICKUP_LOCATION_MODE_DEFAULTS, TRIP_OPTIONS_FROM_KHATU_TRAVEL } from '@/lib/constants';
 import { senderDetailsSchema, receiverDetailsSchema, validatePersonName } from '@/lib/validations';
+import { trackPickupLocationEntered, trackDropLocationEntered } from '@/lib/analytics';
 
 type PersonalForm = {
   senderName: string;
@@ -360,6 +361,7 @@ export default function EditPickupContent() {
         return;
       }
       setSenderDetails({ name: result.data.senderName, mobile: result.data.senderMobile });
+      trackPickupLocationEntered(fromFood ? 'food_flow' : fromKhatuTravel ? 'khatu_flow' : 'standard');
       setStep(2);
       router.replace(buildPickupLocationReturnTo(2));
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -397,6 +399,7 @@ export default function EditPickupContent() {
         return;
       }
       setReceiverDetails({ name: result.data.receiverName, mobile: result.data.receiverMobile });
+      trackDropLocationEntered(fromFood ? 'food_flow' : fromKhatuTravel ? 'khatu_flow' : 'standard');
       if (addDefaults) {
         const savedPickup = getPickupLocation();
         const effectivePickup = savedLocationHasAddress(pickup) ? pickup : savedPickup;
