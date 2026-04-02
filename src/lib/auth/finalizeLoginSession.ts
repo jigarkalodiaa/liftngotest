@@ -15,17 +15,25 @@ import {
 } from '@/lib/storage';
 import { normalizePhoneInput } from '@/lib/validations';
 
+export type FinalizeLoginOptions = {
+  /** Backend access token from NextAuth session — forwarded to `apiClient` Bearer header. */
+  accessToken?: string | null;
+};
+
 /**
  * Persist session after successful OTP and apply landing-pickup hydration rules.
  * @returns Next path for `router.push` / `router.replace` (includes query when set).
  */
-export function finalizeLoginSessionAfterOtp(rawPhone: string): string {
+export function finalizeLoginSessionAfterOtp(rawPhone: string, options?: FinalizeLoginOptions): string {
   setLoggedIn(true);
   trackFormSubmit('login_otp_success');
   const phone = normalizePhoneInput(rawPhone);
   setStoredPhone(phone);
-  const dummyToken = `dummy_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-  setAuthToken(dummyToken);
+  const token =
+    typeof options?.accessToken === 'string' && options.accessToken.trim()
+      ? options.accessToken.trim()
+      : `dummy_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  setAuthToken(token);
 
   const nextPath = consumePostLoginRedirect();
   const landingPickupValue = getLandingPickupLocation()?.trim() ?? '';
@@ -35,7 +43,7 @@ export function finalizeLoginSessionAfterOtp(rawPhone: string): string {
       const name = landingPickupValue.split(',')[0]?.trim() || 'Pickup location';
       setPickupLocation({ name, address: landingPickupValue, contact: '' });
     } else if (!savedLocationHasAddress(getPickupLocation())) {
-      // Food flow (and others) may already have set pickup in localStorage before login.
+      // Food flow (and others) may already have set pickup in sessionStorage before login.
       clearPickupLocation();
       clearDropLocation();
     }

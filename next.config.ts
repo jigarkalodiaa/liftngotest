@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
+/** Helps client bundles pick up `.env.local` after it changes (restart dev after edits). */
+const publicAuthBase = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+
 const nextConfig: NextConfig = {
+  ...(publicAuthBase
+    ? {
+        env: {
+          NEXT_PUBLIC_API_BASE_URL: publicAuthBase,
+        },
+      }
+    : {}),
   compress: true,
   experimental: {
     optimizePackageImports: ['lucide-react'],

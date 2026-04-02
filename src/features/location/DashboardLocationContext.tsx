@@ -16,7 +16,7 @@ import {
   saveUserLocation,
   type StoredUserLocation,
 } from '@/lib/utils/locationStorage';
-import { fetchLocationDetails } from '@/features/location/locationService';
+import { fetchLocationDetails } from '@/api/services/locationService';
 import { getDashboardZoneUi, type DashboardZoneUiConfig } from '@/features/location/dashboardZoneUi';
 
 export interface DashboardLocationContextValue {

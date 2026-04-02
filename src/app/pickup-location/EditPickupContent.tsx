@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SavedLocation } from '@/types/booking';
 import {
@@ -23,6 +23,7 @@ import {
 } from '@/lib/storage';
 import { ROUTES, PICKUP_LOCATION_MODE_DEFAULTS, TRIP_OPTIONS_FROM_KHATU_TRAVEL } from '@/lib/constants';
 import { senderDetailsSchema, receiverDetailsSchema, validatePersonName } from '@/lib/validations';
+import { geocodeAddress } from '@/utils/geocode';
 
 type PersonalForm = {
   senderName: string;
@@ -325,7 +326,7 @@ export default function EditPickupContent() {
     return () => window.clearTimeout(id);
   }, [needsFoodDeliveryAddress]);
 
-  const onStep1Submit = () => {
+  const onStep1Submit = async () => {
     clearErrors();
     setPickupAddressError('');
     setIsSubmitting(true);
@@ -334,17 +335,16 @@ export default function EditPickupContent() {
         const addr = addrDraft.trim();
         if (addr.length < 5) {
           setPickupAddressError('Please enter a pickup address (at least 5 characters).');
-          setIsSubmitting(false);
           return;
         }
         const name = addr.split(/[,\n]/)[0]?.trim().slice(0, 80) || 'Pickup location';
         const full = landmarkDraft.trim() ? `${addr} · Near ${landmarkDraft.trim()}` : addr;
-        const loc: SavedLocation = { name, address: full, contact: '' };
+        const coords = await geocodeAddress(full);
+        const loc: SavedLocation = { name, address: full, contact: '', ...coords };
         setPickup(loc);
         setPickupLocation(loc);
       } else if (!savedLocationHasAddress(pickup)) {
         setPickupAddressError('Restaurant pickup is required. Go back and choose Book delivery from the menu.');
-        setIsSubmitting(false);
         return;
       }
 
@@ -356,7 +356,6 @@ export default function EditPickupContent() {
         const err = result.error.flatten().fieldErrors;
         if (err.senderName?.[0]) setError('senderName', { message: err.senderName[0] });
         if (err.senderMobile?.[0]) setError('senderMobile', { message: err.senderMobile[0] });
-        setIsSubmitting(false);
         return;
       }
       setSenderDetails({ name: result.data.senderName, mobile: result.data.senderMobile });
@@ -368,7 +367,7 @@ export default function EditPickupContent() {
     }
   };
 
-  const onStep2Submit = () => {
+  const onStep2Submit = async () => {
     clearErrors();
     setDropAddressError('');
     setIsSubmitting(true);
@@ -376,12 +375,12 @@ export default function EditPickupContent() {
       const addr = dropAddrDraft.trim();
       if (addr.length < 5) {
         setDropAddressError('Please enter a drop address (at least 5 characters).');
-        setIsSubmitting(false);
         return;
       }
       const dropName = addr.split(/[,\n]/)[0]?.trim().slice(0, 80) || 'Drop location';
       const dropFull = dropLandmarkDraft.trim() ? `${addr} · Near ${dropLandmarkDraft.trim()}` : addr;
-      const dropLoc: SavedLocation = { name: dropName, address: dropFull, contact: '' };
+      const coords = await geocodeAddress(dropFull);
+      const dropLoc: SavedLocation = { name: dropName, address: dropFull, contact: '', ...coords };
       setDrop(dropLoc);
       setDropLocation(dropLoc);
 
@@ -393,7 +392,6 @@ export default function EditPickupContent() {
         const err = result.error.flatten().fieldErrors;
         if (err.receiverName?.[0]) setError('receiverName', { message: err.receiverName[0] });
         if (err.receiverMobile?.[0]) setError('receiverMobile', { message: err.receiverMobile[0] });
-        setIsSubmitting(false);
         return;
       }
       setReceiverDetails({ name: result.data.receiverName, mobile: result.data.receiverMobile });

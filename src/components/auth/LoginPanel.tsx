@@ -3,15 +3,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { finalizeLoginSessionAfterOtp } from '@/lib/auth/finalizeLoginSession';
-import { getValidOtp } from '@/lib/constants';
+import { maskIndianMobile } from '@/lib/auth/mobileE164';
+import { useSendOtp, useResendOtp, useVerifyOtp } from '@/hooks/auth';
 import { loginPhoneSchema, loginOtpSchema, MOBILE_LENGTH, normalizePhoneInput, type LoginPhoneForm } from '@/lib/validations';
+
+const SEND_DEBOUNCE_MS = 2500;
+const RESEND_COOLDOWN_SEC = 60;
 
 type LoginStep = 'phone' | 'otp';
 
 export type LoginPanelProps = {
   variant: 'modal' | 'page';
-  /** Modal: set false when closed to reset UI. Page: omit (always active). */
   isActive?: boolean;
   onDismiss?: () => void;
   onCompleted: (nextPath: string) => void;
@@ -31,6 +33,11 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   const [otp, setOtp] = useState(['', '', '', '']);
   const [countdown, setCountdown] = useState(0);
   const [otpError, setOtpError] = useState('');
+  const [sendError, setSendError] = useState('');
+  const lastSendRef = useRef(0);
+  const sendOtpMutation = useSendOtp();
+  const resendOtpMutation = useResendOtp();
+  const verifyOtpMutation = useVerifyOtp();
 
   const {
     register,
@@ -58,6 +65,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
       setStep('phone');
       setOtp(['', '', '', '']);
       setOtpError('');
+      setSendError('');
     }
     wasActiveRef.current = isActive;
   }, [isActive, reset]);
@@ -85,7 +93,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
     if (variant !== 'modal' || !isActive || !panelRef.current) return;
     const panel = panelRef.current;
     const focusables = panel.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
     const first = focusables[0];
     if (first) first.focus();
@@ -135,15 +143,53 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
         }
       }
     },
-    [step, phoneNumber, otp, setValue]
+    [step, phoneNumber, otp, setValue],
   );
 
-  const onPhoneSubmit = useCallback(() => {
-    setStep('otp');
-    setCountdown(30);
-  }, []);
+  const runSendOtp = useCallback(async () => {
+    setSendError('');
+    const now = Date.now();
+    if (now - lastSendRef.current < SEND_DEBOUNCE_MS) {
+      setSendError(`Please wait ${Math.ceil((SEND_DEBOUNCE_MS - (now - lastSendRef.current)) / 1000)}s before another request.`);
+      return;
+    }
+    lastSendRef.current = now;
+    try {
+      await sendOtpMutation.mutateAsync(phoneNumber);
+      setStep('otp');
+      setOtp(['', '', '', '']);
+      setOtpError('');
+      setCountdown(RESEND_COOLDOWN_SEC);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Could not send OTP. Try again.';
+      setSendError(msg);
+    }
+  }, [phoneNumber, sendOtpMutation]);
 
-  const handleVerify = useCallback(() => {
+  const runResendOtp = useCallback(async () => {
+    setSendError('');
+    const now = Date.now();
+    if (now - lastSendRef.current < SEND_DEBOUNCE_MS) {
+      setSendError(`Please wait ${Math.ceil((SEND_DEBOUNCE_MS - (now - lastSendRef.current)) / 1000)}s before another request.`);
+      return;
+    }
+    lastSendRef.current = now;
+    try {
+      await resendOtpMutation.mutateAsync(phoneNumber);
+      setOtp(['', '', '', '']);
+      setOtpError('');
+      setCountdown(RESEND_COOLDOWN_SEC);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Could not resend OTP. Try again.';
+      setSendError(msg);
+    }
+  }, [phoneNumber, resendOtpMutation]);
+
+  const onPhoneSubmit = useCallback(() => {
+    void runSendOtp();
+  }, [runSendOtp]);
+
+  const handleVerify = useCallback(async () => {
     setOtpError('');
     const result = loginOtpSchema.safeParse({ otp: otp.join('') });
     if (!result.success) {
@@ -151,18 +197,24 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
       setOtpError(first?.message ?? 'Please enter a valid 4-digit OTP');
       return;
     }
-    if (otp.join('') !== getValidOtp()) {
-      setOtpError('Invalid OTP. Please try again.');
+
+    try {
+      const { nextPath } = await verifyOtpMutation.mutateAsync({
+        phone: phoneNumber,
+        otp: otp.join(''),
+      });
+      setTimeout(() => onCompleted(nextPath), variant === 'page' ? 0 : 400);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Something went wrong. Please try again.';
+      setOtpError(msg);
       setOtp(['', '', '', '']);
-      return;
     }
-    const nextPath = finalizeLoginSessionAfterOtp(phoneNumber);
-    setTimeout(() => onCompleted(nextPath), variant === 'page' ? 0 : 400);
-  }, [otp, phoneNumber, onCompleted, variant]);
+  }, [otp, phoneNumber, onCompleted, variant, verifyOtpMutation]);
 
   const formatTimer = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
     const s = seconds % 60;
-    return `00:${String(s).padStart(2, '0')}s`;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
   const keypadKeys: { key: string; id: string }[][] = [
@@ -175,6 +227,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   const phoneDigits = normalizePhoneInput(phoneNumber);
   const otpValid = loginOtpSchema.safeParse({ otp: otp.join('') }).success;
   const otpFilled = otp.every((d) => d !== '');
+  const canSend = phoneDigits.length === MOBILE_LENGTH && termsChecked && !sendOtpMutation.isPending;
 
   const shellClass =
     variant === 'modal'
@@ -235,6 +288,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
                 )}
               </div>
               {errors.phone && <ErrorMessage message={errors.phone.message ?? 'Invalid phone'} />}
+              {sendError && <ErrorMessage message={sendError} />}
             </div>
 
             <label className="flex items-start gap-3 cursor-pointer mb-6">
@@ -255,13 +309,15 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
           <>
             <div className="mb-3 flex items-center gap-2">
               <p className="text-sm text-gray-700">
-                Sent to <span className="font-semibold text-gray-900">+91{phoneNumber}</span>
+                Sent to <span className="font-semibold text-gray-900 tabular-nums">{maskIndianMobile(phoneNumber)}</span>
               </p>
               <button
                 type="button"
                 onClick={() => {
                   setStep('phone');
                   setOtp(['', '', '', '']);
+                  setOtpError('');
+                  setSendError('');
                 }}
                 className="p-1.5 rounded-lg text-[var(--color-primary)] hover:bg-gray-100"
                 aria-label="Edit phone number"
@@ -311,22 +367,22 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
 
             {otpFilled && !otpValid && <ErrorMessage message="Please enter a valid 4-digit OTP" />}
             {otpError && <ErrorMessage message={otpError} />}
+            {sendError && step === 'otp' && <ErrorMessage message={sendError} />}
 
             <p className="text-sm text-gray-600 mb-4">
               Didn&apos;t receive OTP?{' '}
               {countdown > 0 ? (
-                <span className="font-semibold text-[var(--color-primary)]">{formatTimer(countdown)}</span>
+                <span className="font-semibold text-[var(--color-primary)]">Resend in {formatTimer(countdown)}</span>
               ) : (
                 <button
                   type="button"
+                  disabled={resendOtpMutation.isPending}
                   onClick={() => {
-                    setCountdown(30);
-                    setOtp(['', '', '', '']);
-                    setOtpError('');
+                    void runResendOtp();
                   }}
-                  className="font-semibold text-[var(--color-primary)]"
+                  className="font-semibold text-[var(--color-primary)] disabled:opacity-50"
                 >
-                  Resend OTP
+                  {resendOtpMutation.isPending ? 'Sending…' : 'Resend OTP'}
                 </button>
               )}
             </p>
@@ -353,10 +409,10 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
           <button
             type="button"
             onClick={handleSubmit(onPhoneSubmit)}
-            disabled={phoneDigits.length !== MOBILE_LENGTH || !termsChecked}
+            disabled={!canSend}
             className="w-full py-4 bg-[var(--color-primary)] text-white font-semibold rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Login
+            {sendOtpMutation.isPending ? 'Sending OTP…' : 'Send OTP'}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
@@ -364,11 +420,11 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
         ) : (
           <button
             type="button"
-            onClick={handleVerify}
-            disabled={!otpFilled}
+            onClick={() => void handleVerify()}
+            disabled={!otpFilled || verifyOtpMutation.isPending}
             className="w-full py-4 bg-[var(--color-primary)] text-white font-semibold rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Verify
+            {verifyOtpMutation.isPending ? 'Verifying…' : 'Verify & login'}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
@@ -386,7 +442,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
               onClick={() => {
                 if (k === 'enter') {
                   if (step === 'phone') handleSubmit(onPhoneSubmit)();
-                  else handleVerify();
+                  else void handleVerify();
                 } else {
                   handleKeyPress(k);
                 }

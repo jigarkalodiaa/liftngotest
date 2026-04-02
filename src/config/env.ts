@@ -6,11 +6,40 @@
 function getEnv(key: string, fallback: string = ''): string {
   if (typeof process === 'undefined') return fallback;
   const value = process.env[key];
-  return typeof value === 'string' ? value : fallback;
+  if (typeof value !== 'string') return fallback;
+  const t = value.trim();
+  if (!t) return fallback;
+  return t;
 }
 
-/** Base URL for backend API. Use NEXT_PUBLIC_API_URL in .env.local */
-export const API_BASE_URL = getEnv('NEXT_PUBLIC_API_URL', '');
+/**
+ * Base URL for backend API.
+ * Uses literal `process.env.NEXT_PUBLIC_*` so Next.js can inline into the client bundle.
+ * Falls back to NEXT_PUBLIC_API_BASE_URL when NEXT_PUBLIC_API_URL isn't set.
+ */
+export const API_BASE_URL: string = (() => {
+  const primary = typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_API_URL : undefined;
+  const fallback = typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_API_BASE_URL : undefined;
+  const raw = (typeof primary === 'string' && primary.trim()) ? primary : (fallback ?? '');
+  return String(raw).trim();
+})();
+
+/**
+ * Auth / OTP backend base URL including API prefix, e.g. `http://127.0.0.1:3001/api/v1`.
+ * Prefer this for OTP when it differs from `NEXT_PUBLIC_API_URL`.
+ */
+export const API_AUTH_BASE_URL = getEnv(
+  'NEXT_PUBLIC_API_BASE_URL',
+  API_BASE_URL,
+).replace(/\/$/, '');
+
+/**
+ * Server-side base URL for `authorize()` (verify OTP). Use `127.0.0.1` if the public URL uses `0.0.0.0`.
+ */
+export const API_AUTH_INTERNAL_BASE_URL = getEnv('API_INTERNAL_BASE_URL', API_AUTH_BASE_URL).replace(/\/$/, '');
+
+/** POST path for verify OTP (appended to internal base). */
+export const AUTH_VERIFY_OTP_PATH = getEnv('AUTH_VERIFY_OTP_PATH', '/auth/verify-otp');
 
 /** Google Maps key for maps/places. Use NEXT_PUBLIC_GOOGLE_MAP_KEY in .env.local */
 export const GOOGLE_MAP_KEY = getEnv('NEXT_PUBLIC_GOOGLE_MAP_KEY', '');

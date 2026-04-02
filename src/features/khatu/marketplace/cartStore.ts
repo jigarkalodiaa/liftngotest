@@ -135,7 +135,7 @@ export const useMarketplaceCartStore = create<CartState>()(
     }),
     {
       name: STORAGE_KEYS.KHATU_MARKETPLACE_CART,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => sessionStorage),
       partialize: (s) => ({
         shopId: s.shopId,
         shopName: s.shopName,

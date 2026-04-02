@@ -25,6 +25,8 @@ import { readKhatuRideBooking } from '@/lib/khatuSessionStorage';
 import { getKhatuRouteDefaultLocations, KHATU_RIDE_VEHICLE_OPTIONS, khatuVehicleImage } from '@/data/khatuTravel';
 import type { RideVehicleType, TravelRouteId } from '@/types/khatu';
 import { theme } from '@/config/theme';
+import { useDirections } from '@/hooks/booking';
+import type { VehicleFares } from '@/api/services/tripService';
 
 type KhatuQuoteVehicle = {
   type: RideVehicleType;
@@ -64,6 +66,26 @@ export default function TripOptionsPage() {
   const [receiver, setReceiver] = useState<PersonDetails | null>(null);
   const [selected, setSelected] = useState<OptionId>('two');
 
+  const { data: directionsData, isLoading: directionsLoading } = useDirections(pickup, drop);
+
+  const routeInfo = useMemo(() => {
+    const route = directionsData?.routes?.[0];
+    if (!route) return null;
+    return {
+      distance: route.distanceFormatted,
+      duration: route.durationFormatted,
+      fares: route.vehicleFares,
+      currency: route.currency,
+    };
+  }, [directionsData]);
+
+  const hasFares = Boolean(routeInfo?.fares);
+  const fareFor = (key: keyof VehicleFares): string | null => {
+    if (!routeInfo?.fares) return null;
+    return `₹${routeInfo.fares[key]}`;
+  };
+  const faresLoading = directionsLoading || (!hasFares && pickup?.latitude != null && drop?.latitude != null);
+
   const khatuQuoteVehicle = useMemo((): KhatuQuoteVehicle | null => {
     if (!fromKhatuTravel || typeof window === 'undefined') return null;
     const booking = readKhatuRideBooking();
@@ -80,8 +102,12 @@ export default function TripOptionsPage() {
   }, [fromKhatuTravel]);
 
   useEffect(() => {
-    setPickup(getPickupLocation());
-    setDrop(getDropLocation());
+    const p = getPickupLocation();
+    const d = getDropLocation();
+    if (p && p.latitude == null) { p.latitude = 28.6519; p.longitude = 77.1909; }
+    if (d && d.latitude == null) { d.latitude = 28.5355; d.longitude = 77.3910; }
+    setPickup(p);
+    setDrop(d);
     setSender(getSenderDetails());
     setReceiver(getReceiverDetails());
     if (fromFood) {
@@ -152,19 +178,21 @@ export default function TripOptionsPage() {
   const twoCardTitle = khatuBikeMatch && khatuQuoteVehicle ? khatuQuoteVehicle.label : 'Faster to your door';
   const twoCardSubtitle = khatuBikeMatch
     ? 'Two wheeler · matches your Khatu travel quote'
-    : 'Two wheeler / 40kg';
+    : routeInfo ? `Two wheeler / 40kg · ${routeInfo.distance}` : 'Two wheeler / 40kg';
   const twoCardPrice =
-    khatuBikeMatch && khatuQuoteVehicle ? `₹${khatuQuoteVehicle.estimateInr}` : '₹160';
+    khatuBikeMatch && khatuQuoteVehicle
+      ? `₹${khatuQuoteVehicle.estimateInr}`
+      : fareFor('bike');
   const twoCardOldPrice =
     khatuBikeMatch && khatuQuoteVehicle
       ? `₹${Math.round(khatuQuoteVehicle.estimateInr * 1.1)}`
-      : '₹195';
+      : routeInfo?.fares ? `₹${Math.round(routeInfo.fares.bike * 1.15)}` : null;
   const twoCardImage = khatuBikeMatch ? khatuVehicleImage('two_wheeler') : '/dashboard/service-2wheeler.png';
   const twoCardNote = fromFood
     ? 'Orders can be picked up within 1 km only.'
     : khatuBikeMatch
       ? 'Same vehicle as on Khatu travel.'
-      : undefined;
+      : routeInfo ? `ETA ${routeInfo.duration}` : undefined;
 
   const handleSwapLocations = () => {
     if (!pickup || !drop) return;
@@ -412,6 +440,32 @@ export default function TripOptionsPage() {
 
         {/* Trip options list + bottom buttons */}
         <div className="flex-1 px-4 pt-4 pb-6" style={{ backgroundColor: theme.colors.white }}>
+          {directionsLoading && (
+            <div className="mb-4 flex items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-[var(--color-primary)]" />
+              <span className="text-[13px] text-gray-600">Calculating fares...</span>
+            </div>
+          )}
+          {!directionsLoading && !hasFares && (pickup?.latitude == null || drop?.latitude == null) && (
+            <div className="mb-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+              <svg className="h-4 w-4 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span className="text-[13px] text-amber-700">Use GPS or map to set locations for accurate fare estimates.</span>
+            </div>
+          )}
+          {routeInfo && !directionsLoading && (
+            <div className="mb-4 flex items-center gap-3 rounded-xl border border-[var(--color-primary)]/15 bg-[var(--color-primary)]/5 px-4 py-3">
+              <svg className="h-5 w-5 shrink-0 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+              <div className="min-w-0">
+                <span className="text-[13px] font-semibold text-gray-900">{routeInfo.distance}</span>
+                <span className="mx-1.5 text-gray-300">·</span>
+                <span className="text-[13px] text-gray-600">{routeInfo.duration}</span>
+              </div>
+            </div>
+          )}
           {!hideKhatuWalkAndCourier ? (
             <OptionCard
               id="walk"
@@ -421,10 +475,11 @@ export default function TripOptionsPage() {
                 setSelectedService(OPTION_TO_SERVICE[id]);
               }}
               title="Big Saver"
-              subtitle="Walking"
-              price="₹75"
-              oldPrice="₹105"
+              subtitle={routeInfo ? `Walking · ${routeInfo.distance}` : 'Walking'}
+              price={routeInfo?.fares ? `₹${Math.round(routeInfo.fares.bike * 0.5)}` : null}
+              oldPrice={routeInfo?.fares ? `₹${Math.round(routeInfo.fares.bike * 0.65)}` : null}
               image="/dashboard/service-walk.png"
+              loading={faresLoading}
             />
           ) : null}
           {!showKhatuCarOption ? (
@@ -441,6 +496,7 @@ export default function TripOptionsPage() {
               oldPrice={twoCardOldPrice}
               image={twoCardImage}
               note={twoCardNote}
+              loading={faresLoading && !khatuBikeMatch}
             />
           ) : null}
           {showKhatuCarOption && khatuQuoteVehicle ? (
@@ -472,10 +528,12 @@ export default function TripOptionsPage() {
                   setSelectedService(OPTION_TO_SERVICE[id]);
                 }}
                 title="Faster to your door"
-                subtitle="Three wheeler / 500 kg"
-                price="₹450"
-                oldPrice="₹495"
+                subtitle={routeInfo ? `Three wheeler / 500 kg · ${routeInfo.distance}` : 'Three wheeler / 500 kg'}
+                price={fareFor('auto')}
+                oldPrice={routeInfo?.fares ? `₹${Math.round(routeInfo.fares.auto * 1.1)}` : null}
                 image="/dashboard/service-3wheeler.png"
+                note={routeInfo ? `ETA ${routeInfo.duration}` : undefined}
+                loading={faresLoading}
               />
               <OptionCard
                 id="four"
@@ -485,10 +543,12 @@ export default function TripOptionsPage() {
                   setSelectedService(OPTION_TO_SERVICE[id]);
                 }}
                 title="Room for bulky loads"
-                subtitle="Four wheeler / mini truck"
-                price="₹720"
-                oldPrice="₹799"
+                subtitle={routeInfo ? `Mini truck · ${routeInfo.distance}` : 'Four wheeler / mini truck'}
+                price={fareFor('miniTruck')}
+                oldPrice={routeInfo?.fares ? `₹${Math.round(routeInfo.fares.miniTruck * 1.1)}` : null}
                 image="/services/four-wheeler.svg"
+                note={routeInfo ? `ETA ${routeInfo.duration}` : undefined}
+                loading={faresLoading}
               />
             </>
           )}
@@ -536,11 +596,21 @@ type OptionCardProps = {
   setSelected: (id: OptionId) => void;
   title: string;
   subtitle: string;
-  price: string;
-  oldPrice?: string;
+  price: string | null;
+  oldPrice?: string | null;
   image: string;
   note?: string;
+  loading?: boolean;
 };
+
+function PriceSkeleton() {
+  return (
+    <div className="flex flex-col items-end gap-1.5">
+      <div className="h-5 w-12 animate-pulse rounded-md bg-gray-200" />
+      <div className="h-3 w-9 animate-pulse rounded-md bg-gray-100" />
+    </div>
+  );
+}
 
 function OptionCard({
   id,
@@ -552,8 +622,10 @@ function OptionCard({
   oldPrice,
   image,
   note,
+  loading,
 }: OptionCardProps) {
   const isActive = id === selected;
+  const showSkeleton = loading || price == null;
   return (
     <button
       type="button"
@@ -573,14 +645,18 @@ function OptionCard({
             <div className="font-semibold" style={{ fontSize: theme.fontSizes.lg, color: theme.colors.gray900 }}>{title}</div>
             <div className="mt-0.5" style={{ fontSize: theme.fontSizes.base, color: theme.colors.gray500 }}>{subtitle}</div>
           </div>
-          <div className="text-right flex-shrink-0">
-            <div className="font-semibold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>{price}</div>
-            {oldPrice ? (
-              <div className="mt-0.5 line-through" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray400 }}>
-                {oldPrice}
-              </div>
-            ) : null}
-          </div>
+          {showSkeleton ? (
+            <PriceSkeleton />
+          ) : (
+            <div className="text-right flex-shrink-0">
+              <div className="font-semibold" style={{ fontSize: theme.fontSizes.xl, color: theme.colors.gray900 }}>{price}</div>
+              {oldPrice ? (
+                <div className="mt-0.5 line-through" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray400 }}>
+                  {oldPrice}
+                </div>
+              ) : null}
+            </div>
+          )}
         </div>
         {note && (
           <div

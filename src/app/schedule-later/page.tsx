@@ -74,7 +74,7 @@ function formatShortDate(d: Date) {
 export default function ScheduleLaterPage() {
   const router = useRouter();
 
-  // Avoid hydration mismatch: localStorage isn't available during SSR.
+  // Avoid hydration mismatch: sessionStorage isn't available during SSR.
   // We render placeholders on first paint, then populate values on mount.
   const [pickupState, setPickupState] = useState<ReturnType<typeof getPickupLocation> | null>(null);
   const [dropState, setDropState] = useState<ReturnType<typeof getDropLocation> | null>(null);

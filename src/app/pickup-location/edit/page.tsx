@@ -16,6 +16,7 @@ import {
 import { ROUTES } from '@/lib/constants';
 import type { SavedLocation } from '@/types/booking';
 import PickupAuthGuard from '@/components/auth/PickupAuthGuard';
+import { geocodeAddress } from '@/utils/geocode';
 
 type RecentItem = SavedLocation & { id: string };
 
@@ -57,16 +58,24 @@ function EditPickupLocationContent() {
     else router.back();
   };
 
-  const handleConfirmTypedAddress = () => {
-    if (!typedAddressOk) return;
-    const addr = searchValue.trim();
-    const name =
-      addr.split(/[,\n]/)[0]?.trim().slice(0, 80) ||
-      (type === 'drop' ? 'Drop location' : 'Pickup location');
-    const loc: SavedLocation = { name, address: addr, contact: '' };
-    if (type === 'drop') setDropLocation(loc);
-    else setPickupLocation(loc);
-    goAfterSave();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleConfirmTypedAddress = async () => {
+    if (!typedAddressOk || isSaving) return;
+    setIsSaving(true);
+    try {
+      const addr = searchValue.trim();
+      const name =
+        addr.split(/[,\n]/)[0]?.trim().slice(0, 80) ||
+        (type === 'drop' ? 'Drop location' : 'Pickup location');
+      const coords = await geocodeAddress(addr);
+      const loc: SavedLocation = { name, address: addr, contact: '', ...coords };
+      if (type === 'drop') setDropLocation(loc);
+      else setPickupLocation(loc);
+      goAfterSave();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleUseCurrentLocation = async () => {
@@ -76,6 +85,8 @@ function EditPickupLocationContent() {
         name: 'Current Location',
         address: result.shortAddress,
         contact: '',
+        latitude: result.latitude,
+        longitude: result.longitude,
       };
       if (type === 'drop') {
         setDropLocation(locationData);
@@ -91,8 +102,9 @@ function EditPickupLocationContent() {
     }
   };
 
-  const handleSelectLocation = (item: RecentItem) => {
-    const loc: SavedLocation = { name: item.name, address: item.address, contact: item.contact };
+  const handleSelectLocation = async (item: RecentItem) => {
+    const coords = await geocodeAddress(item.address);
+    const loc: SavedLocation = { name: item.name, address: item.address, contact: item.contact, ...coords };
     if (type === 'drop') {
       setDropLocation(loc);
       if (item.contact) {
@@ -169,7 +181,7 @@ function EditPickupLocationContent() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && typedAddressOk) {
                   e.preventDefault();
-                  handleConfirmTypedAddress();
+                  void handleConfirmTypedAddress();
                 }
               }}
               placeholder={type === 'drop' ? 'Enter drop location' : 'Enter pickup location'}
@@ -313,11 +325,11 @@ function EditPickupLocationContent() {
         <div className="mx-auto w-full max-w-[520px] px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-3 sm:px-5">
           <button
             type="button"
-            disabled={!typedAddressOk}
-            onClick={handleConfirmTypedAddress}
+            disabled={!typedAddressOk || isSaving}
+            onClick={() => { void handleConfirmTypedAddress(); }}
             className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 text-[16px] font-semibold text-white shadow-[0_4px_16px_rgba(15,23,42,0.12)] disabled:cursor-not-allowed disabled:opacity-45"
           >
-            {type === 'drop' ? 'Use this drop address' : 'Use this pickup address'}
+            {isSaving ? 'Locating…' : type === 'drop' ? 'Use this drop address' : 'Use this pickup address'}
           </button>
         </div>
       </div>

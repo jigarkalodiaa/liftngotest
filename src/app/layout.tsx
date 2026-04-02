@@ -16,7 +16,7 @@ import {
   OG_IMAGE_HEIGHT,
   FAVICON_PATH,
 } from "@/lib/site";
-import QueryProvider from "@/components/providers/QueryProvider";
+import AppProviders from "@/providers/AppProviders";
 import GoogleAnalytics from "@/components/Analytics";
 import { ChatWidget } from "@/components/chatbot";
 import "./globals.css";
@@ -123,10 +123,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <GoogleAnalytics />
-        <QueryProvider>
+        <AppProviders>
           {children}
           <ChatWidget />
-        </QueryProvider>
+        </AppProviders>
       </body>
     </html>
   );
