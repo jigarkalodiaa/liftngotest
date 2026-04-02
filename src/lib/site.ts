@@ -125,7 +125,7 @@ export function absoluteShareImageUrl(imagePathOrUrl: string): string {
 
 /** Full project description (About, structured data). */
 export const PROJECT_DESCRIPTION =
-  'Liftngo is a focused logistics platform—not pan-India. We operate hyperlocal goods transport around Khatu Shyam Ji (Rajasthan) for vendors, food outlets, shops, and temple-corridor runs, and we are building B2B logistics in Noida and Delhi NCR with multi-vehicle booking (2W, 3W, 4W), verified partners, and corporate-friendly handoffs. EV cargo is used where lanes fit; the product emphasises upfront fares, repeat routes, and completion-based incentives rather than passenger-style rides.';
+  'Liftngo is a reliable goods transport platform serving Khatu Shyam Ji and Delhi NCR. We provide hyperlocal delivery for vendors, food outlets, and shops around the Khatu Shyam Ji temple corridor, and dedicated B2B logistics across Noida, Gurugram, and the wider NCR region. Choose from bike, auto, or mini truck with upfront pricing, verified drivers, and real-time tracking. Businesses benefit from recurring routes, GST invoicing, and digital proof of delivery.';
 
 /** Mission & vision (for About and structured data). */
 export const MISSION =

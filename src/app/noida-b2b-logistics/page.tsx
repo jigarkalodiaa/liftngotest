@@ -97,7 +97,7 @@ export default function NoidaB2bLogisticsPage() {
               B2B Logistics Solutions in Noida &amp; Delhi NCR
             </h1>
             <p className="mt-4 max-w-3xl text-lg leading-relaxed text-white/88">
-              A complete logistics layer for businesses—not a pan-India billboard. Liftngo is building a{' '}
+              A complete logistics layer for businesses built for your region. Liftngo is growing a{' '}
               <strong className="font-semibold text-white">verified ecosystem</strong> in the National Capital Region: dedicated
               delivery coordination, trusted partners, and one platform for 2-wheeler through 4-wheeler cargo.
             </p>

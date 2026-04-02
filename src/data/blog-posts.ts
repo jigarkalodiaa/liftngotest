@@ -166,7 +166,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'liftngo-logistics-ecosystem-delhi-ncr',
     title: 'How Liftngo is Building a Logistics Ecosystem in Delhi NCR',
     description:
-      'Liftngo’s Delhi NCR strategy: verified partners, multi-vehicle booking, and B2B-first operations starting from Noida—not a generic pan-India marketplace.',
+      'Liftngo’s Delhi NCR strategy: verified partners, multi-vehicle booking, and B2B-first operations starting from Noida with deep local coverage.',
     excerpt:
       'Ecosystem means trust density, not a map pin everywhere. Here is how we are approaching the National Capital Region.',
     keywords: [

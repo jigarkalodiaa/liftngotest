@@ -109,7 +109,7 @@ export function buildHomepageSeoGraph() {
     name: `${SITE_NAME} — goods transport & B2B logistics`,
     serviceType: 'Logistics and transport service',
     description:
-      'Focused goods transport: Khatu Shyam Ji hyperlocal (temple corridor, shops, food) and B2B logistics in Noida & Delhi NCR. Walk through 4W booking, EV where lanes fit—upfront pricing, not pan-India spray.',
+      'Reliable goods transport in Khatu Shyam Ji and Delhi NCR. Bike, auto, and mini truck delivery with upfront pricing, verified drivers, and real-time tracking for individuals and businesses.',
     provider: { '@id': ORGANIZATION_SCHEMA_ID },
     areaServed: [
       { '@type': 'Place', name: 'Khatu Shyam Ji' },
