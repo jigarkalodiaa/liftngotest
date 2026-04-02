@@ -1,26 +1,66 @@
 [
   {
     "question": "What is Liftngo?",
-    "answer": "Liftngo is a logistics platform for goods transport in India. We connect shippers with drivers for intra-city cargo: walk, two-wheeler, three-wheeler, and four-wheeler options, with focus on Khatu Shyam Ji and Delhi NCR / Noida B2B corridors."
+    "answer": "Liftngo is a goods transport platform for intra-city cargo in India. We connect shippers with verified drivers offering bike, auto, and mini truck options, focused on Delhi NCR and the Khatu Shyam Ji corridor."
   },
   {
     "question": "How do I book a delivery?",
-    "answer": "Use Book delivery on the website: enter pickup and drop, choose a vehicle class, and confirm. You can start from the home page or the book-delivery page."
+    "answer": "Go to Book Delivery on the website: enter pickup and drop locations, choose a vehicle class (bike, auto, or mini truck), see the upfront fare, and confirm. You can also schedule for later."
   },
   {
-    "question": "Do you serve Noida and Delhi NCR?",
-    "answer": "Yes. We offer B2B logistics and goods transport in Noida and the wider Delhi NCR region, alongside hyperlocal coverage around Khatu Shyam Ji."
+    "question": "What areas does Liftngo serve?",
+    "answer": "We cover the full Delhi NCR region — Noida, Greater Noida, Ghaziabad, Gurugram, Manesar, Faridabad, and key Delhi zones. We also have dedicated programs around Khatu Shyam Ji, Salasar, and Ringas."
   },
   {
     "question": "How is pricing calculated?",
-    "answer": "Pricing typically depends on distance, vehicle class, and demand on the lane. You should see an estimate before confirming a booking. For accurate quotes we need pickup, drop, and an idea of weight or cargo type."
+    "answer": "Pricing is route-based and shown upfront before you confirm. It depends on distance, vehicle type, and demand. Bike deliveries start around 50 rupees, auto around 100 rupees, and mini trucks from 200 rupees for short NCR hops."
+  },
+  {
+    "question": "What vehicle types are available?",
+    "answer": "Three main categories: Bike or 2-wheeler for parcels and documents up to 15 kg, Auto or 3-wheeler for mid-weight cargo up to 500 kg, and Mini truck or 4-wheeler for pallets, appliances, and bulk loads."
+  },
+  {
+    "question": "Do you offer B2B logistics?",
+    "answer": "Yes. We provide recurring route logistics, volume pricing, GST invoicing, and Proof of Delivery support for businesses. Share your lane details, frequency, and cargo type for a tailored commercial proposal."
   },
   {
     "question": "How can I become a driver partner?",
-    "answer": "Visit the Become a driver page and Careers for requirements and how to apply. Liftngo focuses on cargo-first operations, not passenger rides."
+    "answer": "Visit the Become a Driver page. You need valid KYC, a commercially insured vehicle, and a matching license. Incentive structures and payout details are shared during onboarding."
+  },
+  {
+    "question": "What payment methods do you accept?",
+    "answer": "We accept UPI, debit and credit cards, and cash on delivery depending on the route. B2B accounts get GST invoicing with agreed credit terms."
+  },
+  {
+    "question": "Can I track my delivery?",
+    "answer": "Yes. Once a driver is assigned, you can see live location, ETA, and driver details on the active trip screen in the web app."
+  },
+  {
+    "question": "How do I cancel or reschedule?",
+    "answer": "Open your active trip and look for the modify or cancel option. If a driver is already assigned and the option is unavailable, contact support with your booking ID."
+  },
+  {
+    "question": "Is same-day or express delivery available?",
+    "answer": "Express availability depends on live fleet and route. Book with your real ready time and available express options will show. For critical deadlines, contact ops directly."
+  },
+  {
+    "question": "What items are restricted?",
+    "answer": "We transport legal commercial goods only. Contraband, undeclared hazardous materials, cash bundles, and live animals are not allowed. Alcohol and high-value items need pre-approval via the Contact page."
+  },
+  {
+    "question": "Do you use electric vehicles?",
+    "answer": "Yes. We deploy electric 3-wheeler cargo on supported NCR routes. EV options show during booking when available on your lane. Dedicated EV programs are offered through B2B sales."
   },
   {
     "question": "How do I contact support?",
-    "answer": "Use the Contact page for phone, email, and social links. For booking issues, include your booking reference when available."
+    "answer": "Use the Contact page for phone, email, and WhatsApp details. For booking issues, include your booking ID for faster resolution."
+  },
+  {
+    "question": "Do you serve cities outside NCR?",
+    "answer": "We focus on Delhi NCR and the Khatu corridor for reliable density. For other cities, we can design select trunk lanes for B2B clients with consistent volume. Reach out via the Contact page."
+  },
+  {
+    "question": "What is the Khatu corridor service?",
+    "answer": "Around Khatu Shyam Ji, we offer dedicated hotel logistics, marketplace delivery, vendor supply chains, and travel services. Use the Khatu-specific pages on the site for hotels, marketplace, and travel bookings."
   }
 ]
