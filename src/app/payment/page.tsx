@@ -27,6 +27,7 @@ import type { GoodTypeOption } from '@/data/goodTypes';
 import { GOOD_TYPES } from '@/data/goodTypes';
 import { PageContainer } from '@/components/ui';
 import { theme } from '@/config/theme';
+import { trackBookingCompleted } from '@/lib/analytics';
 import {
   PaymentHeader,
   VehicleCard,
@@ -243,6 +244,10 @@ export default function PaymentPage() {
 
       <PaymentFooterBar
         onBookNow={() => {
+          trackBookingCompleted({
+            vehicle_type: vehicle ?? 'unknown',
+            flow: fromKhatuHotel ? 'khatu_hotel' : fromFood ? 'food' : 'standard',
+          });
           if (fromKhatuHotel && hotelDraft) {
             appendHotelBookingHistoryFromDraft(hotelDraft);
             clearHotelBookingDraft();
