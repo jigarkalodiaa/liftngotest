@@ -15,19 +15,19 @@ export default function ServiceSection() {
   return (
     <section
       id="service"
-      className="w-full py-12 lg:py-16 xl:py-20 bg-white"
+      className="page-section w-full bg-white"
       aria-labelledby="service-heading"
     >
       <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
-        <h2 id="service-heading" className="text-center text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-5 sm:mb-8">
+        <h2 id="service-heading" className="mb-4 text-center text-xl font-bold text-gray-900 sm:mb-6 sm:text-2xl lg:text-3xl">
           Our Service
         </h2>
-        <div className="mx-auto grid max-w-4xl grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-4 sm:gap-6 lg:gap-8">
+        <div className="mx-auto grid max-w-4xl grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4 sm:gap-x-6 sm:gap-y-6">
           {SERVICES.map((s) => (
             <Link
               key={s.id}
               href={s.href}
-              className="flex min-h-0 flex-col items-center rounded-2xl py-4 px-2 text-center transition-colors hover:bg-gray-50/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 sm:p-5 lg:p-6"
+              className="flex min-h-0 flex-col items-center rounded-2xl page-card text-center transition-colors hover:bg-gray-50/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
             >
               <div className="relative mx-auto h-[min(7.25rem,42vw)] w-[min(7.25rem,42vw)] shrink-0 rounded-2xl bg-[var(--color-primary)]/10 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32">
                 <div className="absolute inset-0 p-1.5 sm:p-2 md:p-2.5 lg:p-3">

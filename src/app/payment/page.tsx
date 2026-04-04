@@ -215,11 +215,11 @@ export default function PaymentPage() {
           }
         />
         {payError && (
-          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+          <div className="rounded-xl border border-red-200 bg-red-50 page-card text-xs text-red-800">
             {payError}
           </div>
         )}
-        <p className="mt-6 text-center" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray500 }}>
+        <p className="text-center" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray500 }}>
           By Placing the order, you agree to Liftngo Terms of use and Privacy Policy
         </p>
       </PageContainer>

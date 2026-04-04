@@ -52,7 +52,7 @@ export default function Home() {
     <PageWrapper headerSlot={<Header />}>
       <JsonLd data={buildHomepageSeoGraph()} />
       <main
-        className="flex min-h-[100dvh] min-h-screen w-full flex-col overflow-x-clip"
+        className="page-stack min-h-[100dvh] min-h-screen w-full overflow-x-clip"
         aria-label="LiftnGo home: logistics, delivery, and transport services"
       >
         <Hero />

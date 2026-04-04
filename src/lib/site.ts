@@ -55,8 +55,8 @@ export const TWITTER_TITLE = OG_TITLE;
 /** Twitter card description. */
 export const TWITTER_DESCRIPTION = OG_DESCRIPTION;
 
-/** Hero / marketing tagline. */
-export const SITE_TAGLINE = 'Smart Logistics for Everyday Transport';
+/** Hero / marketing tagline — single source of identity. */
+export const SITE_TAGLINE = 'Goods Time Pe, Business Prime Pe';
 
 /** One-line product pitch. */
 export const ONE_LINE_PITCH =

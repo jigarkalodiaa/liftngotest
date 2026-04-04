@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="g2w-bg" x1="0" y1="0" x2="200" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF2FF"/>
+      <stop offset="1" stop-color="#F8FAFC"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="140" rx="20" fill="url(#g2w-bg)"/>
+  <!-- road -->
+  <path d="M16 108c36-14 64-14 100 0 36 14 52 12 68-4" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/>
+  <!-- rear wheel -->
+  <circle cx="58" cy="102" r="16" fill="#0F172A"/>
+  <circle cx="58" cy="102" r="7" fill="#94A3B8"/>
+  <!-- front wheel -->
+  <circle cx="132" cy="102" r="16" fill="#0F172A"/>
+  <circle cx="132" cy="102" r="7" fill="#94A3B8"/>
+  <!-- frame -->
+  <path d="M64 102h56l20-36h22" stroke="#334155" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M96 66l-12-20" stroke="#334155" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="88" cy="40" r="11" fill="#334155"/>
+  <!-- large cargo box on carrier (dominant visual = goods) -->
+  <rect x="108" y="38" width="44" height="34" rx="5" fill="#B45309"/>
+  <rect x="112" y="42" width="36" height="10" rx="2" fill="#F59E0B" opacity=".85"/>
+  <path d="M120 54h20" stroke="#92400E" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+  <rect x="118" y="60" width="24" height="8" rx="2" fill="#78350F" opacity=".35"/>
+  <!-- tape / label -->
+  <rect x="124" y="48" width="12" height="4" rx="1" fill="#FEF3C7" opacity=".9"/>
+</svg>

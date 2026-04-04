@@ -42,8 +42,8 @@ export default function KhatuDashboard({
 }: KhatuDashboardProps) {
   return (
     <PageContainer className="relative z-0 pb-10 pt-3 sm:pt-4">
-      <header className="sticky top-3 z-30 mb-5 overflow-hidden rounded-3xl border border-amber-200/50 bg-gradient-to-r from-amber-50 via-white to-amber-50/90 px-4 py-2.5 shadow-md shadow-amber-900/10 sm:px-5 sm:py-3">
-        <div className="flex items-center justify-between gap-3">
+      <header className="sticky top-3 z-30 overflow-hidden rounded-3xl border border-amber-200/50 bg-gradient-to-r from-amber-50 via-white to-amber-50/90 page-card shadow-md shadow-amber-900/10">
+        <div className="flex items-center justify-between gap-4 sm:gap-6">
           <Image
             src={LOGO_PATH}
             alt={`${SITE_NAME} — Khatu`}
@@ -65,7 +65,7 @@ export default function KhatuDashboard({
         </div>
       </header>
 
-      <div className="flex items-center justify-center gap-2 rounded-2xl border border-stone-200/80 bg-[var(--khatu-ivory)] px-3 py-2.5 text-center text-xs font-medium text-[var(--khatu-stone-muted)]">
+      <div className="flex items-center justify-center gap-4 rounded-2xl border border-stone-200/80 bg-[var(--khatu-ivory)] page-card text-center text-xs font-medium text-[var(--khatu-stone-muted)] sm:gap-6">
         <Landmark className="h-4 w-4 shrink-0 text-[var(--khatu-saffron)]" strokeWidth={1.75} aria-hidden />
         <span>
           Khatu Shyam Ji zone · Temple & tourism
@@ -74,7 +74,7 @@ export default function KhatuDashboard({
       </div>
 
       <h1
-        className="mt-4 break-words text-2xl font-bold leading-tight sm:text-3xl"
+        className="break-words text-2xl font-bold leading-tight sm:text-3xl"
         style={{ color: theme.colors.gray800 }}
       >
         Hi, {userName}
@@ -118,14 +118,14 @@ export default function KhatuDashboard({
 
       <KhatuServicesGrid />
 
-      <h2 className="mt-10 text-center font-normal" style={{ fontSize: theme.fontSizes.lg, color: theme.colors.gray800 }}>
+      <h2 className="text-center font-normal" style={{ fontSize: theme.fontSizes.lg, color: theme.colors.gray800 }}>
         Choose service
       </h2>
       <p className="mt-1 text-center text-xs text-[var(--khatu-stone-muted)]">
         Introductory two-wheeler slabs on your first ride — see offer above
       </p>
 
-      <div className="relative z-10 mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="relative z-10 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
         {services.map((s) => {
           const active = s.id === activeService;
           const launch = s.id === 'twoWheeler';
@@ -159,7 +159,7 @@ export default function KhatuDashboard({
         })}
       </div>
 
-      <div className="mt-6 flex justify-center">
+      <div className="flex justify-center">
         <button
           type="button"
           onClick={onOpenChooseTrip}
@@ -169,7 +169,7 @@ export default function KhatuDashboard({
         </button>
       </div>
 
-      <div className="relative mt-8 overflow-hidden rounded-3xl border border-amber-200/50 bg-gradient-to-b from-amber-100/40 to-[var(--landing-bg)]/80 px-4 pt-6 pb-6">
+      <div className="page-section relative overflow-hidden rounded-3xl border border-amber-200/50 bg-gradient-to-b from-amber-100/40 to-[var(--landing-bg)]/80 px-4">
         <div className="relative mx-auto h-[min(52vw,260px)] w-full max-w-[340px] sm:h-[280px]">
           <Image
             src="/hero-delivery.svg"
@@ -182,7 +182,7 @@ export default function KhatuDashboard({
         </div>
       </div>
 
-      <p className="mt-6 text-center text-base font-semibold leading-snug tracking-tight text-[var(--khatu-stone-muted)] sm:text-lg">
+      <p className="text-center text-base font-semibold leading-snug tracking-tight text-[var(--khatu-stone-muted)] sm:text-lg">
         Your Khatu companion
         <span className="mt-1 block text-sm font-normal text-[var(--khatu-stone-muted)]">
           Rides · food · stays · prasad & shops

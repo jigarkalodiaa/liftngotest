@@ -99,6 +99,17 @@ export const ROUTES = {
   BOOKING_RIDE: '/booking/ride',
   /** Prefix for `GET` hotel detail booking flow: `${ROUTES.BOOKING_HOTEL}/${id}`. */
   BOOKING_HOTEL: '/booking/hotel',
+  /** Plans hub and sub-pages — conversion-focused. */
+  PLANS: '/plans',
+  PLANS_SUBSCRIPTION: '/plans/subscription',
+  PLANS_RENT: '/plans/rent',
+  PLANS_LEASE: '/plans/lease',
+  PLANS_CUSTOM: '/plans/custom',
+  PLANS_GST: '/plans/gst',
+  /** SEO dashboard URL — same UI as `/dashboard` with zone pinned to Noida. */
+  NOIDA: '/noida',
+  /** Alias → `/plans/custom` (see `next.config` redirect). */
+  FLEET: '/fleet',
 } as const;
 
 /** `?mode=` on `/pickup-location` — dashboard “Add more default location” (pickup → drop, then trip options). */

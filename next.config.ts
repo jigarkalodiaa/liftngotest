@@ -18,6 +18,8 @@ const nextConfig: NextConfig = {
       { source: '/food-menu', destination: '/find-restaurant', permanent: false },
       /** Chatbot & short links → canonical booking flow */
       { source: '/book', destination: '/book-delivery', permanent: false },
+      { source: '/gst-billing', destination: '/plans/gst', permanent: true },
+      { source: '/fleet', destination: '/plans/custom', permanent: true },
     ];
   },
   images: {

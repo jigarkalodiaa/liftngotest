@@ -9,7 +9,7 @@ import { SITE_NAME } from '@/lib/site';
 export default function HomeDeepAuthoritySection() {
   return (
     <section
-      className="border-y border-[var(--landing-primary)]/10 bg-white py-12 sm:py-16 lg:py-20"
+      className="page-section border-y border-[var(--landing-primary)]/10 bg-white"
       aria-labelledby="home-authority-heading"
     >
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -72,7 +72,7 @@ export default function HomeDeepAuthoritySection() {
           so your team books the mode the map actually supports—not the buzzword of the week.
         </p>
 
-        <ul className="mt-8 list-disc space-y-2 border-t border-gray-100 pt-8 ps-5 text-gray-700">
+        <ul className="mt-6 list-disc space-y-4 border-t border-gray-100 pt-6 ps-5 text-gray-700 sm:mt-8 sm:space-y-6 sm:pt-8">
           <li>
             <strong className="text-gray-900">Partners &amp; drivers:</strong>{' '}
             <Link href={ROUTES.BECOME_DRIVER} className="font-semibold text-[var(--color-primary)] hover:underline">
@@ -112,7 +112,7 @@ export default function HomeDeepAuthoritySection() {
           </li>
         </ul>
 
-        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+        <div className="mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-6">
           <Link
             href={ROUTES.B2B_TRANSPORT}
             className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[var(--color-primary)] px-6 py-3 text-center text-sm font-semibold text-white hover:opacity-90"

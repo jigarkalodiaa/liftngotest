@@ -72,20 +72,20 @@ function Hero({ heroTitleLevel = 'h1' }: HeroProps) {
 
   const TitleTag = heroTitleLevel === 'h2' ? 'h2' : 'h1';
   const titleClass =
-    'text-balance pt-6 text-[clamp(1.25rem,4.2vw,2.75rem)] font-bold leading-tight tracking-tight text-gray-900 sm:text-3xl lg:text-5xl max-w-4xl mx-auto';
+    'text-balance text-[clamp(1.25rem,4.2vw,2.75rem)] font-bold leading-tight tracking-tight text-gray-900 sm:text-3xl lg:text-5xl max-w-4xl mx-auto';
 
   return (
-    <section className="relative bg-[var(--landing-bg)] pt-6 sm:pt-8 pb-12 lg:pb-20">
+    <section className="page-section relative bg-[var(--landing-bg)]">
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="text-center">
           <TitleTag className={titleClass}>
-            Hyperlocal &amp; B2B goods logistics
+            Goods Time Pe, Business Prime Pe
           </TitleTag>
           <p className="mt-2 text-[clamp(1.35rem,5.5vw,3.75rem)] font-bold leading-tight text-[var(--landing-orange)] sm:text-4xl lg:text-6xl max-w-4xl mx-auto">
             ₹0 delivery fee on first order
           </p>
           <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-1 pt-3 sm:pt-4 px-1">
-            Khatu Shyam Ji hyperlocal · Noida &amp; Delhi NCR B2B · EV where it fits
+            Multi-vehicle logistics · Khatu &amp; NCR · EV, CNG, Diesel, Petrol
           </p>
           <p className="text-sm text-gray-400 mb-10 sm:mb-14">*Other fees apply</p>
 

@@ -5,7 +5,6 @@ import { MapPin, Truck, ChevronRight, ArrowRight } from 'lucide-react';
 import type { ServiceId } from '@/types/booking';
 import { PageContainer } from '@/components/ui';
 import { LOGO_PATH, SITE_NAME } from '@/lib/site';
-import { theme } from '@/config/theme';
 import { ROUTES } from '@/lib/constants';
 import type { DashboardZoneUiConfig } from '@/features/location/dashboardZoneUi';
 import type { StoredUserLocation } from '@/lib/utils/locationStorage';
@@ -43,8 +42,8 @@ export default function DefaultDashboardView({
     <PageContainer className="relative z-0 pb-10 pt-3 sm:pt-4">
 
       {/* ── Header ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 -mx-4 mb-5 border-b border-gray-100 bg-white/80 px-4 py-3 backdrop-blur-xl sm:-mx-5 sm:px-5">
-        <div className="flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-30 w-full min-w-0 border-b border-gray-100 bg-white/80 py-3 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70">
+        <div className="flex items-center justify-between gap-4 sm:gap-6">
           <Image
             src={LOGO_PATH}
             alt={`${SITE_NAME} — logistics`}
@@ -53,14 +52,14 @@ export default function DefaultDashboardView({
             className="h-8 w-auto max-w-[160px] object-contain sm:h-9 sm:max-w-[200px]"
             priority
           />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4 sm:gap-6">
             {dashboardLocation?.city && (
               <button
                 type="button"
                 onClick={openLocationModal}
                 className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-100"
               >
-                <MapPin className="h-3.5 w-3.5 text-[var(--color-primary)]" strokeWidth={2} />
+                <MapPin className="h-3.5 w-3.5 text-slate-500" strokeWidth={1.5} />
                 {dashboardLocation.city}
               </button>
             )}
@@ -79,12 +78,12 @@ export default function DefaultDashboardView({
       </header>
 
       {/* ── Greeting ───────────────────────────────────────── */}
-      <h1 className="break-words text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl" style={{ color: theme.colors.gray800 }}>
+      <h1 className="break-words text-2xl font-semibold leading-tight tracking-tight text-gray-900 sm:text-3xl">
         Hi, {userName}
       </h1>
 
       {zoneConfig.zoneBanner ? (
-        <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50/50 px-4 py-3 text-sm leading-snug text-[var(--color-primary)]">
+        <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 page-card text-sm leading-snug text-gray-700">
           {zoneConfig.zoneBanner}
           {dashboardLocation?.city ? (
             <span className="mt-1 block text-xs opacity-80">
@@ -99,49 +98,27 @@ export default function DefaultDashboardView({
         <button
           type="button"
           onClick={openLocationModal}
-          className="text-xs font-semibold text-[var(--color-primary)] underline underline-offset-2"
+          className="text-xs font-medium text-[var(--color-primary)] underline underline-offset-2 hover:opacity-80"
         >
           Change service area
         </button>
       </div>
 
-      {/* ── Pickup Input ───────────────────────────────────── */}
-      <button
-        type="button"
-        onClick={() => router.push(ROUTES.PICKUP_LOCATION)}
-        className="group mt-5 flex min-h-[56px] w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-left shadow-sm transition-all duration-200 hover:border-[var(--color-primary)]/30 hover:shadow-md sm:mt-6"
-      >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[var(--color-primary)] transition-colors group-hover:bg-blue-100">
-          <MapPin className="h-5 w-5" strokeWidth={2} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span
-            className="block text-sm font-semibold leading-snug line-clamp-1"
-            style={{ color: pickup?.name || pickup?.address ? theme.colors.gray900 : theme.colors.gray400 }}
-          >
-            {pickup?.name || pickup?.address || 'Enter pickup location'}
-          </span>
-          <span className="mt-0.5 block text-xs text-gray-400">
-            {pickup?.address ? pickup.address : 'Search address, building, or landmark'}
-          </span>
-        </span>
-        <ChevronRight className="h-5 w-5 shrink-0 text-gray-300 transition-colors group-hover:text-[var(--color-primary)]" />
-      </button>
 
       {/* ── Flagship card ──────────────────────────────────── */}
-      <div className="mt-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e1f4b] via-[#2C2D5B] to-[#3d3f7a] p-5 text-white shadow-xl sm:p-6">
-        <div className="flex flex-row items-center gap-4 flex-wrap sm:flex-nowrap sm:gap-6">
+      <div className="overflow-hidden rounded-2xl bg-slate-900 page-card text-white">
+        <div className="flex flex-row flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-6">
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-extrabold leading-tight tracking-tight sm:text-2xl">
+            <h2 className="text-xl font-semibold leading-tight tracking-tight sm:text-2xl">
               {zoneConfig.instantTitle}
             </h2>
-            <p className="mt-1.5 text-sm text-white/70">
+            <p className="mt-1.5 text-sm text-slate-400">
               {zoneConfig.instantSubtitle}
             </p>
             <button
               type="button"
               onClick={() => setIsChooseTripOpen(true)}
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-[#2C2D5B] shadow-lg transition-all duration-200 hover:shadow-xl active:scale-[0.98]"
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition-colors duration-150 hover:bg-gray-100"
             >
               <Truck className="h-4 w-4" />
               Book Now
@@ -161,10 +138,10 @@ export default function DefaultDashboardView({
       </div>
 
       {zoneConfig.showFindRestaurant ? (
-        <div className="mt-4 overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md sm:p-6">
-          <div className="flex flex-row items-center gap-4 flex-wrap sm:flex-nowrap sm:gap-6">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white page-card transition-shadow duration-150 hover:shadow-sm">
+          <div className="flex flex-row flex-wrap items-center gap-4 sm:flex-nowrap sm:gap-6">
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-extrabold leading-tight tracking-tight" style={{ color: theme.colors.textPrimary }}>
+              <h2 className="text-xl font-semibold leading-tight tracking-tight text-gray-900">
                 Find Restaurant &amp; Food
               </h2>
               <p className="mt-1.5 text-sm text-gray-500">
@@ -173,8 +150,8 @@ export default function DefaultDashboardView({
               <button
                 type="button"
                 onClick={() => router.push(ROUTES.FIND_RESTAURANT)}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[var(--color-primary)] px-5 py-3 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-              >
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-5 py-3 text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
+            >
                 Order Food
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -186,43 +163,59 @@ export default function DefaultDashboardView({
         </div>
       ) : null}
 
-      {/* ── Vehicle Selection ───────────────────────────────── */}
-      <h2 className="mt-8 text-center text-sm font-bold uppercase tracking-wider text-gray-400">
-        Choose service
-      </h2>
-      {zoneConfig.incentivesNote ? (
-        <p className="mt-1 text-center text-xs text-gray-500 max-w-md mx-auto">{zoneConfig.incentivesNote}</p>
-      ) : null}
-      <div className="relative z-10 mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {services.map((s) => {
-          const active = s.id === activeService;
-          return (
+      {/* ── Fleet Strip (compact) ────────────────────────────── */}
+      <section>
+        <div className="rounded-xl border border-gray-200 bg-white page-card">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-medium uppercase tracking-wider text-gray-400">Our Fleet</h2>
             <button
-              key={s.id}
               type="button"
-              onClick={() => handleSelectService(s.id)}
-              className={`group rounded-2xl bg-white px-3 pt-4 pb-3 text-center transition-all duration-200 border-2 ${
-                active
-                  ? 'border-[var(--color-primary)] bg-blue-50/50 shadow-lg shadow-blue-900/10 scale-[1.02]'
-                  : 'border-transparent shadow-sm hover:shadow-md hover:-translate-y-0.5'
-              }`}
+              onClick={() => router.push(ROUTES.PICKUP_LOCATION)}
+              className="flex items-center gap-1 text-xs font-medium text-[var(--color-primary)] transition-opacity hover:opacity-80"
             >
-              <div className={`relative mx-auto h-[72px] w-[80px] pointer-events-none transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-105'}`}>
-                <Image src={s.image} alt={s.label} fill className="object-contain" sizes="80px" />
-              </div>
-              <div className={`mt-2 text-sm font-semibold transition-colors ${active ? 'text-[var(--color-primary)]' : 'text-gray-700'}`}>
-                {s.label}
-              </div>
-              {active && (
-                <div className="mx-auto mt-1.5 h-1 w-6 rounded-full bg-[var(--color-primary)]" />
-              )}
+              Book now <ChevronRight className="h-3.5 w-3.5" />
             </button>
-          );
-        })}
-      </div>
+          </div>
+          {zoneConfig.incentivesNote ? (
+            <p className="mt-1 text-[11px] text-gray-500">{zoneConfig.incentivesNote}</p>
+          ) : null}
+          <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+            {services.map((s) => {
+              const active = s.id === activeService;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => handleSelectService(s.id)}
+                  className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors duration-150 ${
+                    active
+                      ? 'bg-[var(--color-primary)] text-white'
+                      : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="relative h-7 w-8 shrink-0 pointer-events-none">
+                    <Image src={s.image} alt={s.label} fill className="object-contain" sizes="32px" />
+                  </div>
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {['CNG', 'Diesel', 'Petrol', 'EV'].map((fuel) => (
+              <span key={fuel} className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                {fuel}
+              </span>
+            ))}
+            <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-600">
+              All fuel types available
+            </span>
+          </div>
+        </div>
+      </section>
 
       {/* ── Footer ──────────────────────────────────────────── */}
-      <div className="relative mt-10 overflow-hidden rounded-3xl bg-gradient-to-b from-gray-50 to-blue-50/30 px-4 pt-6 pb-6">
+      <div className="page-section relative overflow-hidden rounded-2xl bg-gray-50 px-4">
         <div className="relative mx-auto h-[min(48vw,240px)] w-full max-w-[320px] sm:h-[260px]">
           <Image
             src="/hero-delivery.svg"
@@ -235,10 +228,10 @@ export default function DefaultDashboardView({
         </div>
       </div>
 
-      <p className="mt-5 text-center text-xl font-extrabold leading-tight tracking-tight text-gray-800 sm:text-2xl">
+      <p className="text-center text-xl font-semibold leading-tight tracking-tight text-gray-800 sm:text-2xl">
         Goods time pe
       </p>
-      <p className="mt-1 text-center text-lg font-bold text-gray-400 sm:text-xl">
+      <p className="mt-1 text-center text-lg font-medium text-gray-400 sm:text-xl">
         Business prime pe
       </p>
     </PageContainer>

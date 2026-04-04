@@ -237,3 +237,21 @@ select {
 .rounded-full {
   border-radius: 12px !important;
 }
+
+/**
+ * Sitewide layout scale — use across app + marketing for consistent rhythm.
+ * - Sections: vertical padding bands
+ * - page-stack: spacing between stacked blocks
+ * - Cards: inner padding for elevated surfaces
+ */
+@layer components {
+  .page-section {
+    @apply py-6 sm:py-8 lg:py-10;
+  }
+  .page-stack {
+    @apply flex min-w-0 flex-col gap-4 sm:gap-6;
+  }
+  .page-card {
+    @apply w-full min-w-0 p-4 md:p-5;
+  }
+}
