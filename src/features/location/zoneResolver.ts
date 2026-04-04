@@ -3,6 +3,9 @@ import {
   KHATU_CENTER,
   KHATU_RADIUS_KM,
   KHATU_LOCALITY_MATCH,
+  NOIDA_CENTER,
+  NOIDA_RADIUS_KM,
+  NOIDA_LOCALITY_MATCH,
 } from '@/config/khatuZone';
 
 /** Haversine distance in km between two WGS84 points. */
@@ -32,6 +35,10 @@ function extractAddressBlob(addr: Record<string, string | undefined> | undefined
   return parts.join(' ').toLowerCase();
 }
 
+function resolveCity(addr?: Record<string, string | undefined>, fallback = 'Unknown'): string {
+  return addr?.city || addr?.town || addr?.village || fallback;
+}
+
 /** Nominatim `reverse` JSON `address` + optional `display_name`. */
 export function resolveZoneFromCoordinates(
   lat: number,
@@ -39,30 +46,23 @@ export function resolveZoneFromCoordinates(
   nominatimAddress?: Record<string, string | undefined>,
   displayName?: string,
 ): { zone: DashboardZone; city: string; state: string } {
-  const dist = haversineKm(lat, lng, KHATU_CENTER.lat, KHATU_CENTER.lng);
-  if (dist <= KHATU_RADIUS_KM) {
-    const city =
-      nominatimAddress?.town ||
-      nominatimAddress?.village ||
-      nominatimAddress?.city ||
-      'Khatu area';
-    const state = nominatimAddress?.state || 'Rajasthan';
-    return { zone: 'khatu', city, state };
-  }
-
   const blob = `${extractAddressBlob(nominatimAddress)} ${(displayName || '').toLowerCase()}`;
-  const keywordHit = KHATU_LOCALITY_MATCH.some((k) => blob.includes(k.toLowerCase()));
-  if (keywordHit) {
-    const city =
-      nominatimAddress?.town ||
-      nominatimAddress?.village ||
-      nominatimAddress?.city ||
-      'Khatu corridor';
-    const state = nominatimAddress?.state || 'Rajasthan';
-    return { zone: 'khatu', city, state };
+
+  // Khatu — radius check first (more specific zone wins)
+  if (haversineKm(lat, lng, KHATU_CENTER.lat, KHATU_CENTER.lng) <= KHATU_RADIUS_KM) {
+    return { zone: 'khatu', city: resolveCity(nominatimAddress, 'Khatu area'), state: nominatimAddress?.state || 'Rajasthan' };
+  }
+  if (KHATU_LOCALITY_MATCH.some((k) => blob.includes(k.toLowerCase()))) {
+    return { zone: 'khatu', city: resolveCity(nominatimAddress, 'Khatu corridor'), state: nominatimAddress?.state || 'Rajasthan' };
   }
 
-  const city = nominatimAddress?.city || nominatimAddress?.town || nominatimAddress?.village || 'Unknown';
-  const state = nominatimAddress?.state || '';
-  return { zone: 'default', city, state };
+  // Noida / NCR
+  if (haversineKm(lat, lng, NOIDA_CENTER.lat, NOIDA_CENTER.lng) <= NOIDA_RADIUS_KM) {
+    return { zone: 'noida', city: resolveCity(nominatimAddress, 'Noida'), state: nominatimAddress?.state || 'Uttar Pradesh' };
+  }
+  if (NOIDA_LOCALITY_MATCH.some((k) => blob.includes(k.toLowerCase()))) {
+    return { zone: 'noida', city: resolveCity(nominatimAddress, 'NCR'), state: nominatimAddress?.state || '' };
+  }
+
+  return { zone: 'default', city: resolveCity(nominatimAddress), state: nominatimAddress?.state || '' };
 }

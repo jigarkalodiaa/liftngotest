@@ -22,6 +22,7 @@ import { theme } from '@/config/theme';
 import { DashboardLocationProvider, useDashboardLocation } from '@/features/location';
 import LocationModal from '@/components/location/LocationModal';
 import { KhatuDashboard } from '@/features/khatu';
+import { NoidaDashboard } from '@/features/noida';
 import DefaultDashboardView from './DefaultDashboardView';
 
 export default function DashboardPage() {
@@ -205,7 +206,9 @@ function DashboardPageContent() {
     setSelectedService(id);
   }, []);
 
-  const isKhatuZone = dashboardLocation?.zone === 'khatu';
+  const currentZone = dashboardLocation?.zone ?? 'default';
+  const isKhatuZone = currentZone === 'khatu';
+  const isNoidaZone = currentZone === 'noida';
 
   const onFlagshipBookNow = useCallback(() => {
     setActiveService('twoWheeler');
@@ -213,10 +216,14 @@ function DashboardPageContent() {
     router.push(ROUTES.PICKUP_LOCATION);
   }, [router]);
 
+  const bgClass = isKhatuZone
+    ? 'bg-gradient-to-b from-amber-50/90 via-orange-50/30 to-white'
+    : isNoidaZone
+      ? 'bg-gradient-to-b from-blue-50/80 via-white to-white'
+      : 'bg-white';
+
   return (
-    <div
-      className={`min-h-screen ${isKhatuZone ? 'bg-gradient-to-b from-amber-50/90 via-orange-50/30 to-white' : 'bg-white'}`}
-    >
+    <div className={`min-h-screen ${bgClass}`}>
       {/* Dim overlay when menu open */}
       <div
         className={`fixed inset-0 z-40 bg-black/40 transition-opacity ${
@@ -403,6 +410,19 @@ function DashboardPageContent() {
           activeService={activeService}
           handleSelectService={handleSelectService}
           onFlagshipBookNow={onFlagshipBookNow}
+          onOpenChooseTrip={() => setIsChooseTripOpen(true)}
+        />
+      ) : isNoidaZone ? (
+        <NoidaDashboard
+          userName={userName}
+          pickup={pickup}
+          dashboardLocation={dashboardLocation}
+          openLocationModal={openLocationModal}
+          setIsMenuOpen={setIsMenuOpen}
+          router={router}
+          services={services}
+          activeService={activeService}
+          handleSelectService={handleSelectService}
           onOpenChooseTrip={() => setIsChooseTripOpen(true)}
         />
       ) : (

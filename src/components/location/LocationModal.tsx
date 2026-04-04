@@ -106,15 +106,23 @@ export default function LocationModal() {
 
           <div className="border-t border-gray-100 pt-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Manual area</p>
-            <p className="mt-1 text-xs text-gray-500">Near Khatu, Ringas, or Reengus? Pick below if GPS is off.</p>
+            <p className="mt-1 text-xs text-gray-500">Pick your service area below if GPS is off.</p>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                disabled={isLocating}
+                onClick={() => setZoneManual('noida')}
+                className="min-h-[44px] flex-1 rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 px-3 text-sm font-semibold text-[var(--color-primary)] disabled:opacity-60"
+              >
+                Noida / NCR
+              </button>
               <button
                 type="button"
                 disabled={isLocating}
                 onClick={() => setZoneManual('khatu')}
                 className="min-h-[44px] flex-1 rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/5 px-3 text-sm font-semibold text-[var(--color-primary)] disabled:opacity-60"
               >
-                Khatu / Ringas nearby
+                Khatu / Ringas
               </button>
               <button
                 type="button"
@@ -122,7 +130,7 @@ export default function LocationModal() {
                 onClick={() => setZoneManual('default')}
                 className="min-h-[44px] flex-1 rounded-xl border border-gray-200 px-3 text-sm font-medium text-gray-800 disabled:opacity-60"
               >
-                I&apos;m elsewhere
+                Elsewhere
               </button>
             </div>
           </div>
