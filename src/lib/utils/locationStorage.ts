@@ -27,7 +27,7 @@ function isStoredUserLocation(v: unknown): v is StoredUserLocation {
   return (
     typeof o.city === 'string' &&
     typeof o.state === 'string' &&
-    (o.zone === 'khatu' || o.zone === 'default') &&
+    (o.zone === 'khatu' || o.zone === 'noida' || o.zone === 'default') &&
     typeof o.source === 'string' &&
     typeof o.updatedAt === 'string'
   );

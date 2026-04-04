@@ -8,8 +8,8 @@ const bodySchema = z.object({
 });
 
 /**
- * POST { lat, lng } → { city, state, zone: 'khatu' | 'default' }
- * Uses Nominatim reverse geocoding + distance/keyword rules for Khatu corridor.
+ * POST { lat, lng } → { city, state, zone: 'khatu' | 'noida' | 'default' }
+ * Uses Nominatim reverse geocoding + distance/keyword rules.
  */
 export async function POST(req: Request) {
   let json: unknown;

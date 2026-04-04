@@ -20,6 +20,9 @@ export const API_TIMEOUT_MS = Math.max(5000, parseInt(getEnv('NEXT_PUBLIC_API_TI
 
 export const IS_DEV = getEnv('NODE_ENV', 'development') === 'development';
 
+/** Razorpay Key ID — safe for client-side (embedded in checkout.js). */
+export const RAZORPAY_KEY_ID = getEnv('NEXT_PUBLIC_RAZORPAY_KEY_ID', '');
+
 /** Demo OTP for local/dev login. Use NEXT_PUBLIC_DEMO_OTP in .env.local; never commit real secrets. */
 export const DEMO_OTP = getEnv('NEXT_PUBLIC_DEMO_OTP', '');
 

@@ -28,6 +28,7 @@ import { GOOD_TYPES } from '@/data/goodTypes';
 import { PageContainer } from '@/components/ui';
 import { theme } from '@/config/theme';
 import { trackBookingCompleted } from '@/lib/analytics';
+import { useRazorpay } from '@/lib/razorpay';
 import {
   PaymentHeader,
   VehicleCard,
@@ -72,6 +73,9 @@ export default function PaymentPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [deliveryGoods, setDeliveryGoods] = useState<DeliveryGoodsDescription | null>(null);
   const [hotelDraft, setHotelDraft] = useState<HotelBookingDraft | null>(null);
+  const [payBusy, setPayBusy] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+  const { openPayment } = useRazorpay();
 
   const syncFromStorage = useCallback(() => {
     setVehicle(getSelectedService() ?? 'threeWheeler');
@@ -210,6 +214,11 @@ export default function PaymentPage() {
               : undefined
           }
         />
+        {payError && (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+            {payError}
+          </div>
+        )}
         <p className="mt-6 text-center" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray500 }}>
           By Placing the order, you agree to Liftngo Terms of use and Privacy Policy
         </p>
@@ -244,37 +253,67 @@ export default function PaymentPage() {
 
       <PaymentFooterBar
         onBookNow={() => {
-          trackBookingCompleted({
-            vehicle_type: vehicle ?? 'unknown',
-            flow: fromKhatuHotel ? 'khatu_hotel' : fromFood ? 'food' : 'standard',
+          const flow = fromKhatuHotel ? 'khatu_hotel' : fromFood ? 'food' : 'standard';
+          const payableInr =
+            fromKhatuHotel && hotelDraft
+              ? hotelDraft.estimatedTotalInr
+              : fromFood
+                ? FOOD_PAYMENT_FLAT_INR
+                : TOTAL_AMOUNT;
+
+          setPayError(null);
+          setPayBusy(true);
+
+          openPayment({
+            amountInr: payableInr,
+            receipt: `liftngo_${flow}_${Date.now()}`,
+            description:
+              fromKhatuHotel ? 'Hotel booking' : fromFood ? 'Food delivery' : 'Delivery booking',
+            notes: { flow, vehicle: vehicle ?? 'unknown' },
+            prefill: {
+              contact: sender?.mobile ? `+91${sender.mobile.replace(/\D/g, '')}` : undefined,
+              name: sender?.name,
+            },
+            onSuccess: () => {
+              setPayBusy(false);
+              trackBookingCompleted({ vehicle_type: vehicle ?? 'unknown', flow });
+
+              if (fromKhatuHotel && hotelDraft) {
+                appendHotelBookingHistoryFromDraft(hotelDraft);
+                clearHotelBookingDraft();
+                setHotelDraft(null);
+                router.push(`${ROUTES.HISTORY}?tab=hotel`);
+                return;
+              }
+              if (fromFood && deliveryGoods) {
+                const amt = `₹${FOOD_PAYMENT_FLAT_INR.toLocaleString('en-IN')}`;
+                const addrHint = drop?.address?.trim() || pickup?.address?.trim() || undefined;
+                if (deliveryGoods.source === 'marketplace') {
+                  appendMarketplaceHistoryFromDeliveryGoods(deliveryGoods, amt, addrHint);
+                } else {
+                  appendFoodDeliveryHistory(deliveryGoods, amt, pickup?.name);
+                }
+                clearDeliveryGoodsDescription();
+                setDeliveryGoods(null);
+              }
+              router.push(ROUTES.BOOKING);
+            },
+            onError: (err) => {
+              setPayBusy(false);
+              if (err !== 'Payment cancelled') {
+                setPayError(err);
+              }
+            },
           });
-          if (fromKhatuHotel && hotelDraft) {
-            appendHotelBookingHistoryFromDraft(hotelDraft);
-            clearHotelBookingDraft();
-            setHotelDraft(null);
-            router.push(`${ROUTES.HISTORY}?tab=hotel`);
-            return;
-          }
-          if (fromFood && deliveryGoods) {
-            const amt = `₹${FOOD_PAYMENT_FLAT_INR.toLocaleString('en-IN')}`;
-            const addrHint = drop?.address?.trim() || pickup?.address?.trim() || undefined;
-            if (deliveryGoods.source === 'marketplace') {
-              appendMarketplaceHistoryFromDeliveryGoods(deliveryGoods, amt, addrHint);
-            } else {
-              appendFoodDeliveryHistory(deliveryGoods, amt, pickup?.name);
-            }
-            clearDeliveryGoodsDescription();
-            setDeliveryGoods(null);
-          }
-          router.push(ROUTES.BOOKING);
         }}
         totalInr={
           fromKhatuHotel && hotelDraft
             ? hotelDraft.estimatedTotalInr
             : fromFood
               ? FOOD_PAYMENT_FLAT_INR
-              : undefined
+              : TOTAL_AMOUNT
         }
+        busy={payBusy}
       />
     </div>
   );
