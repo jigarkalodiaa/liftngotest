@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import razorpay from '@/lib/razorpay/razorpayServer';
+import { getRazorpay } from '@/lib/razorpay/razorpayServer';
 
 function extractError(err: unknown): string {
   if (err instanceof Error) return err.message;
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
-    const order = await razorpay.orders.create({
+    const order = await getRazorpay().orders.create({
       amount: Math.round(amount * 100),
       currency,
       receipt: receipt ?? `rcpt_${Date.now()}`,
