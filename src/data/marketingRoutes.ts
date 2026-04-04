@@ -28,6 +28,7 @@ export const MARKETING_PATHS: { path: string; priority: number; changeFrequency:
   { path: '/about/electric-three-wheel-cargo', priority: 0.76, changeFrequency: 'monthly' },
   { path: '/faq', priority: 0.84, changeFrequency: 'weekly' },
   { path: '/blog', priority: 0.76, changeFrequency: 'weekly' },
+  { path: '/noida/coconut', priority: 0.82, changeFrequency: 'weekly' },
   { path: '/find-restaurant', priority: 0.74, changeFrequency: 'weekly' },
   { path: '/careers', priority: 0.68, changeFrequency: 'monthly' },
   { path: '/contact', priority: 0.72, changeFrequency: 'monthly' },
