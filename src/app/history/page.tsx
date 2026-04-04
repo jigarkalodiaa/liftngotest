@@ -464,7 +464,7 @@ function HistoryPageInner() {
         </header>
 
         <div
-          className="-mx-1 mt-4 flex gap-1 overflow-x-auto pb-1 scrollbar-thin"
+          className="-mx-1 flex gap-4 overflow-x-auto pb-1 scrollbar-thin sm:gap-6"
           role="tablist"
           aria-label="History categories"
         >

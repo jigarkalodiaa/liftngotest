@@ -7,9 +7,9 @@ import FaqAccordionList from './FaqAccordionList';
 /** Homepage FAQ — preview + link to full /faq page. */
 export default function FaqSection() {
   return (
-    <section id="faq" className="w-full bg-white py-12 lg:py-16" aria-labelledby="faq-heading">
+    <section id="faq" className="page-section w-full bg-white" aria-labelledby="faq-heading">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center px-4 sm:px-6 lg:px-8 xl:px-10">
-        <h2 id="faq-heading" className="mb-8 text-center text-2xl font-bold text-gray-900 sm:text-3xl">
+        <h2 id="faq-heading" className="mb-4 text-center text-2xl font-bold text-gray-900 sm:mb-6 sm:text-3xl">
           FAQ
         </h2>
         <FaqAccordionList items={HOMEPAGE_FAQ_PREVIEW} className="max-w-2xl" />

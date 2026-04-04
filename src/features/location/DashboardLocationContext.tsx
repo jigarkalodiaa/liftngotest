@@ -41,7 +41,14 @@ function toStoredWithTime(next: Omit<StoredUserLocation, 'updatedAt'> & { update
   };
 }
 
-export function DashboardLocationProvider({ children }: { children: ReactNode }) {
+export function DashboardLocationProvider({
+  children,
+  pinZone,
+}: {
+  children: ReactNode;
+  /** When set (e.g. `/noida` route), persist this zone after hydrate so the correct dashboard UI loads. */
+  pinZone?: DashboardZone;
+}) {
   const [location, setLocation] = useState<StoredUserLocation | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -132,6 +139,11 @@ export function DashboardLocationProvider({ children }: { children: ReactNode })
     },
     [persist],
   );
+
+  useEffect(() => {
+    if (!hydrated || !pinZone) return;
+    setZoneManual(pinZone);
+  }, [hydrated, pinZone, setZoneManual]);
 
   const clearLocationError = useCallback(() => setLocationError(null), []);
 

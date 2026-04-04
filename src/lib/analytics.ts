@@ -23,7 +23,11 @@ export type AnalyticsEventName =
   | 'login_started'
   | 'otp_sent'
   | 'otp_verified'
-  | 'booking_completed';
+  | 'booking_completed'
+  | 'view_plan_clicked'
+  | 'calculator_used'
+  | 'plan_selected'
+  | 'checkout_started';
 
 export function trackEvent(name: AnalyticsEventName, params?: Record<string, string | number | boolean>) {
   if (typeof window === 'undefined') return;
@@ -79,4 +83,22 @@ export function trackOtpVerified() {
 
 export function trackBookingCompleted(params?: Record<string, string | number | boolean>) {
   trackEvent('booking_completed', params);
+}
+
+/* ─── plan funnel helpers ─── */
+
+export function trackViewPlan(planType: string, source: string) {
+  trackEvent('view_plan_clicked', { plan_type: planType, source });
+}
+
+export function trackCalculatorUsed(params: Record<string, string | number | boolean>) {
+  trackEvent('calculator_used', params);
+}
+
+export function trackPlanSelected(planName: string, planType: string) {
+  trackEvent('plan_selected', { plan_name: planName, plan_type: planType });
+}
+
+export function trackCheckoutStarted(flow: string, amount?: number) {
+  trackEvent('checkout_started', { flow, ...(amount != null && { amount }) });
 }

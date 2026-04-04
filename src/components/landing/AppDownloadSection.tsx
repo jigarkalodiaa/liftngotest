@@ -10,12 +10,12 @@ export default function AppDownloadSection() {
   return (
     <section
       id="download"
-      className="w-full py-12 lg:py-16 bg-[var(--landing-bg)]"
+      className="page-section w-full bg-[var(--landing-bg)]"
       aria-labelledby="download-heading"
     >
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center px-4 sm:px-6 lg:px-8 xl:px-10">
         <div
-          className="flex w-full max-w-lg flex-col items-center gap-6 rounded-2xl border p-6 sm:p-8 sm:gap-8"
+          className="flex w-full max-w-lg flex-col items-center gap-4 rounded-2xl border page-card sm:gap-6"
           style={{
             borderWidth: '1px',
             borderColor: 'var(--landing-primary)',
@@ -52,7 +52,7 @@ export default function AppDownloadSection() {
           >
             <div
               role="listitem"
-              className="flex flex-col items-center gap-3 rounded-xl border border-gray-200/80 bg-white/80 px-3 py-4 shadow-sm"
+              className="flex flex-col items-center gap-4 rounded-xl border border-gray-200/80 bg-white/80 page-card shadow-sm sm:gap-6"
             >
               <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-[var(--landing-orange)] p-3 shadow-inner sm:h-28 sm:w-28">
                 <div className="flex h-full w-full items-center justify-center rounded-lg bg-white p-2">
@@ -73,7 +73,7 @@ export default function AppDownloadSection() {
 
             <div
               role="listitem"
-              className="flex flex-col items-center gap-3 rounded-xl border border-gray-200/80 bg-white/80 px-3 py-4 shadow-sm"
+              className="flex flex-col items-center gap-4 rounded-xl border border-gray-200/80 bg-white/80 page-card shadow-sm sm:gap-6"
             >
               <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-[var(--color-primary)] p-3 shadow-inner sm:h-28 sm:w-28">
                 <div className="flex h-full w-full items-center justify-center rounded-lg bg-white p-2">

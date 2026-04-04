@@ -21,7 +21,7 @@ const linkTileClass =
 export default function HomeSeoContent() {
   return (
     <section
-      className="border-y border-[var(--landing-primary)]/10 bg-[var(--landing-bg)] py-10 sm:py-16"
+      className="page-section border-y border-[var(--landing-primary)]/10 bg-[var(--landing-bg)]"
       aria-labelledby="seo-intro-heading"
     >
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
@@ -49,7 +49,7 @@ export default function HomeSeoContent() {
           </p>
 
           <nav
-            className="mt-8 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 lg:grid-cols-3 lg:gap-4"
+            className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:mt-8 lg:grid-cols-3 lg:gap-6"
             aria-label="Key service pages"
           >
             {SEO_LINKS.map((item) => (

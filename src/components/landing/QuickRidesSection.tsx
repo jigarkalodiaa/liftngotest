@@ -52,11 +52,11 @@ export default function QuickRidesSection() {
   return (
     <section
       id="quick-rides"
-      className="w-full py-12 lg:py-16 xl:py-20 bg-[var(--landing-bg)]"
+      className="page-section w-full bg-[var(--landing-bg)]"
       aria-labelledby="quick-rides-heading"
     >
-      <div className="w-full mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-        <h2 id="quick-rides-heading" className="text-center text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 lg:mb-12">
+      <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 sm:px-6 lg:px-8">
+        <h2 id="quick-rides-heading" className="mb-4 text-center text-2xl font-bold text-gray-900 sm:mb-6 sm:text-3xl lg:text-4xl">
           Get Quick Rides,<br />
           Low Fares
         </h2>
@@ -65,7 +65,7 @@ export default function QuickRidesSection() {
         <div
           className="
             w-full max-w-4xl mx-auto mb-10 lg:mb-14 min-h-0
-            grid grid-cols-3 grid-rows-2 gap-3 sm:gap-4
+            grid grid-cols-3 grid-rows-2 gap-4 sm:gap-6
             aspect-[2.15/1] max-h-[min(52vw,17.5rem)] min-h-[7.5rem]
             sm:max-h-[min(42vw,19rem)] lg:max-h-[20rem]
           "
@@ -116,7 +116,7 @@ export default function QuickRidesSection() {
         </div>
 
         {/* Feature list: orange circle + dark grey text, block centered, text left-aligned with icon */}
-        <ul className="w-full max-w-2xl mx-auto space-y-5 mb-10 lg:mb-12">
+        <ul className="mx-auto mb-6 w-full max-w-2xl space-y-4 sm:mb-8 sm:space-y-6">
           {FEATURES.map((item, i) => (
             <li key={i} className="flex gap-4 items-start">
               <span
