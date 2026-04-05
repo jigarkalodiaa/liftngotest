@@ -3,34 +3,23 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants';
+import { INDICATIVE_PRICING_FOOTNOTE, TOLL_CHARGES_SEPARATE_NOTE } from '@/lib/pricing/subscriptionDisclosures';
 import { trackCalculatorUsed, trackPlanSelected, trackCheckoutStarted } from '@/lib/analytics';
+import { computeBulkPlanQuote, type VehicleClass } from '@/lib/pricing/bulkPlanQuote';
 import { ArrowRight, Plus, Trash2, Copy, Bike, Truck, Phone, Zap, ChevronRight } from 'lucide-react';
 import PlansSubPageShell from '../PlansSubPageShell';
 
-/* ── Pricing engine ──────────────────────────────────────── */
+/* ── Vehicle UI meta (rates live in @/lib/pricing/bulkPlanQuote) ─ */
 
-type VehicleType = '2W' | '3W' | '4W';
+type VehicleType = VehicleClass;
 
 const ALL_VEHICLE_TYPES: VehicleType[] = ['2W', '3W', '4W'];
 
-const VEHICLE_META: Record<VehicleType, { label: string; icon: typeof Bike; basePerKm: number; minFare: number; color: string }> = {
-  '2W': { label: '2-Wheeler', icon: Bike,  basePerKm: 8,  minFare: 50,  color: 'bg-sky-500' },
-  '3W': { label: '3-Wheeler', icon: Truck, basePerKm: 14, minFare: 80,  color: 'bg-emerald-500' },
-  '4W': { label: '4-Wheeler', icon: Truck, basePerKm: 22, minFare: 150, color: 'bg-violet-500' },
+const VEHICLE_META: Record<VehicleType, { label: string; icon: typeof Bike; color: string }> = {
+  '2W': { label: '2-Wheeler', icon: Bike, color: 'bg-sky-500' },
+  '3W': { label: '3-Wheeler', icon: Truck, color: 'bg-emerald-500' },
+  '4W': { label: '4-Wheeler', icon: Truck, color: 'bg-violet-500' },
 };
-
-function costPerTrip(vehicle: VehicleType, distanceKm: number): number {
-  const m = VEHICLE_META[vehicle];
-  return Math.max(m.basePerKm * distanceKm, m.minFare);
-}
-
-function bulkDiscount(totalTrips: number): number {
-  if (totalTrips >= 100) return 0.30;
-  if (totalTrips >= 50) return 0.22;
-  if (totalTrips >= 30) return 0.15;
-  if (totalTrips >= 20) return 0.08;
-  return 0;
-}
 
 type Recommendation = { type: 'subscription' | 'lease' | 'hybrid'; label: string; detail: string; href: string };
 
@@ -113,33 +102,37 @@ export default function CustomTripPage() {
   /* ── Calculations ──────────────────────────────── */
 
   const summary = useMemo(() => {
-    const lines = configs.map((c) => {
-      const perTrip = costPerTrip(c.vehicle, c.distanceKm);
-      const lineCost = perTrip * c.trips;
-      return { id: c.id, vehicle: c.vehicle, trips: c.trips, distanceKm: c.distanceKm, perTrip, lineCost };
+    const quote = computeBulkPlanQuote(configs);
+    const lines = configs.map((c, i) => {
+      const q = quote.lines[i];
+      return {
+        id: c.id,
+        vehicle: c.vehicle,
+        trips: c.trips,
+        distanceKm: c.distanceKm,
+        perTripDisplay: q.perTripDisplay,
+        linePayTotal: q.linePayTotal,
+      };
     });
+    const rec = getRecommendation(quote.totalTrips, configs);
 
-    const totalTrips = lines.reduce((s, l) => s + l.trips, 0);
-    const totalPayPerUse = lines.reduce((s, l) => s + l.lineCost, 0);
-    const discount = bulkDiscount(totalTrips);
-    const discountedTotal = Math.round(totalPayPerUse * (1 - discount));
-    const savings = totalPayPerUse - discountedTotal;
-    const avgPerTrip = totalTrips > 0 ? Math.round(discountedTotal / totalTrips) : 0;
-    const rec = getRecommendation(totalTrips, configs);
-
-    return { lines, totalTrips, totalPayPerUse, discount, discountedTotal, savings, avgPerTrip, rec };
+    return {
+      ...quote,
+      lines,
+      rec,
+    };
   }, [configs]);
 
   const handleProceed = useCallback(() => {
     trackCalculatorUsed({
       configs: configs.length,
       total_trips: summary.totalTrips,
-      total_cost: summary.discountedTotal,
+      total_cost: summary.payTotal,
       recommended: summary.rec?.type || 'none',
     });
     if (summary.rec) {
       trackPlanSelected(summary.rec.label, 'custom_calculator');
-      trackCheckoutStarted('custom_calculator', summary.discountedTotal);
+      trackCheckoutStarted('custom_calculator', summary.payTotal);
       router.push(summary.rec.href);
     } else {
       router.push(ROUTES.PLANS_SUBSCRIPTION);
@@ -288,9 +281,13 @@ export default function CustomTripPage() {
 
                   {/* Line cost preview */}
                   <div className="mt-4 flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
-                    <span className="text-xs text-gray-500">Estimated cost</span>
+                    <span className="text-xs text-gray-500">Est. line total</span>
                     <span className="text-sm font-extrabold text-gray-900">
-                      ₹{(costPerTrip(cfg.vehicle, cfg.distanceKm) * cfg.trips).toLocaleString('en-IN')}
+                      ₹
+                      {(summary.lines.find((l) => l.id === cfg.id)?.linePayTotal ?? 0).toLocaleString('en-IN')}
+                      <span className="ml-1 text-[10px] font-semibold text-gray-400">
+                        · ₹{summary.lines.find((l) => l.id === cfg.id)?.perTripDisplay ?? 0}/trip
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -315,6 +312,10 @@ export default function CustomTripPage() {
             {/* Summary panel */}
             <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-lg md:p-5 lg:p-6">
               <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400">Cost Summary</h2>
+              <p className="mt-1 text-[11px] leading-snug text-gray-500">
+                All-in estimate · no line-item breakdown · fares follow distance &amp; demand bands
+              </p>
+              <p className="mt-1.5 text-[11px] leading-snug text-gray-500">{TOLL_CHARGES_SEPARATE_NOTE}</p>
 
               {/* Per-vehicle breakdown */}
               <div className="mt-4 space-y-2.5">
@@ -322,15 +323,18 @@ export default function CustomTripPage() {
                   const vm = VEHICLE_META[line.vehicle];
                   return (
                     <div key={line.id} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-white text-[10px] font-bold ${vm.color}`}>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white ${vm.color}`}>
                           {i + 1}
                         </span>
                         <span className="truncate text-gray-600">
                           {vm.label} · {line.trips}×{line.distanceKm}km
                         </span>
                       </div>
-                      <span className="shrink-0 font-bold tabular-nums text-gray-900">₹{line.lineCost.toLocaleString('en-IN')}</span>
+                      <div className="shrink-0 text-right">
+                        <span className="font-bold tabular-nums text-gray-900">₹{line.linePayTotal.toLocaleString('en-IN')}</span>
+                        <p className="text-[10px] font-medium text-gray-400">₹{line.perTripDisplay}/trip</p>
+                      </div>
                     </div>
                   );
                 })}
@@ -342,32 +346,39 @@ export default function CustomTripPage() {
                   <span className="font-bold text-gray-900">{summary.totalTrips}</span>
                 </div>
                 <div className="mt-1 flex justify-between text-sm">
-                  <span className="text-gray-500">Pay-per-use</span>
-                  <span className="font-bold tabular-nums text-gray-400 line-through">₹{summary.totalPayPerUse.toLocaleString('en-IN')}</span>
+                  <span className="text-gray-500">Cost per trip (avg)</span>
+                  <span className="font-bold tabular-nums text-gray-900">₹{summary.avgPerTrip}</span>
                 </div>
-                {summary.discount > 0 && (
-                  <div className="mt-1 flex justify-between text-sm">
-                    <span className="text-emerald-600">Bulk discount</span>
-                    <span className="font-bold text-emerald-600">-{Math.round(summary.discount * 100)}%</span>
-                  </div>
+                {summary.listTotal !== null && summary.bulkDiscountPct > 0 && (
+                  <>
+                    <div className="mt-1 flex justify-between text-sm">
+                      <span className="text-gray-500">Volume benefit</span>
+                      <span className="font-bold text-emerald-600">{Math.round(summary.bulkDiscountPct * 100)}% off list</span>
+                    </div>
+                    <div className="mt-1 flex justify-between text-sm">
+                      <span className="text-gray-500">List reference</span>
+                      <span className="font-bold tabular-nums text-gray-400 line-through">₹{summary.listTotal.toLocaleString('en-IN')}</span>
+                    </div>
+                  </>
                 )}
               </div>
 
-              <div className="mt-3 flex items-end justify-between border-t border-gray-100 pt-3">
-                <div>
-                  <p className="text-[10px] font-bold uppercase text-gray-400">Estimated Total</p>
-                  <p className="text-2xl font-extrabold text-[var(--color-primary)]">₹{summary.discountedTotal.toLocaleString('en-IN')}</p>
+              <div className="mt-3 flex flex-col gap-1 border-t border-gray-100 pt-3">
+                <p className="text-[10px] font-bold uppercase text-gray-400">Total (this mix)</p>
+                <div className="flex flex-wrap items-end justify-between gap-2">
+                  <p className="text-2xl font-extrabold text-[var(--color-primary)]">₹{summary.payTotal.toLocaleString('en-IN')}</p>
+                  {summary.savings > 0 && (
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                      Save ₹{summary.savings.toLocaleString('en-IN')}
+                    </span>
+                  )}
                 </div>
-                {summary.savings > 0 && (
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600">
-                    Save ₹{summary.savings.toLocaleString('en-IN')}
-                  </span>
-                )}
               </div>
 
               <p className="mt-1 text-xs text-gray-400">
-                ₹{summary.avgPerTrip}/trip avg · {configs.length} vehicle{configs.length > 1 ? 's' : ''}
+                {configs.length} vehicle{configs.length > 1 ? 's' : ''} · rounded for easy scanning
               </p>
+              <p className="mt-2 text-[10px] leading-snug text-gray-400">{INDICATIVE_PRICING_FOOTNOTE}</p>
 
               {/* CTA */}
               <button
@@ -387,6 +398,23 @@ export default function CustomTripPage() {
                 Talk to Expert
               </button>
             </div>
+
+            {summary.showSubscriptionNudge && (
+              <div className="mt-4 rounded-2xl border border-amber-200/80 bg-gradient-to-b from-amber-50/95 to-white p-4 shadow-sm">
+                <p className="text-sm font-bold text-amber-950">You can save more with subscription</p>
+                <p className="mt-1 text-xs leading-snug text-amber-900/85">
+                  Fixed packs smooth busy lanes and keep per-trip predictable — same ops, less variance than pay-per-use.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => router.push(ROUTES.PLANS_SUBSCRIPTION)}
+                  className="mt-3 flex items-center gap-1 text-xs font-bold text-amber-950 transition-colors hover:text-amber-800"
+                >
+                  View subscription packs
+                  <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+                </button>
+              </div>
+            )}
 
             {/* Recommendation */}
             {summary.rec && (

@@ -2,42 +2,50 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ROUTES } from '@/lib/constants';
+import {
+  INDICATIVE_PRICING_FOOTNOTE,
+  SUBSCRIPTION_COMPLIANCE_BULLETS,
+  SUBSCRIPTION_PACK_BENEFITS,
+  TOLL_CHARGES_SEPARATE_NOTE,
+} from '@/lib/pricing/subscriptionDisclosures';
 import PlansSubPageShell from '../PlansSubPageShell';
 import { trackPlanSelected, trackCheckoutStarted, trackViewPlan } from '@/lib/analytics';
 import { Check, Star, ArrowRight, Phone } from 'lucide-react';
 
 type Tier = { name: string; trips: number; perTrip: number; total: number; payPerUse: number; savings: number; features: string[]; popular?: boolean; offer?: boolean };
 
+/** Packs priced for margin; payPerUse × trips = credible ad-hoc anchor (no breakdown in UI). */
 const TIERS: Tier[] = [
   {
     name: 'Starter',
     trips: 30,
-    perTrip: 450,
-    total: 13500,
-    payPerUse: 550,
+    perTrip: 500,
+    total: 15000,
+    payPerUse: 600,
     savings: 3000,
-    features: ['3W with driver', '30-day validity', 'Basic tracking', 'Email invoices'],
+    features: ['3W with driver', '30-day validity (from activation)', 'Basic tracking', 'Email invoices', 'In-pack: up to ~12 km/trip'],
   },
   {
     name: 'Growth',
     trips: 50,
-    perTrip: 400,
-    total: 20000,
-    payPerUse: 550,
+    perTrip: 440,
+    total: 22000,
+    payPerUse: 590,
     savings: 7500,
     popular: true,
-    features: ['3W with driver', '30-day validity', 'Live GPS tracking', 'Dedicated POC', 'Priority dispatch', 'GST invoicing'],
+    features: ['3W with driver', '30-day validity (from activation)', 'Live GPS tracking', 'Dedicated POC', 'Priority dispatch', 'GST invoicing', 'In-pack: up to ~12 km/trip'],
   },
   {
     name: 'Scale',
     trips: 100,
-    perTrip: 360,
-    total: 36000,
-    payPerUse: 550,
-    savings: 19000,
+    perTrip: 390,
+    total: 39000,
+    payPerUse: 590,
+    savings: 20000,
     offer: true,
-    features: ['3W with driver', '30-day validity', 'Live GPS tracking', 'Dedicated account manager', 'Priority dispatch', 'Custom SLA', 'Weekly reports', 'GST invoicing'],
+    features: ['3W with driver', '30-day validity (from activation)', 'Live GPS tracking', 'Dedicated account manager', 'Priority dispatch', 'Custom SLA', 'Weekly reports', 'GST invoicing', 'In-pack: up to ~12 km/trip'],
   },
 ];
 
@@ -48,15 +56,28 @@ export default function SubscriptionPage() {
   return (
     <PlansSubPageShell
       title="Subscription plans"
-      subtitle="Fixed trips, predictable cost — no surge pricing."
+      subtitle="Fixed trips, no surge or waiting-time add-ons in the standard window — full benefits below."
       badge="Trip bundles"
       contentClassName="-mt-6"
     >
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm md:p-5">
-          <p className="text-center text-sm font-bold text-emerald-800">
-            Pay-per-use costs ~₹550/trip · Subscription starts at ₹360/trip
+          <p className="text-center text-sm font-bold text-emerald-900">
+            What you get upfront with every pack
           </p>
-          <p className="mt-1 text-center text-xs text-emerald-600">That&apos;s up to 35% savings on every trip</p>
+          <p className="mx-auto mt-1 max-w-xl text-center text-xs text-emerald-700">
+            Busy ad-hoc lanes often run ~₹590–₹650/trip · Subscription locks from ~₹390/trip with the protections below
+          </p>
+          <ul className="mx-auto mt-3 max-w-3xl space-y-2 text-left">
+            {SUBSCRIPTION_PACK_BENEFITS.map((line, i) => (
+              <li key={i} className="flex gap-2 text-[11px] leading-snug text-emerald-900/95 md:text-xs">
+                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" strokeWidth={2.5} aria-hidden />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mx-auto mt-3 max-w-lg border-t border-emerald-200/80 pt-3 text-center text-[11px] leading-snug text-emerald-800/90">
+            {TOLL_CHARGES_SEPARATE_NOTE} Parking, permits &amp; similar statutory pass-throughs may also apply on actuals.
+          </p>
         </div>
 
         <div className="mt-8 grid min-w-0 grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
@@ -122,7 +143,7 @@ export default function SubscriptionPage() {
                         : 'border border-gray-200 bg-white text-gray-900 hover:bg-gray-50'
                     }`}
                   >
-                    Start subscription
+                    Lock this plan
                     <ArrowRight className="h-4 w-4 shrink-0" />
                   </button>
                 </div>
@@ -130,6 +151,35 @@ export default function SubscriptionPage() {
             );
           })}
         </div>
+
+        <details className="group mt-8 rounded-2xl border border-gray-200 bg-slate-50/90 p-4 shadow-sm open:bg-slate-50 md:p-5">
+          <summary className="cursor-pointer list-none text-sm font-bold text-gray-900 [&::-webkit-details-marker]:hidden">
+            <span className="inline-flex items-center gap-2">
+              Pack validity, compliance &amp; legal summary
+              <span className="text-xs font-semibold text-gray-500 group-open:hidden">Show</span>
+              <span className="hidden text-xs font-semibold text-gray-500 group-open:inline">Hide</span>
+            </span>
+          </summary>
+          <div className="mt-3 space-y-3 border-t border-gray-200/80 pt-3 text-left">
+            <ul className="space-y-2 text-[11px] leading-relaxed text-gray-600 md:text-xs">
+              {SUBSCRIPTION_COMPLIANCE_BULLETS.map((line, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-gray-400" aria-hidden />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-[11px] leading-relaxed text-gray-500 md:text-xs">{INDICATIVE_PRICING_FOOTNOTE}</p>
+            <p>
+              <Link
+                href="/terms"
+                className="text-[11px] font-semibold text-[var(--color-primary)] underline-offset-2 hover:underline md:text-xs"
+              >
+                Full Terms of Service
+              </Link>
+            </p>
+          </div>
+        </details>
 
         <div className="mt-8 rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm md:p-6">
           <p className="text-sm font-bold text-gray-900 md:text-base">Need a custom plan?</p>

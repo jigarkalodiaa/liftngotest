@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants';
+import { SUBSCRIPTION_PACK_BENEFITS, TOLL_CHARGES_SEPARATE_NOTE } from '@/lib/pricing/subscriptionDisclosures';
 import { trackViewPlan } from '@/lib/analytics';
 import {
   Package, Truck, Key, Calculator, FileText,
@@ -39,40 +40,40 @@ type PlanCard = {
 const TAB_DATA: Record<TabId, { headline: string; sub: string; cards: PlanCard[] }> = {
   deliveries: {
     headline: 'Save more on daily deliveries',
-    sub: 'Fixed-trip plans — no surge, ever.',
+    sub: `30-day pack validity from activation. ${TOLL_CHARGES_SEPARATE_NOTE} · See upfront inclusions below.`,
     cards: [
       {
         title: 'Starter',
         copy: 'For small shops & local sellers',
-        price: '₹13,500',
-        priceNote: '₹450/trip · 30 trips',
+        price: '₹15,000',
+        priceNote: '₹500/trip · 30 trips',
         savings: 'Save ₹3,000',
         bestFor: 'दुकानदार · local retail · small biz',
-        features: ['3W with driver', '30-day validity', 'Basic tracking', 'Email invoices'],
-        cta: 'Get This Plan',
+        features: ['3W with driver', '30-day validity (from activation)', 'Basic tracking', 'Email invoices', 'Up to ~12 km/trip in-pack'],
+        cta: 'Lock this plan',
         href: ROUTES.PLANS_SUBSCRIPTION,
       },
       {
         title: 'Growth',
         copy: 'For growing businesses',
-        price: '₹20,000',
-        priceNote: '₹400/trip · 50 trips',
+        price: '₹22,000',
+        priceNote: '₹440/trip · 50 trips',
         savings: 'Save ₹7,500',
         popular: true,
         bestFor: 'warehouse · ecommerce · retail chain',
-        features: ['3W with driver', 'Live GPS', 'Dedicated POC', 'Priority dispatch'],
-        cta: 'Get This Plan',
+        features: ['3W with driver', '30-day validity (from activation)', 'Live GPS', 'Dedicated POC', 'Priority dispatch', 'Up to ~12 km/trip in-pack'],
+        cta: 'Lock this plan',
         href: ROUTES.PLANS_SUBSCRIPTION,
       },
       {
         title: 'Scale',
         copy: 'For high-volume operations',
-        price: '₹36,000',
-        priceNote: '₹360/trip · 100 trips',
-        savings: 'Save ₹19,000',
+        price: '₹39,000',
+        priceNote: '₹390/trip · 100 trips',
+        savings: 'Save ₹20,000',
         bestFor: 'enterprise · D2C brand · large warehouse',
-        features: ['Dedicated account mgr', 'Custom SLA', 'Weekly reports', 'GST invoicing'],
-        cta: 'Get This Plan',
+        features: ['Dedicated account mgr', '30-day validity (from activation)', 'Custom SLA', 'Weekly reports', 'GST invoicing', 'Up to ~12 km/trip in-pack'],
+        cta: 'Lock this plan',
         href: ROUTES.PLANS_SUBSCRIPTION,
       },
     ],
@@ -161,7 +162,7 @@ const TAB_DATA: Record<TabId, { headline: string; sub: string; cards: PlanCard[]
       {
         title: 'Multi-Vehicle Builder',
         copy: 'Configure any combination of 2W, 3W, 4W',
-        price: 'From ₹40/trip',
+        price: 'From ₹39/trip · 2W',
         priceNote: 'Bulk discounts up to 30%',
         savings: 'Save up to 30%',
         popular: true,
@@ -232,7 +233,7 @@ export default function PlansHubPage() {
         <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1">
           {[
             '500+ businesses trust us',
-            'Starting ₹40/trip',
+            'From ₹39/trip · 2W · short-distance base',
             'GST billing included',
           ].map((t) => (
             <span key={t} className="inline-flex items-center gap-1 text-[10px] font-medium text-white/70">
@@ -297,6 +298,20 @@ export default function PlansHubPage() {
           <h2 className="text-sm font-bold text-gray-900">{tabData.headline}</h2>
           <p className="text-[11px] text-gray-500">{tabData.sub}</p>
         </div>
+
+        {activeTab === 'deliveries' && (
+          <div className="mb-4 rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 shadow-sm sm:p-4">
+            <p className="text-xs font-bold text-emerald-900">Upfront with every subscription pack</p>
+            <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
+              {SUBSCRIPTION_PACK_BENEFITS.map((line, i) => (
+                <li key={i} className="flex gap-1.5 text-[10px] leading-snug text-emerald-900/90 sm:text-[11px]">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" strokeWidth={2.5} aria-hidden />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Cards */}
         <div className={`grid min-w-0 gap-4 sm:gap-6 ${tabData.cards.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'}`}>
