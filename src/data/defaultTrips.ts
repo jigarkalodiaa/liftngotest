@@ -12,13 +12,4 @@ export const DEFAULT_TRIPS: DefaultTrip[] = [
     contactName: '',
     contactPhone: '',
   },
-  {
-    id: 't2',
-    fromName: 'Shipra Mall',
-    fromAddress: 'Vaibhav Khand, Indirapuram, Ghaziabad, Uttar',
-    toName: 'HRC Professionals Hub,',
-    toAddress: 'Middle Circle, Vaibhav Khand, Indirapuram, Ghaziabad, Uttar Pradesh 201014',
-    contactName: '',
-    contactPhone: '',
-  },
 ];

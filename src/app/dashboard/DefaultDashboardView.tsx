@@ -179,7 +179,7 @@ export default function DefaultDashboardView({
           {zoneConfig.incentivesNote ? (
             <p className="mt-1 text-[11px] text-gray-500">{zoneConfig.incentivesNote}</p>
           ) : null}
-          <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1">
+          <div className="mt-3 flex flex-wrap gap-2 -mx-1 px-1 pb-1">
             {services.map((s) => {
               const active = s.id === activeService;
               return (

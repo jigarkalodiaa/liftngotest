@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ROUTES } from '@/lib/constants';
 import {
   SUBSCRIPTION_PACK_BENEFITS,
@@ -22,10 +22,11 @@ import { GST_FLAGSHIP_SAMPLE_PDF_PATH } from '@/lib/pdf/gstFlagshipSamplePdf';
 import { trackViewPlan } from '@/lib/analytics';
 import {
   Package, Truck, Key, Calculator, FileText,
-  ArrowRight, Star, Check, Phone, CheckCircle2, Info, X, Shield, GitCompare,
+  ArrowRight, Star, Check, CheckCircle2, Info, X, Shield, GitCompare,
   Download,
 } from 'lucide-react';
 import PlansCompareModal from './PlansCompareModal';
+import ConsultantTrustCta from '@/components/plans/ConsultantTrustCta';
 
 /* ── Tab types ────────────────────────────────────────────── */
 
@@ -38,6 +39,22 @@ const TABS: { id: TabId; label: string; shortLabel: string; icon: typeof Package
   { id: 'custom', label: 'Custom Plan', shortLabel: 'Custom', icon: Calculator },
   { id: 'gst', label: 'GST Billing', shortLabel: 'GST', icon: FileText },
 ];
+
+const PLANS_TAB_QUERY = 'tab';
+
+function parsePlansTab(sp: ReturnType<typeof useSearchParams>): TabId {
+  const raw = sp.get(PLANS_TAB_QUERY)?.trim().toLowerCase();
+  if (
+    raw === 'deliveries' ||
+    raw === 'vehicle' ||
+    raw === 'lease' ||
+    raw === 'custom' ||
+    raw === 'gst'
+  ) {
+    return raw;
+  }
+  return 'deliveries';
+}
 
 /* ── Plan data per tab ────────────────────────────────────── */
 
@@ -243,9 +260,22 @@ type PlansInfoOpen =
 
 /* ── Component ────────────────────────────────────────────── */
 
-export default function PlansHubPage() {
+function PlansHubPageContent() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabId>('deliveries');
+  const searchParams = useSearchParams();
+  const activeTab = useMemo(() => parsePlansTab(searchParams), [searchParams]);
+
+  const setPlansTab = (tab: TabId) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (tab === 'deliveries') {
+      params.delete(PLANS_TAB_QUERY);
+    } else {
+      params.set(PLANS_TAB_QUERY, tab);
+    }
+    const qs = params.toString();
+    router.replace(qs ? `${ROUTES.PLANS}?${qs}` : ROUTES.PLANS, { scroll: false });
+  };
+
   const [infoOpen, setInfoOpen] = useState<PlansInfoOpen>(null);
   const [compareOpen, setCompareOpen] = useState(false);
 
@@ -303,7 +333,7 @@ export default function PlansHubPage() {
             type="button"
             onClick={() => {
               trackViewPlan('compare_plans', 'hero');
-              setActiveTab('deliveries');
+              setPlansTab('deliveries');
               setCompareOpen(true);
             }}
             className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-[#2C2D5B] shadow-lg shadow-black/20 transition-all hover:shadow-xl active:scale-[0.98] sm:w-auto"
@@ -324,7 +354,7 @@ export default function PlansHubPage() {
       </section>
 
       {/* ── TAB SELECTOR — matches dashboard pill style ──── */}
-      <div className="flex gap-4 overflow-x-auto scrollbar-none -mx-1 px-1 pb-1 sm:gap-6">
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 -mx-1 px-1 pb-1 sm:gap-x-6 sm:gap-y-2">
         {TABS.map((tab) => {
           const active = tab.id === activeTab;
           const Icon = tab.icon;
@@ -332,7 +362,7 @@ export default function PlansHubPage() {
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => setPlansTab(tab.id)}
               className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold transition-all duration-200 ${
                 active
                   ? 'bg-[var(--color-primary)] text-white shadow-sm'
@@ -555,16 +585,7 @@ export default function PlansHubPage() {
           </div>
         </div>
 
-        <div className="mt-4 flex justify-center px-0.5">
-          <button
-            type="button"
-            onClick={() => router.push(ROUTES.CONTACT)}
-            className="inline-flex min-h-12 w-full max-w-md items-center justify-center gap-2 rounded-2xl border-2 border-[var(--color-primary)]/45 bg-white px-5 py-3 text-sm font-bold text-[var(--color-primary)] shadow-[0_6px_20px_-8px_rgba(44,45,91,0.35)] transition-all duration-200 hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/[0.06] hover:shadow-[0_10px_28px_-8px_rgba(44,45,91,0.4)] active:scale-[0.98] sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
-          >
-            <Phone className="h-4 w-4 shrink-0 text-[var(--color-primary)]" strokeWidth={2} aria-hidden />
-            Sales &amp; partnerships
-          </button>
-        </div>
+        <ConsultantTrustCta layout="hub" analyticsSource="plans_hub_bottom" />
       </div>
       </div>
 
@@ -806,5 +827,28 @@ export default function PlansHubPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function PlansHubPageFallback() {
+  return (
+    <div className="mx-auto min-w-0 max-w-6xl px-4 pb-24 pt-3 md:px-6 lg:px-8">
+      <div className="page-stack">
+        <div className="h-40 animate-pulse rounded-2xl bg-stone-200/70 md:h-44 md:rounded-3xl" aria-hidden />
+        <div className="mt-4 flex gap-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-8 w-24 shrink-0 animate-pulse rounded-full bg-stone-200/70" aria-hidden />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function PlansHubPage() {
+  return (
+    <Suspense fallback={<PlansHubPageFallback />}>
+      <PlansHubPageContent />
+    </Suspense>
   );
 }

@@ -76,7 +76,7 @@ export default function PlansCompareModal({ open, onClose, onLockPlan }: PlansCo
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto overscroll-contain">
+        <div className="scrollbar-hide min-h-0 flex-1 overflow-x-auto overflow-y-auto overscroll-contain">
           <table className="w-full min-w-[640px] border-collapse text-left text-[11px] sm:min-w-0 sm:text-xs">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50/90">

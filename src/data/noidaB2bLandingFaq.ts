@@ -8,7 +8,7 @@ export const NOIDA_B2B_LANDING_FAQ = [
   {
     question: 'Can we use Liftngo for bulk delivery and warehouse logistics?',
     answer:
-      'The platform supports bulk delivery programmes and inventory movement when your lanes fit our operating model in NCR. Start with a structured booking or WhatsApp your route pattern so we can align vehicle class and SLAs.',
+      'The platform supports bulk delivery programmes and inventory movement when your lanes fit our operating model in NCR. Start with a structured booking or use Contact to share your route pattern so we can align vehicle class and SLAs.',
   },
   {
     question: 'What is a dedicated delivery expert in this context?',

@@ -157,7 +157,7 @@ export default function HeroPickupAutocomplete({
         <ul
           id={listId}
           role="listbox"
-          className="absolute left-0 right-0 top-full z-[60] mt-1 max-h-60 overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+          className="scrollbar-hide absolute left-0 right-0 top-full z-[60] mt-1 max-h-60 overflow-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
         >
           {loading && suggestions.length === 0 && (
             <li className="px-3 py-2 text-sm text-gray-500">Searching…</li>

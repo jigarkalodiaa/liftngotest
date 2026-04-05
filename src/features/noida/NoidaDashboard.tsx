@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import Image from '@/components/OptimizedImage';
 import HeroPickupAutocomplete from '@/components/landing/HeroPickupAutocomplete';
 import {
-  Building2, MapPin, Truck, Package, Shield, Clock, FileText, BarChart3, ChevronRight, Star, Zap, Users,
+  Building2, MapPin, Truck, Package, Shield, Clock, FileText, BarChart3, ChevronRight, Star, Zap,
   ArrowRight, Sun, CalendarDays, Handshake, Check, Info, X, Receipt, Sparkles,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -212,74 +212,6 @@ const ORDER_FRESH_LOCAL: LocalProduct[] = [
   { emoji: '🛒', name: 'Office Groceries', available: false, accent: 'emerald' },
 ];
 
-type WhyLiftngoItem = {
-  icon: LucideIcon;
-  label: string;
-  sub: string;
-  bg: string;
-  iconColor: string;
-  /** Subtle tile border / ring — matches Our Services accent language */
-  tile: string;
-  /** Expanded copy for ⓘ modal (expectations + T&amp;C pointer) */
-  detail: string;
-};
-
-const WHY_LIFTNGO: WhyLiftngoItem[] = [
-  {
-    icon: FileText,
-    label: 'GST Invoice',
-    sub: 'GST invoice on qualifying trips',
-    bg: 'bg-blue-50',
-    iconColor: 'text-blue-600',
-    tile: 'border-blue-200/45 bg-white/85 ring-1 ring-blue-100/35 hover:border-blue-300/50',
-    detail:
-      'GST-compliant invoices are generated for completed trips when your billing profile and trip metadata support it. Invoice timelines and formats can vary by plan. This is general information only — not tax or legal advice. Commercial terms are in our Terms of Service.',
-  },
-  {
-    icon: Clock,
-    label: 'Same-day SLA',
-    sub: 'Same-day within cutoffs & zone',
-    bg: 'bg-amber-50',
-    iconColor: 'text-amber-600',
-    tile: 'border-amber-200/45 bg-white/85 ring-1 ring-amber-100/35 hover:border-amber-300/50',
-    detail:
-      '“Same-day” reflects our target operating model for eligible bookings inside the service zone and published cutoffs. Severe weather, road closures, partner capacity, or safety issues can delay dispatch. Your order screen and Terms of Service state what applies to your specific trip.',
-  },
-  {
-    icon: MapPin,
-    label: 'Live GPS',
-    sub: 'Track when the driver app is on',
-    bg: 'bg-emerald-50',
-    iconColor: 'text-emerald-600',
-    tile: 'border-emerald-200/45 bg-white/85 ring-1 ring-emerald-100/35 hover:border-emerald-300/50',
-    detail:
-      'Live location sharing depends on the driver app, device permissions, and network coverage. Gaps can occur without notice; the map is a convenience feature, not a warranty of uninterrupted tracking.',
-  },
-  {
-    icon: Users,
-    label: 'Dedicated POC',
-    sub: 'Account contact when assigned',
-    bg: 'bg-violet-50',
-    iconColor: 'text-violet-600',
-    tile: 'border-violet-200/45 bg-white/85 ring-1 ring-violet-100/35 hover:border-violet-300/50',
-    detail:
-      'A named point of contact may be offered for eligible business accounts depending on volume, segment, and capacity — not every tier includes a dedicated manager. Support coverage and escalation paths are defined in your agreement and Terms of Service.',
-  },
-];
-
-const TRUST_STATS = [
-  { value: '500+', label: 'businesses trust Liftngo' },
-  { value: '15 min', label: 'average pickup time' },
-  { value: '4.8★', label: 'customer rating' },
-] as const;
-
-const VENDOR_VALUE_PROPS = [
-  { label: 'Instant storefront', icon: '🏪', tile: 'border-sky-200/50 bg-sky-50/40 ring-1 ring-sky-100/35' },
-  { label: 'Weekly payouts', icon: '💰', tile: 'border-amber-200/50 bg-amber-50/40 ring-1 ring-amber-100/35' },
-  { label: 'Delivery handled by us', icon: '🚚', tile: 'border-emerald-200/50 bg-emerald-50/40 ring-1 ring-emerald-100/35' },
-  { label: 'Premium customer base', icon: '👥', tile: 'border-violet-200/50 bg-violet-50/40 ring-1 ring-violet-100/35' },
-] as const;
-
 /** Fleet strip inside “Build Your Custom Plan” — shared grid + info modal. */
 const NOIDA_FLEET_TILES = [
   {
@@ -326,24 +258,19 @@ export default function NoidaDashboard({
 }: NoidaDashboardProps) {
   const pathname = usePathname();
   const homeHref = pathname === ROUTES.NOIDA ? ROUTES.NOIDA : ROUTES.DASHBOARD;
-  const [activeWhyIdx, setActiveWhyIdx] = useState<number | null>(null);
   const [compactPickup, setCompactPickup] = useState(false);
   const [pickupDraft, setPickupDraft] = useState('');
   const [growthPlanDetailsOpen, setGrowthPlanDetailsOpen] = useState(false);
   const [heroPricingDetailsOpen, setHeroPricingDetailsOpen] = useState(false);
   const [fleetBuilderDetailsOpen, setFleetBuilderDetailsOpen] = useState(false);
   const [orderFreshLegalOpen, setOrderFreshLegalOpen] = useState(false);
-  const [whyLiftngoDetailIdx, setWhyLiftngoDetailIdx] = useState<number | null>(null);
   const [subscriptionStripInfoOpen, setSubscriptionStripInfoOpen] = useState(false);
-  const [vendorPartnerInfoOpen, setVendorPartnerInfoOpen] = useState(false);
   const anyDetailsModalOpen =
     growthPlanDetailsOpen ||
     heroPricingDetailsOpen ||
     fleetBuilderDetailsOpen ||
     orderFreshLegalOpen ||
-    whyLiftngoDetailIdx !== null ||
-    subscriptionStripInfoOpen ||
-    vendorPartnerInfoOpen;
+    subscriptionStripInfoOpen;
 
   useEffect(() => {
     const next = pickup?.name?.trim() || pickup?.address?.trim() || '';
@@ -405,9 +332,7 @@ export default function NoidaDashboard({
       setHeroPricingDetailsOpen(false);
       setFleetBuilderDetailsOpen(false);
       setOrderFreshLegalOpen(false);
-      setWhyLiftngoDetailIdx(null);
       setSubscriptionStripInfoOpen(false);
-      setVendorPartnerInfoOpen(false);
     };
     document.addEventListener('keydown', onKey);
     const prevOverflow = document.body.style.overflow;
@@ -1392,144 +1317,6 @@ export default function NoidaDashboard({
         </div>
       ) : null}
 
-      {/* ── WHY LIFTNGO + TRUST — compact tiles + ⓘ modals (same shell as pricing) ─ */}
-      <section aria-labelledby="why-liftngo-heading">
-        <div className="mb-1 px-0.5 sm:mb-1.5">
-          <h2 id="why-liftngo-heading" className="text-sm font-semibold tracking-tight text-stone-800 md:text-base lg:text-lg">
-            Why Businesses Choose Liftngo
-          </h2>
-          <p className="mt-0.5 text-[9px] font-medium text-stone-500 sm:text-[10px]">Tap to expand · ⓘ for detail &amp; terms context</p>
-        </div>
-        <div
-          className="rounded-2xl p-2 shadow-sm ring-1 ring-stone-200/60 sm:p-2.5 md:p-3"
-          style={{
-            background: 'linear-gradient(165deg, #faf9f7 0%, #ffffff 42%, rgba(240,253,250,0.35) 100%)',
-          }}
-        >
-          <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-2.5">
-            {WHY_LIFTNGO.map((item, i) => {
-              const Icon = item.icon;
-              const active = activeWhyIdx === i;
-              return (
-                <div
-                  key={item.label}
-                  className={`flex min-w-0 flex-col rounded-xl border p-1.5 transition-all duration-200 sm:p-2 ${item.tile} ${
-                    active ? 'shadow-[0_6px_20px_-12px_rgba(15,118,110,0.18)] ring-1 ring-[var(--color-primary)]/22' : ''
-                  }`}
-                >
-                  <div className="flex items-start gap-1.5 sm:gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setActiveWhyIdx(active ? null : i)}
-                      className="flex min-w-0 flex-1 items-start gap-1.5 rounded-lg py-0.5 text-left transition-colors active:scale-[0.99] sm:gap-2 sm:py-px"
-                      aria-expanded={active}
-                    >
-                      <span
-                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg sm:h-8 sm:w-8 ${item.bg} ${item.iconColor}`}
-                      >
-                        <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.75} aria-hidden />
-                      </span>
-                      <span className="min-w-0 pt-px">
-                        <span className="block text-[10px] font-semibold leading-tight text-stone-900 sm:text-[11px]">{item.label}</span>
-                        <span
-                          className={`mt-0.5 block text-[8px] leading-snug text-stone-500 sm:text-[9px] ${
-                            active ? '' : 'line-clamp-2'
-                          }`}
-                        >
-                          {item.sub}
-                        </span>
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setWhyLiftngoDetailIdx(i)}
-                      className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-stone-200/90 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-700 sm:h-7 sm:w-7"
-                      aria-label={`${item.label}: details and terms context`}
-                    >
-                      <Info className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} aria-hidden />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-1.5 flex items-stretch rounded-xl border border-stone-200/50 bg-white/70 py-1.5 shadow-sm sm:mt-2 sm:py-2">
-            {TRUST_STATS.map((stat, i) => (
-              <div
-                key={stat.label}
-                className={`flex min-w-0 flex-1 flex-col items-center justify-center px-0.5 text-center sm:px-1 ${
-                  i > 0 ? 'border-l border-stone-200/70' : ''
-                }`}
-              >
-                <p className="text-[11px] font-bold tabular-nums text-stone-900 sm:text-xs md:text-sm">{stat.value}</p>
-                <p className="mt-0.5 line-clamp-2 text-[6px] leading-tight text-stone-500 sm:text-[7px]">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {whyLiftngoDetailIdx !== null && WHY_LIFTNGO[whyLiftngoDetailIdx] ? (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4" role="presentation">
-          <button
-            type="button"
-            className="absolute inset-0 z-0 bg-slate-900/45 backdrop-blur-[2px] transition-opacity"
-            aria-label="Close details"
-            onClick={() => setWhyLiftngoDetailIdx(null)}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="why-liftngo-detail-title"
-            className="relative z-10 flex max-h-[min(88vh,100dvh)] w-full max-w-md flex-col overflow-hidden rounded-t-[1.35rem] bg-white shadow-2xl ring-1 ring-slate-900/[0.06] sm:max-h-[min(92vh,880px)] sm:rounded-2xl"
-          >
-            <div className="flex shrink-0 justify-center pt-2.5 sm:hidden" aria-hidden>
-              <div className="h-1 w-11 rounded-full bg-slate-200/90" />
-            </div>
-            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-[var(--color-primary)]/[0.04] px-4 pb-3 pt-2 sm:px-5 sm:pb-4 sm:pt-4">
-              <div className="min-w-0 pt-0.5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Why Liftngo</p>
-                <h2 id="why-liftngo-detail-title" className="mt-0.5 text-lg font-bold tracking-tight text-slate-900">
-                  {WHY_LIFTNGO[whyLiftngoDetailIdx].label}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setWhyLiftngoDetailIdx(null)}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" strokeWidth={2} />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-slate-50/90 to-white px-3 py-3 sm:px-4 sm:py-4">
-              <div className="space-y-3">
-                <p className="text-[13px] leading-relaxed text-slate-700">{WHY_LIFTNGO[whyLiftngoDetailIdx].detail}</p>
-                <p className="rounded-xl border border-slate-200/80 bg-slate-50/90 px-3 py-2.5 text-[11px] leading-relaxed text-slate-600">
-                  Stats shown below the grid (business count, pickup time, rating) are indicative highlights, not guarantees or audited figures.
-                </p>
-                <div className="flex flex-col gap-2 pb-1 sm:flex-row sm:flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => setWhyLiftngoDetailIdx(null)}
-                    className="inline-flex items-center justify-center rounded-xl bg-[var(--color-primary)] px-4 py-2.5 text-center text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-95"
-                  >
-                    Got it
-                  </button>
-                  <Link
-                    href="/terms"
-                    onClick={() => setWhyLiftngoDetailIdx(null)}
-                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50"
-                  >
-                    Terms of Service
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       {/* ── SUBSCRIPTION STRIP — consistent CTAs, centered badges, ⓘ policy modal ─ */}
       <section
         id="pricing-plans"
@@ -1710,230 +1497,49 @@ export default function NoidaDashboard({
         </div>
       ) : null}
 
-      {/* ── PARTNERS: Sell on Liftngo + route — gradient shell, ⓘ vendor modal ─ */}
-      <section
-        className="rounded-2xl p-2.5 shadow-sm ring-1 ring-stone-200/65 sm:p-3 md:p-4"
-        style={{
-          background: 'linear-gradient(165deg, #faf9f7 0%, #ffffff 42%, rgba(237,233,254,0.25) 100%)',
-        }}
-        aria-labelledby="sell-on-liftngo-heading"
+      {/* ── Trust & partners — compact bar, label + chevron inline (detail on marketing pages) ─ */}
+      <nav
+        className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-[0_6px_28px_-12px_rgba(28,25,23,0.18)] ring-1 ring-stone-900/[0.04]"
+        aria-label="Why Liftngo, route analysis, and partner programs"
       >
-        <p className="mb-2 px-0.5 text-[9px] font-medium text-stone-500 sm:mb-2.5 sm:text-[10px]">Partners · Grow with Liftngo</p>
-
-        <div className="group rounded-xl border border-stone-200/70 bg-white/92 p-2.5 shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md sm:p-3 md:p-3.5">
-          <div className="flex items-start gap-2 sm:gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/10 transition-transform duration-200 group-hover:scale-[1.02] sm:h-10 sm:w-10">
-              <Package className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.75} aria-hidden />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <h3 id="sell-on-liftngo-heading" className="text-xs font-semibold tracking-tight text-stone-900 sm:text-sm">
-                  Sell on Liftngo
-                </h3>
-                <span className="rounded-full border border-stone-200/80 bg-stone-50 px-1.5 py-px text-[7px] font-semibold text-stone-700 sm:px-2 sm:text-[8px]">
-                  Verified only
-                </span>
-              </div>
-              <p className="mt-0.5 text-[9px] leading-snug text-stone-500 sm:text-[10px]">
-                Products · Noida &amp; NCR reach · onboarding detail in ⓘ
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setVendorPartnerInfoOpen(true)}
-              className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-stone-200/90 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-800 sm:h-8 sm:w-8"
-              aria-label="Sell on Liftngo: verification, payouts, and terms"
+        <div className="grid grid-cols-3 divide-x divide-stone-200/80">
+          {(
+            [
+              {
+                href: ROUTES.WHY_LIFTNGO,
+                label: 'Why Liftngo',
+                title: 'Why businesses choose Liftngo — open full page',
+              },
+              {
+                href: `${ROUTES.GROW_WITH_LIFTNGO}#route-analysis`,
+                label: 'Route optimization',
+                title: 'Enter mobile — autonomous route report on grow-with-liftngo',
+              },
+              {
+                href: ROUTES.GROW_WITH_LIFTNGO_BUSINESS_ENQUIRY,
+                label: 'Sell & partners',
+                title: 'Sell on Liftngo and partnership programs',
+              },
+            ] as const
+          ).map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              title={item.title}
+              className="group flex min-h-[2.75rem] min-w-0 items-center justify-center gap-0.5 px-1.5 py-2 transition-[background-color,color] hover:bg-stone-50/95 active:bg-stone-100/80 sm:min-h-12 sm:gap-1 sm:px-3 sm:py-2.5"
             >
-              <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} aria-hidden />
-            </button>
-          </div>
-
-          <div className="mt-2 grid min-w-0 grid-cols-2 gap-1.5 sm:mt-2.5 sm:gap-2">
-            {VENDOR_VALUE_PROPS.map((v) => (
-              <div
-                key={v.label}
-                className={`flex items-center gap-1 rounded-lg px-1.5 py-1.5 sm:gap-1.5 sm:px-2 sm:py-2 ${v.tile}`}
-              >
-                <span className="text-xs leading-none sm:text-sm" aria-hidden>
-                  {v.icon}
-                </span>
-                <span className="line-clamp-2 text-[8px] font-medium leading-tight text-stone-800 sm:text-[9px]">{v.label}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-2 flex items-center gap-1.5 rounded-lg border border-emerald-200/60 bg-gradient-to-r from-emerald-50/80 to-emerald-50/40 px-2 py-1.5 ring-1 ring-emerald-100/50 sm:py-2">
-            <span className="text-sm leading-none" aria-hidden>
-              📈
-            </span>
-            <p className="text-[8px] font-semibold leading-snug text-emerald-900 sm:text-[9px]">
-              Top vendors ₹50k+ / mo — illustrative; not a guarantee.
-            </p>
-          </div>
-
-          <div className="mt-2 flex min-w-0 flex-row gap-2 sm:gap-2.5">
-            <button
-              type="button"
-              onClick={() => router.push(ROUTES.CONTACT)}
-              className="inline-flex min-h-10 min-w-0 flex-1 items-center justify-center gap-1 rounded-xl bg-[var(--color-primary)] px-2 py-2 text-[9px] font-semibold text-white shadow-sm transition-all hover:opacity-95 active:scale-[0.98] sm:min-h-11 sm:gap-1.5 sm:py-2.5 sm:text-[10px]"
-            >
-              Apply
-              <ArrowRight className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={2.5} aria-hidden />
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push(ROUTES.CONTACT)}
-              className="flex min-h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-stone-200/90 bg-white px-2 py-2 text-[9px] font-semibold text-stone-800 shadow-sm transition-all hover:border-teal-200/70 hover:bg-teal-50/20 active:scale-[0.98] sm:min-h-11 sm:py-2.5 sm:text-[10px]"
-            >
-              Requirements
-            </button>
-          </div>
-
-          <div className="mt-2 flex items-center justify-center gap-1 text-center text-[7px] leading-snug text-stone-500 sm:text-[8px]">
-            <Shield className="h-3 w-3 shrink-0 text-stone-400" strokeWidth={2} aria-hidden />
-            <span>Verified vendors only · approval required</span>
-          </div>
+              <span className="max-w-[min(100%,11rem)] text-center text-[9px] font-semibold leading-tight tracking-tight text-stone-800 sm:max-w-none sm:text-[11px]">
+                {item.label}
+              </span>
+              <ChevronRight
+                className="h-3 w-3 shrink-0 text-stone-400 transition-[transform,color] group-hover:translate-x-0.5 group-hover:text-[var(--color-primary)] sm:h-3.5 sm:w-3.5"
+                strokeWidth={2.5}
+                aria-hidden
+              />
+            </Link>
+          ))}
         </div>
-
-        <div className="mt-2.5 rounded-xl border border-stone-200/70 bg-white/92 p-2.5 shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md sm:mt-3 sm:p-3 md:p-3.5">
-          <div className="flex items-center gap-2.5 sm:gap-4 md:gap-6">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-600 sm:h-8 sm:w-8 sm:rounded-lg">
-              <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.75} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-gray-900 sm:text-sm">Free route analysis</p>
-              <p className="text-[8px] text-gray-400 sm:text-[9px]">WhatsApp · Savings estimate</p>
-            </div>
-          </div>
-          <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 md:gap-6">
-            <input
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel"
-              placeholder="WhatsApp number"
-              className="min-h-9 w-full flex-1 rounded-lg border border-transparent bg-slate-50 px-2.5 text-[11px] text-gray-900 placeholder:text-gray-400 focus:border-[var(--color-primary)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/15 sm:min-h-[38px] sm:px-3 sm:text-xs"
-            />
-            <button
-              type="button"
-              onClick={() => router.push(ROUTES.CONTACT)}
-              className="w-full shrink-0 rounded-xl bg-[var(--color-primary)] px-3 py-2 text-[10px] font-semibold text-white shadow-sm transition-all hover:opacity-95 active:scale-[0.98] sm:w-auto sm:min-w-[5.5rem] sm:py-2.5 sm:text-[11px]"
-            >
-              Request
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {vendorPartnerInfoOpen ? (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4" role="presentation">
-          <button
-            type="button"
-            className="absolute inset-0 z-0 bg-slate-900/45 backdrop-blur-[2px] transition-opacity"
-            aria-label="Close partner details"
-            onClick={() => setVendorPartnerInfoOpen(false)}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="vendor-partner-info-title"
-            className="relative z-10 flex max-h-[min(88vh,100dvh)] w-full max-w-md flex-col overflow-hidden rounded-t-[1.35rem] bg-white shadow-2xl ring-1 ring-slate-900/[0.06] sm:max-h-[min(92vh,880px)] sm:rounded-2xl"
-          >
-            <div className="flex shrink-0 justify-center pt-2.5 sm:hidden" aria-hidden>
-              <div className="h-1 w-11 rounded-full bg-slate-200/90" />
-            </div>
-            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-[var(--color-primary)]/[0.04] px-4 pb-3 pt-2 sm:px-5 sm:pb-4 sm:pt-4">
-              <div className="min-w-0 pt-0.5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Partners · Marketplace</p>
-                <h2 id="vendor-partner-info-title" className="mt-0.5 text-lg font-bold tracking-tight text-slate-900">
-                  Sell on Liftngo
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setVendorPartnerInfoOpen(false)}
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" strokeWidth={2} />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-slate-50/90 to-white px-3 py-3 sm:px-4 sm:py-4">
-              <div className="space-y-3">
-                <p className="text-[12px] leading-relaxed text-slate-600">
-                  Listing and fulfilment programs are <strong className="font-semibold text-slate-900">invitation or application-based</strong>. “Verified only” means we check credentials and fit before you trade on the platform — not every applicant is accepted.
-                </p>
-                <div className="rounded-2xl border border-emerald-100/80 bg-gradient-to-b from-emerald-50/40 to-white p-3.5 shadow-[0_8px_30px_-12px_rgba(5,150,105,0.12)]">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-900/75">What we highlight on the card</p>
-                  <ul className="mt-2 space-y-2 text-[12px] leading-relaxed text-slate-700">
-                    <li className="flex gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
-                      <span>
-                        <strong className="text-slate-900">Storefront &amp; reach</strong> — positioning depends on category rules, geography (e.g. Noida / NCR), and campaign slots; not a top-placement guarantee.
-                      </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
-                      <span>
-                        <strong className="text-slate-900">Payouts</strong> — “weekly” describes a typical settlement rhythm where offered; actual schedules, holds, and deductions follow your seller agreement and Razorpay (or other) settlement rules.
-                      </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
-                      <span>
-                        <strong className="text-slate-900">Delivery</strong> — we may provide or arrange logistics on supported programs; coverage and SLAs are scope-specific, not universal.
-                      </span>
-                    </li>
-                    <li className="flex gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
-                      <span>
-                        <strong className="text-slate-900">Earnings callouts</strong> — figures like “₹50k+ / mo” are illustrative peer examples, not a forecast or minimum earning promise.
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="rounded-2xl border border-slate-200/70 bg-white p-3.5 shadow-sm">
-                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-                      <Shield className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
-                    </span>
-                    Compliance &amp; policy
-                  </div>
-                  <ul className="mt-3 space-y-2 text-[12px] leading-snug text-slate-600">
-                    <li className="flex gap-2">
-                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-400/80" aria-hidden />
-                      <span>Mislisted products, policy breaches, or repeat complaints may lead to suspension or offboarding.</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-400/80" aria-hidden />
-                      <span>Final commercial terms, fees, KYC, and dispute handling are in your contract (if any) and the Liftngo Terms of Service.</span>
-                    </li>
-                  </ul>
-                </div>
-                <p className="rounded-xl bg-slate-100/80 px-3 py-2.5 text-[11px] leading-snug text-slate-600">
-                  Apply / Requirements both route to contact for now — use either to start a partner conversation. We’ll confirm eligibility before you list.
-                </p>
-                <div className="flex flex-col gap-2 pb-1 sm:flex-row sm:flex-wrap">
-                  <Link
-                    href={ROUTES.CONTACT}
-                    onClick={() => setVendorPartnerInfoOpen(false)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-2.5 text-center text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-95"
-                  >
-                    Contact partnerships
-                    <ArrowRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />
-                  </Link>
-                  <Link
-                    href="/terms"
-                    onClick={() => setVendorPartnerInfoOpen(false)}
-                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50"
-                  >
-                    Terms of Service
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      </nav>
 
       {/* ── Footer tagline ────────────────────────────────── */}
       <div className="text-center">
