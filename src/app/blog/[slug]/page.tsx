@@ -17,7 +17,7 @@ import { generateArticleMetadata } from '@/lib/seo';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 import { buildBlogPostingJsonLd } from '@/lib/structuredData/blogPosting';
 import { BREADCRUMB_HOME, BREADCRUMB_BLOG } from '@/lib/breadcrumbsNav';
-import { getWhatsAppUrl } from '@/lib/whatsapp';
+import { getSupportTelHref, getWhatsAppUrl } from '@/lib/whatsapp';
 
 export const dynamicParams = false;
 
@@ -71,7 +71,7 @@ export default async function BlogArticlePage({ params }: Props) {
       ]}
     >
       <JsonLd data={buildBlogPostingJsonLd(post, pageUrl)} />
-      <main className={noidaCaseStudy ? 'min-h-0 flex-1 bg-[#fdf9f3]' : 'flex-1'}>
+      <main className={noidaCaseStudy ? 'min-h-0 flex-1 bg-[#fdfbf4]' : 'flex-1'}>
         <article
           className={
             noidaCaseStudy
@@ -87,6 +87,8 @@ export default async function BlogArticlePage({ params }: Props) {
                 minutes={minutes}
                 authorLabel={authorLabel}
                 whatsappHref={whatsappHref}
+                authorAvatarSrc={post.featuredImage}
+                expertTelHref={getSupportTelHref()}
               />
               <div className="mt-14 border-t border-slate-200/80 pt-14">
                 <BlogPostBody blocks={post.body} variant="case-study" />
@@ -154,9 +156,9 @@ export default async function BlogArticlePage({ params }: Props) {
             posts={related}
             {...(noidaCaseStudy
               ? {
-                  heading: 'Read more logistics insights',
+                  heading: 'More case studies in Noida',
                   description:
-                    'Deeper dives on Noida lanes, GST, subscription economics, and how teams scale without losing control of dispatch.',
+                    'Related guides on Noida lanes, GST, subscription economics, and scaling dispatch without losing control.',
                 }
               : {})}
           />

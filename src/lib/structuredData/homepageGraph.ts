@@ -36,6 +36,9 @@ export function buildHomepageSeoGraph() {
     ],
     knowsAbout: [
       'B2B logistics India',
+      'corporate subscription delivery',
+      'commercial vehicle lease logistics',
+      'GST invoicing for transport',
       'hyperlocal delivery service',
       'EV cargo delivery',
       'goods transport',
@@ -51,7 +54,8 @@ export function buildHomepageSeoGraph() {
     name: `${SITE_NAME} — Khatu Shyam Ji logistics`,
     url: `${SITE_URL}/khatu-shyam-logistics`,
     image: { '@type': 'ImageObject', url: DEFAULT_OG_IMAGE },
-    description: SITE_DESCRIPTION,
+    description:
+      'Hyperlocal goods delivery around Khatu Shyam Ji: 2W, 3W, and 4W cargo booking, upfront pricing, verified drivers, and live tracking for vendors, hotels, and shops near the temple corridor.',
     priceRange: '$$',
     address: {
       '@type': 'PostalAddress',
@@ -79,7 +83,8 @@ export function buildHomepageSeoGraph() {
     name: `${SITE_NAME} — B2B logistics Noida & Delhi NCR`,
     url: `${SITE_URL}/noida-b2b-logistics`,
     image: { '@type': 'ImageObject', url: DEFAULT_OG_IMAGE },
-    description: SITE_DESCRIPTION,
+    description:
+      'B2B goods logistics for Noida and Delhi NCR: subscription delivery packs, vehicle lease, GST-ready invoicing, and corporate multi-vehicle coordination with verified partners.',
     priceRange: '$$$',
     address: {
       '@type': 'PostalAddress',
@@ -109,19 +114,36 @@ export function buildHomepageSeoGraph() {
     name: `${SITE_NAME} — goods transport & B2B logistics`,
     serviceType: 'Logistics and transport service',
     description:
-      'Reliable goods transport in Khatu Shyam Ji and Delhi NCR. Bike, auto, and mini truck delivery with upfront pricing, verified drivers, and real-time tracking for individuals and businesses.',
+      'B2B-focused goods logistics in Noida and Delhi NCR: subscription delivery packs, vehicle rental and long-term lease, GST-ready billing, and multi-vehicle (2W–4W) coordination. Hyperlocal goods transport in Khatu Shyam Ji with upfront pricing, verified drivers, and live tracking.',
     provider: { '@id': ORGANIZATION_SCHEMA_ID },
     areaServed: [
       { '@type': 'Place', name: 'Khatu Shyam Ji' },
       { '@type': 'City', name: 'Noida' },
       { '@type': 'AdministrativeArea', name: 'Delhi NCR' },
     ],
-    offers: {
-      '@type': 'Offer',
-      availability: 'https://schema.org/InStock',
-      priceCurrency: 'INR',
-      url: `${SITE_URL}/book-delivery`,
-    },
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'B2B logistics — Noida & Delhi NCR',
+        availability: 'https://schema.org/InStock',
+        priceCurrency: 'INR',
+        url: `${SITE_URL}/noida-b2b-logistics`,
+      },
+      {
+        '@type': 'Offer',
+        name: 'Plans — subscription, lease, GST',
+        availability: 'https://schema.org/InStock',
+        priceCurrency: 'INR',
+        url: `${SITE_URL}/plans`,
+      },
+      {
+        '@type': 'Offer',
+        name: 'Book a delivery',
+        availability: 'https://schema.org/InStock',
+        priceCurrency: 'INR',
+        url: `${SITE_URL}/book-delivery`,
+      },
+    ],
   };
 
   const website = {
