@@ -10,6 +10,48 @@ type Props = {
   compact?: boolean;
 };
 
+function ListingThumb({
+  post,
+  href,
+  priorityImage,
+  className,
+}: {
+  post: BlogPost;
+  href: string;
+  priorityImage: boolean;
+  /** Full-card top vs compact left column */
+  className: string;
+}) {
+  if (post.featuredSurface === 'noida-dashboard' || post.featuredSurface === 'noida-case-study') {
+    return (
+      <Link
+        href={href}
+        aria-label={post.title}
+        className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-700/35 bg-slate-900 text-2xl shadow-inner transition group-hover:opacity-95 sm:text-3xl ${className}`}
+        style={{
+          background:
+            'radial-gradient(ellipse at top left, rgba(99,102,241,0.2), transparent 55%), radial-gradient(ellipse at bottom right, rgba(139,92,246,0.1), transparent 50%), #0f172a',
+        }}
+      >
+        <span aria-hidden>🚚</span>
+      </Link>
+    );
+  }
+  return (
+    <Link href={href} className={`relative block shrink-0 overflow-hidden rounded-xl ${className}`}>
+      <Image
+        src={post.featuredImage}
+        alt={post.featuredImageAlt}
+        fill
+        className="object-cover transition-transform group-hover:scale-[1.03]"
+        sizes={className.includes('w-28') ? '128px' : '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
+        loading={priorityImage ? 'eager' : 'lazy'}
+        priority={priorityImage}
+      />
+    </Link>
+  );
+}
+
 export default function BlogListingCard({ post, priorityImage = false, compact = false }: Props) {
   const minutes = estimateReadingMinutes(post);
   const href = `/blog/${post.slug}`;
@@ -17,16 +59,7 @@ export default function BlogListingCard({ post, priorityImage = false, compact =
   if (compact) {
     return (
       <article className="group flex gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-        <Link href={href} className="relative h-24 w-28 shrink-0 overflow-hidden rounded-xl sm:h-28 sm:w-32">
-          <Image
-            src={post.featuredImage}
-            alt={post.featuredImageAlt}
-            fill
-            className="object-cover transition-transform group-hover:scale-[1.03]"
-            sizes="128px"
-            loading={priorityImage ? 'eager' : 'lazy'}
-          />
-        </Link>
+        <ListingThumb post={post} href={href} priorityImage={priorityImage} className="h-24 w-28 sm:h-28 sm:w-32" />
         <div className="min-w-0 flex flex-1 flex-col justify-center">
           <time dateTime={post.publishedAt} className="text-xs text-gray-500">
             {new Date(post.publishedAt).toLocaleDateString('en-IN', {
@@ -47,26 +80,18 @@ export default function BlogListingCard({ post, priorityImage = false, compact =
 
   return (
     <article
-      className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all hover:shadow-md ${
+      className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all hover:shadow-md ${
         post.featured ? 'border-[var(--color-primary)]/40 ring-2 ring-[var(--color-primary)]/15' : 'border-gray-100'
       }`}
     >
-      <Link href={href} className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-        <Image
-          src={post.featuredImage}
-          alt={post.featuredImageAlt}
-          fill
-          className="object-cover transition-transform hover:scale-[1.02]"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          loading={priorityImage ? 'eager' : 'lazy'}
-          priority={priorityImage}
-        />
-        {post.featured && (
-          <span className="absolute left-3 top-3 rounded-full bg-[var(--color-primary)] px-3 py-1 text-xs font-semibold text-white shadow">
+      <div className="relative w-full">
+        <ListingThumb post={post} href={href} priorityImage={priorityImage} className="aspect-[16/10] w-full bg-gray-100" />
+        {post.featured ? (
+          <span className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-[var(--color-primary)] px-3 py-1 text-xs font-semibold text-white shadow">
             Featured
           </span>
-        )}
-      </Link>
+        ) : null}
+      </div>
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <time dateTime={post.publishedAt} className="text-sm text-gray-500">
           {new Date(post.publishedAt).toLocaleDateString('en-IN', {

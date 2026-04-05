@@ -95,22 +95,25 @@ export const BLOG_POSTS: BlogPost[] = [
   },
   {
     slug: 'b2b-logistics-noida-complete-guide-companies',
-    title: 'B2B Logistics in Noida: A Complete Guide for Companies',
+    title: 'B2B logistics in Noida on Liftngo: the dashboard field guide',
     description:
-      'B2B logistics Noida: dedicated coordination, verified vendors, multi-vehicle programmes (2W–4W), and how corporates structure daily inventory movement in Delhi NCR.',
+      'Mirror of the Noida business dashboard in blog form: Book Delivery, Plans & pricing, subscription packs, rent, lease, GST billing, fleet tech, ₹39/₹299 anchors, trust chips, and Order fresh pilots—same emojis and flows as /noida, no stock photos.',
     excerpt:
-      'Noida is not “just another pin code”—it is warehousing, electronics retail, and office parks. Here is a company-first framing.',
+      'Skim it like a long post; every section maps to a live tile: 🚚 Book · 📦 Subscription · 🥥 Coconut pilot · 🛡️ 100+ businesses.',
     keywords: [
       'b2b logistics noida',
-      'logistics company delhi ncr',
-      'corporate delivery solutions',
-      'warehouse logistics Noida',
-      'business goods transport',
+      'Liftngo Noida dashboard',
+      'subscription goods Noida',
+      'three wheeler cargo Noida',
+      'GST delivery invoices Noida',
+      'vehicle lease Noida business',
     ],
     publishedAt: '2025-03-05',
+    modifiedAt: '2026-04-05',
     featured: true,
-    featuredImage: imgTruck,
-    featuredImageAlt: 'Commercial truck suited for B2B deliveries',
+    featuredSurface: 'noida-case-study',
+    featuredImage: '/dashboard/goods-three-wheeler.svg',
+    featuredImageAlt: 'Liftngo 3W goods vehicle icon — Noida dashboard fleet strip',
     relatedSlugs: rel(
       'liftngo-logistics-ecosystem-delhi-ncr',
       'why-businesses-need-dedicated-delivery-experts',
@@ -120,66 +123,211 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'p',
         segments: [
-          'If you operate a warehouse-to-store or hub-to-branch rhythm in Uttar Pradesh’s industrial belt, ',
-          { text: 'B2B logistics in Noida', href: '/noida-b2b-logistics' },
-          ' is less about “cheapest per km” and more about predictable completions.',
+          'If you move cartons between Noida warehouses, retail floors corporates, or NCR branches, you do not need another generic essay illustrated with random trucks. You need the same mental model as the ',
+          { text: 'Noida dashboard', href: '/noida' },
+          ': which tile to tap first, what the price teasers mean, and how GST, GPS, and verification show up in-product. This guide follows that layout so ops, finance, and founders can share one link.',
         ],
       },
       {
         type: 'h2',
-        text: 'Programme pieces that mature teams standardise',
+        text: '🧭 Two front-door actions (hero row)',
       },
       {
         type: 'ul',
         items: [
-          'Vehicle banding: when to use 2W vs 3W cargo vs 4W mini truck',
-          'Time windows that respect dock labour, not only customer-facing SLAs',
-          'Proof-of-handoff discipline for finance reconciliation',
+          '🚚 Book Delivery — launches the standard goods flow (pickup → vehicle class → live quote). Same primary white tile as on /noida.',
+          '📋 Plans & Pricing — subscription packs, self-drive rent, lease, GST add-ons, and custom fleet planning via `/plans`.',
         ],
       },
       {
         type: 'h2',
-        text: 'Delhi NCR context',
+        text: '🧰 Core services you will scroll next',
+      },
+      {
+        type: 'ul',
+        items: [
+          '📦 Subscription — prepaid 3W trip packs for recurring lanes; dashboard promise: fixed trips with savings versus pure ad hoc (chip: Save up to 30%).',
+          '📅 Rent a vehicle — daily & weekly blocks across 2W, 3W, 4W; toggle self-drive on the rent journey.',
+          '🤝 Lease a vehicle — dedicated assets up to 12 months when the horizon is longer than spot loads.',
+          '📊 GST billing — GST-ready invoices on applicable trips; finance uses this as much as dispatch.',
+          '🏢 Own fleet? — assign trips to your vehicles with Liftngo tracking (`/noida/fleet-tech`).',
+          '🛺 Fleet builder strip — the 2W / 3W / 4W row mirrors ₹39 · ₹299 · ₹250 anchors and nudges bespoke programmes toward `/plans/custom`.',
+        ],
       },
       {
         type: 'p',
         segments: [
-          'Noida often pairs with Gurgaon/Delhi movements. A ',
-          { text: 'logistics company Delhi NCR', href: '/noida-b2b-logistics' },
-          ' should explain how it governs cross-city lanes—not only hyperlocal bursts.',
+          'Deep links: ',
+          { text: 'Pickup / booking', href: '/pickup-location' },
+          ', ',
+          { text: 'Plans hub', href: '/plans' },
+          ', ',
+          { text: 'Subscription', href: '/plans/subscription' },
+          ', ',
+          { text: 'Rent', href: '/plans/rent' },
+          ', ',
+          { text: 'Lease', href: '/plans/lease' },
+          ', ',
+          { text: 'GST', href: '/plans/gst' },
+          ', ',
+          { text: 'Custom / fleet plans', href: '/plans/custom' },
+          ', ',
+          { text: 'Fleet tech explainer', href: '/noida/fleet-tech' },
+          '.',
         ],
       },
       {
         type: 'h2',
-        text: 'Next step',
+        text: '💰 Anchors & the ⓘ pricing mindset',
+      },
+      {
+        type: 'ul',
+        items: [
+          'From ₹39/trip — short-distance 2W ad hoc base; distance, stops, time, tolls, and taxes still layer on.',
+          'From ₹299/trip — entry 3W pack base fare before add-ons; tiers such as Growth lock sharper in-pack rates (for example ₹440/trip) before tolls.',
+          'Tolls / permits — billed on actuals where the law requires; same disclosure pattern as the dashboard modal.',
+          'Live quote before pay — you never dispatch blind.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🛡️ Trust & quality chips (hero)',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Shielded chip: Trusted by 100+ Noida businesses (lifted verbatim from the hero).',
+          'Star + pickup copy: 4.8★ rating and ~15 minute average pickup appear beside the anchors—use them when you sanity-check SLAs internally.',
+          'Live GPS + invoices: spelled out beside the price lines on large screens; basic vs advanced tracking still depends on pack tier.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🥥 Order fresh — local pilots card',
+      },
+      {
+        type: 'ul',
+        items: [
+          '🥥 Fresh Coconut Water — Sector 18, live today at `/noida/coconut`.',
+          '🥟 Samosa & snacks — marked coming soon in the dashboard carousel.',
+          '🛒 Office groceries — upcoming SKU lane using the same card chrome.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🌐 Delhi NCR without losing the Noida spine',
       },
       {
         type: 'p',
         segments: [
-          { text: 'Get started with Liftngo', href: '/book-delivery' },
-          ' or message us with your lane pattern if you need programme-level coordination.',
+          'Cross-city programmes still need explicit vehicle menus and paperwork. Marketing mirror: ',
+          { text: 'Noida B2B logistics landing', href: '/noida-b2b-logistics' },
+          '. Operational truth: keep the zone pinned to Noida inside the app, then extend routes as your booking history proves the pattern.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🤝 Vendors & partner growth',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Selling through Liftngo (rather than booking trips) routes through ',
+          { text: 'Grow with Liftngo', href: '/grow-with-liftngo' },
+          ' — same typography and verification story, different funnel.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '📈 Affordable Transport Plans card (Growth)',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Under the hero you will see the large white tile labelled “Affordable Transport Plans.” It spotlights the current “Most popular” 3W pack (today that is usually Growth): total pack price, strikethrough “if you paid ad hoc” reference, trips × per-trip rate, and a ',
+          { text: 'Lock … plan', href: '/plans/subscription' },
+          ' CTA that deep-links with the pack name. The ⓘ in the corner is your cue to open the full subscription page when you need compliance text beyond the teaser.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🧮 Build Your Custom Plan + Quick Book',
+      },
+      {
+        type: 'ul',
+        items: [
+          'The fleet builder card is the same “mix vehicles → see totals” entry as `/plans/custom` with 2W/3W/4W silhouettes and the green “Open calculator” bar (~30 sec).',
+          'Quick Book sits underneath: it is the fast path for repeat pickup/drop patterns—still goods-only, still quote-before-pay.',
+          'If your team argues about whether to standardise on packs vs calculator-led quotes, use packs when trip counts are stable; use the calculator when every week is a new geometry.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '📑 Subscription strip: Starter · Growth · Scale · 4W',
+      },
+      {
+        type: 'p',
+        segments: [
+          'The four-pack strip (plus 4W Growth) mirrors ',
+          { text: 'live subscription config', href: '/plans/subscription' },
+          '. Each mini-card shows pack name, total, trips, per-trip rupees, savings ribbon where applicable, and Lock plan. Popular = teal ring; “Best value” = amber when a non-default pack carries the offer flag.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🧭 Trust row + “Goods Time Pe” footer',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Three slim columns: Why Liftngo, Route optimization (anchor on Grow page), Sell & partners — same destinations as the dashboard trust nav.',
+          'Tagline block: “Goods Time Pe / Business Prime Pe” plus the transparent pricing reminder — that is brand chrome, not a coupon promise.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '📌 Sticky bar on this page',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Best Plan → `/plans`, Home → `/noida`, History → `/history`, identical to the signed-in dashboard thumb bar (you may be prompted to log in on History). This blog is intentionally dense: scroll the replica first, then use these notes as a printed runbook for onboarding staff.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '✅ After you finish reading',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Need a trip now? Hit Book Delivery.',
+          'Need economics on repeat lanes? Open Plans → Subscription or Lease.',
+          'Want the stripped SaaS recap (no blog prose)? Re-read the product surface on `/noida-b2b-logistics`.',
         ],
       },
     ],
   },
   {
     slug: 'liftngo-logistics-ecosystem-delhi-ncr',
-    title: 'How Liftngo is Building a Logistics Ecosystem in Delhi NCR',
+    title: 'How Liftngo builds Delhi NCR logistics (Noida-first playbook)',
     description:
-      'Liftngo’s Delhi NCR strategy: verified partners, multi-vehicle booking, and B2B-first operations starting from Noida with deep local coverage.',
+      'Ecosystem = curated partners plus the same product surfaces you audit on /noida: multi-vehicle booking, subscription economics, rent & lease, GST, fleet tech, local pilots—dashboard emojis and anchors included.',
     excerpt:
-      'Ecosystem means trust density, not a map pin everywhere. Here is how we are approaching the National Capital Region.',
+      'No map-pin vanity—just the Noida hero recipe (🚚📦🥥) scaled across NCR with grown-up paperwork.',
     keywords: [
       'logistics company delhi ncr',
+      'Liftngo Noida dashboard',
       'b2b logistics noida',
-      'Liftngo Delhi NCR',
-      'corporate delivery solutions',
       'verified logistics partners',
+      'Delhi NCR corporate delivery',
     ],
     publishedAt: '2025-02-28',
+    modifiedAt: '2026-04-05',
     featured: true,
-    featuredImage: imgHub,
-    featuredImageAlt: 'Intermodal logistics hub — corporate freight and scalable B2B movement',
+    featuredSurface: 'noida-case-study',
+    featuredImage: '/dashboard/goods-three-wheeler.svg',
+    featuredImageAlt: 'Liftngo 3W goods vehicle icon — Noida dashboard fleet strip',
     relatedSlugs: rel(
       'b2b-logistics-noida-complete-guide-companies',
       'why-businesses-need-dedicated-delivery-experts',
@@ -189,33 +337,118 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'p',
         segments: [
-          'We are explicit: Liftngo is not pitching infinite national coverage. In ',
+          '“Ecosystem” too often equals a slide deck full of dots. Our version starts with the hardened ',
+          { text: 'Noida dashboard', href: '/noida' },
+          ', proves repeatable commercial handoffs, then stretches across ',
           { text: 'Delhi NCR', href: '/noida-b2b-logistics' },
-          ', we are assembling a curated partner mesh with product surfaces that enterprises actually audit—vehicle classes, estimates, and completion accountability.',
+          ' using the same vehicle menus, ⓘ pricing discipline, and GST artefacts finance can audit.',
         ],
       },
       {
         type: 'h2',
-        text: 'What “ecosystem” means in practice',
+        text: '🧱 Layer 1 · Booking & vehicle truth',
       },
       {
         type: 'ul',
         items: [
-          'Partners vetted for commercial handoffs',
-          'Repeat-route economics rather than one-off gig chasing',
-          'Escalation paths when a receiving dock is late—not when a star rating is vague',
+          '🚚 Book Delivery keeps 2W/3W/4W goods flows honest—live quotes before payment, no opaque broker spreads.',
+          '🛺 The fleet strip echoes ₹39 · ₹299 · ₹250 anchors so ops, marketing, and procurement share one vocabulary.',
         ],
       },
       {
         type: 'h2',
-        text: 'Hyperlocal vs B2B trunk',
+        text: '📦 Layer 2 · Economics that survive QBRs',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Subscription packs freeze in-pack per-trip rates when lanes deserve predictability (dashboard chip: Save up to 30%).',
+          'Rent & lease tiles split shorter self-drive blocks from longer dedicated assets—aligned with how CFOs think about capex vs opex.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '📊 Layer 3 · Compliance & visibility',
+      },
+      {
+        type: 'ul',
+        items: [
+          'GST billing hooks for finance; toll + pass-through disclosures stay synced with hero modals.',
+          'Live GPS on upgraded packs vs basic tracking on entry tiers—sell only what the plan includes.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🥥 Layer 4 · Hyperlocal pilots',
       },
       {
         type: 'p',
         segments: [
-          'We still care deeply about ',
+          'Order fresh cards (🥥 live in Sector 18, 🥟/🛒 flagged coming soon) show how we bolt retail SKUs onto business accounts without duplicating identities. Temple-town intensity from ',
           { text: 'Khatu Shyam Ji', href: '/khatu-shyam-logistics' },
-          '-style density. The NCR playbook inherits the same obsession with handoff quality—just at a different scale and paperwork cadence.',
+          ' informs narrow-lane empathy; NCR adds cross-city routing and statutory documentation.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🤝 Layer 5 · Partner mesh',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Suppliers that should merchandise on Liftngo graduate through ',
+          { text: 'Grow with Liftngo', href: '/grow-with-liftngo' },
+          '. Verification + escalation paths reinforce the same “Trusted by 100+ Noida businesses” story you see on the hero chip.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🪞 Why this page shows the entire dashboard',
+      },
+      {
+        type: 'p',
+        segments: [
+          'Investors and HQ teams asked for “one URL” that proves we are not a slide-deck logistics brand. The replica above is literally the same component order as ',
+          { text: '/noida', href: '/noida' },
+          ': hero → Growth tile → fleet builder → Quick Book → services → fresh pilots → subscription strip → trust nav → footer tagline → sticky bar. Long-form sections below explain how each block feeds an ecosystem thesis without inventing features we do not ship.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🗺️ NCR rollout checklist (from the UI you just scrolled)',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Anchor city: pin Noida in-product before expanding Gurgaon/Delhi lanes so dispatch rules stay one time zone for your pilot squad.',
+          'Vehicle truth: only promise 2W/3W/4W modes that appear in the booking picker; ecosystem trust breaks when sales invents a “special truck.”',
+          'Pack vs ad hoc: use subscription strips for recurring corridors; keep ad hoc for experiments—finance should read both lines on the P&amp;L.',
+          'Marketplace pilots: coconut today, grocery tomorrow—each SKU inherits the same checkout legal stack referenced from the ⓘ on the fresh row.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🔐 Governance hooks your legal team can click',
+      },
+      {
+        type: 'p',
+        segments: [
+          { text: 'Why Liftngo', href: '/why-liftngo' },
+          ' — positioning and proof points. Route optimization on Grow shows we analyse lanes before promising infinite coverage. ',
+          { text: 'Sell & partners', href: '/grow-with-liftngo#business-enquiry' },
+          ' — onboarding and route analysis intake when procurement asks how partners are vetted.',
+        ],
+      },
+      {
+        type: 'h2',
+        text: '🔗 Where to go next',
+      },
+      {
+        type: 'ul',
+        items: [
+          'Tile-for-tile storytelling with even more annotations: `/blog/b2b-logistics-noida-complete-guide-companies`.',
+          'Stripped conversion funnel (no dashboard chrome): `/noida-b2b-logistics`.',
+          'Live product: `/noida` after OTP so pixels match this article 1:1.',
         ],
       },
     ],

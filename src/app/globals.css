@@ -32,6 +32,10 @@
   --color-gray-800: #1F2937;
   --color-gray-900: #111827;
   --color-success: #10B981;
+  /** Sales funnel action accent — conversion CTAs (teal; pairs with trust navy). */
+  --funnel-action: #0d9488;
+  --funnel-action-hover: #0f766e;
+  --funnel-action-muted: rgba(13, 148, 136, 0.12);
   --color-error: #EF4444;
   --color-text-primary: #2F2E41;
   --color-text-secondary: #6E6D7A;
@@ -72,6 +76,23 @@
   --radius: 10px;
 }
 
+/**
+ * Noida case-study blog: restore normal corner radii & true pills.
+ * Global @theme above forces ~10px for all `rounded-*`, which flattens SaaS-style cards.
+ */
+.noida-case-study-surface {
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-4xl: 28px;
+  --radius-full: 9999px;
+  --radius: 12px;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #FFF7ED;
@@ -83,6 +104,13 @@ html {
   overflow-x: clip;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -336,5 +364,38 @@ select {
   }
   .page-card {
     @apply w-full min-w-0 p-4 md:p-5;
+  }
+
+  /** Noida B2B funnel — hero image / card breathing light (respects reduced motion). */
+  .funnel-hero-pulse {
+    animation: funnel-hero-glow 5.5s ease-in-out infinite;
+  }
+
+  .funnel-cta-press {
+    @apply transition-transform duration-150 active:scale-[0.98];
+  }
+
+  .funnel-card-lift {
+    @apply transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-lg;
+  }
+}
+
+@keyframes funnel-hero-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 25px 50px -12px rgb(0 0 0 / 0.35),
+      0 0 0 1px rgb(255 255 255 / 0.12);
+  }
+  50% {
+    box-shadow:
+      0 28px 56px -10px rgb(44 45 91 / 0.45),
+      0 0 0 1px rgb(255 255 255 / 0.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .funnel-hero-pulse {
+    animation: none;
   }
 }
