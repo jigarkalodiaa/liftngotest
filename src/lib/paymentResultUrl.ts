@@ -4,6 +4,7 @@ export type PaymentResultFlow =
   | 'subscription'
   | 'rent'
   | 'lease'
+  | 'custom'
   | 'delivery'
   | 'food'
   | 'hotel'

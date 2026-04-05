@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, type CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants';
 import { INDICATIVE_PRICING_FOOTNOTE, TOLL_CHARGES_SEPARATE_NOTE } from '@/lib/pricing/subscriptionDisclosures';
 import { trackCalculatorUsed, trackPlanSelected, trackCheckoutStarted } from '@/lib/analytics';
 import { computeBulkPlanQuote, type VehicleClass } from '@/lib/pricing/bulkPlanQuote';
+import { saveCustomPlanSession } from '@/lib/customPlanCheckoutSession';
 import { ArrowRight, Plus, Trash2, Copy, Bike, Truck, Phone, Zap, ChevronRight } from 'lucide-react';
 import PlansSubPageShell from '../PlansSubPageShell';
 
@@ -15,10 +16,34 @@ type VehicleType = VehicleClass;
 
 const ALL_VEHICLE_TYPES: VehicleType[] = ['2W', '3W', '4W'];
 
-const VEHICLE_META: Record<VehicleType, { label: string; icon: typeof Bike; color: string }> = {
-  '2W': { label: '2-Wheeler', icon: Bike, color: 'bg-sky-500' },
-  '3W': { label: '3-Wheeler', icon: Truck, color: 'bg-emerald-500' },
-  '4W': { label: '4-Wheeler', icon: Truck, color: 'bg-violet-500' },
+const VEHICLE_META: Record<
+  VehicleType,
+  { label: string; icon: typeof Bike; color: string; accent: string; cornerFrom: string; iconShadow: string }
+> = {
+  '2W': {
+    label: '2-Wheeler',
+    icon: Bike,
+    color: 'bg-sky-500',
+    accent: 'border-l-sky-500',
+    cornerFrom: 'from-sky-500/[0.12]',
+    iconShadow: 'shadow-sm shadow-sky-900/15 ring-1 ring-sky-900/10',
+  },
+  '3W': {
+    label: '3-Wheeler',
+    icon: Truck,
+    color: 'bg-emerald-500',
+    accent: 'border-l-emerald-500',
+    cornerFrom: 'from-emerald-500/[0.12]',
+    iconShadow: 'shadow-sm shadow-emerald-900/15 ring-1 ring-emerald-900/10',
+  },
+  '4W': {
+    label: '4-Wheeler',
+    icon: Truck,
+    color: 'bg-violet-500',
+    accent: 'border-l-violet-500',
+    cornerFrom: 'from-violet-500/[0.12]',
+    iconShadow: 'shadow-sm shadow-violet-900/15 ring-1 ring-violet-900/10',
+  },
 };
 
 type Recommendation = { type: 'subscription' | 'lease' | 'hybrid'; label: string; detail: string; href: string };
@@ -64,6 +89,13 @@ function newConfigRow(existing: VehicleConfig[]): VehicleConfig {
   const used = new Set(existing.map((c) => c.vehicle));
   const vehicle = firstUnusedVehicle(used) ?? '3W';
   return { id: crypto.randomUUID(), vehicle, trips: 30, distanceKm: 10 };
+}
+
+/** % along track for WebKit filled rail (`--range-fill` on `.custom-plan-range`). */
+function sliderFillPercent(value: number, min: number, max: number): string {
+  if (max <= min) return '0%';
+  const clamped = Math.min(max, Math.max(min, value));
+  return `${((clamped - min) / (max - min)) * 100}%`;
 }
 
 /* ── Page ─────────────────────────────────────────────────── */
@@ -132,12 +164,11 @@ export default function CustomTripPage() {
     });
     if (summary.rec) {
       trackPlanSelected(summary.rec.label, 'custom_calculator');
-      trackCheckoutStarted('custom_calculator', summary.payTotal);
-      router.push(summary.rec.href);
-    } else {
-      router.push(ROUTES.PLANS_SUBSCRIPTION);
     }
-  }, [configs.length, summary, router]);
+    trackCheckoutStarted('custom_plan_checkout', summary.payTotal);
+    saveCustomPlanSession(configs.map(({ id, vehicle, trips, distanceKm }) => ({ id, vehicle, trips, distanceKm })));
+    router.push(ROUTES.PLANS_CUSTOM_CHECKOUT);
+  }, [configs, summary, router]);
 
   return (
     <PlansSubPageShell
@@ -155,49 +186,72 @@ export default function CustomTripPage() {
       }
       contentClassName="-mt-6"
     >
-      <div className="flex min-w-0 flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+      <div className="flex min-w-0 flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
         <div className="min-w-0 flex-1">
-          <div className="space-y-4">
-            {configs.map((cfg, idx) => {
+          <div className="space-y-3">
+            {configs.map((cfg) => {
               const meta = VEHICLE_META[cfg.vehicle];
               const VIcon = meta.icon;
               const usedElsewhere = new Set(
                 configs.filter((c) => c.id !== cfg.id).map((c) => c.vehicle)
               );
+              const tripsSliderMax = 200;
+              const distSliderMax = 50;
+              const tripsFill = {
+                '--range-fill': sliderFillPercent(Math.min(cfg.trips, tripsSliderMax), 1, tripsSliderMax),
+              } as CSSProperties;
+              const distFill = {
+                '--range-fill': sliderFillPercent(Math.min(cfg.distanceKm, distSliderMax), 1, distSliderMax),
+              } as CSSProperties;
               return (
                 <div
                   key={cfg.id}
-                  className="min-w-0 rounded-2xl border border-gray-100 bg-white p-4 shadow-md transition-all duration-200 md:p-5 lg:p-6"
+                  className={`relative min-w-0 overflow-hidden rounded-xl border border-slate-200/70 border-l-[3px] bg-gradient-to-br from-white via-white to-slate-50/50 shadow-[0_10px_40px_-16px_rgba(15,23,42,0.14)] ring-1 ring-slate-900/[0.035] ${meta.accent}`}
                 >
+                  <div
+                    className={`pointer-events-none absolute -right-8 -top-14 h-32 w-32 rotate-[30deg] bg-gradient-to-br ${meta.cornerFrom} via-transparent to-transparent`}
+                    aria-hidden
+                  />
+                  <div className="relative p-3 sm:p-4">
                   {/* Card header */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={`flex h-8 w-8 items-center justify-center rounded-lg text-white ${meta.color}`}>
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-100/90 pb-2.5">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <span
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white ${meta.color} ${meta.iconShadow}`}
+                      >
                         <VIcon className="h-4 w-4" strokeWidth={2} />
                       </span>
-                      <span className="text-sm font-bold text-gray-900">Config {idx + 1}</span>
+                      <div className="min-w-0">
+                        <span className="block truncate text-[0.8125rem] font-bold tracking-tight text-[#1e1f4b]">{meta.label}</span>
+                        <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-slate-400">Vehicle lane</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex shrink-0 items-center gap-0.5">
                       <button
                         type="button"
                         onClick={() => duplicateConfig(cfg.id)}
                         disabled={configs.length >= MAX_VEHICLE_CONFIGS}
-                        className="grid h-8 w-8 place-items-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
-                        aria-label="Duplicate"
+                        className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
+                        aria-label={`Duplicate ${meta.label} row`}
                       >
-                        <Copy className="h-4 w-4" />
+                        <Copy className="h-3.5 w-3.5" />
                       </button>
                       {configs.length > 1 && (
-                        <button type="button" onClick={() => removeConfig(cfg.id)} className="grid h-8 w-8 place-items-center rounded-lg text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500" aria-label="Remove">
-                          <Trash2 className="h-4 w-4" />
+                        <button
+                          type="button"
+                          onClick={() => removeConfig(cfg.id)}
+                          className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                          aria-label={`Remove ${meta.label}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       )}
                     </div>
                   </div>
 
                   {/* Vehicle selector */}
-                  <div className="mt-4">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Vehicle Type</label>
+                  <div className="mt-3">
+                    <label className="block text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500">Switch type</label>
                     <div className="mt-1.5 grid grid-cols-3 gap-1.5">
                       {ALL_VEHICLE_TYPES.map((v) => {
                         const active = cfg.vehicle === v;
@@ -210,85 +264,109 @@ export default function CustomTripPage() {
                             key={v}
                             type="button"
                             disabled={disabled}
-                            title={disabled ? 'Already selected in another configuration' : undefined}
+                            title={disabled ? 'Already selected in another configuration' : vm.label}
                             onClick={() => {
                               if (!disabled) updateConfig(cfg.id, { vehicle: v });
                             }}
-                            className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold transition-all duration-150 ${
+                            className={`flex min-h-9 items-center justify-center gap-1 rounded-lg py-2 text-[10px] font-bold leading-tight transition-all duration-150 sm:text-xs ${
                               active
-                                ? `${vm.color} text-white shadow-sm`
+                                ? `${vm.color} text-white shadow-md ring-2 ring-white/90 ring-offset-1 ring-offset-slate-100/80`
                                 : disabled
-                                  ? 'cursor-not-allowed border border-gray-100 bg-gray-50 text-gray-300'
-                                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                                  ? 'cursor-not-allowed border border-slate-100 bg-slate-50 text-slate-300'
+                                  : 'border border-slate-200/90 bg-white text-slate-600 shadow-sm hover:border-slate-300 hover:bg-slate-50'
                             }`}
                           >
-                            <VI className="h-3.5 w-3.5" strokeWidth={2} />
-                            {vm.label}
+                            <VI className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={2} />
+                            <span className="truncate px-0.5">{vm.label.replace('-Wheeler', 'W')}</span>
                           </button>
                         );
                       })}
                     </div>
-                    <p className="mt-1.5 text-[10px] text-gray-400">Each vehicle type can be used in one configuration only (up to 3).</p>
+                    <p className="mt-1.5 text-[9px] leading-snug text-slate-400">One type per row · up to 3 lanes.</p>
                   </div>
 
-                  {/* Trips slider */}
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Trips / month</label>
+                  {/* Trips + distance — inset panel */}
+                  <div className="mt-3 rounded-xl border border-slate-200/60 bg-gradient-to-b from-slate-50/95 to-slate-100/35 p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:p-3">
+                    <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.14em] text-slate-500">Volume &amp; distance</p>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <label htmlFor={`trips-${cfg.id}`} className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-500">
+                          Trips / mo
+                        </label>
+                        <input
+                          id={`trips-${cfg.id}`}
+                          type="number"
+                          min={1}
+                          max={500}
+                          value={cfg.trips}
+                          onChange={(e) => updateConfig(cfg.id, { trips: Math.max(1, Number(e.target.value) || 1) })}
+                          className="h-8 w-[4.25rem] shrink-0 rounded-lg border border-slate-200/90 bg-white px-1.5 text-center text-xs font-bold tabular-nums text-[#1e1f4b] shadow-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/18"
+                        />
+                      </div>
                       <input
-                        type="number"
+                        type="range"
                         min={1}
-                        max={500}
-                        value={cfg.trips}
-                        onChange={(e) => updateConfig(cfg.id, { trips: Math.max(1, Number(e.target.value) || 1) })}
-                        className="w-16 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-center text-sm font-bold text-gray-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]/30"
+                        max={tripsSliderMax}
+                        step={1}
+                        value={Math.min(cfg.trips, tripsSliderMax)}
+                        onChange={(e) => updateConfig(cfg.id, { trips: Number(e.target.value) })}
+                        className="custom-plan-range mt-1.5"
+                        style={tripsFill}
+                        aria-label={`Trips per month for ${meta.label}`}
                       />
+                      <div className="mt-0.5 flex justify-between font-medium tabular-nums text-[9px] text-slate-400">
+                        <span>1</span>
+                        <span>{tripsSliderMax}+</span>
+                      </div>
                     </div>
-                    <input
-                      type="range"
-                      min={1}
-                      max={200}
-                      step={1}
-                      value={cfg.trips}
-                      onChange={(e) => updateConfig(cfg.id, { trips: Number(e.target.value) })}
-                      className="mt-2 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-[var(--color-primary)]"
-                    />
+                    <div className="min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <label htmlFor={`km-${cfg.id}`} className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-500">
+                          Avg km
+                        </label>
+                        <input
+                          id={`km-${cfg.id}`}
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={cfg.distanceKm}
+                          onChange={(e) => updateConfig(cfg.id, { distanceKm: Math.max(1, Number(e.target.value) || 1) })}
+                          className="h-8 w-[4.25rem] shrink-0 rounded-lg border border-slate-200/90 bg-white px-1.5 text-center text-xs font-bold tabular-nums text-[#1e1f4b] shadow-sm focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/18"
+                        />
+                      </div>
+                      <input
+                        type="range"
+                        min={1}
+                        max={distSliderMax}
+                        step={1}
+                        value={Math.min(cfg.distanceKm, distSliderMax)}
+                        onChange={(e) => updateConfig(cfg.id, { distanceKm: Number(e.target.value) })}
+                        className="custom-plan-range mt-1.5"
+                        style={distFill}
+                        aria-label={`Average distance km for ${meta.label}`}
+                      />
+                      <div className="mt-0.5 flex justify-between font-medium tabular-nums text-[9px] text-slate-400">
+                        <span>1</span>
+                        <span>{distSliderMax}</span>
+                      </div>
+                    </div>
                   </div>
-
-                  {/* Distance slider */}
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">Avg distance (km)</label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={100}
-                        value={cfg.distanceKm}
-                        onChange={(e) => updateConfig(cfg.id, { distanceKm: Math.max(1, Number(e.target.value) || 1) })}
-                        className="w-16 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1 text-center text-sm font-bold text-gray-900 focus:border-[var(--color-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]/30"
-                      />
-                    </div>
-                    <input
-                      type="range"
-                      min={1}
-                      max={50}
-                      step={1}
-                      value={cfg.distanceKm}
-                      onChange={(e) => updateConfig(cfg.id, { distanceKm: Number(e.target.value) })}
-                      className="mt-2 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-[var(--color-primary)]"
-                    />
                   </div>
 
                   {/* Line cost preview */}
-                  <div className="mt-4 flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
-                    <span className="text-xs text-gray-500">Est. line total</span>
-                    <span className="text-sm font-extrabold text-gray-900">
-                      ₹
-                      {(summary.lines.find((l) => l.id === cfg.id)?.linePayTotal ?? 0).toLocaleString('en-IN')}
-                      <span className="ml-1 text-[10px] font-semibold text-gray-400">
-                        · ₹{summary.lines.find((l) => l.id === cfg.id)?.perTripDisplay ?? 0}/trip
+                  <div className="mt-3 flex items-center justify-between rounded-lg border border-slate-100/90 bg-white/90 px-2.5 py-2 sm:px-3">
+                    <span className="text-[11px] font-medium text-slate-500">Line estimate</span>
+                    <span className="text-right">
+                      <span className="text-xs font-extrabold tabular-nums text-[#1e1f4b] sm:text-sm">
+                        ₹
+                        {(summary.lines.find((l) => l.id === cfg.id)?.linePayTotal ?? 0).toLocaleString('en-IN')}
+                      </span>
+                      <span className="ml-1 text-[10px] font-semibold tabular-nums text-slate-400">
+                        ₹{summary.lines.find((l) => l.id === cfg.id)?.perTripDisplay ?? 0}/trip
                       </span>
                     </span>
+                  </div>
                   </div>
                 </div>
               );
@@ -299,7 +377,7 @@ export default function CustomTripPage() {
               type="button"
               onClick={addConfig}
               disabled={configs.length >= MAX_VEHICLE_CONFIGS}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 bg-white py-4 text-sm font-bold text-gray-500 transition-all duration-200 hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] active:scale-[0.99] disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-400 disabled:hover:border-gray-200 disabled:hover:text-gray-400"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300/90 bg-white/90 py-3 text-sm font-bold text-slate-500 shadow-sm transition-all duration-200 hover:border-[var(--color-primary)]/45 hover:bg-white hover:text-[var(--color-primary)] active:scale-[0.99] disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-50 disabled:text-slate-400 disabled:shadow-none disabled:hover:border-slate-200"
             >
               <Plus className="h-4 w-4" />
               {configs.length >= MAX_VEHICLE_CONFIGS ? 'All vehicle types in use' : 'Add Another Vehicle'}
@@ -307,11 +385,15 @@ export default function CustomTripPage() {
           </div>
         </div>
 
-        <div className="min-w-0 lg:w-[min(100%,380px)] lg:shrink-0">
-          <div className="lg:sticky lg:top-24">
+        <div className="min-w-0 lg:w-[min(100%,360px)] lg:shrink-0">
+          <div className="lg:sticky lg:top-20">
             {/* Summary panel */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-lg md:p-5 lg:p-6">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400">Cost Summary</h2>
+            <div className="relative overflow-hidden rounded-xl border border-slate-200/70 bg-gradient-to-b from-white via-white to-slate-50/50 p-4 shadow-[0_10px_40px_-16px_rgba(15,23,42,0.12)] ring-1 ring-slate-900/[0.04] sm:p-4">
+              <div
+                className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary)]/25 to-transparent"
+                aria-hidden
+              />
+              <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">Cost summary</h2>
               <p className="mt-1 text-[11px] leading-snug text-gray-500">
                 All-in estimate · no line-item breakdown · fares follow distance &amp; demand bands
               </p>
@@ -363,10 +445,10 @@ export default function CustomTripPage() {
                 )}
               </div>
 
-              <div className="mt-3 flex flex-col gap-1 border-t border-gray-100 pt-3">
-                <p className="text-[10px] font-bold uppercase text-gray-400">Total (this mix)</p>
+              <div className="mt-3 flex flex-col gap-1 border-t border-slate-100 pt-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">Total (this mix)</p>
                 <div className="flex flex-wrap items-end justify-between gap-2">
-                  <p className="text-2xl font-extrabold text-[var(--color-primary)]">₹{summary.payTotal.toLocaleString('en-IN')}</p>
+                  <p className="text-2xl font-extrabold tracking-tight text-[#1e1f4b]">₹{summary.payTotal.toLocaleString('en-IN')}</p>
                   {summary.savings > 0 && (
                     <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
                       Save ₹{summary.savings.toLocaleString('en-IN')}
@@ -384,7 +466,7 @@ export default function CustomTripPage() {
               <button
                 type="button"
                 onClick={handleProceed}
-                className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-3.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:opacity-90 active:scale-[0.98] md:min-h-11 md:py-3"
+                className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1e1f4b] to-[#2C2D5B] py-3.5 text-sm font-bold text-white shadow-md shadow-slate-900/20 transition-all duration-200 hover:brightness-110 active:scale-[0.98] md:min-h-11 md:py-3"
               >
                 Proceed with This Plan
                 <ArrowRight className="h-4 w-4" />

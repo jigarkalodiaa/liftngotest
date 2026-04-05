@@ -5,7 +5,7 @@ import { Headphones, Phone } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 import { trackViewPlan } from '@/lib/analytics';
 
-type Layout = 'hub' | 'compact' | 'checkout';
+type Layout = 'hub' | 'compact' | 'card' | 'checkout';
 
 type Props = {
   layout: Layout;
@@ -79,6 +79,30 @@ export default function ConsultantTrustCta({ layout, analyticsSource, className 
         <span className="flex min-w-0 flex-col items-start text-left leading-tight">
           <span className="text-xs font-bold text-[var(--color-primary)] md:text-sm">Consultant before you pay</span>
           <span className="mt-0.5 text-[10px] font-medium text-slate-600 md:text-[11px]">
+            Agreement, GST, ROI for your lane — free callback
+          </span>
+        </span>
+      </Link>
+    );
+  }
+
+  /** Full-width soft card — matches checkout “consultant first” reference */
+  if (layout === 'card') {
+    return (
+      <Link
+        href={ROUTES.CONTACT}
+        onClick={track}
+        className={`flex min-h-[3.25rem] w-full items-center gap-3 rounded-2xl border border-slate-200/90 bg-white px-4 py-3.5 shadow-[0_8px_30px_-14px_rgba(15,23,42,0.18)] ring-1 ring-slate-900/[0.05] transition-all hover:border-slate-300 hover:bg-slate-50/70 hover:shadow-[0_10px_34px_-14px_rgba(15,23,42,0.22)] active:scale-[0.99] sm:gap-3.5 sm:px-5 sm:py-4 ${className}`}
+      >
+        <span
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-[var(--color-primary)] sm:h-11 sm:w-11"
+          aria-hidden
+        >
+          <Headphones className="h-[1.125rem] w-[1.125rem] sm:h-5 sm:w-5" strokeWidth={2} />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col items-start text-left leading-snug">
+          <span className="text-sm font-bold tracking-tight text-[#1e1f4b] sm:text-[0.9375rem]">Consultant before you pay</span>
+          <span className="mt-1 text-[11px] font-medium text-slate-600 sm:text-xs">
             Agreement, GST, ROI for your lane — free callback
           </span>
         </span>

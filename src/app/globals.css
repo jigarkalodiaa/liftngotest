@@ -233,6 +233,87 @@ select {
 }
 
 /**
+ * /plans/custom — range inputs: filled track + clear thumb (WebKit + Firefox).
+ * Set `--range-fill` inline (e.g. `65%`) for the primary portion on WebKit.
+ */
+.custom-plan-range {
+  --range-fill: 0%;
+  width: 100%;
+  height: 1.625rem;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.custom-plan-range:focus {
+  outline: none;
+}
+
+.custom-plan-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(44, 45, 91, 0.28);
+}
+
+.custom-plan-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(44, 45, 91, 0.28);
+}
+
+.custom-plan-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary) var(--range-fill),
+    var(--color-gray-200) var(--range-fill),
+    var(--color-gray-200) 100%
+  );
+}
+
+.custom-plan-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.custom-plan-range:hover::-webkit-slider-thumb {
+  transform: scale(1.06);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.22);
+}
+
+.custom-plan-range:active::-webkit-slider-thumb {
+  transform: scale(1.02);
+}
+
+.custom-plan-range::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-gray-200);
+}
+
+.custom-plan-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+}
+
+.custom-plan-range::-moz-range-thumb {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+}
+
+/**
  * Tailwind’s default `rounded-full` is a true circle (`3.40282e38px`-style clamp).
  * Lock to 12px sitewide; `!important` wins over the generated utility order.
  */
