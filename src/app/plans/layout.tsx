@@ -5,7 +5,7 @@ import PlansHeader from './PlansHeader';
 export const metadata: Metadata = generatePageMetadata({
   title: 'Logistics Plans & Pricing — Subscription, Rent, Lease',
   description:
-    'Explore Liftngo logistics plans: subscription delivery, vehicle rental (with/without driver), long-term lease, custom trip builder, and GST billing. Subscription packs from ₹390/trip in Noida & NCR.',
+    'Compare Liftngo B2B plans: subscription delivery, vehicle rental, long-term lease, custom trip calculator, and GST billing. On-page info panels explain pack benefits, compliance, and per-plan inclusions; checkout confirms binding price. Serves Noida & NCR.',
   path: '/plans',
   keywords: [
     'logistics subscription plans',
