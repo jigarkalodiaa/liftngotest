@@ -1,14 +1,31 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants';
-import { SUBSCRIPTION_PACK_BENEFITS, TOLL_CHARGES_SEPARATE_NOTE } from '@/lib/pricing/subscriptionDisclosures';
+import {
+  SUBSCRIPTION_PACK_BENEFITS,
+  TOLL_CHARGES_SEPARATE_NOTE,
+  SUBSCRIPTION_COMPLIANCE_BULLETS,
+  INDICATIVE_PRICING_FOOTNOTE,
+  SUBSCRIPTION_HUB_CARD_ESSENTIAL_SHORT,
+  SUBSCRIPTION_HUB_ESSENTIAL_MODAL_BLOCKS,
+} from '@/lib/pricing/subscriptionDisclosures';
+import {
+  SUBSCRIPTION_PACKS_3W,
+  subscriptionPackByName,
+  subscriptionPackLockHref,
+  subscriptionPackToPlansHubCard,
+} from '@/lib/pricing/subscriptionPacks';
+import { GST_FLAGSHIP_SAMPLE_PDF_PATH } from '@/lib/pdf/gstFlagshipSamplePdf';
 import { trackViewPlan } from '@/lib/analytics';
 import {
   Package, Truck, Key, Calculator, FileText,
-  ArrowRight, Star, Check, Phone, ChevronRight, CheckCircle2,
+  ArrowRight, Star, Check, Phone, CheckCircle2, Info, X, Shield, GitCompare,
+  Download,
 } from 'lucide-react';
+import PlansCompareModal from './PlansCompareModal';
 
 /* ── Tab types ────────────────────────────────────────────── */
 
@@ -31,6 +48,7 @@ type PlanCard = {
   priceNote: string;
   savings?: string;
   popular?: boolean;
+  offer?: boolean;
   bestFor: string;
   features: string[];
   cta: string;
@@ -39,48 +57,13 @@ type PlanCard = {
 
 const TAB_DATA: Record<TabId, { headline: string; sub: string; cards: PlanCard[] }> = {
   deliveries: {
-    headline: 'Save more on daily deliveries',
-    sub: `30-day pack validity from activation. ${TOLL_CHARGES_SEPARATE_NOTE} · See upfront inclusions below.`,
-    cards: [
-      {
-        title: 'Starter',
-        copy: 'For small shops & local sellers',
-        price: '₹15,000',
-        priceNote: '₹500/trip · 30 trips',
-        savings: 'Save ₹3,000',
-        bestFor: 'दुकानदार · local retail · small biz',
-        features: ['3W with driver', '30-day validity (from activation)', 'Basic tracking', 'Email invoices', 'Up to ~12 km/trip in-pack'],
-        cta: 'Lock this plan',
-        href: ROUTES.PLANS_SUBSCRIPTION,
-      },
-      {
-        title: 'Growth',
-        copy: 'For growing businesses',
-        price: '₹22,000',
-        priceNote: '₹440/trip · 50 trips',
-        savings: 'Save ₹7,500',
-        popular: true,
-        bestFor: 'warehouse · ecommerce · retail chain',
-        features: ['3W with driver', '30-day validity (from activation)', 'Live GPS', 'Dedicated POC', 'Priority dispatch', 'Up to ~12 km/trip in-pack'],
-        cta: 'Lock this plan',
-        href: ROUTES.PLANS_SUBSCRIPTION,
-      },
-      {
-        title: 'Scale',
-        copy: 'For high-volume operations',
-        price: '₹39,000',
-        priceNote: '₹390/trip · 100 trips',
-        savings: 'Save ₹20,000',
-        bestFor: 'enterprise · D2C brand · large warehouse',
-        features: ['Dedicated account mgr', '30-day validity (from activation)', 'Custom SLA', 'Weekly reports', 'GST invoicing', 'Up to ~12 km/trip in-pack'],
-        cta: 'Lock this plan',
-        href: ROUTES.PLANS_SUBSCRIPTION,
-      },
-    ],
+    headline: 'Subscription trip packs',
+    sub: 'Committed volume = sharper per-trip rates · packs vs ad hoc in ⓘ',
+    cards: SUBSCRIPTION_PACKS_3W.map(subscriptionPackToPlansHubCard),
   },
   vehicle: {
-    headline: 'Flexible vehicle access, anytime',
-    sub: 'Daily, weekly, or monthly — with or without driver.',
+    headline: 'Rent a vehicle',
+    sub: '2W · 3W · 4W — day/week/month · quotes at checkout',
     cards: [
       {
         title: '2-Wheeler',
@@ -116,8 +99,8 @@ const TAB_DATA: Record<TabId, { headline: string; sub: string; cards: PlanCard[]
     ],
   },
   lease: {
-    headline: 'Own-like control, long-term savings',
-    sub: 'Earn ₹35k–₹85k/month. Zero upfront cost.',
+    headline: 'Long-term lease',
+    sub: 'Asset + maintenance scope in agreement · earning examples in ⓘ',
     cards: [
       {
         title: '2W EV Lease',
@@ -125,7 +108,7 @@ const TAB_DATA: Record<TabId, { headline: string; sub: string; cards: PlanCard[]
         price: '₹15,000/mo',
         priceNote: '12-month · ₹18k for 6-month',
         savings: 'Earn ₹35k/mo',
-        bestFor: 'gig workers · last-mile delivery',
+        bestFor: 'SMEs · branch runs · light B2B & sample dispatch',
         features: ['Insurance by Liftngo', 'Minor maintenance', 'Platform earning access', 'EV charging support'],
         cta: 'Lease Now',
         href: ROUTES.PLANS_LEASE,
@@ -156,8 +139,8 @@ const TAB_DATA: Record<TabId, { headline: string; sub: string; cards: PlanCard[]
     ],
   },
   custom: {
-    headline: 'Build your exact logistics plan',
-    sub: 'Add multiple vehicles — get instant pricing.',
+    headline: 'Custom mix & calculator',
+    sub: 'Blend 2W/3W/4W — live estimate before you book',
     cards: [
       {
         title: 'Multi-Vehicle Builder',
@@ -174,84 +157,158 @@ const TAB_DATA: Record<TabId, { headline: string; sub: string; cards: PlanCard[]
     ],
   },
   gst: {
-    headline: 'Automated GST billing for businesses',
-    sub: 'Compliant invoices from day 1.',
+    headline: 'GST-ready billing',
+    sub: 'Fewer CA follow-ups · clean books · optional automation tiers · full detail in ⓘ',
     cards: [
       {
-        title: 'Daily Billing',
-        copy: 'Invoice per trip — ad-hoc bookings',
-        price: 'Free',
-        priceNote: 'Included with every booking',
-        bestFor: 'small biz · individual bookings',
-        features: ['Per-trip GST invoice', 'GSTIN on every bill', 'Digital copy via email'],
-        cta: 'Enable Now',
+        title: 'Daily — per trip',
+        copy: 'Every delivery gets its own GST bill — instant proof for audits & customers',
+        price: 'Included',
+        priceNote: 'On qualifying Liftngo trips — no separate invoicing software fee',
+        bestFor: 'shops · ad-hoc B2B · tight compliance',
+        features: [
+          'GSTIN & line items on each trip invoice',
+          'Email / WhatsApp PDF share',
+          'Trip ID on bill — matches your dashboard',
+          'Ideal when every dispatch must be traceable',
+        ],
+        cta: 'Ship & auto-invoice',
         href: ROUTES.PLANS_GST,
       },
       {
-        title: 'Weekly Billing',
-        copy: 'Consolidated summary — Monday',
-        price: 'Free',
-        priceNote: 'For regular shippers',
+        title: 'Weekly — one pack',
+        copy: 'Monday morning, one file: ten trips become one clear summary for your CA',
+        price: 'From ₹499/mo',
+        priceNote: 'Billed with your account · pause anytime',
+        savings: 'Less spreadsheet pain',
         popular: true,
-        bestFor: 'retail stores · regular shippers',
-        features: ['Weekly summary', 'Trip-wise breakdown', 'Auto-email to CA', 'Accounts-friendly'],
-        cta: 'Enable Now',
+        bestFor: 'retail chains · regular lanes · finance teams',
+        features: [
+          'Single weekly GST summary + trip table',
+          'Auto-send to your accountant',
+          'Reconcile payouts without opening dozens of PDFs',
+          'Liftngo platform fee — not a government charge',
+        ],
+        cta: 'Add weekly billing',
         href: ROUTES.PLANS_GST,
       },
       {
-        title: 'Monthly Billing',
-        copy: 'Enterprise-grade — ERP-ready',
-        price: 'Free',
-        priceNote: 'Subscription & enterprise users',
-        bestFor: 'enterprise · warehouse · subscription',
-        features: ['Monthly consolidated', 'HSN-wise breakup', 'Custom PO support', 'API for ERP'],
-        cta: 'Enable Now',
-        href: ROUTES.PLANS_GST,
+        title: 'Monthly — Business',
+        copy: 'Month-end close without chasing drivers — HSN, PO tags, and ERP hooks',
+        price: 'From ₹1,999/mo',
+        priceNote: 'Volume & API limits quoted before you go live',
+        savings: 'Built for scale',
+        offer: true,
+        bestFor: 'enterprise · D2C ops · subscription logistics',
+        features: [
+          'Consolidated invoice with HSN-wise breakup',
+          'Custom PO / cost-centre fields',
+          'API & file exports for ERP / Tally workflows',
+          'Named billing contact & escalation path',
+        ],
+        cta: 'Request Business quote',
+        href: ROUTES.CONTACT,
       },
     ],
   },
 };
+
+const PLANS_TAB_DISCLOSURES: Record<Exclude<TabId, 'deliveries'>, string[]> = {
+  vehicle: [
+    'Day and week rates are indicative “from” amounts. Driver option, fuel policy, insurance, and distance bands change your confirmed quote at checkout.',
+    'Extensions, security deposit, and damage / liability follow your rental agreement and the Liftngo Terms of Service.',
+  ],
+  lease: [
+    'Earning callouts (e.g. ₹35k–₹85k/mo) are illustrative peer ranges, not a guarantee. Actual outcomes depend on utilization, zone, and program rules.',
+    'Lease fee, tenure, maintenance, insurance, and buy-out (if any) are fixed in your lease document — not on this marketing page.',
+  ],
+  custom: [
+    'Calculator totals are estimates until you confirm route, stops, vehicle class, and pack rules in the booking flow.',
+    'Discounts apply within published parameters; out-of-scope handling, long detours, or special equipment may be quoted separately so we can keep base pricing fair for everyone.',
+  ],
+  gst: [
+    'Daily per-trip GST is included in standard Liftngo trip economics on eligible products — you are not sold a separate “billing-only” login for that mode.',
+    'Weekly (From ₹499/mo) and Business monthly (From ₹1,999/mo) figures are indicative platform fees for automation & consolidated files. Your activation email or order summary states the binding amount, discounts on bundle volume, and tax on the fee itself.',
+    'GST on logistics remains as per law; Liftngo issues tax invoices for its own charges. Your GSTIN, HSN/SAC, and place of supply must be complete in your profile.',
+    'ERP API, custom fields, and minimum commits may apply on Business — we quote before switch-on so finance can sign off cleanly.',
+  ],
+};
+
+type PlansInfoOpen =
+  | null
+  | { kind: 'hub' }
+  | { kind: 'subscription' }
+  | { kind: 'tab'; tab: Exclude<TabId, 'deliveries'> }
+  | { kind: 'card'; card: PlanCard };
 
 /* ── Component ────────────────────────────────────────────── */
 
 export default function PlansHubPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>('deliveries');
+  const [infoOpen, setInfoOpen] = useState<PlansInfoOpen>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   const tabData = useMemo(() => TAB_DATA[activeTab], [activeTab]);
+
+  useEffect(() => {
+    if (!infoOpen && !compareOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setInfoOpen(null);
+      setCompareOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [infoOpen, compareOpen]);
 
   return (
     <div className="mx-auto min-w-0 max-w-6xl px-4 pb-24 pt-3 md:px-6 lg:px-8">
       <div className="page-stack">
-      {/* ── HERO — compact, matches dashboard hero style ─── */}
-      <section className="page-section rounded-2xl bg-gradient-to-br from-[#1e1f4b] via-[#2C2D5B] to-[#3d3f7a] px-4 text-white shadow-lg md:rounded-3xl md:px-6 lg:px-8">
-        <h1 className="text-lg font-extrabold leading-[1.15] tracking-tight md:text-2xl lg:text-3xl">
-          Choose the right plan
-          <span className="text-blue-300"> for your logistics</span>
-        </h1>
-        <p className="mt-1 text-xs text-white/60 sm:text-sm">From daily deliveries to full fleet control</p>
+      {/* ── HERO — sales strip; detail in ⓘ (dashboard-style) ─── */}
+      <section className="page-section rounded-2xl bg-gradient-to-br from-[#1e1f4b] via-[#2C2D5B] to-[#3d3f7a] px-4 py-4 text-white shadow-lg md:rounded-3xl md:px-6 lg:px-8">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-lg font-extrabold leading-[1.15] tracking-tight md:text-2xl lg:text-3xl">
+              Logistics plans
+              <span className="text-blue-300"> that scale with you</span>
+            </h1>
+            <p className="mt-1 text-[11px] text-white/65 sm:text-xs">
+              Pick a path below — numbers here are directional; binding terms at checkout.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setInfoOpen({ kind: 'hub' })}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/15 sm:h-10 sm:w-10"
+            aria-label="How this plans page works and how Liftngo prices fairly"
+          >
+            <Info className="h-4 w-4" strokeWidth={2} aria-hidden />
+          </button>
+        </div>
         <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1">
-          {[
-            '500+ businesses trust us',
-            'From ₹39/trip · 2W · short-distance base',
-            'GST billing included',
-          ].map((t) => (
-            <span key={t} className="inline-flex items-center gap-1 text-[10px] font-medium text-white/70">
-              <CheckCircle2 className="h-3 w-3 text-emerald-400" /> {t}
+          {['GST-ready ops', 'Packs reward committed trips', 'Tolls & pass-throughs on actuals'].map((t) => (
+            <span key={t} className="inline-flex items-center gap-1 text-[10px] font-medium text-white/75">
+              <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-400" strokeWidth={2} aria-hidden /> {t}
             </span>
           ))}
         </div>
-        <div className="mt-3.5 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+        <div className="mt-3.5 flex w-full flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
           <button
             type="button"
             onClick={() => {
-              trackViewPlan('best_plan', 'hero');
-              const el = document.getElementById('plan-cards');
-              el?.scrollIntoView({ behavior: 'smooth' });
+              trackViewPlan('compare_plans', 'hero');
+              setActiveTab('deliveries');
+              setCompareOpen(true);
             }}
-            className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-3 text-xs font-bold text-[#2C2D5B] shadow-lg shadow-black/20 transition-all duration-200 hover:shadow-xl active:scale-[0.98] sm:w-auto sm:min-h-11 sm:inline-flex sm:py-2.5"
+            className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-[#2C2D5B] shadow-lg shadow-black/20 transition-all hover:shadow-xl active:scale-[0.98] sm:w-auto"
           >
-            <Star className="h-3.5 w-3.5" /> Get Best Plan
+            <GitCompare className="h-3.5 w-3.5" strokeWidth={2} aria-hidden /> Compare plans
           </button>
           <button
             type="button"
@@ -259,9 +316,9 @@ export default function PlansHubPage() {
               trackViewPlan('custom', 'hero');
               router.push(ROUTES.PLANS_CUSTOM);
             }}
-            className="flex min-h-12 w-full items-center justify-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-4 py-3 text-xs font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:bg-white/20 active:scale-[0.98] sm:w-auto sm:min-h-11 sm:inline-flex sm:py-2.5"
+            className="flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-4 py-2.5 text-xs font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20 active:scale-[0.98] sm:w-auto"
           >
-            <Calculator className="h-3.5 w-3.5" /> Calculate Cost
+            <Calculator className="h-3.5 w-3.5" strokeWidth={2} aria-hidden /> Calculator
           </button>
         </div>
       </section>
@@ -291,124 +348,197 @@ export default function PlansHubPage() {
       </div>
 
       {/* ── TAB CONTENT ──────────────────────────────────── */}
-      <div id="plan-cards" className="scroll-mt-20">
+      <div id="plan-cards" className="scroll-mt-24 md:scroll-mt-[5.5rem]">
 
-        {/* Tab headline */}
-        <div className="mb-3">
-          <h2 className="text-sm font-bold text-gray-900">{tabData.headline}</h2>
-          <p className="text-[11px] text-gray-500">{tabData.sub}</p>
+        {/* Tab headline — tab-level ⓘ */}
+        <div className="mb-3 flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="text-sm font-bold tracking-tight text-stone-900">{tabData.headline}</h2>
+            <p className="text-[11px] text-stone-500">{tabData.sub}</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+            {activeTab === 'deliveries' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  trackViewPlan('compare_plans', 'tab_header');
+                  setCompareOpen(true);
+                }}
+                className="flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-bold text-stone-800 shadow-sm transition-colors hover:border-teal-200/90 hover:bg-teal-50/40 sm:gap-1.5 sm:px-3 sm:text-[11px]"
+              >
+                <GitCompare className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={2} aria-hidden />
+                Compare
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => {
+                if (activeTab === 'deliveries') setInfoOpen({ kind: 'subscription' });
+                else setInfoOpen({ kind: 'tab', tab: activeTab });
+              }}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-800"
+              aria-label={`${tabData.headline}: definitions and fine print`}
+            >
+              <Info className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+            </button>
+          </div>
         </div>
 
-        {activeTab === 'deliveries' && (
-          <div className="mb-4 rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 shadow-sm sm:p-4">
-            <p className="text-xs font-bold text-emerald-900">Upfront with every subscription pack</p>
-            <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
-              {SUBSCRIPTION_PACK_BENEFITS.map((line, i) => (
-                <li key={i} className="flex gap-1.5 text-[10px] leading-snug text-emerald-900/90 sm:text-[11px]">
-                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" strokeWidth={2.5} aria-hidden />
-                  <span>{line}</span>
-                </li>
-              ))}
-            </ul>
+        {activeTab === 'gst' ? (
+          <div className="mb-3 flex flex-col gap-2 rounded-xl border border-blue-200/80 bg-gradient-to-r from-blue-50/90 to-indigo-50/50 px-3 py-2.5 shadow-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
+            <p className="min-w-0 text-[10px] font-medium leading-snug text-blue-950/90 sm:max-w-md sm:text-[11px]">
+              <strong className="font-bold">Monthly bulk GST report:</strong> download an illustrative PDF (flagship layout) or open the full GST page.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href={GST_FLAGSHIP_SAMPLE_PDF_PATH}
+                download="liftngo-flagship-monthly-bulk-gst-report-sample.pdf"
+                className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-[11px] font-bold text-white shadow-md transition-all hover:bg-blue-700 active:scale-[0.98] sm:flex-initial"
+                onClick={() => trackViewPlan('gst_sample', 'plans_hub_gst_tab')}
+              >
+                <Download className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />
+                Download sample PDF
+              </a>
+              <Link
+                href={`${ROUTES.PLANS_GST}#gst-sample-pdf`}
+                className="inline-flex min-h-10 items-center justify-center rounded-xl border border-blue-200 bg-white px-3 py-2 text-[10px] font-semibold text-blue-900 shadow-sm transition-colors hover:bg-blue-50/80"
+                onClick={() => trackViewPlan('gst_full_page', 'plans_hub_gst_tab')}
+              >
+                Full GST page
+              </Link>
+            </div>
           </div>
-        )}
+        ) : null}
 
-        {/* Cards */}
-        <div className={`grid min-w-0 gap-4 sm:gap-6 ${tabData.cards.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'}`}>
+        {/* Cards — scannable; inclusions in card ⓘ */}
+        <div
+          className={`grid min-w-0 gap-2.5 sm:gap-3 ${tabData.cards.length === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'}`}
+        >
           {tabData.cards.map((card) => (
             <div
               key={card.title}
-              className={`group relative flex flex-col rounded-xl border bg-white page-card shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${
+              className={`relative flex flex-col rounded-2xl border bg-white/95 p-3 shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow-md sm:p-3.5 ${
                 card.popular
-                  ? 'border-[var(--color-primary)] ring-1 ring-[var(--color-primary)]/10'
-                  : 'border-gray-100'
+                  ? 'border-[var(--color-primary)]/35 ring-2 ring-[var(--color-primary)]/15'
+                  : card.offer
+                    ? 'border-amber-300/45 ring-2 ring-amber-200/20'
+                    : 'border-stone-200/80 ring-1 ring-stone-100/70'
               }`}
             >
-              {card.popular && (
-                <div className="absolute -top-2.5 left-3 inline-flex items-center gap-0.5 rounded-full bg-[var(--color-primary)] px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white shadow-sm">
-                  <Star className="h-2 w-2 fill-white" /> Most Popular
+              {card.popular ? (
+                <div className="absolute -top-2 left-1/2 z-[1] -translate-x-1/2 whitespace-nowrap rounded-full bg-[var(--color-primary)] px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white shadow-sm">
+                  <Star className="mb-px inline h-2 w-2 fill-white" strokeWidth={2} aria-hidden /> Popular
                 </div>
-              )}
+              ) : card.offer ? (
+                <div className="absolute -top-2 left-1/2 z-[1] -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-500 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wide text-white shadow-sm">
+                  Business
+                </div>
+              ) : null}
 
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="text-sm font-bold text-gray-900">{card.title}</h3>
-                  <p className="text-[10px] text-gray-500">{card.copy}</p>
+              <div className={`flex items-start justify-between gap-2 ${card.popular || card.offer ? 'mt-2' : ''}`}>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-bold text-stone-900">{card.title}</h3>
+                  <p className="text-[10px] text-stone-500">{card.copy}</p>
                 </div>
-                {card.savings && (
-                  <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold text-emerald-600">{card.savings}</span>
-                )}
+                <div className="flex shrink-0 items-center gap-1">
+                  {card.savings ? (
+                    <span className="rounded-full border border-emerald-100 bg-emerald-50/90 px-1.5 py-px text-[8px] font-bold text-emerald-800 sm:text-[9px]">
+                      {card.savings}
+                    </span>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => setInfoOpen({ kind: 'card', card })}
+                    className="grid h-7 w-7 place-items-center rounded-full border border-stone-200/90 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50"
+                    aria-label={
+                      card.href === ROUTES.PLANS_SUBSCRIPTION
+                        ? `${card.title}: vehicle, distance, validity, terms, and legal summary`
+                        : `${card.title}: full inclusions and notes`
+                    }
+                  >
+                    <Info className="h-3 w-3" strokeWidth={2} aria-hidden />
+                  </button>
+                </div>
               </div>
 
-              <div className="mt-2.5 flex items-baseline gap-1.5">
-                <span className="text-xl font-extrabold tracking-tight text-gray-900">{card.price}</span>
-                <span className="text-[10px] text-gray-400">{card.priceNote}</span>
+              <div className="mt-2.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+                <span className="text-xl font-extrabold tabular-nums tracking-tight text-stone-900">{card.price}</span>
+                <span className="text-[10px] text-stone-500">{card.priceNote}</span>
               </div>
 
-              <p className="mt-2 rounded-lg bg-gray-50 px-2 py-1 text-[9px] font-semibold text-gray-500">
-                Best for: {card.bestFor}
+              <p className="mt-2 line-clamp-2 rounded-lg bg-stone-50/90 px-2 py-1 text-[9px] font-medium leading-snug text-stone-600 ring-1 ring-stone-100/80">
+                <span className="font-semibold text-stone-700">Fit:</span> {card.bestFor}
               </p>
 
-              <ul className="mt-2 flex-1 space-y-1">
-                {card.features.map((f) => (
-                  <li key={f} className="flex items-center gap-1.5 text-[10px] text-gray-600">
-                    <Check className="h-3 w-3 shrink-0 text-emerald-500" strokeWidth={2.5} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
+              {card.href === ROUTES.PLANS_SUBSCRIPTION ? (
+                <div className="mt-2 rounded-xl border border-amber-200/75 bg-gradient-to-b from-amber-50/65 to-amber-50/20 px-2 py-1.5 ring-1 ring-amber-100/60">
+                  <p className="flex items-center gap-1 text-[8px] font-bold uppercase tracking-wide text-amber-950/80 sm:text-[9px]">
+                    <Truck className="h-3 w-3 shrink-0 opacity-90" strokeWidth={2} aria-hidden /> Essentials
+                  </p>
+                  <ul className="mt-1 space-y-0.5">
+                    {SUBSCRIPTION_HUB_CARD_ESSENTIAL_SHORT.map(({ label, value }) => (
+                      <li key={label} className="text-[8px] leading-snug text-stone-800 sm:text-[9px]">
+                        <span className="font-semibold text-stone-900">{label}:</span> {value}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-1 text-[7px] leading-snug text-amber-950/70 sm:text-[8px]">
+                    Full vehicle, distance, T&amp;C &amp; liability notes in ⓘ — this page is not a binding contract.
+                  </p>
+                </div>
+              ) : null}
 
-              <div className="mt-3 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    trackViewPlan(card.title.toLowerCase().replace(/\s/g, '_'), 'plans_hub');
-                    router.push(card.href);
-                  }}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold transition-all duration-200 active:scale-[0.97] ${
-                    card.popular
-                      ? 'bg-[var(--color-primary)] text-white hover:opacity-90'
-                      : 'bg-gray-900 text-white hover:bg-gray-800'
-                  }`}
-                >
-                  {card.cta} <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push(card.href)}
-                  className="flex items-center gap-0.5 rounded-xl border border-gray-200 px-3 py-2 text-[10px] font-semibold text-gray-600 transition-all hover:bg-gray-50"
-                >
-                  Details <ChevronRight className="h-3 w-3" />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  trackViewPlan(card.title.toLowerCase().replace(/\s/g, '_'), 'plans_hub');
+                  const href =
+                    card.href === ROUTES.PLANS_SUBSCRIPTION
+                      ? `${ROUTES.PLANS_SUBSCRIPTION}?locked=${encodeURIComponent(card.title)}`
+                      : card.href;
+                  router.push(href);
+                }}
+                className={`mt-3 flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-bold transition-all active:scale-[0.98] ${
+                  card.popular
+                    ? 'bg-[var(--color-primary)] text-white shadow-sm hover:opacity-95'
+                    : card.offer
+                      ? 'bg-amber-500 text-white shadow-sm hover:bg-amber-600'
+                      : 'border border-stone-200/90 bg-white text-stone-800 shadow-sm hover:border-teal-200/80 hover:bg-teal-50/25'
+                }`}
+              >
+                {card.cta} <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+              </button>
             </div>
           ))}
         </div>
 
-        {/* ── TRUST — inline badges (matches dashboard style) */}
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 sm:gap-x-6 sm:gap-y-3">
-          {[
-            { icon: CheckCircle2, label: '500+ businesses' },
-            { icon: CheckCircle2, label: '15 min avg pickup' },
-            { icon: CheckCircle2, label: 'GST billing' },
-            { icon: CheckCircle2, label: 'Transparent pricing' },
-          ].map((t) => {
-            const Icon = t.icon;
-            return (
-              <span key={t.label} className="inline-flex items-center gap-1 text-[10px] font-medium text-gray-500">
-                <Icon className="h-3 w-3 text-emerald-500" strokeWidth={2} />
-                {t.label}
-              </span>
-            );
-          })}
+        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 rounded-xl border border-stone-200/60 bg-stone-50/50 px-2.5 py-2 sm:gap-x-4">
+          {['500+ businesses', '~15 min pickup zone avg', 'GST workflows'].map((t) => (
+            <span key={t} className="inline-flex items-center gap-1 text-[9px] font-medium text-stone-600">
+              <CheckCircle2 className="h-3 w-3 shrink-0 text-emerald-600" strokeWidth={2} aria-hidden />
+              {t}
+            </span>
+          ))}
         </div>
 
-        {/* ── BOTTOM CTA — matches dashboard dark card ────── */}
-        <div className="mt-5 rounded-xl bg-gradient-to-br from-gray-900 to-gray-800 page-card text-white">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold">Not sure which plan fits?</p>
-              <p className="mt-0.5 text-[10px] text-white/50">Calculator finds the cheapest option</p>
+        <div className="relative mt-4 overflow-hidden rounded-2xl bg-gradient-to-br from-[#1e1f4b] via-[#2C2D5B] to-[#151632] p-4 text-white shadow-[0_14px_44px_-14px_rgba(25,26,70,0.55)] ring-1 ring-white/[0.12] transition-[box-shadow,transform] duration-300 hover:shadow-[0_18px_50px_-12px_rgba(25,26,70,0.6)] sm:p-5">
+          <div
+            className="pointer-events-none absolute -right-12 -top-20 h-48 w-48 rounded-full bg-[var(--color-primary)]/25 blur-3xl"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-blue-400/10 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+            <div className="min-w-0">
+              <p className="text-sm font-extrabold leading-tight tracking-tight md:text-base">
+                Don&apos;t see a plan that fits exactly?
+              </p>
+              <p className="mt-1.5 max-w-md text-[11px] font-medium leading-snug text-white/72 sm:text-xs">
+                That&apos;s normal — most ops aren&apos;t one-size-fits-all. Build your own mix (2W / 3W / 4W, stops, volume) in the
+                calculator and get numbers that match how you actually ship.
+              </p>
             </div>
             <button
               type="button"
@@ -416,39 +546,252 @@ export default function PlansHubPage() {
                 trackViewPlan('custom', 'bottom_cta');
                 router.push(ROUTES.PLANS_CUSTOM);
               }}
-              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-gray-900 shadow transition-all hover:shadow-md active:scale-[0.98]"
+              className="inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-[#1e1f4b] shadow-[0_8px_24px_-6px_rgba(0,0,0,0.35)] ring-2 ring-white/90 transition-all duration-200 hover:-translate-y-0.5 hover:bg-stone-50 hover:shadow-[0_12px_32px_-8px_rgba(0,0,0,0.4)] active:translate-y-0 active:scale-[0.98] sm:w-auto sm:min-w-[210px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#2C2D5B]"
             >
-              <Calculator className="h-3.5 w-3.5" /> Calculate
+              <Calculator className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+              Open calculator
+              <ArrowRight className="h-4 w-4 shrink-0 opacity-90" strokeWidth={2} aria-hidden />
             </button>
           </div>
         </div>
 
-        {/* ── Talk to Expert — simple link row ────────────── */}
-        <div className="mt-3 flex w-full min-w-0 justify-center px-0">
+        <div className="mt-4 flex justify-center px-0.5">
           <button
             type="button"
             onClick={() => router.push(ROUTES.CONTACT)}
-            className="flex min-h-12 w-full max-w-md items-center justify-center gap-1.5 rounded-xl border border-gray-200 bg-white px-5 py-3 text-xs font-semibold text-gray-700 shadow-sm transition-all hover:shadow-md active:scale-[0.98] sm:w-auto sm:min-h-11 sm:py-2.5"
+            className="inline-flex min-h-12 w-full max-w-md items-center justify-center gap-2 rounded-2xl border-2 border-[var(--color-primary)]/45 bg-white px-5 py-3 text-sm font-bold text-[var(--color-primary)] shadow-[0_6px_20px_-8px_rgba(44,45,91,0.35)] transition-all duration-200 hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/[0.06] hover:shadow-[0_10px_28px_-8px_rgba(44,45,91,0.4)] active:scale-[0.98] sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
           >
-            <Phone className="h-3.5 w-3.5 text-gray-400" /> Talk to Expert
+            <Phone className="h-4 w-4 shrink-0 text-[var(--color-primary)]" strokeWidth={2} aria-hidden />
+            Sales &amp; partnerships
           </button>
         </div>
       </div>
       </div>
 
-      {/* ── STICKY MOBILE CTA — matches dashboard bottom bar */}
+      {infoOpen ? (
+        <div className="fixed inset-0 z-[110] flex items-end justify-center sm:items-center sm:p-4" role="presentation">
+          <button
+            type="button"
+            className="absolute inset-0 z-0 bg-slate-900/45 backdrop-blur-[2px] transition-opacity"
+            aria-label="Close details"
+            onClick={() => setInfoOpen(null)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="plans-info-title"
+            className="relative z-10 flex max-h-[min(88vh,100dvh)] w-full max-w-md flex-col overflow-hidden rounded-t-[1.35rem] bg-white shadow-2xl ring-1 ring-slate-900/[0.06] sm:max-h-[min(92vh,880px)] sm:rounded-2xl"
+          >
+            <div className="flex shrink-0 justify-center pt-2.5 sm:hidden" aria-hidden>
+              <div className="h-1 w-11 rounded-full bg-slate-200/90" />
+            </div>
+            <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-[var(--color-primary)]/[0.04] px-4 pb-3 pt-2 sm:px-5 sm:pb-4 sm:pt-4">
+              <div className="min-w-0 pt-0.5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Liftngo plans</p>
+                <h2 id="plans-info-title" className="mt-0.5 text-lg font-bold tracking-tight text-slate-900">
+                  {infoOpen.kind === 'hub' && 'How this page works'}
+                  {infoOpen.kind === 'subscription' && 'Subscription packs — detail'}
+                  {infoOpen.kind === 'tab' && `${TAB_DATA[infoOpen.tab].headline}`}
+                  {infoOpen.kind === 'card' && infoOpen.card.title}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInfoOpen(null)}
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" strokeWidth={2} />
+              </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-slate-50/90 to-white px-3 py-3 sm:px-4 sm:py-4">
+              <div className="space-y-3">
+                {infoOpen.kind === 'hub' ? (
+                  <>
+                    <p className="text-[13px] leading-relaxed text-slate-700">
+                      This hub is a <strong className="text-slate-900">sales guide</strong>, not a price list. Figures show typical entry points so you can pick the right next step — checkout and your order confirmation set the binding amount, taxes, and inclusions.
+                    </p>
+                    <div className="rounded-2xl border border-emerald-100/80 bg-gradient-to-b from-emerald-50/40 to-white p-3.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-900/75">Why packs exist</p>
+                      <ul className="mt-2 space-y-2 text-[12px] leading-relaxed text-slate-700">
+                        <li className="flex gap-2">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
+                          <span>
+                            <strong className="text-slate-900">Committed trips</strong> let us plan capacity — so we can offer sharper in-pack rates than most one-off lanes (still before tolls and add-ons).
+                          </span>
+                        </li>
+                        <li className="flex gap-2">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
+                          <span>
+                            <strong className="text-slate-900">Ad hoc stays available</strong> but often prices higher for the same vehicle class when you have not locked volume — that keeps the network sustainable.
+                          </span>
+                        </li>
+                        <li className="flex gap-2">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
+                          <span>{TOLL_CHARGES_SEPARATE_NOTE}</span>
+                        </li>
+                      </ul>
+                    </div>
+                    <p className="rounded-xl bg-slate-100/80 px-3 py-2.5 text-[11px] leading-snug text-slate-600">{INDICATIVE_PRICING_FOOTNOTE}</p>
+                  </>
+                ) : null}
+
+                {infoOpen.kind === 'subscription' ? (
+                  <>
+                    <p className="text-[12px] leading-relaxed text-slate-600">
+                      {TOLL_CHARGES_SEPARATE_NOTE} Pack validity and km caps apply as in your confirmation.
+                    </p>
+                    <div className="rounded-2xl border border-emerald-100/80 bg-gradient-to-b from-emerald-50/40 to-white p-3.5 shadow-[0_8px_30px_-12px_rgba(5,150,105,0.12)]">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-900/75">Pack benefits</p>
+                      <ul className="mt-2 space-y-2 text-[12px] leading-relaxed text-slate-700">
+                        {SUBSCRIPTION_PACK_BENEFITS.map((line, i) => (
+                          <li key={i} className="flex gap-2">
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
+                            <span>{line}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="rounded-2xl border border-slate-200/70 bg-white p-3.5 shadow-sm">
+                      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                          <FileText className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                        </span>
+                        Compliance (packs)
+                      </div>
+                      <ul className="mt-3 max-h-[40vh] space-y-2 overflow-y-auto pr-1 text-[11px] leading-snug text-slate-600 sm:max-h-none">
+                        {SUBSCRIPTION_COMPLIANCE_BULLETS.map((line, i) => (
+                          <li key={i} className="flex gap-2">
+                            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-400/80" aria-hidden />
+                            <span>{line}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <p className="rounded-xl bg-slate-100/80 px-3 py-2.5 text-[11px] leading-snug text-slate-600">{INDICATIVE_PRICING_FOOTNOTE}</p>
+                  </>
+                ) : null}
+
+                {infoOpen.kind === 'tab' ? (
+                  <ul className="space-y-2.5 text-[13px] leading-relaxed text-slate-700">
+                    {PLANS_TAB_DISCLOSURES[infoOpen.tab].map((line) => (
+                      <li key={line} className="flex gap-2">
+                        <Shield className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" strokeWidth={2} aria-hidden />
+                        <span>{line}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                {infoOpen.kind === 'card' ? (
+                  <>
+                    <p className="text-[12px] text-slate-600">
+                      <span className="font-semibold text-slate-800">{infoOpen.card.price}</span>
+                      <span className="text-slate-500"> · {infoOpen.card.priceNote}</span>
+                    </p>
+                    <p className="text-[12px] leading-relaxed text-slate-700">
+                      <strong className="text-slate-900">Best fit:</strong> {infoOpen.card.bestFor}
+                    </p>
+
+                    {infoOpen.card.href === ROUTES.PLANS_SUBSCRIPTION ? (
+                      <>
+                        <div className="rounded-xl border border-amber-200/85 bg-gradient-to-br from-amber-50/70 to-white px-3 py-2.5">
+                          <p className="text-[10px] font-bold uppercase tracking-wide text-amber-950/85">
+                            Essential info — all subscription packs
+                          </p>
+                          <p className="mt-1 text-[11px] leading-snug text-slate-700">
+                            Same vehicle, distance, and legal framework for Starter, Growth, and Scale unless your{' '}
+                            <strong className="text-slate-900">order confirmation</strong> says otherwise.
+                          </p>
+                        </div>
+                        {SUBSCRIPTION_HUB_ESSENTIAL_MODAL_BLOCKS.map((block) => (
+                          <div
+                            key={block.title}
+                            className="rounded-2xl border border-slate-200/70 bg-white p-3.5 shadow-sm"
+                          >
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+                              {block.title}
+                            </p>
+                            <ul className="mt-2 space-y-2">
+                              {block.lines.map((line) => (
+                                <li key={line} className="flex gap-2 text-[11px] leading-snug text-slate-700">
+                                  <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={2} aria-hidden />
+                                  <span>{line}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </>
+                    ) : null}
+
+                    <div className="rounded-2xl border border-slate-200/70 bg-white p-3.5 shadow-sm">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Inclusions &amp; specs</p>
+                      <ul className="mt-2 space-y-1.5">
+                        {infoOpen.card.features.map((f) => (
+                          <li key={f} className="flex gap-2 text-[12px] leading-snug text-slate-700">
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.25} aria-hidden />
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <p className="rounded-xl bg-slate-100/80 px-3 py-2.5 text-[11px] leading-snug text-slate-600">{INDICATIVE_PRICING_FOOTNOTE}</p>
+                  </>
+                ) : null}
+
+                <div className="flex flex-col gap-2 pb-1 sm:flex-row sm:flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setInfoOpen(null)}
+                    className="inline-flex items-center justify-center rounded-xl bg-[var(--color-primary)] px-4 py-2.5 text-center text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-95"
+                  >
+                    Got it
+                  </button>
+                  <Link
+                    href="/terms"
+                    onClick={() => setInfoOpen(null)}
+                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-center text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-50"
+                  >
+                    Terms of Service
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <PlansCompareModal
+        open={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        onLockPlan={(name) => {
+          setCompareOpen(false);
+          const pack = subscriptionPackByName(name);
+          if (pack?.group === '3w') {
+            trackViewPlan(name.toLowerCase().replace(/\s/g, '_'), 'compare_modal');
+            router.push(subscriptionPackLockHref(pack));
+          }
+        }}
+      />
+
       <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-gray-100 bg-white/95 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl sm:hidden">
-        <div className="mx-auto flex min-w-0 max-w-6xl flex-col gap-2 px-4 md:px-6">
+        <div className="mx-auto flex max-w-6xl justify-center gap-2 px-4">
           <button
             type="button"
             onClick={() => {
-              const popular = tabData.cards.find((c) => c.popular) ?? tabData.cards[0];
-              trackViewPlan(popular.title.toLowerCase().replace(/\s/g, '_'), 'sticky_cta');
-              router.push(popular.href);
+              const pick = tabData.cards.find((c) => c.popular) ?? tabData.cards[0];
+              trackViewPlan(pick.title.toLowerCase().replace(/\s/g, '_'), 'sticky_cta');
+              const pack = subscriptionPackByName(pick.title);
+              const href =
+                pick.href === ROUTES.PLANS_SUBSCRIPTION && pack?.group === '3w'
+                  ? subscriptionPackLockHref(pack)
+                  : pick.href;
+              router.push(href);
             }}
-            className="flex min-h-[52px] w-full items-center justify-center gap-1.5 rounded-xl bg-[var(--color-primary)] py-3.5 text-xs font-bold text-white shadow-lg shadow-[var(--color-primary)]/20 transition-all active:scale-[0.98]"
+            className="flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1 rounded-xl bg-[var(--color-primary)] px-3 py-2.5 text-[11px] font-bold text-white shadow-sm transition-all active:scale-[0.98]"
           >
-            <Star className="h-3.5 w-3.5" /> Get Best Plan
+            <Star className="h-3.5 w-3.5" strokeWidth={2} aria-hidden /> Top pick
           </button>
           <button
             type="button"
@@ -456,9 +799,9 @@ export default function PlansHubPage() {
               trackViewPlan('custom', 'sticky_cta');
               router.push(ROUTES.PLANS_CUSTOM);
             }}
-            className="flex min-h-[48px] w-full items-center justify-center gap-1 rounded-xl border border-[var(--color-primary)]/30 bg-blue-50 px-4 py-3 text-xs font-bold text-[var(--color-primary)] transition-all active:scale-[0.98]"
+            className="flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-[11px] font-bold text-stone-800 shadow-sm transition-all active:scale-[0.98]"
           >
-            <Calculator className="h-3.5 w-3.5" /> Calculator
+            <Calculator className="h-3.5 w-3.5" strokeWidth={2} aria-hidden /> Calculator
           </button>
         </div>
       </div>

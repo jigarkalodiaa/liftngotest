@@ -19,6 +19,13 @@ import {
   SUBSCRIPTION_COMPLIANCE_BULLETS,
   SUBSCRIPTION_PACK_BENEFITS,
 } from '@/lib/pricing/subscriptionDisclosures';
+import {
+  SUBSCRIPTION_NOIDA_STRIP_PLANS,
+  subscriptionHighlighted3WPack,
+  formatSubscriptionRupee,
+  subscriptionPackSavingsLabel,
+  subscriptionPackLockHref,
+} from '@/lib/pricing/subscriptionPacks';
 import { getLandingPickupLocation, setLandingPickupLocation, setPickupLocation } from '@/lib/storage';
 import { trackBookNowClick } from '@/lib/analytics';
 import type { StoredUserLocation } from '@/lib/utils/locationStorage';
@@ -40,6 +47,8 @@ export interface NoidaDashboardProps {
 
 /* ── Data ─────────────────────────────────────────────────── */
 
+const NOIDA_HIGHLIGHT_3W_PACK = subscriptionHighlighted3WPack();
+
 /** Hero info modal — vehicle class + booking type explicit; legal bullets from `subscriptionDisclosures`. */
 const HERO_PRICING_MODAL_PATHS = [
   {
@@ -52,7 +61,7 @@ const HERO_PRICING_MODAL_PATHS = [
     title: '3W — prepaid packs',
     kicker: 'From ₹299/trip',
     body:
-      'Three-wheel pack pricing starts from a ₹299/trip base fare on qualifying entry tiers before tolls and add-ons. Higher tiers (e.g. Growth at ₹440/trip) bundle more capacity and perks. One-off 3W ad hoc is usually higher — see calculators and plan pages.',
+      `Three-wheel pack pricing starts from a ₹299/trip base fare on qualifying entry tiers before tolls and add-ons. Higher tiers (e.g. ${NOIDA_HIGHLIGHT_3W_PACK.name} at ${formatSubscriptionRupee(NOIDA_HIGHLIGHT_3W_PACK.perTrip)}/trip) bundle more capacity and perks. One-off 3W ad hoc is usually higher — see calculators and plan pages.`,
   },
 ] as const;
 
@@ -166,14 +175,6 @@ const CORE_SERVICES: CoreService[] = [
     href: ROUTES.NOIDA_FLEET_TECH,
     accent: 'violet',
   },
-];
-
-type SubPlan = { name: string; trips: string; perTrip: string; price: string; savings?: string; popular?: boolean; offer?: boolean };
-const SUBSCRIPTION_PLANS: SubPlan[] = [
-  { name: 'Starter', trips: '30 trips', perTrip: '₹500/trip', price: '₹15,000', savings: 'Save ₹3,000' },
-  { name: 'Growth', trips: '50 trips', perTrip: '₹440/trip', price: '₹22,000', savings: 'Save ₹7,500', popular: true },
-  { name: 'Scale', trips: '100 trips', perTrip: '₹390/trip', price: '₹39,000', savings: 'Save ₹20,000', offer: true },
-  { name: '4W Growth', trips: '50 trips', perTrip: '₹640/trip', price: '₹32,000', savings: 'Save ₹8,000' },
 ];
 
 type LocalUpcomingAccent = 'amber' | 'emerald';
@@ -745,25 +746,32 @@ export default function NoidaDashboard({
                 <Star className="h-2.5 w-2.5 shrink-0 fill-amber-400 text-amber-500 drop-shadow-[0_0_1px_rgba(217,119,6,0.35)] sm:h-3 sm:w-3" strokeWidth={1.5} aria-hidden /> Most Popular
               </span>
               <span className="rounded-full border border-amber-100/80 bg-amber-50/90 px-2 py-0.5 text-[9px] font-semibold text-amber-900/90 sm:text-[10px]">
-                Save ₹7,500
+                {subscriptionPackSavingsLabel(NOIDA_HIGHLIGHT_3W_PACK)}
               </span>
             </div>
           </div>
 
           <div className="relative z-0 pr-[7.5rem] sm:pr-40 md:pr-44">
             <div className="flex min-w-0 flex-wrap items-baseline gap-2">
-              <span className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">₹22,000</span>
-              <span className="text-xs text-gray-400 line-through sm:text-sm">₹29,500</span>
+              <span className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                {formatSubscriptionRupee(NOIDA_HIGHLIGHT_3W_PACK.total)}
+              </span>
+              <span className="text-xs text-gray-400 line-through sm:text-sm">
+                {formatSubscriptionRupee(NOIDA_HIGHLIGHT_3W_PACK.payPerUse * NOIDA_HIGHLIGHT_3W_PACK.trips)}
+              </span>
             </div>
-            <p className="mt-0.5 text-xs text-gray-500 sm:mt-1 sm:text-sm">50 trips · ₹440/trip · 3W with driver</p>
+            <p className="mt-0.5 text-xs text-gray-500 sm:mt-1 sm:text-sm">
+              {NOIDA_HIGHLIGHT_3W_PACK.trips} trips · {formatSubscriptionRupee(NOIDA_HIGHLIGHT_3W_PACK.perTrip)}/trip ·{' '}
+              {NOIDA_HIGHLIGHT_3W_PACK.features[0]}
+            </p>
             <p className="mt-2 text-[10px] font-medium text-amber-800/90 sm:mt-2 sm:text-xs">Best for daily business deliveries</p>
           </div>
           <button
             type="button"
-            onClick={() => router.push(ROUTES.PLANS_SUBSCRIPTION)}
+            onClick={() => router.push(subscriptionPackLockHref(NOIDA_HIGHLIGHT_3W_PACK))}
             className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-md active:scale-[0.98] sm:mt-4 sm:min-h-12 sm:py-3.5 sm:text-sm md:min-h-11 md:py-3"
           >
-            Lock Growth plan <ArrowRight className="h-4 w-4 shrink-0" />
+            Lock {NOIDA_HIGHLIGHT_3W_PACK.name} plan <ArrowRight className="h-4 w-4 shrink-0" />
           </button>
         </div>
 
@@ -786,7 +794,9 @@ export default function NoidaDashboard({
               </div>
               <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-100 bg-gradient-to-br from-slate-50 via-white to-[var(--color-primary)]/[0.04] px-4 pb-3 pt-2 sm:px-5 sm:pb-4 sm:pt-4">
                 <div className="min-w-0 pt-0.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">Growth · 3W pack</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                    {NOIDA_HIGHLIGHT_3W_PACK.name} · 3W pack
+                  </p>
                   <h3 id="growth-plan-details-title" className="mt-0.5 text-lg font-bold tracking-tight text-slate-900">
                     Plan Details
                   </h3>
@@ -1557,7 +1567,7 @@ export default function NoidaDashboard({
           </div>
         </div>
         <div className="grid min-w-0 grid-cols-2 gap-1.5 sm:gap-2 md:grid-cols-2 lg:grid-cols-4 lg:gap-2.5 xl:gap-3">
-          {SUBSCRIPTION_PLANS.map((plan) => {
+          {SUBSCRIPTION_NOIDA_STRIP_PLANS.map((plan) => {
             const hasRibbon = plan.popular === true || plan.offer === true;
             const btnPopular = plan.popular === true;
             return (
@@ -1596,7 +1606,7 @@ export default function NoidaDashboard({
                 ) : null}
                 <button
                   type="button"
-                  onClick={() => router.push(ROUTES.PLANS_SUBSCRIPTION)}
+                  onClick={() => router.push(plan.lockHref)}
                   className={`mt-2 w-full min-h-9 rounded-lg px-2 py-2 text-[9px] font-semibold transition-all duration-200 active:scale-[0.98] sm:min-h-10 sm:text-[10px] ${
                     btnPopular
                       ? 'bg-[var(--color-primary)] text-white shadow-sm hover:opacity-95'
