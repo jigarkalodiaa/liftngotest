@@ -149,6 +149,11 @@ export function subscriptionPackLockHref(p: SubscriptionPack): string {
   return ROUTES.PLANS;
 }
 
+/** Razorpay confirmation step — `tier` must match {@link subscriptionPackByName}. */
+export function subscriptionPackCheckoutHref(packName: string): string {
+  return `${ROUTES.PLANS_SUBSCRIPTION_CHECKOUT}?tier=${encodeURIComponent(packName)}`;
+}
+
 /** Plans hub `PlanCard` for Daily Deliveries tab */
 export type SubscriptionPlansHubCard = {
   title: string;

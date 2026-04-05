@@ -2,6 +2,7 @@ import ContentLayout from '@/components/layout/ContentLayout';
 import JsonLd from '@/components/JsonLd';
 import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
+import MarketingPageShell from '@/components/marketing/MarketingPageShell';
 import { khatuShyamImageFocus, khatuShyamLogisticsVisual } from '@/config/locationPageVisuals';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
@@ -18,23 +19,28 @@ const PAGE_META_TITLE = 'Khatu Shyam Ji logistics | Goods delivery';
 const DESCRIPTION =
   'Logistics in Khatu Shyam Ji for shops, food vendors, and temple-area businesses: fast local delivery when crowds and narrow lanes slow everyone down. Reliable goods transport in Khatu—book cargo 2W–4W, not passenger autos. Liftngo.';
 
+const HERO_LEAD =
+  'Fast, reliable delivery when devotees, festivals, and narrow streets squeeze every minute—food vendors, shops, and temple-area businesses get predictable goods transport in Khatu with Liftngo (cargo vehicles only—not passenger autos).';
+
+const PAGE_KEYWORDS = [
+  'logistics in khatu shyam ji',
+  'delivery service khatu',
+  'goods transport khatu',
+  'local delivery khatu',
+  'temple logistics khatu',
+  'Khatu Shyam Ji courier',
+  'temple town logistics',
+  'hyperlocal delivery Khatu',
+  'food delivery logistics Rajasthan',
+] as const;
+
 const BOOK_CTA = 'Book Delivery Now';
 
 export const metadata = generatePageMetadata({
   title: PAGE_META_TITLE,
   description: DESCRIPTION,
   path: PATH,
-  keywords: [
-    'logistics in khatu shyam ji',
-    'delivery service khatu',
-    'goods transport khatu',
-    'local delivery khatu',
-    'temple logistics khatu',
-    'Khatu Shyam Ji courier',
-    'temple town logistics',
-    'hyperlocal delivery Khatu',
-    'food delivery logistics Rajasthan',
-  ],
+  keywords: [...PAGE_KEYWORDS],
 });
 
 const faqForSchema = [...KHATU_SHYAM_LANDING_FAQ].map((x) => ({
@@ -112,7 +118,7 @@ const useCases = [
   {
     title: 'Daily vendor delivery rhythms',
     body:
-      'Repeat morning and afternoon patterns for distributors and counters that need the same lane every day—coordinate recurring needs over WhatsApp after your first structured booking.',
+      'Repeat morning and afternoon patterns for distributors and counters that need the same lane every day—coordinate recurring needs through Contact or follow-up bookings after your first structured trip.',
   },
 ];
 
@@ -172,67 +178,52 @@ export default function KhatuShyamLogisticsPage() {
           title: `${PAGE_META_TITLE} | ${SITE_NAME}`,
           description: DESCRIPTION,
           faq: faqForSchema,
+          keywords: [...PAGE_KEYWORDS],
+          breadcrumb: [
+            { name: 'Home', url: `${SITE_URL}/` },
+            { name: 'Khatu Shyam Ji logistics', url: PAGE_URL },
+          ],
         })}
       />
-      <main className="flex-1">
-        <header className="liftngo-brand-mesh relative min-h-[420px] overflow-hidden text-white sm:min-h-[480px]">
-          <Image
-            src={khatuShyamLogisticsVisual.hero(1920)}
-            alt={khatuShyamLogisticsVisual.heroAlt}
-            fill
-            className={`object-cover ${khatuShyamImageFocus.hero}`}
-            sizes="100vw"
-            priority
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-[#1A1D3A]/93 via-[#2C2D5B]/78 to-[#2C2D5B]/45"
-            aria-hidden
-          />
-          <div
-            className="absolute -left-24 top-8 h-64 w-64 rounded-full bg-[#FF8C00]/30 blur-3xl pointer-events-none"
-            aria-hidden
-          />
-          <div
-            className="absolute -right-20 bottom-12 h-56 w-56 rounded-full bg-[#2C2D5B]/35 blur-3xl pointer-events-none"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:24px_24px] opacity-40 pointer-events-none"
-            aria-hidden
-          />
-          <div className="relative z-10 mx-auto max-w-4xl px-4 py-12 text-center sm:px-6 sm:py-20">
-            <nav className="mb-6 text-left text-sm text-white/80" aria-label="Breadcrumb">
-              <ol className="flex flex-wrap items-center gap-2">
-                <li>
-                  <Link href="/" className="hover:text-white">
-                    Home
-                  </Link>
-                </li>
-                <li aria-hidden className="text-white/50">
-                  /
-                </li>
-                <li className="text-white">Khatu Shyam Ji logistics</li>
-              </ol>
-            </nav>
-            <p className="text-sm font-semibold uppercase tracking-wider text-[#FFB547]">Serving Khatu Shyam Ji · Rajasthan</p>
-            <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl lg:text-[2.75rem]">Logistics Services in Khatu Shyam Ji</h1>
-            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">
-              <strong className="font-semibold text-white">Fast, reliable delivery</strong> when devotees, festivals, and narrow streets squeeze every minute—food vendors,
-              shops, and temple-area businesses get predictable <strong className="font-semibold text-white">goods transport in Khatu</strong> with Liftngo (cargo vehicles
-              only—not passenger autos).
-            </p>
-            <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
-              <LocationPageCtas
-                whatsappSource="khatu_shyam_hero"
-                whatsappPrefill="Hi Liftngo, I need delivery in Khatu Shyam Ji (shop / vendor)."
-                bookTrackSource="khatu_shyam_hero_book"
-                bookLabel={BOOK_CTA}
+      <article className="flex-1">
+        <MarketingPageShell
+          badge="Serving Khatu Shyam Ji · Rajasthan"
+          title="Logistics Services in Khatu Shyam Ji"
+          lead={HERO_LEAD}
+          chips={['Cargo 2W–4W', 'Temple-town lanes', 'Food & retail', 'Upfront estimates']}
+          links={[
+            { href: ROUTES.BOOK_DELIVERY, label: 'Book delivery' },
+            { href: ROUTES.LOGISTICS_KHATU, label: 'Logistics in Khatu' },
+            { href: ROUTES.NOIDA_B2B_LOGISTICS, label: 'Noida B2B' },
+            { href: ROUTES.B2B_TRANSPORT, label: 'B2B transport' },
+            { href: '/contact', label: 'Contact' },
+          ]}
+          crumbs={[
+            { label: 'Home', href: '/' },
+            { label: 'Khatu Shyam Ji logistics' },
+          ]}
+          heroAside={
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl ring-1 ring-white/20 shadow-2xl shadow-black/40">
+              <Image
+                src={khatuShyamLogisticsVisual.hero(1920)}
+                alt={khatuShyamLogisticsVisual.heroAlt}
+                fill
+                className={`object-cover ${khatuShyamImageFocus.hero}`}
+                sizes="(max-width: 1024px) 100vw, 400px"
+                priority
               />
             </div>
-          </div>
-        </header>
-
-        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
+          }
+          heroActions={
+            <LocationPageCtas
+              bookTrackSource="khatu_shyam_hero_book"
+              contactTrackSource="khatu_shyam_hero_contact"
+              bookLabel={BOOK_CTA}
+              secondaryOnDark
+            />
+          }
+        >
+          <div className="mx-auto max-w-4xl space-y-0 px-0 pb-8 pt-2 sm:pb-12 sm:pt-4">
           <section className="scroll-mt-20" aria-labelledby="local-challenges-khatu">
             <h2 id="local-challenges-khatu" className="text-2xl font-bold text-gray-900 sm:text-[1.65rem]">
               Why logistics in Khatu Shyam Ji is genuinely hard
@@ -280,9 +271,8 @@ export default function KhatuShyamLogisticsPage() {
             </ul>
             <div className="mt-8 flex justify-center sm:justify-start">
               <LocationPageCtas
-                whatsappSource="khatu_shyam_after_solution"
-                whatsappPrefill="Hi Liftngo, we run a shop / kitchen in Khatu and want to try your logistics."
                 bookTrackSource="khatu_shyam_solution_book"
+                contactTrackSource="khatu_shyam_solution_contact"
                 bookLabel={BOOK_CTA}
               />
             </div>
@@ -377,7 +367,7 @@ export default function KhatuShyamLogisticsPage() {
             <p className="mt-4 text-gray-600 leading-relaxed">
               <strong className="text-gray-900">Goods transport</strong> near a high-trust mandir zone is not “faster equals better.” When
               devotees crowd lanes, the winning shops are the ones that scheduled replenishment before the rush and chose vehicle classes that
-              fit the gate—not the ones that yelled loudest on WhatsApp. Liftngo treats{' '}
+              fit the gate—not the ones stuck re-negotiating every trip. Liftngo treats{' '}
               <Link href={ROUTES.KHATU_SHYAM_LOGISTICS} className="font-semibold text-[var(--color-primary)] hover:underline">
                 Khatu Shyam Ji logistics
               </Link>{' '}
@@ -421,12 +411,12 @@ export default function KhatuShyamLogisticsPage() {
           <section className="mt-14 rounded-2xl border border-[var(--color-primary)]/25 bg-gradient-to-b from-[var(--color-primary)]/8 to-transparent p-8 text-center sm:p-10">
             <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Ready for dependable delivery in Khatu?</h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-gray-600 sm:text-base">
-              Book a cargo vehicle in minutes—or message us on WhatsApp with your lane and load. Same-day options depend on demand and how tight the corridor is.
+              Book a cargo vehicle in minutes—or use Contact if your lane needs a quick human check first. Same-day options depend on demand and how tight the corridor is.
             </p>
             <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
               <LocationPageCtas
-                whatsappSource="khatu_shyam_mid"
                 bookTrackSource="khatu_shyam_mid_book"
+                contactTrackSource="khatu_shyam_mid_contact"
                 bookLabel={BOOK_CTA}
               />
             </div>
@@ -494,8 +484,9 @@ export default function KhatuShyamLogisticsPage() {
               </li>
             </ul>
           </section>
-        </div>
-      </main>
+          </div>
+        </MarketingPageShell>
+      </article>
     </ContentLayout>
   );
 }

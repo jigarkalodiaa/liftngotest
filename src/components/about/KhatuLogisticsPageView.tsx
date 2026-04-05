@@ -12,11 +12,8 @@ const BTN_SECONDARY =
 const CARD =
   'rounded-2xl border border-gray-100/80 bg-white p-6 shadow-sm sm:p-7 transition-shadow hover:shadow-md hover:border-[var(--color-primary)]/15';
 
-const textH1 =
-  'text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-[2.5rem] lg:leading-tight';
 const textH2 = 'text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl';
 const textH3 = 'text-lg font-semibold text-gray-900';
-const textLead = 'text-lg font-semibold leading-snug text-gray-900 sm:text-xl';
 const textProse = 'text-base leading-relaxed text-gray-600 sm:text-lg';
 const textBody = 'text-base leading-relaxed text-gray-600';
 
@@ -46,41 +43,7 @@ const PARTNERS = [
 export default function KhatuLogisticsPageView() {
   return (
     <article className="flex-1">
-      <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6 sm:pb-16 sm:pt-10 lg:px-8 lg:pt-14">
-        <header className="mb-12 max-w-4xl">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-primary)] sm:text-sm">
-            Khatu Shyam Ji · Rajasthan · Hyperlocal logistics
-          </p>
-          <h1 className={textH1}>
-            <span className="text-[var(--color-primary)]">Khatu &amp; nearby:</span> supply chain for every business that serves the corridor
-          </h1>
-          <p className={`mt-5 max-w-3xl ${textLead}`}>
-            {BRAND.name} is <strong className="font-semibold text-gray-900">launching with depth in Khatu</strong>—connecting the daily goods
-            movement needs of businesses around <strong className="font-semibold text-gray-900">Khatu Shyam Ji</strong>, Rajasthan, through one
-            dependable logistics layer.
-          </p>
-          <p className={`mt-4 max-w-3xl ${textProse}`}>
-            We collaborate with <strong className="font-semibold text-gray-900">guest houses, restaurants, dharamshalas, prasad and retail shops,</strong>{' '}
-            and <strong className="font-semibold text-gray-900">small businesses</strong> along the yatra ecosystem so stock, provisions, and
-            materials flow on time—whether that is walk, two-wheel, or three-wheel cargo (including electric, CNG, diesel, and petrol units where
-            needed).
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link href={ROUTES.PICKUP_LOCATION} className={BTN_PRIMARY}>
-              Book delivery in Khatu
-            </Link>
-            <Link href={ROUTES.FIND_RESTAURANT} className={BTN_SECONDARY}>
-              Explore trusted food &amp; shops
-            </Link>
-            <Link href="/khatu-goods-transport" className={BTN_SECONDARY}>
-              Khatu goods transport
-            </Link>
-            <Link href={ROUTES.ABOUT} className={BTN_SECONDARY}>
-              Back to About
-            </Link>
-          </div>
-        </header>
-
+      <div className="w-full pb-8 pt-2 sm:pb-12 sm:pt-4">
         <section className="mb-14 sm:mb-16" aria-labelledby="ecosystem">
           <h2 id="ecosystem" className={`mb-4 ${textH2}`}>
             Who we connect across the local supply chain

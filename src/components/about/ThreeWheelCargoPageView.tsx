@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { BRAND } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
 import { THREE_WHEEL_CARGO_FAQ } from '@/data/threeWheelCargoSeo';
 
@@ -12,11 +11,8 @@ const BTN_SECONDARY =
 const CARD =
   'rounded-2xl border border-gray-100/80 bg-white p-6 shadow-sm sm:p-7 transition-shadow hover:shadow-md hover:border-[var(--color-primary)]/15';
 
-const textH1 =
-  'text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-[2.5rem] lg:leading-tight';
 const textH2 = 'text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl';
 const textH3 = 'text-lg font-semibold text-gray-900';
-const textLead = 'text-lg font-semibold leading-snug text-gray-900 sm:text-xl';
 const textProse = 'text-base leading-relaxed text-gray-600 sm:text-lg';
 const textBody = 'text-base leading-relaxed text-gray-600';
 
@@ -38,37 +34,7 @@ const WHEN = [
 export default function ThreeWheelCargoPageView() {
   return (
     <article className="flex-1">
-      <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6 sm:pb-16 sm:pt-10 lg:px-8 lg:pt-14">
-        <header className="mb-12 max-w-4xl">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-primary)] sm:text-sm">
-            Three-wheel cargo · Last mile · EV, CNG, diesel &amp; petrol
-          </p>
-          <h1 className={textH1}>
-            <span className="text-[var(--color-primary)]">Electric three-wheel cargo</span> and fuel options for real-world lanes
-          </h1>
-          <p className={`mt-5 max-w-3xl ${textLead}`}>
-            {BRAND.name} uses <strong className="font-semibold text-gray-900">compact three-wheel cargo</strong> as a workhorse for intra-city
-            goods—especially where <strong className="font-semibold text-gray-900">B2B loads</strong> are too big for a two-wheeler but do not
-            need a full truck.
-          </p>
-          <p className={`mt-4 max-w-3xl ${textProse}`}>
-            <strong className="font-semibold text-gray-900">Electric cargo</strong> keeps running costs predictable and fits many temple-town and
-            urban last-mile corridors. We also run <strong className="font-semibold text-gray-900">CNG, diesel, and petrol</strong> cargo
-            three-wheelers when that matches distance, availability, or your lane—so logistics stays practical, not ideological.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link href="/services/3-wheeler" className={BTN_PRIMARY}>
-              Three-wheeler service
-            </Link>
-            <Link href={ROUTES.PICKUP_LOCATION} className={BTN_SECONDARY}>
-              Book a load
-            </Link>
-            <Link href={ROUTES.ABOUT} className={BTN_SECONDARY}>
-              Back to About
-            </Link>
-          </div>
-        </header>
-
+      <div className="w-full pb-8 pt-2 sm:pb-12 sm:pt-4">
         <section className="mb-14 sm:mb-16" aria-labelledby="when-3w">
           <h2 id="when-3w" className={`mb-6 ${textH2}`}>
             When three-wheel cargo is the right call

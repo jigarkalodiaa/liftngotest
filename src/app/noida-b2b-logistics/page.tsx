@@ -2,6 +2,7 @@ import ContentLayout from '@/components/layout/ContentLayout';
 import JsonLd from '@/components/JsonLd';
 import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
+import MarketingPageShell from '@/components/marketing/MarketingPageShell';
 import { noidaB2bLogisticsVisual } from '@/config/locationPageVisuals';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/lib/site';
@@ -17,23 +18,28 @@ const TITLE = 'B2B Logistics in Noida & Delhi NCR | Corporate Delivery — Liftn
 const DESCRIPTION =
   'B2B logistics Noida and Delhi NCR: dedicated delivery experts, verified vendor network, multi-vehicle booking (2W, 3W, 4W). Corporate delivery solutions for electronics retail, warehousing, and offices. Logistics company Delhi NCR—start on Liftngo.';
 
+const HERO_LEAD =
+  'A complete logistics layer for businesses built for your region. Liftngo is growing a verified ecosystem in the National Capital Region: dedicated delivery coordination, trusted partners, and one platform for 2-wheeler through 4-wheeler cargo.';
+
+const PAGE_KEYWORDS = [
+  'b2b logistics noida',
+  'logistics company delhi ncr',
+  'corporate delivery solutions',
+  'bulk delivery services noida',
+  'warehouse logistics delhi ncr',
+  'B2B transport Noida',
+  'electronics retailer delivery',
+  'multi vehicle logistics booking',
+  'hyperlocal logistics india',
+  'last mile delivery solutions',
+  'business logistics platform',
+] as const;
+
 export const metadata = generatePageMetadata({
   title: TITLE,
   description: DESCRIPTION,
   path: PATH,
-  keywords: [
-    'b2b logistics noida',
-    'logistics company delhi ncr',
-    'corporate delivery solutions',
-    'bulk delivery services noida',
-    'warehouse logistics delhi ncr',
-    'B2B transport Noida',
-    'electronics retailer delivery',
-    'multi vehicle logistics booking',
-    'hyperlocal logistics india',
-    'last mile delivery solutions',
-    'business logistics platform',
-  ],
+  keywords: [...PAGE_KEYWORDS],
 });
 
 const faqForSchema = [...NOIDA_B2B_LANDING_FAQ].map((x) => ({
@@ -53,66 +59,51 @@ export default function NoidaB2bLogisticsPage() {
           title: TITLE,
           description: DESCRIPTION,
           faq: faqForSchema,
+          keywords: [...PAGE_KEYWORDS],
+          breadcrumb: [
+            { name: 'Home', url: `${SITE_URL}/` },
+            { name: 'Noida B2B logistics', url: PAGE_URL },
+          ],
         })}
       />
-      <main className="flex-1">
-        <header className="liftngo-brand-mesh relative min-h-[420px] overflow-hidden text-white sm:min-h-[480px]">
-          <Image
-            src={noidaB2bLogisticsVisual.hero(1920)}
-            alt={noidaB2bLogisticsVisual.heroAlt}
-            fill
-            className="object-cover object-center"
-            sizes="100vw"
-            priority
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/95 via-[#1A1D3A]/82 to-[#2C2D5B]/55"
-            aria-hidden
-          />
-          <div
-            className="absolute left-1/4 top-12 h-72 w-72 -translate-x-1/2 rounded-full bg-[#2C2D5B]/35 blur-3xl pointer-events-none"
-            aria-hidden
-          />
-          <div
-            className="absolute right-0 bottom-0 h-64 w-64 translate-x-1/4 rounded-full bg-[#FF8C00]/25 blur-3xl pointer-events-none"
-            aria-hidden
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:28px_28px] opacity-50 pointer-events-none" aria-hidden />
-          <div className="relative z-10 mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
-            <nav className="mb-6 text-sm text-white/75" aria-label="Breadcrumb">
-              <ol className="flex flex-wrap gap-2">
-                <li>
-                  <Link href="/" className="hover:text-white">
-                    Home
-                  </Link>
-                </li>
-                <li aria-hidden>/</li>
-                <li className="font-medium text-white">Noida B2B logistics</li>
-              </ol>
-            </nav>
-            <p className="text-sm font-semibold uppercase tracking-wide text-[#FFB547]">
-              Delhi NCR · Starting from Noida
-            </p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl lg:text-[2.6rem] leading-tight">
-              B2B Logistics Solutions in Noida &amp; Delhi NCR
-            </h1>
-            <p className="mt-4 max-w-3xl text-lg leading-relaxed text-white/88">
-              A complete logistics layer for businesses built for your region. Liftngo is growing a{' '}
-              <strong className="font-semibold text-white">verified ecosystem</strong> in the National Capital Region: dedicated
-              delivery coordination, trusted partners, and one platform for 2-wheeler through 4-wheeler cargo.
-            </p>
-            <div className="mt-8">
-              <LocationPageCtas
-                whatsappSource="noida_b2b_hero"
-                whatsappPrefill="Hi Liftngo, we need B2B logistics support in Noida / Delhi NCR."
-                bookTrackSource="noida_b2b_get_started"
-                bookLabel="Get started with Liftngo"
+      <article className="flex-1">
+        <MarketingPageShell
+          badge="Delhi NCR · Starting from Noida"
+          title={<>B2B Logistics Solutions in Noida &amp; Delhi NCR</>}
+          lead={HERO_LEAD}
+          chips={['Verified vendor network', '2W–4W cargo', 'Corporate lanes', 'Delhi NCR depth']}
+          links={[
+            { href: ROUTES.BOOK_DELIVERY, label: 'Book delivery' },
+            { href: ROUTES.B2B_TRANSPORT, label: 'B2B transport' },
+            { href: ROUTES.KHATU_SHYAM_LOGISTICS, label: 'Khatu corridor' },
+            { href: '/contact', label: 'Contact' },
+          ]}
+          crumbs={[
+            { label: 'Home', href: '/' },
+            { label: 'Noida B2B logistics' },
+          ]}
+          heroAside={
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl ring-1 ring-white/20 shadow-2xl shadow-black/40">
+              <Image
+                src={noidaB2bLogisticsVisual.hero(1920)}
+                alt={noidaB2bLogisticsVisual.heroAlt}
+                fill
+                className="object-cover object-center"
+                sizes="(max-width: 1024px) 100vw, 400px"
+                priority
               />
             </div>
-          </div>
-        </header>
-
-        <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6 lg:py-16">
+          }
+          heroActions={
+            <LocationPageCtas
+              bookTrackSource="noida_b2b_get_started"
+              contactTrackSource="noida_b2b_hero_contact"
+              bookLabel="Get started with Liftngo"
+              secondaryOnDark
+            />
+          }
+        >
+          <div className="mx-auto max-w-4xl space-y-0 px-0 pb-8 pt-2 sm:pb-12 sm:pt-4">
           <section aria-labelledby="core-offerings">
             <h2 id="core-offerings" className="text-2xl font-bold text-gray-900">
               Core offerings
@@ -231,14 +222,14 @@ export default function NoidaB2bLogisticsPage() {
           <section className="mt-14 rounded-2xl bg-[#1A1D3A] px-6 py-10 text-center text-white">
             <h2 className="text-xl font-bold sm:text-2xl">Ready for a logistics partner—not a one-off tempo?</h2>
             <p className="mx-auto mt-2 max-w-lg text-sm text-white/80 sm:text-base">
-              Tell us your lane pattern on WhatsApp or start a structured booking online.
+              Share your lane pattern through Contact or start a structured booking online—we will align vehicle class and SLAs.
             </p>
             <div className="mt-6 flex justify-center">
               <LocationPageCtas
-                whatsappSource="noida_b2b_footer"
-                whatsappPrefill="We are a business in Noida / Delhi NCR and want to explore Liftngo B2B logistics."
                 bookTrackSource="noida_b2b_footer_book"
+                contactTrackSource="noida_b2b_footer_contact"
                 bookLabel="Get started with Liftngo"
+                secondaryOnDark
               />
             </div>
           </section>
@@ -273,8 +264,9 @@ export default function NoidaB2bLogisticsPage() {
               </li>
             </ul>
           </section>
-        </div>
-      </main>
+          </div>
+        </MarketingPageShell>
+      </article>
     </ContentLayout>
   );
 }

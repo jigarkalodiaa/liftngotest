@@ -19,6 +19,7 @@ import { ROUTES, PICKUP_LOCATION_MODE_DEFAULTS } from '@/lib/constants';
 import { getGreetingDisplayName } from '@/lib/greeting';
 import { DEFAULT_TRIPS } from '@/data/defaultTrips';
 import { theme } from '@/config/theme';
+import { Info } from 'lucide-react';
 import { useDashboardLocation } from '@/features/location';
 import { KhatuDashboard } from '@/features/khatu';
 import { NoidaDashboard } from '@/features/noida';
@@ -41,6 +42,7 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
   const [showDefaultAddedToast, setShowDefaultAddedToast] = useState(false);
   const [customDefaultTrips, setCustomDefaultTrips] = useState<DefaultTrip[]>([]);
   const [swappedTripIds, setSwappedTripIds] = useState<Record<string, boolean>>({});
+  const [routeDetailTripId, setRouteDetailTripId] = useState<string | null>(null);
 
   const syncPickupFromStorage = useCallback(() => {
     const loc = getPickupLocation();
@@ -111,7 +113,18 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
     [allServices, zoneConfig.allowedServices],
   );
 
-  const defaultTrips = useMemo(() => [...customDefaultTrips, ...DEFAULT_TRIPS], [customDefaultTrips]);
+  const defaultTrips = useMemo(() => {
+    const merged = [...customDefaultTrips, ...DEFAULT_TRIPS];
+    const seen = new Set<string>();
+    const out: DefaultTrip[] = [];
+    for (const t of merged) {
+      const key = `${t.fromName.trim()}|${t.fromAddress.trim()}|${t.toName.trim()}|${t.toAddress.trim()}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(t);
+    }
+    return out;
+  }, [customDefaultTrips]);
 
   useEffect(() => {
     if (searchParams.get('defaultAdded') !== '1') return;
@@ -151,7 +164,10 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
     setSwappedTripIds((prev) => ({ ...prev, [tripId]: !prev[tripId] }));
   }, []);
 
-  const closeChooseTrip = useCallback(() => setIsChooseTripOpen(false), []);
+  const closeChooseTrip = useCallback(() => {
+    setRouteDetailTripId(null);
+    setIsChooseTripOpen(false);
+  }, []);
 
   useEffect(() => {
     if (!isChooseTripOpen) return;
@@ -231,18 +247,63 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
       {isChooseTripOpen ? (
         <div className="fixed inset-0 z-[80] opacity-100 transition-opacity" role="dialog" aria-modal="true" aria-label="Choose trip">
           <div className="absolute inset-0 bg-black/40" onClick={closeChooseTrip} />
-          <div className="absolute inset-x-0 bottom-0 top-[10%] flex flex-col pt-10">
+          <div className="absolute inset-x-0 bottom-0 top-[6%] flex flex-col sm:top-[10%] sm:pt-6">
             <div
               ref={chooseTripPanelRef}
-              className="mx-auto flex min-h-0 w-full max-w-[520px] flex-1 flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl"
+              className="relative mx-auto flex min-h-0 w-full max-w-[440px] flex-1 flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:max-w-[480px] sm:rounded-2xl"
             >
-              <div className="flex-shrink-0 flex items-center justify-between border-b border-gray-100 px-5 pb-3 pt-4">
-                <h2 className="text-xl font-bold text-gray-900">Choose trip</h2>
+              {routeDetailTripId ? (
+                <div className="absolute inset-0 z-20 flex flex-col bg-white">
+                  <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 py-2.5">
+                    <h3 className="text-sm font-bold text-gray-900">Full route</h3>
+                    <button
+                      type="button"
+                      onClick={() => setRouteDetailTripId(null)}
+                      className="grid h-9 w-9 place-items-center rounded-full text-gray-500 hover:bg-gray-100"
+                      aria-label="Back"
+                    >
+                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 text-[13px] leading-relaxed text-gray-700">
+                    {(() => {
+                      const trip = defaultTrips.find((t) => t.id === routeDetailTripId);
+                      if (!trip) return null;
+                      const swapped = swappedTripIds[trip.id];
+                      const pName = swapped ? trip.toName : trip.fromName;
+                      const pAddr = swapped ? trip.toAddress : trip.fromAddress;
+                      const dName = swapped ? trip.fromName : trip.toName;
+                      const dAddr = swapped ? trip.fromAddress : trip.toAddress;
+                      const contact = [trip.contactName, trip.contactPhone].filter(Boolean).join(' · ');
+                      return (
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-700">Pickup</p>
+                            <p className="mt-1 font-semibold text-gray-900">{pName}</p>
+                            <p className="mt-0.5 text-gray-600">{pAddr}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wide text-red-700">Drop</p>
+                            <p className="mt-1 font-semibold text-gray-900">{dName}</p>
+                            <p className="mt-0.5 text-gray-600">{dAddr}</p>
+                          </div>
+                          {contact ? <p className="text-xs text-gray-500">Contact: {contact}</p> : null}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="flex shrink-0 items-center justify-between border-b border-gray-100 px-4 pb-2.5 pt-3">
+                <h2 className="text-base font-bold text-gray-900 sm:text-lg">Choose trip</h2>
                 <button
                   type="button"
                   onClick={closeChooseTrip}
                   aria-label="Close"
-                  className="grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-gray-100"
+                  className="grid h-9 w-9 place-items-center rounded-full transition-colors hover:bg-gray-100"
                   style={{ color: theme.colors.gray600 }}
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -251,55 +312,107 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
                 </button>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+              <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
                 {showDefaultAddedToast && (
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] font-medium text-emerald-700">
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-800">
                     Default location added successfully.
                   </div>
                 )}
 
-                <div className="mt-4 space-y-4 ">
+                <div className={`space-y-2.5 ${showDefaultAddedToast ? 'mt-2.5' : ''}`}>
                   {defaultTrips.map((trip) => {
                     const swapped = swappedTripIds[trip.id];
                     const pickupName = swapped ? trip.toName : trip.fromName;
                     const pickupAddress = swapped ? trip.toAddress : trip.fromAddress;
                     const dropName = swapped ? trip.fromName : trip.toName;
                     const dropAddress = swapped ? trip.fromAddress : trip.toAddress;
+                    const contactLine = [trip.contactName, trip.contactPhone].filter(Boolean).join(' · ');
                     return (
-                      <div key={trip.id} className="rounded-2xl border border-gray-200 bg-white p-4">
-                        <div className="flex gap-3">
-                          <div className="flex flex-shrink-0 flex-col items-center pt-0.5">
-                            <div className="h-3 w-3 flex-shrink-0 rounded-full" style={{ backgroundColor: theme.colors.success }} />
-                            <div className="my-1 min-h-[24px] w-px flex-1 flex-shrink-0" style={{ backgroundColor: theme.colors.border }} />
-                            <svg className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" style={{ color: theme.colors.error }}>
+                      <div
+                        key={trip.id}
+                        className="rounded-xl border border-gray-200/90 bg-gray-50/30 p-2.5 shadow-sm sm:p-3"
+                      >
+                        <div className="flex gap-2.5">
+                          <div className="relative flex w-6 shrink-0 flex-col items-center pt-0.5">
+                            <div
+                              className="h-2.5 w-2.5 shrink-0 rounded-full"
+                              style={{ backgroundColor: theme.colors.success }}
+                              aria-hidden
+                            />
+                            <div
+                              className="relative my-0.5 min-h-[32px] w-px flex-1"
+                              style={{ backgroundColor: theme.colors.border }}
+                              aria-hidden
+                            />
+                            <button
+                              type="button"
+                              aria-label="Swap pickup and drop"
+                              onClick={() => handleSwapTrip(trip.id)}
+                              className="absolute left-1/2 top-[42%] z-[1] grid h-7 w-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-white shadow-md"
+                              style={{ backgroundColor: theme.colors.primary }}
+                            >
+                              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+                              </svg>
+                            </button>
+                            <svg
+                              className="h-4 w-4 shrink-0"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                              style={{ color: theme.colors.error }}
+                              aria-hidden
+                            >
                               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                             </svg>
                           </div>
 
-                          <div className="align-center flex min-w-0 flex-1 flex-col items-right justify-center">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="font-bold" style={{ fontSize: theme.fontSizes.md, color: theme.colors.gray900 }}>
-                                  {pickupName}
-                                </div>
-                                <div className="mt-0.5" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray500 }}>
-                                  {pickupAddress}
-                                </div>
-                                <div className="mt-1" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray400 }}>
-                                  {trip.contactName} | {trip.contactPhone}
-                                </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-1.5">
+                              <p className="text-[13px] font-bold leading-tight text-gray-900">{pickupName}</p>
+                              <div className="flex shrink-0 items-center gap-0.5">
+                                <button
+                                  type="button"
+                                  aria-label="Full address and route"
+                                  onClick={() => setRouteDetailTripId(trip.id)}
+                                  className="grid h-8 w-8 place-items-center rounded-full text-gray-500 transition-colors hover:bg-white"
+                                >
+                                  <Info className="h-4 w-4" strokeWidth={2} aria-hidden />
+                                </button>
+                                <button
+                                  type="button"
+                                  aria-label="Edit pickup"
+                                  onClick={() => {
+                                    handleBookNow(trip);
+                                    router.push(ROUTES.PICKUP_LOCATION_EDIT);
+                                  }}
+                                  className="grid h-8 w-8 place-items-center rounded-full text-gray-500 transition-colors hover:bg-white"
+                                >
+                                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213 3 21l1.787-4.5L16.862 3.487z"
+                                    />
+                                  </svg>
+                                </button>
                               </div>
+                            </div>
+                            <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-gray-500">{pickupAddress}</p>
+
+                            <div className="my-2 h-px bg-gray-200/80" aria-hidden />
+
+                            <div className="flex items-start justify-between gap-1.5">
+                              <p className="text-[13px] font-bold leading-tight text-gray-900">{dropName}</p>
                               <button
                                 type="button"
-                                aria-label="Edit pickup"
+                                aria-label="Edit drop-off"
                                 onClick={() => {
                                   handleBookNow(trip);
                                   router.push(ROUTES.PICKUP_LOCATION_EDIT);
                                 }}
-                                className="align-center grid h-9 w-9 flex-shrink-0 place-items-center rounded-full transition-colors hover:bg-gray-100"
-                                style={{ color: theme.colors.textMuted }}
+                                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-gray-500 transition-colors hover:bg-white"
                               >
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
                                   <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
@@ -308,61 +421,20 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
                                 </svg>
                               </button>
                             </div>
+                            <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-gray-500">{dropAddress}</p>
 
-                            <div className="flex justify-end py-1">
-                              <button
-                                type="button"
-                                aria-label="Swap locations"
-                                onClick={() => handleSwapTrip(trip.id)}
-                                className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full text-white"
-                                style={{ backgroundColor: theme.colors.primary }}
-                              >
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
-                                </svg>
-                              </button>
-                            </div>
-
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="font-bold" style={{ fontSize: theme.fontSizes.md, color: theme.colors.gray900 }}>
-                                  {dropName}
-                                </div>
-                                <div className="mt-0.5" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray500 }}>
-                                  {dropAddress}
-                                </div>
-                                <div className="mt-1" style={{ fontSize: theme.fontSizes.xs, color: theme.colors.gray400 }}>
-                                  {trip.contactName} | {trip.contactPhone}
-                                </div>
-                              </div>
-                              <button
-                                type="button"
-                                aria-label="Edit drop"
-                                onClick={() => {
-                                  handleBookNow(trip);
-                                  router.push(ROUTES.PICKUP_LOCATION_EDIT);
-                                }}
-                                className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-full transition-colors hover:bg-gray-100"
-                                style={{ color: theme.colors.textMuted }}
-                              >
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M16.862 3.487a2.25 2.25 0 013.182 3.182L7.5 19.213 3 21l1.787-4.5L16.862 3.487z"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
+                            {contactLine ? (
+                              <p className="mt-1.5 truncate text-[10px] text-gray-400">{contactLine}</p>
+                            ) : null}
 
                             <button
                               type="button"
                               onClick={() => handleBookNow(trip)}
-                              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border bg-white px-4 py-3 font-medium transition-colors hover:bg-gray-50"
-                              style={{ borderColor: theme.colors.border, color: theme.colors.textPrimary, fontSize: theme.fontSizes.md }}
+                              className="mt-2.5 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg border bg-white text-sm font-semibold transition-colors hover:bg-gray-50"
+                              style={{ borderColor: theme.colors.border, color: theme.colors.textPrimary }}
                             >
-                              Book Now
-                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} style={{ color: theme.colors.textPrimary }}>
+                              Book now
+                              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                               </svg>
                             </button>
@@ -376,11 +448,11 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
                 <button
                   type="button"
                   onClick={handleAddMoreDefaultLocation}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-4 font-semibold transition-opacity hover:opacity-95"
-                  style={{ backgroundColor: theme.colors.primary, color: theme.colors.white, fontSize: theme.fontSizes.lg }}
+                  className="mt-4 flex h-11 w-full items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-semibold transition-opacity hover:opacity-95"
+                  style={{ backgroundColor: theme.colors.primary, color: theme.colors.white }}
                 >
-                  Add More Default Location
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} style={{ color: theme.colors.white }}>
+                  Add default location
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} style={{ color: theme.colors.white }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </button>

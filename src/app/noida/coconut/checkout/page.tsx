@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { PageHeader, Card } from '@/components/ui';
 import {
   useCoconutCartStore,
@@ -10,11 +9,13 @@ import {
 } from '@/features/noida/coconut/coconutCartStore';
 import { COCONUT_VENDOR } from '@/features/noida/coconut/products';
 import { useRazorpay } from '@/lib/razorpay';
+import { PrepayLegalDeclaration, buildPrepayLegalRazorpayNotes } from '@/lib/legal/PrepayLegalDeclaration';
+import { INDICATIVE_PRICING_FOOTNOTE } from '@/lib/pricing/subscriptionDisclosures';
+import { paymentResultFailureHref, paymentResultSuccessHref } from '@/lib/paymentResultUrl';
 
-type OrderState =
-  | { stage: 'checkout' }
-  | { stage: 'placing' }
-  | { stage: 'confirmed'; orderId: string; paymentId: string; eta: string; driverName: string; driverPhone: string };
+const COCONUT_CHECKOUT_CONSENT_VERSION = 'noida_coconut_checkout_v1';
+
+type OrderState = { stage: 'checkout' } | { stage: 'placing' };
 
 export default function CoconutCheckoutPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function CoconutCheckoutPage() {
   const [contactPhone, setContactPhone] = useState('');
   const [order, setOrder] = useState<OrderState>({ stage: 'checkout' });
   const [payError, setPayError] = useState<string | null>(null);
+  const [acceptLegal, setAcceptLegal] = useState(false);
 
   useEffect(() => {
     if (!mounted) return;
@@ -44,94 +46,61 @@ export default function CoconutCheckoutPage() {
 
   const placeOrder = useCallback(async () => {
     setPayError(null);
+    if (!acceptLegal) {
+      setPayError('Please confirm the declaration below to pay.');
+      return;
+    }
     setOrder({ stage: 'placing' });
 
     openPayment({
       amountInr: grand,
       receipt: `coconut_${Date.now()}`,
       description: `Coconut order — ${items.length} item(s)`,
-      notes: { flow: 'noida_coconut', address: address.slice(0, 250) },
+      notes: {
+        flow: 'noida_coconut',
+        address: address.slice(0, 250),
+        ...buildPrepayLegalRazorpayNotes(COCONUT_CHECKOUT_CONSENT_VERSION),
+      },
       prefill: { contact: contactPhone ? `+91${contactPhone.replace(/\D/g, '')}` : undefined },
-      onSuccess: ({ paymentId, orderId }) => {
-        const localId = `NCO-${Date.now().toString(36).toUpperCase()}`;
+      onSuccess: ({ paymentId }) => {
+        const itemLines = items.map((i) => `${i.name} × ${i.quantity}`);
+        const addrLine = address.trim() ? `Deliver to: ${address.trim().slice(0, 120)}` : '';
         clear();
-        setOrder({
-          stage: 'confirmed',
-          orderId: localId,
-          paymentId,
-          eta: COCONUT_VENDOR.estimatedMinutes,
-          driverName: 'Ravi Kumar',
-          driverPhone: '9876543210',
-        });
+        router.replace(
+          paymentResultSuccessHref({
+            flow: 'coconut',
+            paymentId,
+            amountInr: grand,
+            title: `${COCONUT_VENDOR.name} · Coconut order`,
+            subtitle: `${items.length} line item(s) · ~${COCONUT_VENDOR.estimatedMinutes} min delivery zone`,
+            lines: [
+              `Subtotal ₹${subtotal.toLocaleString('en-IN')} · Delivery ₹${delivery.toLocaleString('en-IN')}`,
+              ...itemLines.slice(0, 6),
+              itemLines.length > 6 ? `+${itemLines.length - 6} more` : '',
+              addrLine,
+            ].filter(Boolean),
+            retryPath: '/noida/coconut/checkout',
+          }),
+        );
       },
       onError: (err) => {
         setOrder({ stage: 'checkout' });
-        if (err !== 'Payment cancelled') {
-          setPayError(err);
-        }
+        if (err === 'Payment cancelled') return;
+        router.push(
+          paymentResultFailureHref({
+            flow: 'coconut',
+            title: 'Coconut checkout',
+            message: err,
+            amountInr: grand,
+            retryPath: '/noida/coconut/checkout',
+          }),
+        );
       },
     });
-  }, [grand, items.length, address, contactPhone, clear, openPayment]);
+  }, [acceptLegal, address, clear, delivery, grand, items, openPayment, router, subtotal]);
 
   if (!mounted) {
     return <div className="min-h-screen bg-gray-50" aria-busy="true" />;
-  }
-
-  /* ── Order confirmed ───────────────────────────────────── */
-  if (order.stage === 'confirmed') {
-    return (
-      <div className="min-h-screen bg-gray-50 px-4 pb-10 pt-4">
-        <div className="mx-auto max-w-xl sm:max-w-2xl">
-          <Card className="p-6 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl">✅</div>
-            <h1 className="mt-4 text-xl font-bold text-gray-900">Order Placed!</h1>
-            <p className="mt-1 font-mono text-sm text-[var(--color-primary)]">{order.orderId}</p>
-            <p className="mt-0.5 text-xs text-gray-500">Payment ID: {order.paymentId}</p>
-
-            <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-4 text-left">
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Delivery ETA</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900">{order.eta} min</p>
-              <p className="mt-0.5 text-xs text-gray-500">A Liftngo rider has been assigned</p>
-            </div>
-
-            <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-4 text-left">
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Driver Details</p>
-              <div className="mt-2 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg font-bold text-[var(--color-primary)]">
-                  {order.driverName.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">{order.driverName}</p>
-                  <a href={`tel:+91${order.driverPhone}`} className="text-xs text-[var(--color-primary)] underline">
-                    +91 {order.driverPhone}
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-4 text-left">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500" />
-                </span>
-                <p className="text-sm font-semibold text-green-800">Captain is on the way</p>
-              </div>
-              <p className="mt-1 text-xs text-green-700">
-                Your order will be picked up from {COCONUT_VENDOR.area} and delivered to your address.
-              </p>
-            </div>
-
-            <Link
-              href="/dashboard"
-              className="mt-6 inline-flex min-h-[48px] items-center justify-center rounded-xl bg-[var(--color-primary)] px-6 text-sm font-semibold text-white"
-            >
-              Back to Dashboard
-            </Link>
-          </Card>
-        </div>
-      </div>
-    );
   }
 
   /* ── Redirect when cart is empty ───────────────────────── */
@@ -206,6 +175,20 @@ export default function CoconutCheckoutPage() {
           <strong>Payment:</strong> Secure online payment via Razorpay. UPI, cards, wallets & netbanking accepted.
         </div>
 
+        <PrepayLegalDeclaration
+          className="mt-5"
+          checked={acceptLegal}
+          onCheckedChange={setAcceptLegal}
+          productSummary={
+            <>
+              I confirm this payment is for the <strong className="font-semibold">coconut retail order</strong> on this page
+              — <strong className="font-semibold">{items.length} item(s)</strong>, subtotal ₹{subtotal.toLocaleString('en-IN')}
+              , delivery ₹{delivery.toLocaleString('en-IN')}, total{' '}
+              <strong className="font-semibold">₹{grand.toLocaleString('en-IN')}</strong>. {INDICATIVE_PRICING_FOOTNOTE}{' '}
+            </>
+          }
+        />
+
         {payError && (
           <div className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-800">
             {payError}
@@ -214,16 +197,21 @@ export default function CoconutCheckoutPage() {
 
         <button
           type="button"
-          disabled={order.stage === 'placing' || address.trim().length < 8 || contactPhone.replace(/\D/g, '').length < 10}
+          disabled={
+            order.stage === 'placing' ||
+            !acceptLegal ||
+            address.trim().length < 8 ||
+            contactPhone.replace(/\D/g, '').length < 10
+          }
           onClick={() => void placeOrder()}
           className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-[var(--color-primary)] text-sm font-semibold text-white disabled:opacity-50"
         >
           {order.stage === 'placing' ? 'Opening payment…' : `Pay ₹${grand}`}
         </button>
 
-        <p className="mt-4 text-center text-xs text-gray-500">
-          By placing this order you agree to delivery via Liftngo riders.
-        </p>
+        {!acceptLegal ? (
+          <p className="mt-3 text-center text-xs text-amber-800">Confirm the declaration above to enable Pay.</p>
+        ) : null}
       </div>
     </div>
   );

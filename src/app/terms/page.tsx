@@ -1,129 +1,141 @@
 import Image from '@/components/OptimizedImage';
+import Link from 'next/link';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME } from '@/lib/site';
 import ContentLayout from '@/components/layout/ContentLayout';
 import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
-import {
-  indiaPhotoBangaloreAutos,
-  indiaPhotoBangaloreLoadedTruck,
-  indiaPhotoHosurMotorcycle,
-  indiaPhotoHyderabadAuto,
-  indiaPhotoMumbaiLoading,
-  indiaPhotoMumbaiStreetWalk,
-} from '@/config/indiaLogisticsImages';
+import { indiaPhotoBangaloreLoadedTruck } from '@/config/indiaLogisticsImages';
+import { TERMS_LAST_UPDATED_ISO, TERMS_SECTIONS } from '@/data/termsOfService';
 
-export const metadata = generatePageMetadata({
-  title: `Terms & Conditions | ${SITE_NAME}`,
-  description: `Terms of service for using ${SITE_NAME} logistics and delivery platform. User agreement, booking terms, and acceptable use.`,
-  path: '/terms',
-  keywords: ['LiftnGo terms', 'terms of service', 'user agreement', 'delivery terms'],
+const LAST_UPDATED_DISPLAY = new Date(TERMS_LAST_UPDATED_ISO).toLocaleDateString('en-IN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
 });
 
-const SECTIONS = [
-  {
-    title: 'Acceptance of terms',
-    content: `By accessing or using the ${SITE_NAME} platform, website, or mobile applications, you agree to be bound by these Terms of Service. If you do not agree, do not use our services. We may update these terms from time to time; continued use after changes constitutes acceptance.`,
-    image: indiaPhotoBangaloreLoadedTruck(600),
-    alt: 'Goods truck in Bengaluru — using Liftngo services in India',
-  },
-  {
-    title: 'Description of services',
-    content: `${SITE_NAME} provides a technology platform that connects customers with driver partners for goods transportation and last-mile delivery. We do not provide transport ourselves; we facilitate bookings between users and drivers. Availability and pricing may vary by location and service type.`,
-    image: indiaPhotoBangaloreAutos(600),
-    alt: 'Warehouse and distribution operations — goods logistics and last-mile network',
-  },
-  {
-    title: 'User accounts and eligibility',
-    content:
-      'You must be at least 18 years old and able to enter into a binding contract to use our services. You are responsible for maintaining the confidentiality of your account and for all activity under your account. You must provide accurate and complete information when registering or booking.',
-    image: indiaPhotoHosurMotorcycle(600),
-    alt: 'Delivery professional with goods equipment — customer accounts and logistics partners',
-  },
-  {
-    title: 'Bookings and payments',
-    content:
-      'When you book a delivery, you agree to pay the fare and any applicable fees displayed at the time of booking. Payment may be collected in advance or after completion as per the chosen method. Cancellation and refund policies are disclosed at booking and in the app. We may use third-party payment processors; their terms may also apply.',
-    image: indiaPhotoMumbaiLoading(600),
-    alt: 'Workers loading a truck in Mumbai — bookings and commercial goods',
-  },
-  {
-    title: 'Prohibited use',
-    content:
-      "You may not use our platform for any illegal purpose, to transport prohibited or hazardous goods, or to harm others. You may not abuse, circumvent, or attempt to gain unauthorized access to our systems or other users' accounts. We reserve the right to suspend or terminate accounts that violate these terms.",
-    image: indiaPhotoHyderabadAuto(600),
-    alt: 'Cargo loading bay with packages — compliant goods transport only',
-  },
-  {
-    title: 'Driver partners',
-    content:
-      'Driver partners are independent; they are not employees of LiftnGo. We do not guarantee the availability, conduct, or quality of any driver. Disputes regarding a delivery may be raised through our support channels; we will endeavour to assist in resolution in line with our policies.',
-    image: indiaPhotoHosurMotorcycle(600),
-    alt: 'Goods delivery partner — independent driver partners for cargo',
-  },
-  {
-    title: 'Disclaimer of warranties',
-    content:
-      'Our services are provided as is and as available. We do not warrant that the platform will be uninterrupted, error-free, or free of harmful components. To the fullest extent permitted by law, we disclaim all warranties, express or implied.',
-    image: indiaPhotoMumbaiStreetWalk(600),
-    alt: 'Retail goods and market logistics — services as available in covered areas',
-  },
-  {
-    title: 'Limitation of liability',
-    content:
-      'To the maximum extent permitted by applicable law, LiftnGo and its affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or for loss of profits, data, or use. Our total liability for any claim arising from your use of the services shall not exceed the amount you paid to us in the twelve months preceding the claim.',
-    image: indiaPhotoBangaloreLoadedTruck(600),
-    alt: 'Urban goods transport in India — liability limits',
-  },
-  {
-    title: 'Governing law',
-    content:
-      'These terms are governed by the laws of India. Any disputes shall be subject to the exclusive jurisdiction of the courts of India, unless otherwise required by applicable law.',
-    image: indiaPhotoBangaloreAutos(600),
-    alt: 'Commercial goods transport — governed by laws of India',
-  },
-  {
-    title: 'Contact',
-    content: `For questions about these terms, contact us at legal@liftngo.com or through the contact options on our website.`,
-    image: indiaPhotoMumbaiStreetWalk(600),
-    alt: 'Goods logistics operations — contact Liftngo',
-  },
-];
+export const metadata = generatePageMetadata({
+  title: `Terms of Service | ${SITE_NAME}`,
+  description: `${SITE_NAME} Terms of Service — platform use, trips, subscriptions, lease prepay, Razorpay payments, GST, data security, acceptable use, liability, and India governing law. Read before checkout.`,
+  path: '/terms',
+  keywords: [
+    `${SITE_NAME} terms`,
+    'terms of service India',
+    'B2B logistics terms',
+    'lease prepayment terms',
+    'Razorpay checkout terms',
+    'GST logistics terms',
+    'delivery platform legal',
+  ],
+});
 
 export default function TermsPage() {
   return (
-    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, { name: 'Terms', path: '/terms' }]}>
-      <main className="flex-1">
-        {/* Hero */}
-        <section className="relative overflow-hidden bg-gray-900">
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, { name: 'Terms of Service', path: '/terms' }]}>
+      <main className="flex-1 bg-stone-50/80">
+        <section className="relative overflow-hidden bg-[#12152a]">
           <div className="absolute inset-0">
             <Image
               src={indiaPhotoBangaloreLoadedTruck(1600)}
-              alt="Indian urban logistics — terms and conditions"
+              alt="Indian urban logistics — Liftngo terms of service"
               fill
-              className="object-cover opacity-60"
+              className="object-cover opacity-45"
               priority
               sizes="100vw"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#12152a]/95 via-[#12152a]/65 to-[#12152a]/40" />
           </div>
-          <div className="relative mx-auto max-w-4xl px-4 py-14 text-center sm:px-6 sm:py-20 lg:px-8">
-            <h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl">Terms & Conditions</h1>
-            <p className="text-gray-200">
-              Last updated: {new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
+          <div className="relative mx-auto max-w-4xl px-4 py-12 text-center sm:px-6 sm:py-16 lg:px-8">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/60">Legal</p>
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-[2.5rem]">
+              Terms of Service
+            </h1>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
+              Complete terms for using the {SITE_NAME} platform — bookings, subscriptions, rental &amp; lease programs,
+              payments, GST, security, compliance, and dispute resolution.
             </p>
+            <p className="mt-4 text-sm font-medium text-white/85">
+              Last updated:{' '}
+              <time dateTime={TERMS_LAST_UPDATED_ISO}>{LAST_UPDATED_DISPLAY}</time>
+            </p>
+            <div className="mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-2 text-[11px] text-white/80 sm:text-xs">
+              <Link
+                href="/privacy"
+                className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 font-semibold backdrop-blur-sm transition-colors hover:bg-white/15"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/contact#grievance-officer"
+                className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 font-semibold backdrop-blur-sm transition-colors hover:bg-white/15"
+              >
+                Contact &amp; grievance officer
+              </Link>
+            </div>
           </div>
         </section>
 
-        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-          {SECTIONS.map((section) => (
-            <section key={section.title} className="mb-12 border-b border-gray-100 pb-12 last:mb-0 last:border-0 last:pb-0">
-              <div className="relative mb-4 aspect-[2/1] w-full overflow-hidden rounded-xl bg-gray-100 sm:aspect-[21/9]">
-                <Image src={section.image} alt={section.alt} fill className="object-cover" sizes="(max-width: 768px) 100vw, 672px" />
-              </div>
-              <h2 className="mb-3 text-xl font-semibold text-gray-900">{section.title}</h2>
-              <p className="leading-relaxed text-gray-600">{section.content}</p>
-            </section>
-          ))}
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:flex lg:gap-10 lg:px-8 lg:py-14">
+          <nav
+            aria-label="Terms sections"
+            className="mb-10 lg:sticky lg:top-28 lg:mb-0 lg:h-fit lg:w-64 lg:shrink-0 lg:self-start"
+          >
+            <div className="rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-stone-500">On this page</p>
+              <ol className="mt-3 max-h-[min(70vh,520px)] space-y-1.5 overflow-y-auto overscroll-contain pr-1 text-[11px] leading-snug sm:text-xs">
+                {TERMS_SECTIONS.map((s, i) => (
+                  <li key={s.id}>
+                    <a
+                      href={`#${s.id}`}
+                      className="block rounded-lg px-2 py-1 text-stone-700 transition-colors hover:bg-stone-100 hover:text-stone-900"
+                    >
+                      <span className="tabular-nums text-stone-400">{i + 1}.</span> {s.title.replace(/^\d+\.\s*/, '')}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </nav>
+
+          <div className="min-w-0 flex-1">
+            <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-[12px] leading-relaxed text-amber-950 shadow-sm sm:px-5 sm:text-[13px]">
+              <strong className="font-semibold">Summary:</strong> These Terms govern your use of {SITE_NAME}. They include
+              payment and tax rules, lease prepay consents at checkout, data practices (see{' '}
+              <Link href="/privacy" className="font-semibold text-[var(--color-primary)] underline-offset-2 hover:underline">
+                Privacy Policy
+              </Link>
+              ), and limitation of liability. If you need help before a large payment, use our contact and consultant
+              channels.
+            </div>
+
+            <article className="prose prose-gray prose-headings:scroll-mt-28 prose-headings:font-semibold prose-headings:text-stone-900 prose-p:text-stone-600 prose-p:leading-relaxed prose-li:text-stone-600 prose-strong:text-stone-800 mt-8 max-w-none">
+              {TERMS_SECTIONS.map((section) => (
+                <section key={section.id} id={section.id} className="border-b border-stone-200/70 pb-10 pt-2 last:border-0 last:pb-2">
+                  <h2 className="text-xl font-bold tracking-tight text-stone-900 sm:text-2xl">{section.title}</h2>
+                  {section.intro?.map((p, idx) => (
+                    <p key={`${section.id}-intro-${idx}`}>{p}</p>
+                  ))}
+                  {section.body?.map((p, idx) => (
+                    <p key={`${section.id}-body-${idx}`}>{p}</p>
+                  ))}
+                  {section.subsections?.map((sub) => (
+                    <div key={sub.heading} className="mt-6">
+                      <h3 className="!mt-0 text-base font-semibold text-stone-900 sm:text-lg">{sub.heading}</h3>
+                      {sub.body.map((p, idx) => (
+                        <p key={`${section.id}-${sub.heading}-${idx}`}>{p}</p>
+                      ))}
+                    </div>
+                  ))}
+                </section>
+              ))}
+            </article>
+
+            <p className="mt-10 rounded-xl border border-stone-200 bg-white px-4 py-3 text-[11px] leading-relaxed text-stone-500 sm:text-xs">
+              This document is provided for transparency and operational clarity. It does not constitute legal, tax, or
+              regulatory advice. For enterprise or high-value contracts, obtain guidance from qualified professionals.{' '}
+              {SITE_NAME} may operate through one or more Indian legal entities; the contracting entity for your
+              transaction is identified on your order confirmation or tax invoice where required.
+            </p>
+          </div>
         </div>
       </main>
     </ContentLayout>

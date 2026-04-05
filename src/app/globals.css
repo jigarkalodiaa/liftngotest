@@ -221,12 +221,14 @@ select {
   }
 }
 
-/* Hide scrollbar while keeping scroll (carousel, etc.) */
-.scrollbar-hide {
+/* Hide scrollbar while keeping overflow scroll (carousels, pills, wide tables) */
+.scrollbar-hide,
+.scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-.scrollbar-hide::-webkit-scrollbar {
+.scrollbar-hide::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 

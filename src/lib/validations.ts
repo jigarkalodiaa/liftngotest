@@ -20,6 +20,16 @@ export function normalizePhoneInput(value: string): string {
   return value.replace(/\D/g, '').slice(0, MOBILE_LENGTH);
 }
 
+/**
+ * Lead / enquiry fields: digits only, strip leading 91 or 0, then cap at 10 — so pasted +91 numbers match login rules after submit.
+ */
+export function normalizeLeadPhoneInput(value: string): string {
+  let d = value.replace(/\D/g, '');
+  if (d.length === 12 && d.startsWith('91')) d = d.slice(2);
+  if (d.length === 11 && d.startsWith('0')) d = d.slice(1);
+  return d.slice(0, MOBILE_LENGTH);
+}
+
 /** Indian mobile: first digit 6–9 (TRAI allocation). */
 const INDIAN_MOBILE_BODY = /^[6-9]\d{9}$/;
 
@@ -30,6 +40,19 @@ export const mobileSchema = z
   .refine((s) => s.length > 0, 'Please enter your mobile number')
   .refine((s) => s.length === MOBILE_LENGTH, 'Please enter a valid 10-digit mobile number')
   .refine((s) => INDIAN_MOBILE_BODY.test(s), 'Enter a valid Indian mobile number (must start with 6–9)');
+
+/** API + lead UIs: accept pasted country code, then same validation as `mobileSchema` / login. */
+export const leadPhoneSchema = z.string().transform((s) => normalizeLeadPhoneInput(s)).pipe(mobileSchema);
+
+/** Same messages as login `mobileSchema` — for imperative lead forms. */
+export function parseIndianMobile(input: string): { ok: true; digits: string } | { ok: false; message: string } {
+  const r = leadPhoneSchema.safeParse(input);
+  if (!r.success) {
+    const msg = r.error.issues[0]?.message ?? 'Invalid mobile number';
+    return { ok: false, message: msg };
+  }
+  return { ok: true, digits: r.data };
+}
 
 /** OTP: trim, exactly 4 digits */
 export const otpSchema = z

@@ -2,79 +2,122 @@
 
 import Link from 'next/link';
 import Image from '@/components/OptimizedImage';
-import { SITE_NAME, BRAND, LOGO_PATH } from '@/lib/site';
+import { SITE_NAME, BRAND, LOGO_PATH, ONE_LINE_PITCH } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
 import { SOCIAL_LINKS } from '@/config/env';
 
-export default function Footer() {
+type FooterLink = { href: string; label: string };
+
+function FooterNavColumn({ idSlug, title, links }: { idSlug: string; title: string; links: readonly FooterLink[] }) {
+  const headingId = `footer-nav-${idSlug}`;
   return (
-    <footer className="bg-gray-900 text-white py-12 w-full">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-col items-center text-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 w-full max-w-2xl lg:max-w-none place-items-center">
-          <div className="col-span-1 sm:col-span-2 lg:col-span-1 flex flex-col items-center">
-            <Link href="/" className="flex items-center justify-center mb-4" aria-label={`${SITE_NAME} home`}>
+    <nav className="min-w-0" aria-labelledby={headingId}>
+      <h3 id={headingId} className="text-sm font-semibold text-white tracking-wide">
+        {title}
+      </h3>
+      <ul className="mt-4 space-y-2.5 text-sm text-gray-400">
+        {links.map(({ href, label }) => (
+          <li key={`${idSlug}:${href}:${label}`}>
+            <Link href={href} className="hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 rounded">
+              {label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+const BOOK_AND_PLANS: FooterLink[] = [
+  { href: ROUTES.BOOK_DELIVERY, label: 'Book goods delivery' },
+  { href: ROUTES.PLANS, label: 'Plans & pricing hub' },
+  { href: ROUTES.PLANS_SUBSCRIPTION, label: 'Daily delivery subscriptions' },
+  { href: ROUTES.PLANS_RENT, label: 'Dedicated vehicle rent' },
+  { href: ROUTES.PLANS_LEASE, label: 'Long-term vehicle lease' },
+  { href: ROUTES.PLANS_CUSTOM, label: 'Custom plan calculator' },
+  { href: ROUTES.PLANS_GST, label: 'GST billing for businesses' },
+];
+
+const B2B_AND_REGIONS: FooterLink[] = [
+  { href: ROUTES.WHY_LIFTNGO, label: 'Why choose Liftngo' },
+  { href: ROUTES.GROW_WITH_LIFTNGO, label: 'Partner & grow with Liftngo' },
+  { href: ROUTES.NOIDA_B2B_LOGISTICS, label: 'B2B logistics Noida & Delhi NCR' },
+  { href: ROUTES.NOIDA, label: 'Noida logistics dashboard' },
+  { href: ROUTES.NOIDA_FLEET_TECH, label: 'Fleet owner technology' },
+  { href: ROUTES.B2B_TRANSPORT, label: 'B2B transport India' },
+  { href: ROUTES.KHATU_SHYAM_LOGISTICS, label: 'Khatu Shyam Ji logistics' },
+  { href: ROUTES.LOGISTICS_KHATU, label: 'Logistics in Khatu corridor' },
+];
+
+const KHATU_AND_FOOD: FooterLink[] = [
+  { href: ROUTES.KHATU_HOTELS, label: 'Hotels near Khatu Shyam' },
+  { href: ROUTES.KHATU_TRAVEL, label: 'Khatu travel & rides' },
+  { href: ROUTES.KHATU_MARKETPLACE, label: 'Khatu marketplace' },
+  { href: ROUTES.KHATU_GUIDE, label: 'Khatu visitor guide' },
+  { href: ROUTES.FIND_RESTAURANT, label: 'Find restaurants & food' },
+  { href: ROUTES.FOOD_MENU, label: 'Food delivery menu' },
+];
+
+const VEHICLE_SERVICES: FooterLink[] = [
+  { href: '/services', label: 'All delivery services' },
+  { href: '/services/walk', label: 'Walk & hand delivery' },
+  { href: '/services/2-wheeler', label: 'Two-wheeler delivery' },
+  { href: '/services/3-wheeler', label: 'Three-wheeler cargo (auto, EV)' },
+  { href: '/services/4-wheeler', label: 'Four-wheeler & mini truck' },
+  { href: '/services#fleet-roadmap', label: 'More vehicles (roadmap)' },
+];
+
+const COMPANY: FooterLink[] = [
+  { href: ROUTES.ABOUT, label: 'About Liftngo' },
+  { href: ROUTES.ABOUT_B2B_LOGISTICS, label: 'B2B logistics explained' },
+  { href: ROUTES.ABOUT_THREE_WHEEL_CARGO, label: 'Electric & CNG three-wheel cargo' },
+  { href: ROUTES.ABOUT_KHATU_SUPPLY_CHAIN, label: 'Khatu supply chain' },
+  { href: '/blog', label: 'Blog & updates' },
+  { href: '/faq', label: 'Help & FAQs' },
+  { href: '/careers', label: 'Careers' },
+  { href: ROUTES.BECOME_DRIVER, label: 'Become a delivery partner' },
+  { href: ROUTES.CONTACT, label: 'Contact & support' },
+  { href: ROUTES.CONTACT_BUSINESS_ENQUIRY, label: 'Business enquiry' },
+  { href: ROUTES.PROMOTIONS, label: 'Offers & promotions' },
+];
+
+export default function Footer() {
+  const year = new Date().getFullYear();
+
+  return (
+    <footer className="w-full bg-gray-900 text-white" lang="en-IN">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 xl:px-10">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 xl:gap-x-6 2xl:gap-x-8">
+          {/* Brand — keyword-rich intro for crawlers & users */}
+          <div className="xl:col-span-2">
+            <Link href="/" className="inline-flex items-center mb-4" aria-label={`${SITE_NAME} — home`}>
               <Image
                 src={LOGO_PATH}
                 alt={SITE_NAME}
                 width={180}
                 height={52}
-                className="h-9 w-auto max-w-[200px] object-contain object-center"
+                className="h-9 w-auto max-w-[200px] object-contain object-left"
               />
             </Link>
-            <p className="text-gray-400 text-sm max-w-xs">{BRAND?.shortDescription ?? ''}</p>
+            <p className="text-sm leading-relaxed text-gray-400 max-w-md">{BRAND?.shortDescription ?? ''}</p>
+            <p className="mt-3 text-xs leading-relaxed text-gray-500 max-w-md">{ONE_LINE_PITCH}</p>
           </div>
 
-          <div className="flex flex-col items-center">
-            <h4 className="font-semibold mb-4">Company</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
-              <li><Link href={ROUTES.BECOME_DRIVER} className="hover:text-white transition-colors">Become a driver</Link></li>
-              <li><Link href="/blog" className="hover:text-white transition-colors">Company Blog</Link></li>
-              <li><Link href="/faq" className="hover:text-white transition-colors">FAQs</Link></li>
-              <li><Link href={ROUTES.CONTACT} className="hover:text-white transition-colors">Contact</Link></li>
-              <li><Link href="/promotions" className="hover:text-white transition-colors">Promotions</Link></li>
-            </ul>
-          </div>
+          <FooterNavColumn idSlug="book-plans" title="Book & plans" links={BOOK_AND_PLANS} />
+          <FooterNavColumn idSlug="b2b-regions" title="B2B & regions" links={B2B_AND_REGIONS} />
+          <FooterNavColumn idSlug="khatu-food" title="Khatu & food" links={KHATU_AND_FOOD} />
+          <FooterNavColumn idSlug="vehicles" title="Vehicles" links={VEHICLE_SERVICES} />
+          <FooterNavColumn idSlug="company" title="Company" links={COMPANY} />
+        </div>
 
-          <div className="flex flex-col items-center">
-            <h4 className="font-semibold mb-4">Corridors</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>
-                <Link href={ROUTES.KHATU_SHYAM_LOGISTICS} className="hover:text-white transition-colors">
-                  Khatu Shyam Ji logistics
-                </Link>
-              </li>
-              <li>
-                <Link href={ROUTES.NOIDA_B2B_LOGISTICS} className="hover:text-white transition-colors">
-                  Noida &amp; Delhi NCR B2B
-                </Link>
-              </li>
-              <li><Link href="/logistics-khatu" className="hover:text-white transition-colors">Logistics in Khatu</Link></li>
-              <li><Link href="/b2b-transport" className="hover:text-white transition-colors">B2B transport</Link></li>
-              <li><Link href="/book-delivery" className="hover:text-white transition-colors">Book delivery</Link></li>
-            </ul>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <h4 className="font-semibold mb-4">Service</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/services" className="hover:text-white transition-colors">Our services</Link></li>
-              <li><Link href="/services/walk" className="hover:text-white transition-colors">Walk</Link></li>
-              <li><Link href="/services/2-wheeler" className="hover:text-white transition-colors">2 Wheeler</Link></li>
-              <li><Link href="/services/3-wheeler" className="hover:text-white transition-colors">3 Wheeler</Link></li>
-              <li><Link href="/services/4-wheeler" className="hover:text-white transition-colors">4 Wheeler</Link></li>
-              <li>
-                <Link href="/services#fleet-roadmap" className="hover:text-white transition-colors text-gray-500">
-                  More vehicles (soon)
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <h4 className="font-semibold mb-4">Contact &amp; social</h4>
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+        {/* Social */}
+        <div className="mt-12 border-t border-gray-800 pt-10">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-white">Follow Liftngo</p>
+              <p className="mt-1 text-xs text-gray-500">Updates on logistics, Khatu corridor service, and NCR B2B.</p>
+            </div>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <a
                 href={SOCIAL_LINKS.youtube}
                 target="_blank"
@@ -134,10 +177,24 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8 w-full flex flex-col sm:flex-row justify-center items-center gap-4 flex-wrap">
-          <Link href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">Privacy Policy</Link>
-          <Link href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">Terms of Service</Link>
-          <p className="text-gray-400 text-sm">© {new Date().getFullYear()} {SITE_NAME ?? 'LiftnGo'}. All rights reserved.</p>
+        <div className="mt-8 flex flex-col items-start gap-4 border-t border-gray-800 pt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-400">
+            <Link href="/privacy" className="hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 rounded">
+              Privacy policy
+            </Link>
+            <Link href="/terms" className="hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 rounded">
+              Terms of service
+            </Link>
+            <a
+              href="/sitemap.xml"
+              className="hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 rounded"
+            >
+              Sitemap
+            </a>
+          </div>
+          <p className="text-sm text-gray-500">
+            © {year} {SITE_NAME}. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
