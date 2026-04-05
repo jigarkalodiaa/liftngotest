@@ -108,6 +108,8 @@ export const ROUTES = {
   PLANS_GST: '/plans/gst',
   /** SEO dashboard URL — same UI as `/dashboard` with zone pinned to Noida. */
   NOIDA: '/noida',
+  /** Fleet owners: how Liftngo tech helps run owned vehicles (assign trips, private fleet). */
+  NOIDA_FLEET_TECH: '/noida/fleet-tech',
   /** Alias → `/plans/custom` (see `next.config` redirect). */
   FLEET: '/fleet',
 } as const;

@@ -4,7 +4,7 @@ import NoidaJsonLd from './NoidaJsonLd';
 
 const NOIDA_TITLE = 'Fast Logistics & Delivery Services in Noida | Liftngo';
 const NOIDA_DESCRIPTION =
-  'Book same-day delivery in Noida and NCR with Liftngo: 2W, 3W, 4W goods vehicles, subscription plans, GST-ready billing, live tracking. Mini truck booking, recurring routes, custom multi-vehicle quotes. From ₹40/trip for short 2W runs.';
+  'Book same-day delivery in Noida and NCR with Liftngo: 2W, 3W, 4W goods vehicles, subscription plans, GST-ready billing, live tracking. Mini truck booking, recurring routes, custom multi-vehicle quotes. From ₹39/trip 2W ad hoc short-distance base fare; 3W prepaid packs from ₹299/trip base fare starting.';
 
 const NOIDA_KEYWORDS = [
   'logistics noida',
