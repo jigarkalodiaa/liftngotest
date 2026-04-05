@@ -119,6 +119,7 @@ export const ROUTES = {
   PLANS_LEASE: '/plans/lease',
   PLANS_LEASE_CHECKOUT: '/plans/lease/checkout',
   PLANS_CUSTOM: '/plans/custom',
+  PLANS_CUSTOM_CHECKOUT: '/plans/custom/checkout',
   PLANS_GST: '/plans/gst',
   /** SEO dashboard URL — same UI as `/dashboard` with zone pinned to Noida. */
   NOIDA: '/noida',

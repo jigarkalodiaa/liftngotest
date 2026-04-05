@@ -12,6 +12,7 @@ const FLOW_HEADLINE: Record<PaymentResultFlow, string> = {
   subscription: 'Trip subscription',
   rent: 'Vehicle rent',
   lease: 'Vehicle lease',
+  custom: 'Custom plan',
   delivery: 'Goods delivery',
   food: 'Food delivery',
   hotel: 'Hotel stay',
@@ -23,6 +24,7 @@ function isPaymentResultFlow(s: string | null): s is PaymentResultFlow {
     s === 'subscription' ||
     s === 'rent' ||
     s === 'lease' ||
+    s === 'custom' ||
     s === 'delivery' ||
     s === 'food' ||
     s === 'hotel' ||
@@ -185,22 +187,12 @@ function PaymentResultInner() {
                 )}
               </>
             ) : (
-              <>
-                <Link
-                  href={retrySafe}
-                  className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-[var(--color-primary)] px-5 text-sm font-bold text-white shadow-sm transition hover:opacity-95 sm:min-w-[160px]"
-                >
-                  Try again
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => router.push(ROUTES.DASHBOARD)}
-                  className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-800 shadow-sm transition hover:bg-gray-50 sm:flex-initial"
-                >
-                  <LayoutDashboard className="h-4 w-4" aria-hidden />
-                  Dashboard
-                </button>
-              </>
+              <Link
+                href={retrySafe}
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[var(--color-primary)] px-5 text-sm font-bold text-white shadow-sm transition hover:opacity-95 sm:max-w-xs sm:w-auto"
+              >
+                Try again
+              </Link>
             )}
           </div>
         </div>
