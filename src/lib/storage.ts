@@ -21,6 +21,26 @@ import { ROUTES, SESSION_KEYS, STORAGE_KEYS } from './constants';
 
 const ALLOWED_POST_LOGIN_PATHS = new Set<string>([ROUTES.PICKUP_LOCATION, ROUTES.PICKUP_LOCATION_EDIT]);
 
+/** Product / plans / Noida entry paths — allowlisted for `/login?redirect=` (no open redirects). */
+const ALLOWED_PRODUCT_POST_LOGIN_PATHS = new Set<string>([
+  ROUTES.DASHBOARD,
+  ROUTES.NOIDA,
+  ROUTES.PICKUP_LOCATION,
+  ROUTES.PICKUP_LOCATION_EDIT,
+  ROUTES.BOOK_DELIVERY,
+  ROUTES.PLANS,
+  ROUTES.PLANS_SUBSCRIPTION,
+  ROUTES.PLANS_SUBSCRIPTION_CHECKOUT,
+  ROUTES.PLANS_LEASE,
+  ROUTES.PLANS_LEASE_CHECKOUT,
+  ROUTES.PLANS_RENT,
+  ROUTES.PLANS_RENT_CHECKOUT,
+  ROUTES.PLANS_CUSTOM,
+  ROUTES.PLANS_CUSTOM_CHECKOUT,
+  ROUTES.PLANS_GST,
+  ROUTES.GROW_WITH_LIFTNGO,
+]);
+
 function isAllowedFindRestaurantPostLoginPath(pathOnly: string): boolean {
   if (pathOnly === ROUTES.FIND_RESTAURANT) return true;
   const prefix = `${ROUTES.FIND_RESTAURANT}/`;
@@ -30,7 +50,7 @@ function isAllowedFindRestaurantPostLoginPath(pathOnly: string): boolean {
   return /^[a-z0-9-]+$/i.test(slug);
 }
 
-/** Allow pickup booking URLs, food menu listing, and `/find-restaurant/[slug]` — no open redirects. */
+/** Allow pickup booking URLs, plans, dashboard entry, food menu listing, and `/find-restaurant/[slug]` — no open redirects. */
 export function sanitizePostLoginRedirectTarget(raw: string): string | null {
   const t = raw.trim();
   if (t.includes('//') || t.includes('\\')) return null;
@@ -40,6 +60,7 @@ export function sanitizePostLoginRedirectTarget(raw: string): string | null {
   const pathOnly = q === -1 ? beforeHash : beforeHash.slice(0, q);
   if (!pathOnly.startsWith('/')) return null;
   if (ALLOWED_POST_LOGIN_PATHS.has(pathOnly)) return t;
+  if (ALLOWED_PRODUCT_POST_LOGIN_PATHS.has(pathOnly)) return t;
   if (isAllowedFindRestaurantPostLoginPath(pathOnly)) return t;
   return null;
 }

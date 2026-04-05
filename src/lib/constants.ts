@@ -40,7 +40,8 @@ export const STORAGE_KEYS = {
 /** sessionStorage — cleared when the tab closes; not shared across tabs. */
 export const SESSION_KEYS = {
   /**
-   * After OTP success, navigate here (pathname + optional `?query`). Must stay under `/pickup-location` only.
+   * After OTP success, navigate here (pathname + optional `?query`).
+   * Allowed targets are validated by {@link sanitizePostLoginRedirectTarget}.
    */
   POST_LOGIN_PATH: 'liftngo_post_login_path',
   /** One tab: user skipped / dismissed location prompt (optional). */

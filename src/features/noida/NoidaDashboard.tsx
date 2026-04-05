@@ -19,6 +19,7 @@ import {
   SUBSCRIPTION_COMPLIANCE_BULLETS,
   SUBSCRIPTION_PACK_BENEFITS,
 } from '@/lib/pricing/subscriptionDisclosures';
+import { NOIDA_QUICK_FARE_MODAL_ENTRIES } from '@/lib/pricing/noidaQuickFareCopy';
 import {
   SUBSCRIPTION_NOIDA_STRIP_PLANS,
   subscriptionHighlighted3WPack,
@@ -48,22 +49,6 @@ export interface NoidaDashboardProps {
 /* ── Data ─────────────────────────────────────────────────── */
 
 const NOIDA_HIGHLIGHT_3W_PACK = subscriptionHighlighted3WPack();
-
-/** Hero info modal — vehicle class + booking type explicit; legal bullets from `subscriptionDisclosures`. */
-const HERO_PRICING_MODAL_PATHS = [
-  {
-    title: '2W — ad hoc',
-    kicker: 'From ₹39/trip',
-    body:
-      'Two-wheel goods billed per trip with no pack. ₹39 reflects a short-distance base fare on typical 2W lanes; final amount adds distance, stops, time, and taxes/tolls as applicable. You confirm a live quote before payment.',
-  },
-  {
-    title: '3W — prepaid packs',
-    kicker: 'From ₹299/trip',
-    body:
-      `Three-wheel pack pricing starts from a ₹299/trip base fare on qualifying entry tiers before tolls and add-ons. Higher tiers (e.g. ${NOIDA_HIGHLIGHT_3W_PACK.name} at ${formatSubscriptionRupee(NOIDA_HIGHLIGHT_3W_PACK.perTrip)}/trip) bundle more capacity and perks. One-off 3W ad hoc is usually higher — see calculators and plan pages.`,
-  },
-] as const;
 
 type ServiceTileAccent = 'teal' | 'amber' | 'sky' | 'indigo' | 'emerald' | 'violet';
 
@@ -565,7 +550,7 @@ export default function NoidaDashboard({
                   </p>
                 </div>
                 <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-2">
-                  {HERO_PRICING_MODAL_PATHS.map((block) => (
+                  {NOIDA_QUICK_FARE_MODAL_ENTRIES.map((block) => (
                     <div
                       key={block.title}
                       className="rounded-2xl border border-slate-200/70 bg-white p-3.5 shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] sm:p-4"
