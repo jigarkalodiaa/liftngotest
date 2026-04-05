@@ -24,7 +24,7 @@ export const MARKETING_PATHS: { path: string; priority: number; changeFrequency:
   { path: '/services/walk', priority: 0.79, changeFrequency: 'monthly' },
   { path: '/about', priority: 0.88, changeFrequency: 'monthly' },
   { path: '/about/khatu-supply-chain', priority: 0.8, changeFrequency: 'monthly' },
-  { path: '/about/b2b-logistics', priority: 0.78, changeFrequency: 'monthly' },
+  { path: '/about/b2b-logistics', priority: 0.81, changeFrequency: 'monthly' },
   { path: '/about/electric-three-wheel-cargo', priority: 0.76, changeFrequency: 'monthly' },
   { path: '/faq', priority: 0.84, changeFrequency: 'weekly' },
   { path: '/blog', priority: 0.76, changeFrequency: 'weekly' },
@@ -37,6 +37,8 @@ export const MARKETING_PATHS: { path: string; priority: number; changeFrequency:
   { path: '/noida/coconut', priority: 0.82, changeFrequency: 'weekly' },
   /** Logged-in Noida hub — indexable for local “logistics Noida” intent (metadata + JSON-LD on layout). */
   { path: '/noida', priority: 0.91, changeFrequency: 'weekly' },
+  /** Fleet-owner B2B explainer — complements /noida-b2b-logistics. */
+  { path: '/noida/fleet-tech', priority: 0.84, changeFrequency: 'monthly' },
   { path: '/find-restaurant', priority: 0.74, changeFrequency: 'weekly' },
   { path: '/careers', priority: 0.68, changeFrequency: 'monthly' },
   { path: '/contact', priority: 0.72, changeFrequency: 'monthly' },

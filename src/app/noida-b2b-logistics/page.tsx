@@ -10,7 +10,8 @@ import { ROUTES } from '@/lib/constants';
 import { buildNoidaB2bLogisticsGraph } from '@/lib/structuredData/locationPages';
 import { NOIDA_B2B_LANDING_FAQ } from '@/data/noidaB2bLandingFaq';
 import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
-import { BadgeCheck, LayoutDashboard, ShieldCheck, Truck, Zap } from 'lucide-react';
+import { BadgeCheck, LayoutDashboard, MapPinned, ShieldCheck, Truck, Zap } from 'lucide-react';
+import Image from '@/components/OptimizedImage';
 
 const NoidaB2bProductClient = dynamic(
   () => import('./NoidaB2bProductClient').then((m) => ({ default: m.NoidaB2bProductMirrorBody })),
@@ -99,6 +100,28 @@ export default function NoidaB2bLogisticsPage() {
                 <Truck className="h-7 w-7 text-sky-300" aria-hidden />
                 <p className="mt-3 text-sm font-bold text-white">2W · 3W · 4W cargo</p>
                 <p className="mt-1 text-xs leading-relaxed text-white/70">Match vehicle class to the lane; quote before you commit.</p>
+              </div>
+              <div className="rounded-2xl border border-white/20 bg-white/[0.07] p-4 shadow-lg ring-1 ring-white/10 backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                  <MapPinned className="h-6 w-6 shrink-0 text-amber-200" aria-hidden />
+                  <p className="text-sm font-bold text-white">Noida fleet art</p>
+                </div>
+                <div className="mt-3 flex items-end justify-center gap-2 border-t border-white/10 pt-3">
+                  {[
+                    { src: '/dashboard/goods-two-wheeler.svg', w: 36 },
+                    { src: '/dashboard/goods-three-wheeler.svg', w: 44 },
+                    { src: '/dashboard/goods-four-wheeler.svg', w: 48 },
+                  ].map((asset) => (
+                    <div
+                      key={asset.src}
+                      className="relative shrink-0 opacity-95"
+                      style={{ width: asset.w, height: Math.round(asset.w * 0.85) }}
+                    >
+                      <Image src={asset.src} alt="" fill className="object-contain object-bottom" sizes="48px" unoptimized />
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 text-[10px] leading-snug text-white/60">Product icons · same as in-app booking</p>
               </div>
             </div>
           }

@@ -208,7 +208,7 @@ export function buildNoidaB2bLogisticsGraph({
       ],
       offers: {
         '@type': 'Offer',
-        url: `${SITE_URL}/book-delivery`,
+        url: pageUrl,
         availability: 'https://schema.org/InStock',
         priceCurrency: 'INR',
       },

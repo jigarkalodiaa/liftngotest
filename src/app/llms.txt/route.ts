@@ -13,7 +13,7 @@ export function GET() {
   const lines: string[] = [
     `# ${SITE_NAME}`,
     '',
-    `> Hyperlocal goods transport (Khatu Shyam Ji) and B2B logistics (Noida & Delhi NCR). Multi-vehicle booking with upfront pricing.`,
+    `> B2B goods logistics (Noida & Delhi NCR): subscription packs, lease, GST billing, multi-vehicle booking. Hyperlocal Khatu Shyam Ji corridor with upfront pricing.`,
     '',
     '## Site',
     '',
@@ -32,6 +32,9 @@ export function GET() {
     bullet('/services', 'Services hub'),
     bullet('/b2b-transport', 'B2B transport'),
     bullet('/noida-b2b-logistics', 'Noida B2B'),
+    bullet('/plans', 'Plans & pricing hub'),
+    bullet('/noida/fleet-tech', 'Fleet owner tech (Noida)'),
+    bullet('/about/b2b-logistics', 'About B2B logistics'),
     bullet('/khatu-shyam-logistics', 'Khatu corridor'),
     bullet('/blog', 'Blog'),
     bullet('/faq', 'FAQ'),

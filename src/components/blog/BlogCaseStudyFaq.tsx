@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 export type CaseStudyFaqItem = { question: string; answer: string };
@@ -9,9 +9,10 @@ type Props = {
   items: readonly CaseStudyFaqItem[];
   /** Kicker above heading */
   className?: string;
+  toggleStyle?: 'chevron' | 'plus';
 };
 
-export default function BlogCaseStudyFaq({ items, className = '' }: Props) {
+export default function BlogCaseStudyFaq({ items, className = '', toggleStyle = 'chevron' }: Props) {
   const [open, setOpen] = useState<number>(0);
 
   return (
@@ -37,10 +38,18 @@ export default function BlogCaseStudyFaq({ items, className = '' }: Props) {
                 aria-expanded={isOpen}
               >
                 <span className="text-sm font-semibold text-[#051937] sm:text-base">{item.question}</span>
-                <ChevronDown
-                  className={`mt-0.5 h-5 w-5 shrink-0 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                  aria-hidden
-                />
+                {toggleStyle === 'plus' ? (
+                  isOpen ? (
+                    <Minus className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" aria-hidden />
+                  ) : (
+                    <Plus className="mt-0.5 h-5 w-5 shrink-0 text-slate-400" aria-hidden />
+                  )
+                ) : (
+                  <ChevronDown
+                    className={`mt-0.5 h-5 w-5 shrink-0 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    aria-hidden
+                  />
+                )}
               </button>
               {isOpen ? (
                 <div className="border-t border-slate-100 px-4 pb-4 pt-0 sm:px-5">

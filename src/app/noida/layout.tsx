@@ -2,9 +2,9 @@ import { generatePageMetadata } from '@/lib/seo';
 import { OG_IMAGE_PATH } from '@/lib/site';
 import NoidaJsonLd from './NoidaJsonLd';
 
-const NOIDA_TITLE = 'Fast Logistics & Delivery Services in Noida | Liftngo';
+const NOIDA_TITLE = 'B2B & Same-Day Logistics Noida & NCR | Liftngo';
 const NOIDA_DESCRIPTION =
-  'Book same-day delivery in Noida and NCR with Liftngo: 2W, 3W, 4W goods vehicles, subscription plans, GST-ready billing, live tracking. Mini truck booking, recurring routes, custom multi-vehicle quotes. From ₹39/trip 2W ad hoc short-distance base fare; 3W prepaid packs from ₹299/trip base fare starting.';
+  'Corporate and same-day goods logistics in Noida and NCR: B2B subscription packs, long-term lease, GST-ready billing, 2W–4W vehicles, live tracking, recurring routes, and custom multi-vehicle quotes. From ₹39/trip 2W ad hoc short-distance base fare; 3W prepaid packs from ₹299/trip base fare starting.';
 
 const NOIDA_KEYWORDS = [
   'logistics noida',
