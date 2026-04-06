@@ -30,7 +30,7 @@ export const indiaPhotoCargoBayLoading = (w: number) =>
 
 /** Delivery operator with carry equipment — last-mile **goods** / meal logistics (not joyride). */
 export const indiaPhotoDeliveryRiderGoods = (w: number) =>
-  indiaPhoto('photo-1616400615185-4d5c25ffb28d', w);
+  indiaPhoto('photo-1607082348824-0a96f2a4b9da', w);
 
 /** Retail / vendor goods — small-corridor & temple-town adjacent (stalls & product, not metro commute). */
 export const indiaPhotoRetailMarketGoods = (w: number) =>
@@ -46,7 +46,7 @@ export const indiaPhotoCorporateCityscape = (w: number) =>
 
 /** Food table — promotions / restaurant partner context only. */
 export const indiaPhotoFoodTable = (w: number) =>
-  indiaPhoto('photo-1585937421619-b9b5ef2c5641', w);
+  indiaPhoto('photo-1563379926898-05f4575a45d8', w);
 
 /* ─── Legacy names (same functions) — old imports still resolve to cargo-safe imagery ─── */
 

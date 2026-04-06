@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props) {
   const path = `/blog/${post.slug}`;
 
   return generateArticleMetadata({
-    title: `${post.title} | ${SITE_NAME} Blog`,
+    title: post.title,
     description: post.description,
     path,
     image: post.featuredImage,

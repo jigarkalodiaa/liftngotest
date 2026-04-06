@@ -1,4 +1,12 @@
 import type { KhatuShop, KhatuShopProduct } from '@/types/khatu';
+import {
+  indiaPhotoFoodTable,
+  indiaPhotoFreightBoxes,
+  indiaPhotoRetailMarketGoods,
+} from '@/config/indiaLogisticsImages';
+
+/** Verified CDN URLs — legacy Unsplash hotlinks were removed upstream (404 in Semrush). */
+const shopBannerAlt = indiaPhotoRetailMarketGoods(1200);
 
 export const KHATU_SHOPS: KhatuShop[] = [
   {
@@ -16,7 +24,7 @@ export const KHATU_SHOPS: KhatuShop[] = [
   {
     id: 'mandir-sacred-store',
     name: 'Mandir Sacred Store',
-    bannerImage: 'https://images.unsplash.com/photo-1543076659-9380c03afa59?w=1200&q=80',
+    bannerImage: shopBannerAlt,
     description: 'Malas, cholas & pūjā supplies for Khatu Shyam Ji. Straightforward pricing, verified shelf.',
     distanceKm: 0.45,
     liftngoVerified: true,
@@ -56,7 +64,7 @@ export const KHATU_SHOP_PRODUCTS: KhatuShopProduct[] = [
     name: 'Desi ghee bundi ladoo',
     shortDescription: '1 kg — mandir-style prasad',
     priceInr: 420,
-    image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476d?w=800&q=80',
+    image: indiaPhotoFoodTable(800),
     category: 'prasad',
     fastSelling: true,
   },
@@ -66,7 +74,7 @@ export const KHATU_SHOP_PRODUCTS: KhatuShopProduct[] = [
     name: 'Rose offering mala',
     shortDescription: 'For temple archana & distribution',
     priceInr: 120,
-    image: 'https://images.unsplash.com/photo-1543076659-9380c03afa59?w=800&q=80',
+    image: indiaPhotoRetailMarketGoods(800),
     category: 'religious',
     popular: true,
   },
@@ -85,7 +93,7 @@ export const KHATU_SHOP_PRODUCTS: KhatuShopProduct[] = [
     name: 'Brass diyā with cotton wicks',
     shortDescription: 'Compact set for hotel / room pūjā',
     priceInr: 165,
-    image: 'https://images.unsplash.com/photo-1518199266811-42557fd95568?w=800&q=80',
+    image: indiaPhotoFreightBoxes(800),
     category: 'religious',
   },
   {
@@ -104,7 +112,7 @@ export const KHATU_SHOP_PRODUCTS: KhatuShopProduct[] = [
     name: 'Winter darshan shawl',
     shortDescription: 'Unisex — evening aarti comfort',
     priceInr: 799,
-    image: 'https://images.unsplash.com/photo-1594938298603-814184c14d4c?w=800&q=80',
+    image: indiaPhotoRetailMarketGoods(800),
     category: 'local',
   },
 ];

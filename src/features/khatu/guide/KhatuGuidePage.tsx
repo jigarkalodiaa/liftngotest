@@ -41,7 +41,7 @@ export default function KhatuGuidePage() {
             icon={Landmark}
             title="About Khatu Shyam Ji"
             subtitle="Historical corridor & living faith"
-            imageSrc="https://images.unsplash.com/photo-1590736969955-71cc94901144?w=1200&q=80"
+            imageSrc="https://images.unsplash.com/photo-1548013146-72479768bada?w=1200&q=80"
             imageAlt=""
           >
             <p>
