@@ -111,7 +111,13 @@ export default function MarketingPageShell({
       </section>
 
       <div className="bg-[#f6f5f2]">
-        <div className="relative z-10 mx-auto -mt-8 max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">{children}</div>
+        {/*
+          Negative margin pulls this row into the hero; without an opaque bg, children sit on navy
+          and dark headings (text-gray-900) fail contrast. Cream + top radius = readable “lifted” panel.
+        */}
+        <div className="relative z-10 mx-auto -mt-8 max-w-6xl rounded-t-3xl bg-[#f6f5f2] px-4 pb-20 pt-8 shadow-[0_-12px_40px_rgba(0,0,0,0.08)] sm:px-6 sm:pt-10 lg:px-8">
+          {children}
+        </div>
       </div>
     </>
   );

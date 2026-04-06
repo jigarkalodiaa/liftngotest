@@ -208,7 +208,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'ul',
         items: [
-          '🥥 Fresh Coconut Water — Sector 18, live today at `/noida/coconut`.',
+          '🥥 Fresh Coconut Water — Sector 53 (near Kanchanjunga Market), live today at `/noida/coconut`.',
           '🥟 Samosa & snacks — marked coming soon in the dashboard carousel.',
           '🛒 Office groceries — upcoming SKU lane using the same card chrome.',
         ],
@@ -384,7 +384,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: 'p',
         segments: [
-          'Order fresh cards (🥥 live in Sector 18, 🥟/🛒 flagged coming soon) show how we bolt retail SKUs onto business accounts without duplicating identities. Temple-town intensity from ',
+          'Order fresh cards (🥥 live near Kanchanjunga Market, Sector 53, 🥟/🛒 flagged coming soon) show how we bolt retail SKUs onto business accounts without duplicating identities. Temple-town intensity from ',
           { text: 'Khatu Shyam Ji', href: '/khatu-shyam-logistics' },
           ' informs narrow-lane empathy; NCR adds cross-city routing and statutory documentation.',
         ],
