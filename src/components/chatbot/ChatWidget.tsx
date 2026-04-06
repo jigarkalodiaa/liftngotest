@@ -1,18 +1,28 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { trackChatToggle } from '@/lib/analytics';
 import ChatWindow from './ChatWindow';
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
+  const close = useCallback(() => {
+    trackChatToggle('close');
+    setOpen(false);
+  }, []);
 
   return (
     <div className="fixed bottom-4 right-4 z-[100] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
       {open ? <ChatWindow onClose={close} /> : null}
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() =>
+          setOpen((v) => {
+            const next = !v;
+            trackChatToggle(next ? 'open' : 'close');
+            return next;
+          })
+        }
         className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-primary)] text-white shadow-lg ring-2 ring-white/80 transition hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 sm:h-16 sm:w-16"
         aria-expanded={open}
         aria-controls="liftngo-chat-panel"

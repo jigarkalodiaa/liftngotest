@@ -5,8 +5,21 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
+  // Required to support PostHog trailing slash API requests
+  skipTrailingSlashRedirect: true,
   async rewrites() {
-    return [{ source: '/.well-known/llms.txt', destination: '/llms.txt' }];
+    return [
+      { source: '/.well-known/llms.txt', destination: '/llms.txt' },
+      // PostHog reverse proxy — keeps analytics requests first-party
+      {
+        source: '/ingest/static/:path*',
+        destination: 'https://us-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/ingest/:path*',
+        destination: 'https://us.i.posthog.com/:path*',
+      },
+    ];
   },
   async redirects() {
     return [

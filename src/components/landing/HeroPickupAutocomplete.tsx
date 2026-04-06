@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { loadGoogleMapsPlaces } from '@/lib/googleMapsLoader';
 import { GOOGLE_MAP_KEY } from '@/config/env';
+import { trackEvent } from '@/lib/posthogAnalytics';
 
 const MAX_SUGGESTIONS = 5;
 const MIN_CHARS = 2;
@@ -15,6 +16,8 @@ interface HeroPickupAutocompleteProps {
   onChange: (value: string) => void;
   onPickSuggestion?: (description: string) => void;
   disabled?: boolean;
+  /** First user focus/click on this field captures `posthog` `booking_started` once. */
+  bookingSource?: 'homepage' | 'landing';
 }
 
 /**
@@ -26,6 +29,7 @@ export default function HeroPickupAutocomplete({
   onChange,
   onPickSuggestion,
   disabled = false,
+  bookingSource,
 }: HeroPickupAutocompleteProps) {
   const apiKey = GOOGLE_MAP_KEY.trim();
   const listId = useId();
@@ -41,6 +45,7 @@ export default function HeroPickupAutocomplete({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const seqRef = useRef(0);
   const mapsLoadStartedRef = useRef(false);
+  const bookingStartedFiredRef = useRef(false);
 
   /** Defer Maps until interaction so first paint / LCP is not competing with ~100KB+ Places JS. */
   const ensureMapsLoaded = useCallback(() => {
@@ -138,7 +143,15 @@ export default function HeroPickupAutocomplete({
           onChange(v);
           setOpen(true);
         }}
-        onFocus={() => {
+        onFocus={(e) => {
+          if (
+            bookingSource &&
+            !bookingStartedFiredRef.current &&
+            e.nativeEvent.isTrusted
+          ) {
+            bookingStartedFiredRef.current = true;
+            trackEvent('booking_started', { source: bookingSource });
+          }
           setOpen(true);
           ensureMapsLoaded();
         }}

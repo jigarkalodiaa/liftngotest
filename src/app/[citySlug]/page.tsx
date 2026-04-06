@@ -127,7 +127,7 @@ export default async function CityPage({ params }: Props) {
             </p>
           </div>
         </section>
-        <Hero heroTitleLevel="h2" />
+        <Hero heroTitleLevel="h2" pickupBookingSource="landing" />
         <Features />
         <FoodDelivery />
       </main>

@@ -41,7 +41,16 @@ import {
   subscriptionHighlighted3WPack,
   subscriptionPackById,
 } from '@/lib/pricing/subscriptionPacks';
-import { trackBookNowClick } from '@/lib/analytics';
+import {
+  trackBookNowClick,
+  trackFunnelStep,
+  trackModalClose,
+  trackModalOpen,
+  trackSelectContent,
+  trackViewPlan,
+  trackEvent as gaTrack,
+} from '@/lib/analytics';
+import { trackEvent as phCapture } from '@/lib/posthogAnalytics';
 import Image from '@/components/OptimizedImage';
 
 export const NOIDA_PRODUCT_TARGETS = {
@@ -155,7 +164,14 @@ export function NoidaB2bProductHeroActions() {
       </button>
       <button
         type="button"
-        onClick={() => navigateToProductPath(router, ROUTES.CONTACT)}
+        onClick={() => {
+          gaTrack('cta_click', { source: 'noida_b2b_hero_contact' });
+          phCapture('cta_clicked', {
+            source: 'noida_b2b_hero_contact',
+            page: 'noida_b2b_logistics',
+          });
+          navigateToProductPath(router, ROUTES.CONTACT);
+        }}
         className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/35 bg-transparent px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-white/10 active:scale-[0.99]"
       >
         Contact
@@ -349,7 +365,10 @@ export function NoidaB2bProductMirrorBody() {
             <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
               <button
                 type="button"
-                onClick={() => setSubscriptionStripInfoOpen(true)}
+                onClick={() => {
+                  trackModalOpen('noida_b2b_subscription_pack_info', 'subscription_strip');
+                  setSubscriptionStripInfoOpen(true);
+                }}
                 className="grid h-7 w-7 place-items-center rounded-full border border-stone-200/90 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-800 sm:h-8 sm:w-8"
                 aria-label="Subscription packs: benefits, validity, and terms"
               >
@@ -357,7 +376,10 @@ export function NoidaB2bProductMirrorBody() {
               </button>
               <button
                 type="button"
-                onClick={() => navigateToProductPath(router, ROUTES.PLANS)}
+                onClick={() => {
+                  trackViewPlan('plans_hub', 'noida_b2b_subscription_strip');
+                  navigateToProductPath(router, ROUTES.PLANS);
+                }}
                 className="rounded-lg border border-stone-200/80 bg-white px-2 py-1.5 text-[10px] font-semibold text-[var(--color-primary)] shadow-sm transition-colors hover:bg-stone-50 sm:px-2.5 sm:py-2"
               >
                 View all <ChevronRight className="mb-px inline h-3 w-3" strokeWidth={2.25} aria-hidden />
@@ -614,7 +636,10 @@ export function NoidaB2bProductMirrorBody() {
             <button
               key={c.id}
               type="button"
-              onClick={() => setUseCase(c.id)}
+              onClick={() => {
+                trackSelectContent('noida_b2b_use_case', c.id);
+                setUseCase(c.id);
+              }}
               className={`min-h-10 rounded-full border px-4 py-2 text-xs font-bold transition-all sm:text-sm ${
                 useCase === c.id
                   ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-sm'
@@ -631,7 +656,10 @@ export function NoidaB2bProductMirrorBody() {
             {SERVICE_TILES.find((t) => t.key === suggested)?.title ?? suggested}
             <button
               type="button"
-              onClick={() => goService(router, suggested)}
+              onClick={() => {
+                trackFunnelStep('noida_b2b', 'use_case_suggested_continue', suggested);
+                goService(router, suggested);
+              }}
               className="ml-2 font-bold text-[var(--color-primary)] underline underline-offset-2 hover:opacity-80"
             >
               Continue →
@@ -687,14 +715,24 @@ export function NoidaB2bProductMirrorBody() {
           </button>
           <button
             type="button"
-            onClick={() => navigateToProductPath(router, ROUTES.PLANS)}
+            onClick={() => {
+              trackViewPlan('plans_hub', 'noida_b2b_footer');
+              navigateToProductPath(router, ROUTES.PLANS);
+            }}
             className="inline-flex min-h-11 items-center justify-center rounded-xl border-2 border-white/60 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-white/10 active:scale-[0.99]"
           >
             Choose plan
           </button>
           <button
             type="button"
-            onClick={() => navigateToProductPath(router, ROUTES.CONTACT)}
+            onClick={() => {
+              gaTrack('cta_click', { source: 'noida_b2b_footer_contact' });
+              phCapture('cta_clicked', {
+                source: 'noida_b2b_footer_contact',
+                page: 'noida_b2b_logistics',
+              });
+              navigateToProductPath(router, ROUTES.CONTACT);
+            }}
             className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/35 bg-white/10 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-white/15 active:scale-[0.99]"
           >
             Contact
@@ -710,7 +748,7 @@ function PricingFareModal() {
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
-    const onClose = () => {};
+    const onClose = () => trackModalClose('noida_b2b_fare_explainer');
     d.addEventListener('close', onClose);
     return () => d.removeEventListener('close', onClose);
   }, []);
@@ -721,7 +759,10 @@ function PricingFareModal() {
         type="button"
         className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50 active:scale-95"
         aria-label="Fare and distance details"
-        onClick={() => ref.current?.showModal()}
+        onClick={() => {
+          trackModalOpen('noida_b2b_fare_explainer', 'pricing_snapshot');
+          ref.current?.showModal();
+        }}
       >
         <Info className="h-4 w-4" aria-hidden />
       </button>

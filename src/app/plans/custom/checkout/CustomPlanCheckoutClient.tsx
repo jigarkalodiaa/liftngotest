@@ -15,6 +15,8 @@ import {
 import { useRazorpay } from '@/lib/razorpay';
 import { paymentResultFailureHref, paymentResultSuccessHref } from '@/lib/paymentResultUrl';
 import { trackBookingCompleted, trackCheckoutStarted } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { getBookingUserType } from '@/lib/posthog/bookingUserType';
 import { getSenderDetails, getStoredPhone } from '@/lib/storage';
 import { addGstSchema, normalizeGstInput } from '@/lib/validations';
 import ConsultantTrustCta from '@/components/plans/ConsultantTrustCta';
@@ -147,6 +149,15 @@ export default function CustomPlanCheckoutClient() {
       },
       onSuccess: ({ paymentId }) => {
         setPayBusy(false);
+        const aggregateTripKm = quote.lines.reduce((sum, line) => sum + line.distanceKm * line.trips, 0);
+        trackEvent('ride_booked', {
+          amount: grandTotalInclGst,
+          vehicle_type: 'custom_plan',
+          distance_km: aggregateTripKm,
+          user_type: getBookingUserType(),
+          flow: 'custom_plan',
+          trips: quote.totalTrips,
+        });
         trackBookingCompleted({ flow: 'custom_plan', trips: quote.totalTrips });
         clearCustomPlanSession();
         const detailLines = quote.lines.map(

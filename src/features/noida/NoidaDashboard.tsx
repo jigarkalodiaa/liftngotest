@@ -367,6 +367,7 @@ export default function NoidaDashboard({
                   </svg>
                 </span>
                 <HeroPickupAutocomplete
+                  bookingSource="landing"
                   value={pickupDraft}
                   onChange={setPickupDraft}
                   onPickSuggestion={(desc) => {

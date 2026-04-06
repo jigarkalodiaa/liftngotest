@@ -19,7 +19,8 @@ import {
   subscriptionPackToPlansHubCard,
 } from '@/lib/pricing/subscriptionPacks';
 import { GST_FLAGSHIP_SAMPLE_PDF_PATH } from '@/lib/pdf/gstFlagshipSamplePdf';
-import { trackViewPlan } from '@/lib/analytics';
+import { trackFileDownload, trackModalOpen, trackSelectContent, trackViewPlan } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
 import {
   Package, Truck, Key, Calculator, FileText,
   ArrowRight, Star, Check, CheckCircle2, Info, X, Shield, GitCompare,
@@ -266,6 +267,10 @@ function PlansHubPageContent() {
   const activeTab = useMemo(() => parsePlansTab(searchParams), [searchParams]);
 
   const setPlansTab = (tab: TabId) => {
+    if (tab !== activeTab) {
+      trackSelectContent('plans_hub_tab', tab, { from_tab: activeTab });
+      trackEvent('tab_switched', { tab, context: 'plans_hub', from_tab: activeTab });
+    }
     const params = new URLSearchParams(searchParams.toString());
     if (tab === 'deliveries') {
       params.delete(PLANS_TAB_QUERY);
@@ -314,7 +319,10 @@ function PlansHubPageContent() {
           </div>
           <button
             type="button"
-            onClick={() => setInfoOpen({ kind: 'hub' })}
+            onClick={() => {
+              trackModalOpen('plans_page_intro', 'hero_info');
+              setInfoOpen({ kind: 'hub' });
+            }}
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/15 sm:h-10 sm:w-10"
             aria-label="How this plans page works and how Liftngo prices fairly"
           >
@@ -333,6 +341,7 @@ function PlansHubPageContent() {
             type="button"
             onClick={() => {
               trackViewPlan('compare_plans', 'hero');
+              trackModalOpen('plans_compare_modal', 'hero');
               setPlansTab('deliveries');
               setCompareOpen(true);
             }}
@@ -392,6 +401,7 @@ function PlansHubPageContent() {
                 type="button"
                 onClick={() => {
                   trackViewPlan('compare_plans', 'tab_header');
+                  trackModalOpen('plans_compare_modal', 'tab_header');
                   setCompareOpen(true);
                 }}
                 className="flex items-center gap-1 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-bold text-stone-800 shadow-sm transition-colors hover:border-teal-200/90 hover:bg-teal-50/40 sm:gap-1.5 sm:px-3 sm:text-[11px]"
@@ -403,8 +413,13 @@ function PlansHubPageContent() {
             <button
               type="button"
               onClick={() => {
-                if (activeTab === 'deliveries') setInfoOpen({ kind: 'subscription' });
-                else setInfoOpen({ kind: 'tab', tab: activeTab });
+                if (activeTab === 'deliveries') {
+                  trackModalOpen('plans_subscription_disclosure', 'tab_head');
+                  setInfoOpen({ kind: 'subscription' });
+                } else {
+                  trackModalOpen('plans_tab_disclosure', activeTab);
+                  setInfoOpen({ kind: 'tab', tab: activeTab });
+                }
               }}
               className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-800"
               aria-label={`${tabData.headline}: definitions and fine print`}
@@ -424,7 +439,10 @@ function PlansHubPageContent() {
                 href={GST_FLAGSHIP_SAMPLE_PDF_PATH}
                 download="liftngo-flagship-monthly-bulk-gst-report-sample.pdf"
                 className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-[11px] font-bold text-white shadow-md transition-all hover:bg-blue-700 active:scale-[0.98] sm:flex-initial"
-                onClick={() => trackViewPlan('gst_sample', 'plans_hub_gst_tab')}
+                onClick={() => {
+                  trackViewPlan('gst_sample', 'plans_hub_gst_tab');
+                  trackFileDownload('gst_flagship_sample_pdf', 'plans_hub_gst_tab');
+                }}
               >
                 <Download className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden />
                 Download sample PDF

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { hasSheetsBackend, persistLead } from '@/lib/sheetsBridge';
 import { leadPhoneSchema } from '@/lib/validations';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 const bodySchema = z.object({
   name: z.string().max(200).optional().default(''),
@@ -77,6 +78,20 @@ export async function POST(req: Request) {
     console.error('[api/leads]', e);
     return NextResponse.json({ error: 'Failed to save lead' }, { status: 500 });
   }
+
+  const cityTrim = city.trim();
+  getPostHogClient().capture({
+    distinctId: phone,
+    event: 'lead_submitted',
+    properties: {
+      source,
+      has_company: Boolean(company.trim()),
+      has_city: Boolean(cityTrim),
+      city: cityTrim ? cityTrim.slice(0, 80) : undefined,
+      has_email: Boolean(em),
+      query_length: queryCombined.length,
+    },
+  });
 
   return NextResponse.json({ ok: true });
 }

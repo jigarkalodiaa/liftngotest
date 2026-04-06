@@ -12,6 +12,9 @@ import { useRazorpay } from '@/lib/razorpay';
 import { PrepayLegalDeclaration, buildPrepayLegalRazorpayNotes } from '@/lib/legal/PrepayLegalDeclaration';
 import { INDICATIVE_PRICING_FOOTNOTE } from '@/lib/pricing/subscriptionDisclosures';
 import { paymentResultFailureHref, paymentResultSuccessHref } from '@/lib/paymentResultUrl';
+import { trackBookingCompleted, trackCheckoutStarted, trackFunnelStep } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { getBookingUserType } from '@/lib/posthog/bookingUserType';
 
 const COCONUT_CHECKOUT_CONSENT_VERSION = 'noida_coconut_checkout_v1';
 
@@ -24,6 +27,12 @@ export default function CoconutCheckoutPage() {
 
   const items = useCoconutCartStore((s) => s.items);
   const clear = useCoconutCartStore((s) => s.clear);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      trackFunnelStep('noida_coconut', 'checkout_page_view');
+    }
+  }, [items.length]);
   const { openPayment } = useRazorpay();
 
   const [address, setAddress] = useState('');
@@ -51,6 +60,7 @@ export default function CoconutCheckoutPage() {
       return;
     }
     setOrder({ stage: 'placing' });
+    trackCheckoutStarted('noida_coconut_razorpay', grand);
 
     openPayment({
       amountInr: grand,
@@ -63,6 +73,21 @@ export default function CoconutCheckoutPage() {
       },
       prefill: { contact: contactPhone ? `+91${contactPhone.replace(/\D/g, '')}` : undefined },
       onSuccess: ({ paymentId }) => {
+        trackEvent('ride_booked', {
+          amount: grand,
+          vehicle_type: 'noida_coconut',
+          distance_km: null,
+          user_type: getBookingUserType(),
+          flow: 'noida_coconut',
+          item_count: items.length,
+          payment_id: paymentId,
+        });
+        trackBookingCompleted({
+          flow: 'noida_coconut',
+          amount: grand,
+          item_count: items.length,
+          payment_id: paymentId,
+        });
         const itemLines = items.map((i) => `${i.name} × ${i.quantity}`);
         const addrLine = address.trim() ? `Deliver to: ${address.trim().slice(0, 120)}` : '';
         clear();

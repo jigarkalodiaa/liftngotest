@@ -7,6 +7,7 @@ import { finalizeLoginSessionAfterOtp } from '@/lib/auth/finalizeLoginSession';
 import { getValidOtp } from '@/lib/constants';
 import { loginPhoneSchema, loginOtpSchema, MOBILE_LENGTH, normalizePhoneInput, type LoginPhoneForm } from '@/lib/validations';
 import { trackLoginStarted, trackOtpSent, trackOtpVerified } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
 
 type LoginStep = 'phone' | 'otp';
 
@@ -140,7 +141,9 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   );
 
   const onPhoneSubmit = useCallback(() => {
+    trackEvent('login_attempt', { method: 'phone_continue', ui: variant });
     trackLoginStarted();
+    trackEvent('otp_sent', { ui: variant });
     trackOtpSent();
     setStep('otp');
     setCountdown(30);

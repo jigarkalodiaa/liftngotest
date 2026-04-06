@@ -2,6 +2,11 @@ import ContentLayout from '@/components/layout/ContentLayout';
 import JsonLd, { buildContactPageJsonLd } from '@/components/JsonLd';
 import Link from 'next/link';
 import FaqAccordionList from '@/components/landing/FaqAccordionList';
+import {
+  TrackedMailtoAnchor,
+  TrackedOutboundAnchor,
+  TrackedTelAnchor,
+} from '@/components/analytics/TrackedContactAnchors';
 import BusinessEnquiryForm from '@/components/marketing/BusinessEnquiryForm';
 import { generatePageMetadata } from '@/lib/seo';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
@@ -159,8 +164,9 @@ export default function ContactPage() {
           {/* Primary channel cards */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
             {telDisplay && tel ? (
-              <a
+              <TrackedTelAnchor
                 href={`tel:${tel}`}
+                analyticsSource="contact_phone_card"
                 className="group relative flex flex-col rounded-2xl bg-white p-5 shadow-[0_12px_40px_-16px_rgba(25,26,70,0.35)] ring-1 ring-slate-900/[0.06] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_16px_48px_-14px_rgba(25,26,70,0.38)] sm:p-6"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
@@ -173,7 +179,7 @@ export default function ContactPage() {
                 <span className="mt-3 text-lg font-bold tabular-nums tracking-tight text-[var(--color-primary)] group-hover:underline">
                   {telDisplay}
                 </span>
-              </a>
+              </TrackedTelAnchor>
             ) : (
               <div className="relative flex flex-col rounded-2xl border border-dashed border-slate-200 bg-white/90 p-5 sm:p-6">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-500">
@@ -190,8 +196,9 @@ export default function ContactPage() {
             )}
 
             {SUPPORT_EMAIL ? (
-              <a
+              <TrackedMailtoAnchor
                 href={`mailto:${SUPPORT_EMAIL}`}
+                analyticsSource="contact_email_card"
                 className="group relative flex flex-col rounded-2xl bg-white p-5 shadow-[0_12px_40px_-16px_rgba(25,26,70,0.35)] ring-1 ring-slate-900/[0.06] transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_16px_48px_-14px_rgba(25,26,70,0.38)] sm:p-6"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-violet-100/90 text-violet-700">
@@ -204,7 +211,7 @@ export default function ContactPage() {
                 <span className="mt-3 break-all text-sm font-bold text-[var(--color-primary)] sm:text-base group-hover:underline">
                   {SUPPORT_EMAIL}
                 </span>
-              </a>
+              </TrackedMailtoAnchor>
             ) : (
               <div className="relative flex flex-col rounded-2xl border border-dashed border-slate-200 bg-white/90 p-5 sm:p-6">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-violet-100/60 text-violet-600/80">
@@ -348,15 +355,15 @@ export default function ContactPage() {
                   { href: SOCIAL_LINKS.youtube, label: 'YouTube', Icon: YoutubeGlyph },
                 ].map(({ href, label, Icon }) => (
                   <li key={label}>
-                    <a
+                    <TrackedOutboundAnchor
                       href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      label={label}
+                      analyticsSource="contact_social"
                       className="inline-flex items-center gap-2 rounded-xl border border-slate-200/90 bg-slate-50/50 px-3 py-2.5 text-xs font-bold text-slate-800 transition-colors hover:border-[var(--color-primary)]/25 hover:bg-[var(--color-primary)]/[0.06] hover:text-[var(--color-primary)]"
                     >
                       <Icon className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
                       {label}
-                    </a>
+                    </TrackedOutboundAnchor>
                   </li>
                 ))}
               </ul>
@@ -459,7 +466,7 @@ export default function ContactPage() {
               </div>
             </div>
             <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-6">
-              <FaqAccordionList items={CONTACT_PAGE_FAQS} />
+              <FaqAccordionList items={CONTACT_PAGE_FAQS} analyticsScope="contact_page" />
             </div>
           </section>
 

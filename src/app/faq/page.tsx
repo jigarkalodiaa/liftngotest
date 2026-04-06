@@ -70,7 +70,7 @@ export default function FaqPage() {
             </p>
           </div>
           <div className="mt-10 sm:mt-12">
-            <FaqAccordionList items={FAQ_ITEMS} />
+            <FaqAccordionList items={FAQ_ITEMS} analyticsScope="faq_page" />
           </div>
           <div className="mt-12 flex flex-col gap-4 rounded-2xl border border-[var(--landing-primary)]/15 bg-[var(--landing-bg)]/80 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm font-medium text-gray-800">Ready to move goods or food?</p>
