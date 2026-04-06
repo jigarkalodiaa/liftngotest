@@ -23,6 +23,7 @@ import { Info } from 'lucide-react';
 import { useDashboardLocation } from '@/features/location';
 import { KhatuDashboard } from '@/features/khatu';
 import { NoidaDashboard } from '@/features/noida';
+import { trackEvent } from '@/lib/posthogAnalytics';
 import DefaultDashboardView from './DefaultDashboardView';
 
 export interface DashboardPageClientProps {
@@ -87,6 +88,15 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
   }, [router]);
 
   useEffect(() => {
+    const zone = dashboardLocation?.zone ?? 'default';
+    trackEvent('page_viewed', {
+      page: 'dashboard',
+      zone,
+      path: dashboardPath,
+    });
+  }, [dashboardLocation?.zone, dashboardPath]);
+
+  useEffect(() => {
     const onFocus = () => {
       syncPickupFromStorage();
       syncUserName();
@@ -142,6 +152,7 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
 
   const handleBookNow = useCallback(
     (trip: DefaultTrip) => {
+      trackEvent('booking_started', { source: 'landing' });
       const swapped = swappedTripIds[trip.id];
       const pickupData = swapped
         ? { name: trip.toName, address: trip.toAddress, contact: `${trip.contactName} | ${trip.contactPhone}` }

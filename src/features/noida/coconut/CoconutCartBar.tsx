@@ -1,6 +1,7 @@
 'use client';
 
 import { ShoppingBag } from 'lucide-react';
+import { trackCheckoutStarted, trackViewCart } from '@/lib/analytics';
 import { useCoconutCartStore, coconutCartSubtotal } from './coconutCartStore';
 import { COCONUT_VENDOR } from './products';
 
@@ -16,12 +17,18 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
   const subtotal = coconutCartSubtotal(items);
   const grand = subtotal + COCONUT_VENDOR.deliveryFlatInr;
 
+  const goCheckout = () => {
+    trackViewCart(count, grand, 'noida_coconut_menu');
+    trackCheckoutStarted('noida_coconut_checkout', grand);
+    onCheckout();
+  };
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/98 px-3 py-3 shadow-[0_-12px_40px_rgba(0,0,0,0.08)] backdrop-blur-md">
       <div className="mx-auto w-full max-w-xl sm:max-w-2xl">
         <button
           type="button"
-          onClick={onCheckout}
+          onClick={goCheckout}
           className="flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-left"
         >
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-gray-200/80">
@@ -41,7 +48,7 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
 
         <button
           type="button"
-          onClick={onCheckout}
+          onClick={goCheckout}
           className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-95"
         >
           Proceed to Checkout

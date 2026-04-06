@@ -3,6 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LoginPanel from '@/components/auth/LoginPanel';
+import { trackModalOpen, trackModalClose } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -18,6 +20,13 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     return () => {
       document.body.style.overflow = '';
     };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    trackEvent('login_prompt_shown', { source: 'login_modal' });
+    trackModalOpen('login', 'landing');
+    return () => trackModalClose('login');
   }, [isOpen]);
 
   if (!isOpen) return null;

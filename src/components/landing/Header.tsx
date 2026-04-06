@@ -133,6 +133,7 @@ export default function Header() {
                   </svg>
                 </span>
                 <HeroPickupAutocomplete
+                  bookingSource="landing"
                   value={pickupDraft}
                   onChange={setPickupDraft}
                   onPickSuggestion={(desc) => {

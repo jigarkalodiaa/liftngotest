@@ -12,6 +12,8 @@ import ConsultantTrustCta from '@/components/plans/ConsultantTrustCta';
 import { PrepayLegalDeclaration, buildPrepayLegalRazorpayNotes } from '@/lib/legal/PrepayLegalDeclaration';
 import { LeasePrepayConsentSummary, leasePrepayConsentPlainText } from '@/lib/legal/LeasePrepayConsentSummary';
 import { trackBookingCompleted, trackCheckoutStarted } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { getBookingUserType } from '@/lib/posthog/bookingUserType';
 import { paymentResultFailureHref, paymentResultSuccessHref } from '@/lib/paymentResultUrl';
 import { ChevronLeft, CreditCard, Loader2 } from 'lucide-react';
 
@@ -103,6 +105,13 @@ export default function LeaseCheckoutClient() {
       },
       onSuccess: ({ paymentId }) => {
         setPayBusy(false);
+        trackEvent('ride_booked', {
+          amount: totalInclGst,
+          vehicle_type: plan.vehicle,
+          distance_km: null,
+          user_type: getBookingUserType(),
+          flow: 'lease',
+        });
         trackBookingCompleted({ flow: 'lease', vehicle: plan.vehicle });
         const retryPath = `${ROUTES.PLANS_LEASE_CHECKOUT}?vehicle=${encodeURIComponent(plan.vehicle)}&term=${termMonths}`;
         router.replace(

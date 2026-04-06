@@ -192,7 +192,7 @@ export default function B2bTransportPage() {
               </h2>
               <p className="mt-1 text-xs text-slate-500 sm:text-sm">Structured data on this page mirrors these answers for Google.</p>
               <div className="mt-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-6">
-                <FaqAccordionList items={B2B_TRANSPORT_PAGE_FAQS} />
+                <FaqAccordionList items={B2B_TRANSPORT_PAGE_FAQS} analyticsScope="b2b_transport_page" />
               </div>
             </section>
 

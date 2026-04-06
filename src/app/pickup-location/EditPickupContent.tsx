@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import type { FocusEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SavedLocation } from '@/types/booking';
 import {
@@ -24,6 +25,8 @@ import {
 import { ROUTES, PICKUP_LOCATION_MODE_DEFAULTS, TRIP_OPTIONS_FROM_KHATU_TRAVEL } from '@/lib/constants';
 import { senderDetailsSchema, receiverDetailsSchema, validatePersonName } from '@/lib/validations';
 import { trackPickupLocationEntered, trackDropLocationEntered } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { inferCityFromLocationText } from '@/lib/posthog/locationMeta';
 
 type PersonalForm = {
   senderName: string;
@@ -40,6 +43,13 @@ export default function EditPickupContent() {
   const fromKhatuTravel = searchParams.get('from') === TRIP_OPTIONS_FROM_KHATU_TRAVEL;
   const addDefaults = searchParams.get('mode') === PICKUP_LOCATION_MODE_DEFAULTS;
   const editedDefaultsType = searchParams.get('edited');
+
+  const wizardBookingStartedRef = useRef(false);
+  const onWizardPickupFieldFocus = useCallback((e: FocusEvent<HTMLElement>) => {
+    if (!e.nativeEvent.isTrusted || wizardBookingStartedRef.current) return;
+    wizardBookingStartedRef.current = true;
+    trackEvent('booking_started', { source: 'landing' });
+  }, []);
 
   /** Add-defaults flow: first paint clears pickup/drop; skip one pathname hydrate so storage does not immediately refill. After /edit, hydrate runs normally. */
   const skipNextPickupDropHydrateRef = useRef(false);
@@ -345,7 +355,19 @@ export default function EditPickupContent() {
         return;
       }
       setSenderDetails({ name: result.data.senderName, mobile: result.data.senderMobile });
-      trackPickupLocationEntered(fromFood ? 'food_flow' : fromKhatuTravel ? 'khatu_flow' : 'standard');
+      const flow = fromFood ? 'food_flow' : fromKhatuTravel ? 'khatu_flow' : 'standard';
+      const pickupLocationSummary = fromFood
+        ? (pickup?.address?.trim() ?? '')
+        : landmarkDraft.trim()
+          ? `${addrDraft.trim()} · Near ${landmarkDraft.trim()}`
+          : addrDraft.trim();
+      trackEvent('enter_pickup', {
+        location: pickupLocationSummary,
+        city: inferCityFromLocationText(pickupLocationSummary),
+        flow,
+        source: 'pickup_wizard',
+      });
+      trackPickupLocationEntered(flow);
       setStep(2);
       router.replace(buildPickupLocationReturnTo(2));
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -383,7 +405,17 @@ export default function EditPickupContent() {
         return;
       }
       setReceiverDetails({ name: result.data.receiverName, mobile: result.data.receiverMobile });
-      trackDropLocationEntered(fromFood ? 'food_flow' : fromKhatuTravel ? 'khatu_flow' : 'standard');
+      const flow = fromFood ? 'food_flow' : fromKhatuTravel ? 'khatu_flow' : 'standard';
+      const dropLocationSummary = dropLandmarkDraft.trim()
+        ? `${addr.trim()} · Near ${dropLandmarkDraft.trim()}`
+        : addr.trim();
+      trackEvent('enter_drop', {
+        location: dropLocationSummary,
+        city: inferCityFromLocationText(dropLocationSummary),
+        flow,
+        source: 'pickup_wizard',
+      });
+      trackDropLocationEntered(flow);
       if (addDefaults) {
         const savedPickup = getPickupLocation();
         const effectivePickup = savedLocationHasAddress(pickup) ? pickup : savedPickup;
@@ -602,6 +634,7 @@ export default function EditPickupContent() {
                               : 'Street, area, landmark, city…'
                           }
                           value={addrDraft}
+                          onFocus={onWizardPickupFieldFocus}
                           onChange={(e) => {
                             setAddrDraft(e.target.value);
                             setPickupAddressError('');
@@ -673,6 +706,7 @@ export default function EditPickupContent() {
                           {...register('senderName', {
                             onBlur: (e) => setValue('senderName', e.target.value.trim()),
                           })}
+                          onFocus={onWizardPickupFieldFocus}
                           className={`w-full min-h-[48px] rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
                             errors.senderName ? 'border-red-400' : 'border-gray-200'
                           }`}

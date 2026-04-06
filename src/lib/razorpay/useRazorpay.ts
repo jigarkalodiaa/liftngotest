@@ -2,6 +2,8 @@
 
 import { useCallback, useRef } from 'react';
 import { RAZORPAY_KEY_ID } from '@/config/env';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { paymentContextFromNotes } from '@/lib/posthog/paymentAnalyticsContext';
 
 /* ------------------------------------------------------------------ */
 /*  Razorpay Checkout type (from checkout.js loaded in <head>)        */
@@ -91,6 +93,17 @@ export function useRazorpay() {
     if (busyRef.current) return;
     busyRef.current = true;
 
+    const payCtx = () => paymentContextFromNotes(args.notes);
+    const fail = (reason: string) => {
+      busyRef.current = false;
+      trackEvent('payment_failed', {
+        gateway: 'razorpay',
+        reason: reason.slice(0, 240),
+        ...payCtx(),
+      });
+      args.onError(reason);
+    };
+
     try {
       await loadRazorpayScript();
 
@@ -116,6 +129,13 @@ export function useRazorpay() {
         currency: string;
       };
 
+      trackEvent('payment_initiated', {
+        gateway: 'razorpay',
+        amount_inr: args.amountInr,
+        razorpay_order_id: orderId,
+        ...payCtx(),
+      });
+
       // 2. Open Razorpay Checkout modal
       if (!window.Razorpay) throw new Error('Razorpay SDK not loaded');
 
@@ -140,15 +160,22 @@ export function useRazorpay() {
             const vData = await vRes.json();
 
             if (vData.verified) {
+              trackEvent('payment_success', {
+                gateway: 'razorpay',
+                amount_inr: args.amountInr,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                ...payCtx(),
+              });
               args.onSuccess({
                 paymentId: response.razorpay_payment_id,
                 orderId: response.razorpay_order_id,
               });
             } else {
-              args.onError(vData.error ?? 'Payment verification failed');
+              fail(vData.error ?? 'Payment verification failed');
             }
           } catch {
-            args.onError('Payment verification request failed');
+            fail('Payment verification request failed');
           } finally {
             busyRef.current = false;
           }
@@ -156,15 +183,14 @@ export function useRazorpay() {
         modal: {
           ondismiss: () => {
             busyRef.current = false;
-            args.onError('Payment cancelled');
+            fail('Payment cancelled');
           },
         },
       });
 
       rzp.open();
     } catch (err) {
-      busyRef.current = false;
-      args.onError(err instanceof Error ? err.message : 'Payment failed');
+      fail(err instanceof Error ? err.message : 'Payment failed');
     }
   }, []);
 

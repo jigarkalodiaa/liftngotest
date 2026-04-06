@@ -1,6 +1,7 @@
 'use client';
 
 import { Minus, Plus } from 'lucide-react';
+import { trackAddToCart, trackRemoveFromCart } from '@/lib/analytics';
 import type { CoconutProduct } from './products';
 import { useCoconutCartStore } from './coconutCartStore';
 
@@ -18,6 +19,7 @@ export default function CoconutProductCard({ product }: { product: CoconutProduc
       price: product.priceInr,
       image: product.image,
     });
+    trackAddToCart(product.id, product.name, product.priceInr, 1);
   };
 
   const isLargeVisual = product.visual.length > 6;
@@ -64,7 +66,10 @@ export default function CoconutProductCard({ product }: { product: CoconutProduc
                 type="button"
                 aria-label="Decrease quantity"
                 className="grid h-8 w-8 place-items-center rounded-lg bg-white text-gray-700 shadow-sm"
-                onClick={() => setQuantity(product.id, qty - 1)}
+                onClick={() => {
+                  trackRemoveFromCart(product.id, 1, product.priceInr);
+                  setQuantity(product.id, qty - 1);
+                }}
               >
                 <Minus className="h-4 w-4" strokeWidth={2} />
               </button>

@@ -10,10 +10,12 @@ import { trackBookNowClick } from '@/lib/analytics';
 export type HeroProps = {
   /** Use `h2` when the page already has a primary `h1` (e.g. city SEO landings). */
   heroTitleLevel?: 'h1' | 'h2';
+  /** PostHog `booking_started.source` for the hero pickup field (once per mount, user focus only). */
+  pickupBookingSource?: 'homepage' | 'landing';
 };
 
 /** Hero: ₹0 DELIVERY FEE, pickup input, Use my current location, illustration. */
-function Hero({ heroTitleLevel = 'h1' }: HeroProps) {
+function Hero({ heroTitleLevel = 'h1', pickupBookingSource }: HeroProps) {
   const { openLogin } = useMenu();
   const { pickupDraft: location, setPickupDraft: setLocation } = useLandingPickup();
   const [isLoading, setIsLoading] = useState(false);
@@ -97,6 +99,7 @@ function Hero({ heroTitleLevel = 'h1' }: HeroProps) {
                 </svg>
               </span>
               <HeroPickupAutocomplete
+                bookingSource={pickupBookingSource}
                 value={location}
                 disabled={isLoading}
                 onChange={(v) => {

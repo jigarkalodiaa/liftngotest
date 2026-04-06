@@ -14,6 +14,8 @@ import {
 import PlansSubPageShell from '../../PlansSubPageShell';
 import { PrepayLegalDeclaration, buildPrepayLegalRazorpayNotes } from '@/lib/legal/PrepayLegalDeclaration';
 import { trackBookingCompleted, trackCheckoutStarted } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { getBookingUserType } from '@/lib/posthog/bookingUserType';
 import { paymentResultFailureHref, paymentResultSuccessHref } from '@/lib/paymentResultUrl';
 import { Check, ChevronLeft, CreditCard, Loader2, Building2 } from 'lucide-react';
 import { getSenderDetails, getStoredPhone } from '@/lib/storage';
@@ -131,6 +133,14 @@ export default function SubscriptionCheckoutClient() {
       },
       onSuccess: ({ paymentId }) => {
         setPayBusy(false);
+        trackEvent('ride_booked', {
+          amount: grandTotalInclGst,
+          vehicle_type: 'subscription_pack',
+          distance_km: null,
+          user_type: getBookingUserType(),
+          flow: 'subscription_pack',
+          pack: pack.name,
+        });
         trackBookingCompleted({
           flow: 'subscription_pack',
           pack: pack.name,

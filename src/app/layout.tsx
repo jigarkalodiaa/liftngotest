@@ -17,6 +17,7 @@ import {
   FAVICON_PATH,
 } from "@/lib/site";
 import QueryProvider from "@/components/providers/QueryProvider";
+import PostHogAnalyticsProvider from "@/components/providers/PostHogProvider";
 import GoogleAnalytics from "@/components/Analytics";
 import { ChatWidget } from "@/components/chatbot";
 import "./globals.css";
@@ -130,8 +131,10 @@ export default function RootLayout({
       >
         <GoogleAnalytics />
         <QueryProvider>
-          {children}
-          <ChatWidget />
+          <PostHogAnalyticsProvider>
+            {children}
+            <ChatWidget />
+          </PostHogAnalyticsProvider>
         </QueryProvider>
       </body>
     </html>

@@ -10,6 +10,8 @@ import { INDICATIVE_PRICING_FOOTNOTE } from '@/lib/pricing/subscriptionDisclosur
 import PlansSubPageShell from '../../PlansSubPageShell';
 import { PrepayLegalDeclaration, buildPrepayLegalRazorpayNotes } from '@/lib/legal/PrepayLegalDeclaration';
 import { trackBookingCompleted, trackCheckoutStarted } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { getBookingUserType } from '@/lib/posthog/bookingUserType';
 import { paymentResultFailureHref, paymentResultSuccessHref } from '@/lib/paymentResultUrl';
 import { ChevronLeft, CreditCard, Loader2 } from 'lucide-react';
 
@@ -100,6 +102,13 @@ export default function RentCheckoutClient() {
       },
       onSuccess: ({ paymentId }) => {
         setPayBusy(false);
+        trackEvent('ride_booked', {
+          amount: totalInclGst,
+          vehicle_type: opt.vehicle,
+          distance_km: null,
+          user_type: getBookingUserType(),
+          flow: 'rent',
+        });
         trackBookingCompleted({ flow: 'rent', vehicle: opt.vehicle });
         const retryPath = `${ROUTES.PLANS_RENT_CHECKOUT}?vehicle=${encodeURIComponent(opt.vehicle)}&mode=${mode}&duration=${duration}`;
         router.replace(

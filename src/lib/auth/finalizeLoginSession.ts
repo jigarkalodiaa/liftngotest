@@ -1,4 +1,5 @@
 import { trackFormSubmit } from '@/lib/analytics';
+import { trackEvent, identifyUser } from '@/lib/posthogAnalytics';
 import { ROUTES } from '@/lib/constants';
 import {
   clearDropLocation,
@@ -22,7 +23,9 @@ import { normalizePhoneInput } from '@/lib/validations';
 export function finalizeLoginSessionAfterOtp(rawPhone: string): string {
   setLoggedIn(true);
   trackFormSubmit('login_otp_success');
+  trackEvent('otp_success', { success: true });
   const phone = normalizePhoneInput(rawPhone);
+  identifyUser(phone, { phone });
   setStoredPhone(phone);
   const dummyToken = `dummy_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
   setAuthToken(dummyToken);

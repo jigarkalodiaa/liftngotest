@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   getPickupLocation,
   getDropLocation,
@@ -29,6 +29,8 @@ import { GOOD_TYPES } from '@/data/goodTypes';
 import { PageContainer } from '@/components/ui';
 import { theme } from '@/config/theme';
 import { trackBookingCompleted } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { getBookingUserType } from '@/lib/posthog/bookingUserType';
 import { useRazorpay } from '@/lib/razorpay';
 import { PrepayLegalDeclaration, buildPrepayLegalRazorpayNotes } from '@/lib/legal/PrepayLegalDeclaration';
 import { INDICATIVE_PRICING_FOOTNOTE } from '@/lib/pricing/subscriptionDisclosures';
@@ -115,6 +117,18 @@ export default function PaymentPage() {
   }, [fromFood, fromKhatuHotel]);
 
   useEffect(() => { syncFromStorage(); }, [syncFromStorage]);
+
+  const bookingReviewSentRef = useRef(false);
+  useEffect(() => {
+    if (bookingReviewSentRef.current || !vehicle) return;
+    bookingReviewSentRef.current = true;
+    const flow = fromKhatuHotel ? 'khatu_hotel' : fromFood ? 'food' : 'standard';
+    trackEvent('booking_review_viewed', {
+      flow,
+      vehicle_type: vehicle,
+      amount: payableInr,
+    });
+  }, [fromFood, fromKhatuHotel, vehicle, payableInr]);
 
   useEffect(() => {
     if (!fromKhatuHotel) return;
@@ -206,7 +220,21 @@ export default function PaymentPage() {
           />
         )}
         {!fromFood && !fromKhatuHotel ? (
-          <CouponSection appliedCoupon={appliedCoupon} onToggleCoupon={() => setAppliedCoupon((c) => (c ? null : 'extra400'))} />
+          <CouponSection
+            appliedCoupon={appliedCoupon}
+            onToggleCoupon={() =>
+              setAppliedCoupon((c) => {
+                const next = c ? null : 'extra400';
+                if (next) {
+                  trackEvent('apply_coupon', {
+                    coupon_code: next,
+                    flow: 'standard',
+                  });
+                }
+                return next;
+              })
+            }
+          />
         ) : null}
         <PriceDetailsSection
           tripFare={TRIP_FARE}
@@ -297,6 +325,11 @@ export default function PaymentPage() {
 
           setPayError(null);
           if (!acceptBookingLegal) {
+            trackEvent('booking_failed', {
+              stage: 'checkout',
+              reason: 'declaration_not_accepted',
+              flow,
+            });
             setPayError('Please confirm the declaration above to continue to payment.');
             return;
           }
@@ -318,6 +351,13 @@ export default function PaymentPage() {
             },
             onSuccess: ({ paymentId }) => {
               setPayBusy(false);
+              trackEvent('ride_booked', {
+                amount: payableInr,
+                vehicle_type: fromKhatuHotel ? 'hotel' : fromFood ? 'food_delivery' : vehicle ?? 'unknown',
+                distance_km: null,
+                user_type: getBookingUserType(),
+                flow,
+              });
               trackBookingCompleted({ vehicle_type: vehicle ?? 'unknown', flow });
 
               const retryPath =

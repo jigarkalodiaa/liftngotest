@@ -2,7 +2,7 @@
 
 import Image from '@/components/OptimizedImage';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { SavedLocation, PersonDetails, BookingStopWaypoint } from '@/types/booking';
 import {
   getPickupLocation,
@@ -25,7 +25,8 @@ import { readKhatuRideBooking } from '@/lib/khatuSessionStorage';
 import { getKhatuRouteDefaultLocations, KHATU_RIDE_VEHICLE_OPTIONS, khatuVehicleImage } from '@/data/khatuTravel';
 import type { RideVehicleType, TravelRouteId } from '@/types/khatu';
 import { theme } from '@/config/theme';
-import { trackCheckPriceClick } from '@/lib/analytics';
+import { trackCheckPriceClick, trackFunnelStep, trackSelectContent } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
 
 type KhatuQuoteVehicle = {
   type: RideVehicleType;
@@ -49,6 +50,28 @@ const OPTION_TO_SERVICE: Record<OptionId, 'walk' | 'twoWheeler' | 'threeWheeler'
   three: 'threeWheeler',
   four: 'fourWheeler',
 };
+
+function fareForTripOption(
+  id: OptionId,
+  ctx: {
+    khatuBikeMatch: boolean;
+    khatuQuoteVehicle: KhatuQuoteVehicle | null;
+    showKhatuCarOption: boolean;
+  },
+): { priceInr: number; vehicle_type: (typeof OPTION_TO_SERVICE)[OptionId] } {
+  const vehicle_type = OPTION_TO_SERVICE[id];
+  let priceInr: number;
+  if (id === 'walk') {
+    priceInr = 75;
+  } else if (id === 'two') {
+    priceInr = ctx.khatuBikeMatch && ctx.khatuQuoteVehicle ? ctx.khatuQuoteVehicle.estimateInr : 160;
+  } else if (id === 'three') {
+    priceInr = 450;
+  } else {
+    priceInr = ctx.showKhatuCarOption && ctx.khatuQuoteVehicle ? ctx.khatuQuoteVehicle.estimateInr : 720;
+  }
+  return { priceInr, vehicle_type };
+}
 
 export default function TripOptionsPage() {
   const router = useRouter();
@@ -149,6 +172,52 @@ export default function TripOptionsPage() {
   );
   /** Khatu corridor passenger quote: hide walking / courier options so only the booked vehicle class shows. */
   const hideKhatuWalkAndCourier = fromKhatuTravel && Boolean(khatuQuoteVehicle);
+
+  /** Displayed indicative fare for the currently selected option (mirrors card labels). */
+  const fareCtx = useMemo(
+    () => ({ khatuBikeMatch, khatuQuoteVehicle, showKhatuCarOption }),
+    [khatuBikeMatch, khatuQuoteVehicle, showKhatuCarOption],
+  );
+
+  const selectedOptionFare = useMemo(
+    () => fareForTripOption(selected, fareCtx),
+    [selected, fareCtx],
+  );
+
+  const selectVehicleOption = (id: OptionId) => {
+    if (id === selected) return;
+    const { priceInr, vehicle_type } = fareForTripOption(id, fareCtx);
+    setSelected(id);
+    setSelectedService(OPTION_TO_SERVICE[id]);
+    trackEvent('vehicle_selected', {
+      vehicle_type,
+      estimated_price: priceInr,
+      flow: fromFood ? 'from_food' : fromKhatuTravel ? 'from_khatu_travel' : 'standard',
+    });
+  };
+
+  const tripOptionsReadyRef = useRef(false);
+  useEffect(() => {
+    if (!savedLocationHasAddress(pickup) || !savedLocationHasAddress(drop)) return;
+    if (tripOptionsReadyRef.current) return;
+    tripOptionsReadyRef.current = true;
+
+    const flow = fromFood ? 'from_food' : fromKhatuTravel ? 'from_khatu_travel' : 'standard';
+    const distanceKm: number | null = null;
+    const durationMin: number | null = null;
+    trackEvent('route_generated', {
+      distance_km: distanceKm,
+      duration_min: durationMin,
+      flow,
+    });
+    trackEvent('view_price', {
+      flow,
+      price: selectedOptionFare.priceInr,
+      distance_km: distanceKm,
+      vehicle_type: selectedOptionFare.vehicle_type,
+    });
+    trackFunnelStep('booking', 'trip_options_view', flow);
+  }, [pickup, drop, fromFood, fromKhatuTravel, selectedOptionFare]);
 
   const twoCardTitle = khatuBikeMatch && khatuQuoteVehicle ? khatuQuoteVehicle.label : 'Faster to your door';
   const twoCardSubtitle = khatuBikeMatch
@@ -417,10 +486,7 @@ export default function TripOptionsPage() {
             <OptionCard
               id="walk"
               selected={selected}
-              setSelected={(id) => {
-                setSelected(id);
-                setSelectedService(OPTION_TO_SERVICE[id]);
-              }}
+              setSelected={selectVehicleOption}
               title="Big Saver"
               subtitle="Walking"
               price="₹75"
@@ -432,10 +498,7 @@ export default function TripOptionsPage() {
             <OptionCard
               id="two"
               selected={selected}
-              setSelected={(id) => {
-                setSelected(id);
-                setSelectedService(OPTION_TO_SERVICE[id]);
-              }}
+              setSelected={selectVehicleOption}
               title={twoCardTitle}
               subtitle={twoCardSubtitle}
               price={twoCardPrice}
@@ -448,10 +511,7 @@ export default function TripOptionsPage() {
             <OptionCard
               id="four"
               selected={selected}
-              setSelected={(id) => {
-                setSelected(id);
-                setSelectedService(OPTION_TO_SERVICE[id]);
-              }}
+              setSelected={selectVehicleOption}
               title={khatuQuoteVehicle.label}
               subtitle={
                 khatuQuoteVehicle.comfortTag
@@ -468,10 +528,7 @@ export default function TripOptionsPage() {
               <OptionCard
                 id="three"
                 selected={selected}
-                setSelected={(id) => {
-                  setSelected(id);
-                  setSelectedService(OPTION_TO_SERVICE[id]);
-                }}
+                setSelected={selectVehicleOption}
                 title="Faster to your door"
                 subtitle="Three wheeler / 500 kg"
                 price="₹450"
@@ -481,10 +538,7 @@ export default function TripOptionsPage() {
               <OptionCard
                 id="four"
                 selected={selected}
-                setSelected={(id) => {
-                  setSelected(id);
-                  setSelectedService(OPTION_TO_SERVICE[id]);
-                }}
+                setSelected={selectVehicleOption}
                 title="Room for bulky loads"
                 subtitle="Four wheeler / mini truck"
                 price="₹720"
@@ -503,7 +557,10 @@ export default function TripOptionsPage() {
                   backgroundColor: theme.colors.primary,
                   fontSize: theme.fontSizes.xl,
                 }}
-                onClick={() => router.push(ROUTES.SCHEDULE_LATER)}
+                onClick={() => {
+                  trackFunnelStep('booking', 'schedule_later_click');
+                  router.push(ROUTES.SCHEDULE_LATER);
+                }}
               >
                 Schedule later
               </button>
@@ -520,6 +577,7 @@ export default function TripOptionsPage() {
               }}
               onClick={() => {
                 trackCheckPriceClick(OPTION_TO_SERVICE[selected]);
+                trackFunnelStep('booking', 'trip_options_to_payment', OPTION_TO_SERVICE[selected]);
                 router.push(fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT);
               }}
             >
@@ -559,7 +617,10 @@ function OptionCard({
   return (
     <button
       type="button"
-      onClick={() => setSelected(id)}
+      onClick={() => {
+        trackSelectContent('booking_vehicle_option', id, { service: OPTION_TO_SERVICE[id] });
+        setSelected(id);
+      }}
       className="mt-3 w-full rounded-2xl border px-3 py-3.5 text-left flex gap-3 transition-colors first:mt-0"
       style={{
         borderColor: isActive ? theme.colors.primary : theme.colors.border,

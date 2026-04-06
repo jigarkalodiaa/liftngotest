@@ -2,14 +2,21 @@
 
 import { useState } from 'react';
 import type { FaqItem } from '@/data/faq';
+import { trackSelectContent } from '@/lib/analytics';
 
 interface FaqAccordionListProps {
   items: readonly FaqItem[];
   className?: string;
+  /** GA4 scope for `select_content` (e.g. homepage_faq, contact_page). */
+  analyticsScope?: string;
 }
 
 /** Shared FAQ accordion (homepage section + /faq page). */
-export default function FaqAccordionList({ items, className = '' }: FaqAccordionListProps) {
+export default function FaqAccordionList({
+  items,
+  className = '',
+  analyticsScope = 'faq',
+}: FaqAccordionListProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
@@ -18,7 +25,13 @@ export default function FaqAccordionList({ items, className = '' }: FaqAccordion
         <div key={id} className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <button
             type="button"
-            onClick={() => setOpenId(openId === id ? null : id)}
+            onClick={() => {
+              const next = openId === id ? null : id;
+              setOpenId(next);
+              if (next) {
+                trackSelectContent('faq_accordion', id, { page: analyticsScope });
+              }
+            }}
             className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left font-medium text-gray-900 transition-colors hover:bg-gray-50 sm:px-5"
           >
             <span className="min-w-0 flex-1 break-words pr-2">{question}</span>

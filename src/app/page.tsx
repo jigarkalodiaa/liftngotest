@@ -55,7 +55,7 @@ export default function Home() {
         className="page-stack min-h-[100dvh] min-h-screen w-full overflow-x-clip"
         aria-label="LiftnGo home: logistics, delivery, and transport services"
       >
-        <Hero />
+        <Hero pickupBookingSource="homepage" />
         <HomeSeoContent />
         <HomeDeepAuthoritySection />
         <Features />

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { getPostHogClient } from '@/lib/posthog-server';
 
 /**
  * Verifies a Razorpay payment signature server-side.
@@ -32,6 +33,17 @@ export async function POST(req: NextRequest) {
     if (!isValid) {
       return NextResponse.json({ verified: false, error: 'Signature mismatch' }, { status: 400 });
     }
+
+    getPostHogClient().capture({
+      distinctId: razorpay_payment_id,
+      event: 'payment_verified',
+      properties: {
+        gateway: 'razorpay',
+        signature_valid: true,
+        razorpay_order_id,
+        razorpay_payment_id,
+      },
+    });
 
     return NextResponse.json({ verified: true, paymentId: razorpay_payment_id });
   } catch (err: unknown) {
