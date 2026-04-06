@@ -20,7 +20,9 @@ export function isPostHogConfiguredClient(): boolean {
  * - set explicitly: e.g. `https://eu.i.posthog.com` or `/ingest`
  */
 export function getPostHogApiHost(): string {
-  const explicit = process.env.NEXT_PUBLIC_POSTHOG_API_HOST?.trim();
+  const explicit =
+    process.env.NEXT_PUBLIC_POSTHOG_HOST?.trim() ||
+    process.env.NEXT_PUBLIC_POSTHOG_API_HOST?.trim();
   if (explicit) return explicit;
   if (process.env.NODE_ENV === 'development') {
     return 'https://us.i.posthog.com';
