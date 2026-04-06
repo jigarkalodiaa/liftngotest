@@ -192,7 +192,7 @@ const LOCAL_UPCOMING_STYLES: Record<
 };
 
 const ORDER_FRESH_LOCAL: LocalProduct[] = [
-  { emoji: '🥥', name: 'Fresh Coconut Water', sub: 'Sector 18 · Noida', available: true, href: '/noida/coconut', tag: 'Popular' },
+  { emoji: '🥥', name: 'Fresh Coconut Water', sub: 'Sector 53 · Noida', available: true, href: '/noida/coconut', tag: 'Popular' },
   { emoji: '🥟', name: 'Samosa & Snacks', available: false, accent: 'amber' },
   { emoji: '🛒', name: 'Office Groceries', available: false, accent: 'emerald' },
 ];
@@ -1126,7 +1126,7 @@ export default function NoidaDashboard({
           <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden bg-gradient-to-br from-sky-200/90 to-cyan-100 sm:h-[5.25rem] sm:w-[5.25rem] md:h-24 md:w-24">
             <Image
               src="/noida/coconut-summer-hero.png"
-              alt="Fresh coconut water delivery in Noida Sector 18 — Liftngo local marketplace"
+              alt="Fresh coconut water delivery in Noida Sector 53 — Liftngo local marketplace"
               fill
               className="scale-[1.12] object-cover object-[50%_42%] brightness-[1.06] contrast-[1.04] saturate-[1.12] transition-transform duration-300 group-hover:scale-[1.18] sm:scale-[1.15] sm:group-hover:scale-[1.22]"
               sizes="(max-width:640px) 72px, 112px"
@@ -1144,7 +1144,7 @@ export default function NoidaDashboard({
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold leading-tight tracking-tight text-slate-900 sm:text-[13px]">Fresh Coconut Water</p>
-              <p className="mt-0.5 text-[9px] leading-snug text-slate-600 sm:text-[10px]">Sector 18 · ~30 min · Ice-cold</p>
+              <p className="mt-0.5 text-[9px] leading-snug text-slate-600 sm:text-[10px]">Sector 53 · ~30 min · Ice-cold</p>
             </div>
             <span className="mt-0.5 flex min-h-9 w-full items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-sky-500 via-sky-500 to-cyan-500 py-2 text-[10px] font-semibold text-white shadow-sm transition-all duration-200 group-hover:from-sky-600 group-hover:to-cyan-500 group-hover:shadow-md active:scale-[0.99] sm:min-h-10 sm:text-[11px]">
               Order now

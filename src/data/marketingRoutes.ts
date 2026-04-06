@@ -1,9 +1,10 @@
 /**
  * Public indexable paths for sitemap — extend when launching new marketing pages.
- * Keep transactional shells (`/booking`, etc.) out; they live in `robots` disallow.
+ * Keep transactional shells (`/booking`, plan checkouts, etc.) out; they live in `robots` disallow.
  *
  * Priority guide (0–1): primary conversion & hub URLs highest; legal/policy lowest.
  * City landings (`/khatu-goods-transport`, etc.) are merged in `sitemap.ts` from `SEO_CITIES`.
+ * Khatu hotel detail URLs (`/khatu/hotels/[id]`) and marketplace shops are appended in `sitemap.ts` from data files.
  */
 
 export const MARKETING_PATHS: { path: string; priority: number; changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never' }[] = [

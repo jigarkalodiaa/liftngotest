@@ -22,7 +22,8 @@ export const metadata: Metadata = generatePageMetadata({
     'office coconut water delivery',
     'noida food delivery',
     'liftngo coconut',
-    'coconut water sector 18 noida',
+    'coconut water sector 53 noida',
+    'kanchanjunga market noida coconut',
   ],
 });
 
@@ -37,6 +38,7 @@ const jsonLd = {
       image: LOGO_URL,
       address: {
         '@type': 'PostalAddress',
+        streetAddress: 'Near Kanchanjunga Market, Sector 53',
         addressLocality: 'Noida',
         addressRegion: 'Uttar Pradesh',
         addressCountry: 'IN',

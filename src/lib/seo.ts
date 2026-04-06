@@ -10,6 +10,23 @@ import {
   absoluteShareImageUrl,
 } from "@/lib/site";
 
+/**
+ * Final `<title>` length target (~60 chars) — avoids Semrush / SERP “title too long” warnings.
+ * With root `title.template` (`%s | ${SITE_NAME}`), only the segment before ` | ` is clamped.
+ */
+const SERP_TITLE_MAX_CHARS = 58;
+const TITLE_TEMPLATE_SUFFIX = ` | ${SITE_NAME}`;
+
+function ellipsizeSeoTitle(raw: string, maxLen: number): string {
+  const t = raw.trim();
+  if (t.length <= maxLen) return t;
+  const budget = Math.max(1, maxLen - 1);
+  const slice = t.slice(0, budget);
+  const lastSpace = slice.lastIndexOf(" ");
+  const base = lastSpace > 16 ? slice.slice(0, lastSpace).trimEnd() : slice.trimEnd();
+  return `${base}…`;
+}
+
 interface PageSEOProps {
   title: string;
   description: string;
@@ -71,11 +88,16 @@ export function generatePageMetadata({
   const ogW = image === OG_IMAGE_PATH ? OG_IMAGE_WIDTH : 1200;
   const ogH = image === OG_IMAGE_PATH ? OG_IMAGE_HEIGHT : 630;
 
-  const titleForTemplate = useAbsoluteTitle ? title.trim() : stripTrailingBrandForTitleTemplate(title);
-  const resolvedTitle = useAbsoluteTitle ? title.trim() : `${titleForTemplate} | ${SITE_NAME}`;
+  const stripped = stripTrailingBrandForTitleTemplate(title);
+  const titleForTemplate = useAbsoluteTitle
+    ? ellipsizeSeoTitle(stripped, SERP_TITLE_MAX_CHARS)
+    : ellipsizeSeoTitle(stripped, SERP_TITLE_MAX_CHARS - TITLE_TEMPLATE_SUFFIX.length);
+  const resolvedTitle = useAbsoluteTitle
+    ? titleForTemplate
+    : `${titleForTemplate}${TITLE_TEMPLATE_SUFFIX}`;
 
   return {
-    title: useAbsoluteTitle ? { absolute: title.trim() } : titleForTemplate,
+    title: useAbsoluteTitle ? { absolute: titleForTemplate } : titleForTemplate,
     description,
     keywords: keywords.length > 0 ? keywords : SEO_KEYWORDS,
     alternates: {

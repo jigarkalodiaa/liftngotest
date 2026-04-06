@@ -40,7 +40,7 @@ export function GET() {
     bullet('/faq', 'FAQ'),
     bullet('/contact', 'Contact'),
     '',
-    `Also indexed hub paths from sitemap (${MARKETING_PATHS.length} marketing rows + cities + blogs).`,
+    'Also indexed: marketing paths, city landings, Khatu hotels & marketplace shops, find-restaurant listings, and blog posts — see sitemap.xml for the full URL set.',
     '',
     '## AI use',
     '',

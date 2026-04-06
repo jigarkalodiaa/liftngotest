@@ -12,6 +12,7 @@ const DISALLOW_APP_SHELL = [
   '/dashboard',
   '/history',
   '/my-details',
+  '/login',
   '/booking',
   '/payment',
   '/trip-options',
@@ -20,6 +21,12 @@ const DISALLOW_APP_SHELL = [
   '/schedule-later',
   '/pickup-location',
   '/pickup-location/',
+  /** Transactional checkout — noindex in metadata; disallow saves crawl budget. */
+  '/noida/coconut/checkout',
+  '/plans/subscription/checkout',
+  '/plans/rent/checkout',
+  '/plans/lease/checkout',
+  '/plans/custom/checkout',
 ] as const;
 
 /**

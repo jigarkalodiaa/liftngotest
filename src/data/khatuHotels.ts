@@ -7,7 +7,7 @@ export const KHATU_HOTELS: KhatuHotel[] = [
     name: 'Shyam Residency',
     images: [
       'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
-      'https://images.unsplash.com/photo-1611892440504-42a792e54d71?w=800&q=80',
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80',
     ],
     distanceKmFromTemple: 0.7,
     pricePerNight: 1299,
@@ -43,7 +43,7 @@ export const KHATU_HOTELS: KhatuHotel[] = [
     name: 'Highway Stay Ringus',
     images: [
       'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80',
-      'https://images.unsplash.com/photo-1501117716987-c8e1ecb7b699?w=800&q=80',
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
     ],
     distanceKmFromTemple: 8.2,
     pricePerNight: 999,
@@ -77,7 +77,7 @@ export const KHATU_HOTELS: KhatuHotel[] = [
     id: 'salasar-pilgrim-inn',
     name: 'Pilgrim Inn (day use)',
     images: [
-      'https://images.unsplash.com/photo-1596436889106-bbd8bddb9145?w=800&q=80',
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800&q=80',
     ],
     distanceKmFromTemple: 2.1,
     pricePerNight: 1499,

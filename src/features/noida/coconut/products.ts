@@ -87,10 +87,10 @@ export const COCONUT_PRODUCTS: CoconutProduct[] = [
 ];
 
 export const COCONUT_VENDOR = {
-  id: 'noida-coconut-sector18',
+  id: 'noida-coconut-sector53',
   name: 'Fresh Coconut Water',
-  area: 'Sector 18, Noida',
-  pickupAddress: 'Coconut stall, near Atta Market, Sector 18, Noida',
+  area: 'Sector 53, Noida',
+  pickupAddress: 'Near Kanchanjunga Market, Sector 53, Noida',
   deliveryFlatInr: 29,
   estimatedMinutes: '15–25',
 };
