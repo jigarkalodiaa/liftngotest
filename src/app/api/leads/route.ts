@@ -80,18 +80,21 @@ export async function POST(req: Request) {
   }
 
   const cityTrim = city.trim();
-  getPostHogClient().capture({
-    distinctId: phone,
-    event: 'lead_submitted',
-    properties: {
-      source,
-      has_company: Boolean(company.trim()),
-      has_city: Boolean(cityTrim),
-      city: cityTrim ? cityTrim.slice(0, 80) : undefined,
-      has_email: Boolean(em),
-      query_length: queryCombined.length,
-    },
-  });
+  const ph = getPostHogClient();
+  if (ph) {
+    ph.capture({
+      distinctId: phone,
+      event: 'lead_submitted',
+      properties: {
+        source,
+        has_company: Boolean(company.trim()),
+        has_city: Boolean(cityTrim),
+        city: cityTrim ? cityTrim.slice(0, 80) : undefined,
+        has_email: Boolean(em),
+        query_length: queryCombined.length,
+      },
+    });
+  }
 
   return NextResponse.json({ ok: true });
 }

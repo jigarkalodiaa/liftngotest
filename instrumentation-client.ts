@@ -1,25 +1,30 @@
 import posthog from 'posthog-js';
 import { getPostHogApiHost, getPostHogPublicToken } from '@/lib/posthogEnv';
 
-const token = getPostHogPublicToken();
-const apiHost = getPostHogApiHost();
+if (typeof window !== 'undefined') {
+  // DevTools / production debugging — SDK instance is the module export.
+  (window as Window & { posthog?: typeof posthog }).posthog = posthog;
 
-if (token) {
-  posthog.init(token, {
-    api_host: apiHost,
-    ui_host: 'https://us.posthog.com',
-    // Required by PostHog for consistent default behaviour
-    defaults: '2026-01-30',
-    capture_exceptions: true,
-    debug: process.env.NODE_ENV === 'development',
+  // TODO: remove after confirming Vercel env — verifies client bundle in production
+  console.log('PostHog init', {
+    key: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   });
 
-  // DevTools: `window.posthog.capture('test_event')` (the SDK does not set this by default)
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    (window as Window & { posthog?: typeof posthog }).posthog = posthog;
+  const token = getPostHogPublicToken();
+  const apiHost = getPostHogApiHost();
+
+  if (token) {
+    posthog.init(token, {
+      api_host: apiHost,
+      ui_host: 'https://us.posthog.com',
+      defaults: '2026-01-30',
+      capture_exceptions: true,
+      capture_pageview: true,
+    });
+  } else {
+    console.warn(
+      '[PostHog] Set NEXT_PUBLIC_POSTHOG_KEY (or NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN) and NEXT_PUBLIC_POSTHOG_HOST in Vercel — analytics will not send until the key is present at build time.',
+    );
   }
-} else if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  console.warn(
-    '[PostHog] No client token: set NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN (or NEXT_PUBLIC_POSTHOG_KEY) in .env.local',
-  );
 }
