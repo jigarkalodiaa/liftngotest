@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="g3w-bg" x1="0" y1="0" x2="200" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFF6FF"/>
+      <stop offset="1" stop-color="#F8FAFC"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="140" rx="20" fill="url(#g3w-bg)"/>
+  <path d="M14 108c40-16 70-16 110 0 32 12 48 10 66-6" stroke="#CBD5E1" stroke-width="2" stroke-linecap="round"/>
+  <!-- cargo cabin / loader body -->
+  <path d="M44 52h78c14 0 26 12 26 26v28H44V52z" fill="#1D4ED8"/>
+  <path d="M122 52h34l22 18c8 6 12 14 12 24v12h-28c0-16-14-30-32-30H122V52z" fill="#1E40AF"/>
+  <!-- cargo bay detail: stacked boxes visible -->
+  <rect x="54" y="62" width="32" height="20" rx="3" fill="#BFDBFE"/>
+  <rect x="90" y="58" width="28" height="16" rx="3" fill="#93C5FD" opacity=".95"/>
+  <path d="M62 70h18M94 64h14" stroke="#1E3A8A" stroke-width="2" stroke-linecap="round" opacity=".35"/>
+  <!-- wheels -->
+  <circle cx="68" cy="104" r="14" fill="#0F172A"/>
+  <circle cx="68" cy="104" r="6" fill="#60A5FA"/>
+  <circle cx="128" cy="104" r="14" fill="#0F172A"/>
+  <circle cx="128" cy="104" r="6" fill="#60A5FA"/>
+</svg>

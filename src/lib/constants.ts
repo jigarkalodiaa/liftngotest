@@ -40,7 +40,8 @@ export const STORAGE_KEYS = {
 /** sessionStorage — cleared when the tab closes; not shared across tabs. */
 export const SESSION_KEYS = {
   /**
-   * After OTP success, navigate here (pathname + optional `?query`). Must stay under `/pickup-location` only.
+   * After OTP success, navigate here (pathname + optional `?query`).
+   * Allowed targets are validated by {@link sanitizePostLoginRedirectTarget}.
    */
   POST_LOGIN_PATH: 'liftngo_post_login_path',
   /** One tab: user skipped / dismissed location prompt (optional). */
@@ -61,6 +62,8 @@ export const ROUTES = {
   SCHEDULE_LATER: '/schedule-later',
   ADD_STOP: '/add-stop',
   PAYMENT: '/payment',
+  /** Razorpay outcome — plan summary + dashboard CTA (`?status=success|failed&flow=…`). */
+  PAYMENT_RESULT: '/payment/result',
   BOOKING: '/booking',
   TRIP_COMPLETE: '/trip-complete',
   ABOUT: '/about',
@@ -83,6 +86,14 @@ export const ROUTES = {
   FIND_RESTAURANT: '/find-restaurant',
   /** Marketing: contact & sitelinks (support, social, addresses). */
   CONTACT: '/contact',
+  /** Contact page — business enquiry form block. */
+  CONTACT_BUSINESS_ENQUIRY: '/contact#business-enquiry',
+  /** Why businesses choose Liftngo — trust signals & terms context (linked from Noida dashboard). */
+  WHY_LIFTNGO: '/why-liftngo',
+  /** Partners: sell on Liftngo, verification, route analysis (linked from Noida dashboard). */
+  GROW_WITH_LIFTNGO: '/grow-with-liftngo',
+  /** Grow page — business enquiry form (in-page anchor). */
+  GROW_WITH_LIFTNGO_BUSINESS_ENQUIRY: '/grow-with-liftngo#business-enquiry',
   /** Marketing: driver / partner onboarding (links to careers + requirements). */
   BECOME_DRIVER: '/become-driver',
   /** Dedicated login screen (food booking & guarded flows redirect here). */
@@ -99,6 +110,24 @@ export const ROUTES = {
   BOOKING_RIDE: '/booking/ride',
   /** Prefix for `GET` hotel detail booking flow: `${ROUTES.BOOKING_HOTEL}/${id}`. */
   BOOKING_HOTEL: '/booking/hotel',
+  /** Plans hub and sub-pages — conversion-focused. */
+  PLANS: '/plans',
+  PLANS_SUBSCRIPTION: '/plans/subscription',
+  /** Confirm pack + pay (Razorpay) — query: `?tier=Growth` */
+  PLANS_SUBSCRIPTION_CHECKOUT: '/plans/subscription/checkout',
+  PLANS_RENT: '/plans/rent',
+  PLANS_RENT_CHECKOUT: '/plans/rent/checkout',
+  PLANS_LEASE: '/plans/lease',
+  PLANS_LEASE_CHECKOUT: '/plans/lease/checkout',
+  PLANS_CUSTOM: '/plans/custom',
+  PLANS_CUSTOM_CHECKOUT: '/plans/custom/checkout',
+  PLANS_GST: '/plans/gst',
+  /** SEO dashboard URL — same UI as `/dashboard` with zone pinned to Noida. */
+  NOIDA: '/noida',
+  /** Fleet owners: how Liftngo tech helps run owned vehicles (assign trips, private fleet). */
+  NOIDA_FLEET_TECH: '/noida/fleet-tech',
+  /** Alias → `/plans/custom` (see `next.config` redirect). */
+  FLEET: '/fleet',
 } as const;
 
 /** `?mode=` on `/pickup-location` — dashboard “Add more default location” (pickup → drop, then trip options). */

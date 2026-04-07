@@ -25,9 +25,11 @@ export interface BlogPost {
   publishedAt: string;
   modifiedAt?: string;
   author?: BlogAuthor;
-  /** Unsplash or local path under /public */
+  /** Unsplash or local path under /public (OG/meta + default hero image) */
   featuredImage: string;
   featuredImageAlt: string;
+  /** Special in-article chrome (no default hero image): dashboard replica or SaaS case study layout */
+  featuredSurface?: 'noida-dashboard' | 'noida-case-study';
   /** Shown larger on /blog listing */
   featured?: boolean;
   /** Preferred related posts; remainder filled by topic heuristics */

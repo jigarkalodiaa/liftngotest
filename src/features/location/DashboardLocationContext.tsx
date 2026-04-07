@@ -41,7 +41,14 @@ function toStoredWithTime(next: Omit<StoredUserLocation, 'updatedAt'> & { update
   };
 }
 
-export function DashboardLocationProvider({ children }: { children: ReactNode }) {
+export function DashboardLocationProvider({
+  children,
+  pinZone,
+}: {
+  children: ReactNode;
+  /** When set (e.g. `/noida` route), persist this zone after hydrate so the correct dashboard UI loads. */
+  pinZone?: DashboardZone;
+}) {
   const [location, setLocation] = useState<StoredUserLocation | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -108,7 +115,7 @@ export function DashboardLocationProvider({ children }: { children: ReactNode })
         setIsLocating(false);
         if (err.code === err.PERMISSION_DENIED) {
           setLocationError(
-            'Location permission denied. Choose “Khatu / nearby” below, or skip for the default experience.',
+            'Location permission denied. Choose your area below, or skip for the default experience.',
           );
         } else {
           setLocationError('Location unavailable. Retry or choose your area below.');
@@ -120,17 +127,23 @@ export function DashboardLocationProvider({ children }: { children: ReactNode })
 
   const setZoneManual = useCallback(
     (zone: DashboardZone) => {
-      persist({
-        city: zone === 'khatu' ? 'Khatu area' : '',
-        state: zone === 'khatu' ? 'Rajasthan' : '',
-        zone,
-        source: 'manual',
-      });
+      const manualDefaults: Record<DashboardZone, { city: string; state: string }> = {
+        khatu: { city: 'Khatu area', state: 'Rajasthan' },
+        noida: { city: 'Noida', state: 'Uttar Pradesh' },
+        default: { city: '', state: '' },
+      };
+      const { city, state } = manualDefaults[zone];
+      persist({ city, state, zone, source: 'manual' });
       setShowLocationModal(false);
       setLocationError(null);
     },
     [persist],
   );
+
+  useEffect(() => {
+    if (!hydrated || !pinZone) return;
+    setZoneManual(pinZone);
+  }, [hydrated, pinZone, setZoneManual]);
 
   const clearLocationError = useCallback(() => setLocationError(null), []);
 

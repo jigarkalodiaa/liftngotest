@@ -396,13 +396,19 @@ export function PriceDetailsSection({
 export function PaymentFooterBar({
   onBookNow,
   totalInr,
+  busy,
   disabled,
 }: {
   onBookNow: () => void;
   /** When set, show amount on the primary CTA (e.g. food flat ₹50) */
   totalInr?: number;
+  /** Disable button while payment is in progress. */
+  busy?: boolean;
+  /** Extra disable (e.g. legal consent not accepted). */
   disabled?: boolean;
 }) {
+  const payBlocked = Boolean(busy || disabled);
+
   return (
     <div
       className="fixed inset-x-0 bottom-0 border-t py-4"
@@ -412,22 +418,15 @@ export function PaymentFooterBar({
         <button
           type="button"
           onClick={onBookNow}
-          disabled={disabled}
+          disabled={payBlocked}
           className="w-full rounded-2xl py-3.5 font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ backgroundColor: theme.colors.primary, fontSize: theme.fontSizes.lg }}
         >
-          {disabled ? (
-            <>
-              <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/35 border-t-white" />
-              Booking...
-            </>
-          ) : (
-            <>
-              {totalInr != null ? `Pay ₹${Math.round(totalInr)}` : 'Book now'}
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </>
+          {busy ? 'Processing…' : totalInr != null ? `Pay ₹${totalInr}` : 'Book now'}
+          {!busy && (
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5} aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
           )}
         </button>
       </div>

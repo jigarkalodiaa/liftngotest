@@ -141,7 +141,7 @@ export default function BecomeDriverPage() {
               Driver partner FAQs
             </h2>
             <div className="mt-6 max-w-2xl">
-              <FaqAccordionList items={BECOME_DRIVER_PAGE_FAQS} />
+              <FaqAccordionList items={BECOME_DRIVER_PAGE_FAQS} analyticsScope="become_driver_page" />
             </div>
           </section>
 

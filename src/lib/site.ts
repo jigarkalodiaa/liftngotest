@@ -31,23 +31,23 @@ export const LOGO_URL = `${SITE_URL}${LOGO_PATH}`;
 export const LOGO_IMAGE_WIDTH = 1024;
 export const LOGO_IMAGE_HEIGHT = 1024;
 
-/** Meta title — target ~50–60 chars (Semrush / SERP tooling). */
-export const META_TITLE = 'Liftngo Logistics | B2B Delivery in Khatu & Delhi NCR';
+/** Meta title — target ~50–60 chars (Semrush / SERP tooling). B2B-first for NCR commercial intent. */
+export const META_TITLE = 'B2B Logistics Noida & Delhi NCR | Liftngo — Khatu';
 
-/** Meta description — target ~100–130 chars. */
+/** Meta description — target ~150–160 chars where useful; primary B2B hooks + Khatu corridor. */
 export const SITE_DESCRIPTION =
-  'Fast and reliable logistics in Khatu Shyam Ji and Delhi NCR. Book goods delivery with Liftngo—upfront pricing.';
+  'B2B goods logistics for Noida & Delhi NCR: subscription delivery packs, long-term vehicle lease, GST-ready billing, and multi-vehicle (2W–4W) booking. Hyperlocal Khatu Shyam Ji corridor with upfront pricing and live tracking.';
 
 /** Short description (footer, cards, manifest). */
 export const SHORT_DESCRIPTION =
-  'Hyperlocal logistics in Khatu Shyam Ji and B2B logistics in Noida & Delhi NCR—multi-vehicle goods transport with upfront pricing.';
+  'B2B logistics in Noida & Delhi NCR—subscription, lease, GST billing, and fleet-ready delivery. Hyperlocal goods transport in Khatu Shyam Ji with upfront pricing.';
 
 /** OG title (can match or complement META_TITLE). */
-export const OG_TITLE = 'Liftngo Logistics | B2B & hyperlocal goods delivery';
+export const OG_TITLE = 'Liftngo — B2B logistics Noida & NCR | Khatu delivery';
 
-/** OG description — aligned length with SITE_DESCRIPTION. */
+/** OG description — aligned with SITE_DESCRIPTION for share previews. */
 export const OG_DESCRIPTION =
-  'Reliable logistics in Khatu Shyam Ji & Delhi NCR. Book 2W–4W delivery with Liftngo today.';
+  'Corporate delivery, subscription packs, lease, and GST invoicing in Noida & Delhi NCR. Khatu Shyam Ji hyperlocal 2W–4W goods transport with verified drivers.';
 
 /** Twitter card title. */
 export const TWITTER_TITLE = OG_TITLE;
@@ -55,39 +55,40 @@ export const TWITTER_TITLE = OG_TITLE;
 /** Twitter card description. */
 export const TWITTER_DESCRIPTION = OG_DESCRIPTION;
 
-/** Hero / marketing tagline. */
-export const SITE_TAGLINE = 'Smart Logistics for Everyday Transport';
+/** Hero / marketing tagline — single source of identity. */
+export const SITE_TAGLINE = 'Goods Time Pe, Business Prime Pe';
 
 /** One-line product pitch. */
 export const ONE_LINE_PITCH =
-  'Liftngo is a digital logistics platform that connects customers with drivers for seamless, affordable, and efficient goods transportation.';
+  'Liftngo is a digital logistics platform for goods transport—strong on B2B subscription, lease, and GST-ready delivery in Noida & NCR, plus hyperlocal booking in Khatu Shyam Ji.';
 
 export const SEO_KEYWORDS = [
+  'b2b logistics noida',
+  'b2b logistics delhi ncr',
+  'corporate goods transport ncr',
+  'subscription delivery noida',
+  'delivery vehicle lease noida',
+  'gst billing logistics india',
+  'commercial 3 wheeler cargo',
+  'bulk delivery noida',
+  'warehouse to shop delivery',
+  'intra city freight delhi ncr',
+  'logistics company delhi ncr',
+  'corporate delivery solutions',
+  'business logistics platform',
+  'B2B logistics India',
+  'hyperlocal logistics india',
+  'last mile delivery solutions',
+  'EV cargo delivery',
   'logistics in khatu shyam ji',
   'delivery service khatu',
   'local delivery khatu',
   'temple logistics khatu',
   'goods transport khatu',
-  'b2b logistics noida',
-  'logistics company delhi ncr',
-  'corporate delivery solutions',
-  'bulk delivery services noida',
-  'warehouse logistics delhi ncr',
-  'hyperlocal logistics india',
-  'last mile delivery solutions',
-  'EV cargo delivery',
-  'business logistics platform',
-  'logistics in Khatu',
-  'goods transport near me',
-  'B2B logistics India',
-  'hyperlocal delivery service',
   'liftngo logistics',
   'goods transport platform',
-  'last mile delivery service',
-  'local logistics platform',
   'mini truck booking service',
   'on-demand goods delivery',
-  'local transport service',
   'logistics technology platform',
   'driver network logistics',
 ];
@@ -125,11 +126,11 @@ export function absoluteShareImageUrl(imagePathOrUrl: string): string {
 
 /** Full project description (About, structured data). */
 export const PROJECT_DESCRIPTION =
-  'Liftngo is a focused logistics platform—not pan-India. We operate hyperlocal goods transport around Khatu Shyam Ji (Rajasthan) for vendors, food outlets, shops, and temple-corridor runs, and we are building B2B logistics in Noida and Delhi NCR with multi-vehicle booking (2W, 3W, 4W), verified partners, and corporate-friendly handoffs. EV cargo is used where lanes fit; the product emphasises upfront fares, repeat routes, and completion-based incentives rather than passenger-style rides.';
+  'Liftngo is a digital goods transport platform for businesses and local commerce: in Noida and Delhi NCR we focus on B2B subscription packs, dedicated vehicle options, long-term lease, GST-ready invoicing, and multi-vehicle (2W–4W) coordination with upfront pricing and tracking. In Khatu Shyam Ji we provide hyperlocal delivery for vendors, food outlets, and shops around the temple corridor with verified drivers and real-time visibility.';
 
 /** Mission & vision (for About and structured data). */
 export const MISSION =
-  'Make local goods movement dependable for businesses: honest pricing, EV-first short-haul capacity, and drivers who are incentivised around punctuality and completions—so every handoff protects your reputation.';
+  'Make B2B and local goods movement dependable: honest pricing, EV-first short-haul where it fits, and drivers incentivised around punctuality and completions—so every handoff protects your reputation.';
 
 export const VISION =
   'Become the default goods transport partner in Khatu Shyam Ji and a trusted B2B logistics brand in Noida and Delhi NCR—deep density in each city before expanding further.';

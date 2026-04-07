@@ -16,7 +16,8 @@ import {
   OG_IMAGE_HEIGHT,
   FAVICON_PATH,
 } from "@/lib/site";
-import AppProviders from "@/providers/AppProviders";
+import QueryProvider from "@/components/providers/QueryProvider";
+import PostHogAnalyticsProvider from "@/components/providers/PostHogProvider";
 import GoogleAnalytics from "@/components/Analytics";
 import { ChatWidget } from "@/components/chatbot";
 import "./globals.css";
@@ -48,6 +49,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  applicationName: SITE_NAME,
   title: {
     default: META_TITLE,
     template: `%s | ${SITE_NAME}`,
@@ -100,8 +102,13 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: FAVICON_PATH, type: "image/png", sizes: "1024x1024" }],
-    apple: [{ url: FAVICON_PATH, type: "image/png", sizes: "1024x1024" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/favicon.png", type: "image/png", sizes: "1024x1024" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" }],
   },
   manifest: "/manifest.json",
   ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
@@ -123,10 +130,12 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <GoogleAnalytics />
-        <AppProviders>
-          {children}
-          <ChatWidget />
-        </AppProviders>
+        <QueryProvider>
+          <PostHogAnalyticsProvider>
+            {children}
+            <ChatWidget />
+          </PostHogAnalyticsProvider>
+        </QueryProvider>
       </body>
     </html>
   );

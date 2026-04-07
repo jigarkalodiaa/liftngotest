@@ -1,4 +1,5 @@
 import { trackFormSubmit } from '@/lib/analytics';
+import { trackEvent, identifyUser } from '@/lib/posthogAnalytics';
 import { ROUTES } from '@/lib/constants';
 import {
   clearDropLocation,
@@ -27,7 +28,9 @@ export type FinalizeLoginOptions = {
 export function finalizeLoginSessionAfterOtp(rawPhone: string, options?: FinalizeLoginOptions): string {
   setLoggedIn(true);
   trackFormSubmit('login_otp_success');
+  trackEvent('otp_success', { success: true });
   const phone = normalizePhoneInput(rawPhone);
+  identifyUser(phone, { phone });
   setStoredPhone(phone);
   const token =
     typeof options?.accessToken === 'string' && options.accessToken.trim()

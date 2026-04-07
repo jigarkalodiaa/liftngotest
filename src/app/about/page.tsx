@@ -11,39 +11,46 @@ const PAGE_URL = `${SITE_URL}${ABOUT_PATH}`;
 /** Title base only; root layout adds `| Liftngo` (~55 chars total). */
 const PAGE_META_TITLE = 'About us | EV cargo & hyperlocal B2B';
 const PAGE_DESCRIPTION =
-  'Intra-city goods transport with electric and fuel cargo, B2B-first lanes, and depth around Khatu Shyam Ji—not a passenger app. Built for shops, wholesalers, and reliable handoffs.';
+  'Liftngo moves intra-city goods for B2B—electric & fuel three-wheel cargo, upfront pricing, Khatu Shyam Ji hyperlocal depth, and Noida/Delhi NCR wholesale lanes. Not a passenger app: commercial handoffs, POD, and ops-friendly booking.';
 /** Richer name for JSON-LD / social parity with on-page topic. */
 const PAGE_SCHEMA_NAME = `About ${SITE_NAME} — EV cargo & hyperlocal B2B logistics`;
+
+const PAGE_KEYWORDS = [
+  'Liftngo about',
+  'Liftngo logistics company',
+  'hyperlocal goods transport India',
+  'intra-city B2B delivery',
+  'EV three wheeler cargo India',
+  'electric cargo loader booking',
+  'last mile freight India',
+  'Khatu Shyam Ji delivery',
+  'Rajasthan B2B transport',
+  'Noida B2B logistics',
+  'Delhi NCR goods transport',
+  'wholesale delivery platform',
+  'commercial goods app India',
+  'three wheeler cargo booking',
+  'kirana stock transfer',
+] as const;
 
 export const metadata = generatePageMetadata({
   title: PAGE_META_TITLE,
   description: PAGE_DESCRIPTION,
   path: ABOUT_PATH,
   image: ABOUT_HERO_IMAGE.src,
-  keywords: [
-    'Liftngo',
-    'Liftngo about',
-    'hyperlocal logistics India',
-    'EV cargo delivery',
-    'electric three wheeler cargo',
-    'last mile goods transport',
-    'B2B delivery Rajasthan',
-    'Khatu goods transport',
-    'intra-city cargo',
-    'three wheeler cargo booking',
-    'local wholesale delivery',
-  ],
+  keywords: [...PAGE_KEYWORDS],
 });
 
 export default function AboutPage() {
   return (
-    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, BREADCRUMB_ABOUT]}>
+    <ContentLayout breadcrumbs={[BREADCRUMB_HOME, BREADCRUMB_ABOUT]} breadcrumbNavVisible={false}>
       <JsonLd
         data={buildAboutPageJsonLd({
           pageUrl: PAGE_URL,
           title: PAGE_SCHEMA_NAME,
           description: PAGE_DESCRIPTION,
           heroImageUrl: ABOUT_HERO_IMAGE.src,
+          keywords: [...PAGE_KEYWORDS],
         })}
       />
       <AboutPageView />

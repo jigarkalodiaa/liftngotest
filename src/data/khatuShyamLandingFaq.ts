@@ -18,7 +18,7 @@ export const KHATU_SHYAM_LANDING_FAQ = [
   {
     question: 'Can shops book goods transport in Khatu without calling multiple drivers?',
     answer:
-      'Yes. Enter pickup and drop in the app or web flow, choose vehicle class, and confirm before dispatch—so you are not chasing riders on WhatsApp during rush hour around Khatu Shyam Ji.',
+      'Yes. Enter pickup and drop in the app or web flow, choose vehicle class, and confirm before dispatch—so you are not chasing informal riders during rush hour around Khatu Shyam Ji.',
   },
   {
     question: 'Do you support temple vendor supply logistics and prasad-related movement?',
@@ -48,12 +48,12 @@ export const KHATU_SHYAM_LANDING_FAQ = [
   {
     question: 'Is Liftngo only for Khatu Shyam Ji?',
     answer:
-      'Hyperlocal operations are focused on Khatu Shyam Ji (Rajasthan). We also build B2B logistics in Noida and Delhi NCR—we do not claim pan-India generic coverage.',
+      'Hyperlocal operations are centred on Khatu Shyam Ji (Rajasthan). We also operate B2B logistics across Noida and Delhi NCR, giving businesses reliable, region-specific delivery they can depend on.',
   },
   {
-    question: 'Can I contact Liftngo on WhatsApp for Khatu deliveries?',
+    question: 'How do I reach Liftngo for lane-specific or recurring Khatu deliveries?',
     answer:
-      'Yes. WhatsApp is useful for lane descriptions, recurring vendor schedules, or loads that need a quick human check. You can still complete structured bookings online when you want a clear quote and vehicle choice.',
+      'Use Contact on liftngo.com for lane descriptions, recurring vendor schedules, or loads that need a quick human check. You can still complete structured bookings online when you want a clear quote and vehicle choice.',
   },
   {
     question: 'How fast can a delivery be arranged near the temple area?',

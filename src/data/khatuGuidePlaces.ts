@@ -1,4 +1,5 @@
 import type { KhatuNearbyPlace } from '@/types/khatu';
+import { indiaPhotoBangaloreLoadedTruck } from '@/config/indiaLogisticsImages';
 
 export const KHATU_NEARBY_PLACES: KhatuNearbyPlace[] = [
   {
@@ -6,7 +7,7 @@ export const KHATU_NEARBY_PLACES: KhatuNearbyPlace[] = [
     name: 'Jeen Mata Mandir',
     distanceFromKhatuKm: 18,
     shortDescription: 'Historic Śākta shrine in the Aravalli foothills — many combine darshan with Khatu & Salasar.',
-    image: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1548013146-72479768bada?w=800&q=80',
   },
   {
     id: 'salasar-balaji',
@@ -20,6 +21,6 @@ export const KHATU_NEARBY_PLACES: KhatuNearbyPlace[] = [
     name: 'Ringas (rail & corridor)',
     distanceFromKhatuKm: 18,
     shortDescription: 'Primary railhead for Khatu — pre-book pickup for elders & heavy luggage.',
-    image: 'https://images.unsplash.com/photo-1474487548537-399acb977b99?w=800&q=80',
+    image: indiaPhotoBangaloreLoadedTruck(800),
   },
 ];

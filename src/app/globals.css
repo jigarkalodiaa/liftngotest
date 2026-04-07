@@ -32,6 +32,10 @@
   --color-gray-800: #1F2937;
   --color-gray-900: #111827;
   --color-success: #10B981;
+  /** Sales funnel action accent — conversion CTAs (teal; pairs with trust navy). */
+  --funnel-action: #0d9488;
+  --funnel-action-hover: #0f766e;
+  --funnel-action-muted: rgba(13, 148, 136, 0.12);
   --color-error: #EF4444;
   --color-text-primary: #2F2E41;
   --color-text-secondary: #6E6D7A;
@@ -72,6 +76,23 @@
   --radius: 10px;
 }
 
+/**
+ * Noida case-study blog: restore normal corner radii & true pills.
+ * Global @theme above forces ~10px for all `rounded-*`, which flattens SaaS-style cards.
+ */
+.noida-case-study-surface {
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-4xl: 28px;
+  --radius-full: 9999px;
+  --radius: 12px;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #FFF7ED;
@@ -83,6 +104,13 @@ html {
   overflow-x: clip;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -221,13 +249,96 @@ select {
   }
 }
 
-/* Hide scrollbar while keeping scroll (carousel, etc.) */
-.scrollbar-hide {
+/* Hide scrollbar while keeping overflow scroll (carousels, pills, wide tables) */
+.scrollbar-hide,
+.scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-.scrollbar-hide::-webkit-scrollbar {
+.scrollbar-hide::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/**
+ * /plans/custom — range inputs: filled track + clear thumb (WebKit + Firefox).
+ * Set `--range-fill` inline (e.g. `65%`) for the primary portion on WebKit.
+ */
+.custom-plan-range {
+  --range-fill: 0%;
+  width: 100%;
+  height: 1.625rem;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.custom-plan-range:focus {
+  outline: none;
+}
+
+.custom-plan-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(44, 45, 91, 0.28);
+}
+
+.custom-plan-range:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px rgba(44, 45, 91, 0.28);
+}
+
+.custom-plan-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-primary) var(--range-fill),
+    var(--color-gray-200) var(--range-fill),
+    var(--color-gray-200) 100%
+  );
+}
+
+.custom-plan-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: -6px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.custom-plan-range:hover::-webkit-slider-thumb {
+  transform: scale(1.06);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.22);
+}
+
+.custom-plan-range:active::-webkit-slider-thumb {
+  transform: scale(1.02);
+}
+
+.custom-plan-range::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-gray-200);
+}
+
+.custom-plan-range::-moz-range-progress {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+}
+
+.custom-plan-range::-moz-range-thumb {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
 }
 
 /**
@@ -236,4 +347,55 @@ select {
  */
 .rounded-full {
   border-radius: 12px !important;
+}
+
+/**
+ * Sitewide layout scale — use across app + marketing for consistent rhythm.
+ * - Sections: vertical padding bands
+ * - page-stack: spacing between stacked blocks
+ * - Cards: inner padding for elevated surfaces
+ */
+@layer components {
+  .page-section {
+    @apply py-6 sm:py-8 lg:py-10;
+  }
+  .page-stack {
+    @apply flex min-w-0 flex-col gap-4 sm:gap-6;
+  }
+  .page-card {
+    @apply w-full min-w-0 p-4 md:p-5;
+  }
+
+  /** Noida B2B funnel — hero image / card breathing light (respects reduced motion). */
+  .funnel-hero-pulse {
+    animation: funnel-hero-glow 5.5s ease-in-out infinite;
+  }
+
+  .funnel-cta-press {
+    @apply transition-transform duration-150 active:scale-[0.98];
+  }
+
+  .funnel-card-lift {
+    @apply transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-lg;
+  }
+}
+
+@keyframes funnel-hero-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 25px 50px -12px rgb(0 0 0 / 0.35),
+      0 0 0 1px rgb(255 255 255 / 0.12);
+  }
+  50% {
+    box-shadow:
+      0 28px 56px -10px rgb(44 45 91 / 0.45),
+      0 0 0 1px rgb(255 255 255 / 0.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .funnel-hero-pulse {
+    animation: none;
+  }
 }

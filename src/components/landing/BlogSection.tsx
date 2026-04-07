@@ -9,14 +9,14 @@ export default function BlogSection() {
   return (
     <section
       id="blogs"
-      className="py-12 lg:py-16"
+      className="page-section"
       aria-labelledby="blogs-heading"
       style={{
         background: 'radial-gradient(ellipse at center, #FFF7EE 0%, #FFF6ED 100%)',
       }}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6 sm:mb-8">
+        <div className="mb-4 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
           <h2 id="blogs-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 text-center sm:text-left">
             Blogs
           </h2>

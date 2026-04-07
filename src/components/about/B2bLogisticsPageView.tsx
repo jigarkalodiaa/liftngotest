@@ -12,11 +12,8 @@ const BTN_SECONDARY =
 const CARD =
   'rounded-2xl border border-gray-100/80 bg-white p-6 shadow-sm sm:p-7 transition-shadow hover:shadow-md hover:border-[var(--color-primary)]/15';
 
-const textH1 =
-  'text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-[2.5rem] lg:leading-tight';
 const textH2 = 'text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl';
 const textH3 = 'text-lg font-semibold text-gray-900';
-const textLead = 'text-lg font-semibold leading-snug text-gray-900 sm:text-xl';
 const textProse = 'text-base leading-relaxed text-gray-600 sm:text-lg';
 const textBody = 'text-base leading-relaxed text-gray-600';
 
@@ -56,34 +53,7 @@ const SEGMENTS = [
 export default function B2bLogisticsPageView() {
   return (
     <article className="flex-1">
-      <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6 sm:pb-16 sm:pt-10 lg:px-8 lg:pt-14">
-        <header className="mb-12 max-w-4xl">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-primary)] sm:text-sm">
-            B2B goods transport · Last-mile delivery · Hyperlocal
-          </p>
-          <h1 className={textH1}>
-            B2B logistics &amp; goods delivery for <span className="text-[var(--color-primary)]">every business</span> that moves stock
-          </h1>
-          <p className={`mt-5 max-w-3xl ${textLead}`}>
-            Whether you are a manufacturer, wholesaler, distributor, kirana owner, or a seller of daily household supplies—if you need{' '}
-            <strong className="font-semibold text-gray-900">dependable intra-city transport</strong>, you belong on {BRAND.name}.
-          </p>
-          <p className={`mt-4 max-w-3xl ${textProse}`}>
-            {BRAND.name} is built for <strong className="font-semibold text-gray-900">commercial goods movement</strong>: recurring{' '}
-            <strong className="font-semibold text-gray-900">B2B delivery</strong>, shop transfers, wholesale drops, and light industrial
-            handoffs—not passenger cabs. We combine electric three-wheel cargo and lighter modes with upfront pricing tied to distance and
-            demand, so finance and ops can plan—not guess.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link href={ROUTES.PICKUP_LOCATION} className={BTN_PRIMARY}>
-              Book a B2B delivery
-            </Link>
-            <Link href={ROUTES.ABOUT} className={BTN_SECONDARY}>
-              Back to About {BRAND.name}
-            </Link>
-          </div>
-        </header>
-
+      <div className="w-full pb-8 pt-2 sm:pb-12 sm:pt-4">
         <section className="mb-14 sm:mb-16" aria-labelledby="segments-heading">
           <h2 id="segments-heading" className={`mb-3 ${textH2}`}>
             Who we serve: the full spectrum of B2B

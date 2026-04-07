@@ -42,11 +42,13 @@ export function buildAboutPageJsonLd({
   title,
   description,
   heroImageUrl,
+  keywords,
 }: {
   pageUrl: string;
   title: string;
   description: string;
   heroImageUrl: string;
+  keywords?: string[];
 }) {
   const aboutId = `${pageUrl}#webpage`;
   const graph: Record<string, unknown>[] = [
@@ -88,6 +90,7 @@ export function buildAboutPageJsonLd({
       url: pageUrl,
       name: title,
       description,
+      ...(keywords?.length ? { keywords: keywords.join(', ') } : {}),
       inLanguage: 'en-IN',
       isPartOf: { '@id': WEBSITE_SCHEMA_ID },
       about: { '@id': ORGANIZATION_SCHEMA_ID },
@@ -172,6 +175,7 @@ export function buildWebPageJsonLd({
   description,
   breadcrumb,
   faqMainEntity,
+  keywords,
 }: {
   pageUrl: string;
   name: string;
@@ -179,8 +183,17 @@ export function buildWebPageJsonLd({
   /** Omit when using `BreadcrumbsBar` (avoids duplicate BreadcrumbList JSON-LD). */
   breadcrumb?: BreadcrumbItem[];
   faqMainEntity?: { question: string; answer: string }[];
+  /** Comma-separated string or array → joined for schema.org `keywords` on WebPage. */
+  keywords?: string[] | string;
 }) {
   const pageId = `${pageUrl}#webpage`;
+  const keywordStr =
+    typeof keywords === 'string'
+      ? keywords
+      : keywords?.length
+        ? keywords.join(', ')
+        : undefined;
+
   const graph: Record<string, unknown>[] = [
     {
       '@type': 'WebPage',
@@ -188,6 +201,7 @@ export function buildWebPageJsonLd({
       url: pageUrl,
       name,
       description,
+      ...(keywordStr ? { keywords: keywordStr } : {}),
       inLanguage: 'en-IN',
       isPartOf: { '@id': WEBSITE_SCHEMA_ID },
       publisher: { '@id': ORGANIZATION_SCHEMA_ID },

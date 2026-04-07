@@ -3,12 +3,12 @@ export const NOIDA_B2B_LANDING_FAQ = [
   {
     question: 'Does Liftngo offer corporate delivery solutions in Noida?',
     answer:
-      'Yes. Liftngo is built for B2B logistics in Noida and Delhi NCR: multi-vehicle booking (2W, 3W, 4W cargo), verified vendor partners, and coordination suited to warehouses, retail chains, and offices—not a generic pan-India marketplace.',
+      'Yes. Liftngo is purpose-built for B2B logistics in Noida and Delhi NCR: multi-vehicle booking (2W, 3W, 4W cargo), verified vendor partners, and coordination suited to warehouses, retail chains, and offices — with deep local coverage you can count on.',
   },
   {
     question: 'Can we use Liftngo for bulk delivery and warehouse logistics?',
     answer:
-      'The platform supports bulk delivery programmes and inventory movement when your lanes fit our operating model in NCR. Start with a structured booking or WhatsApp your route pattern so we can align vehicle class and SLAs.',
+      'The platform supports bulk delivery programmes and inventory movement when your lanes fit our operating model in NCR. Start with a structured booking or use Contact to share your route pattern so we can align vehicle class and SLAs.',
   },
   {
     question: 'What is a dedicated delivery expert in this context?',

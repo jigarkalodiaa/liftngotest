@@ -14,6 +14,8 @@ import {
   savedLocationHasAddress,
 } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { inferCityFromLocationText } from '@/lib/posthog/locationMeta';
 import type { SavedLocation } from '@/types/booking';
 import PickupAuthGuard from '@/components/auth/PickupAuthGuard';
 import { geocodeAddress } from '@/utils/geocode';
@@ -30,7 +32,9 @@ function EditPickupLocationContent() {
   const { isLoading, error, getLocation } = useGeolocation();
   const [searchValue, setSearchValue] = useState('');
   const [recentItems, setRecentItems] = useState<RecentItem[]>(() => [...RECENT_SEARCHES]);
+  const [isSaving, setIsSaving] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mapSearchBookingStartedRef = useRef(false);
 
   useEffect(() => {
     if (emptyDraft) {
@@ -58,20 +62,23 @@ function EditPickupLocationContent() {
     else router.back();
   };
 
-  const [isSaving, setIsSaving] = useState(false);
-
   const handleConfirmTypedAddress = async () => {
-    if (!typedAddressOk || isSaving) return;
+    if (!typedAddressOk) return;
     setIsSaving(true);
+    const addr = searchValue.trim();
+    const name =
+      addr.split(/[,\n]/)[0]?.trim().slice(0, 80) ||
+      (type === 'drop' ? 'Drop location' : 'Pickup location');
     try {
-      const addr = searchValue.trim();
-      const name =
-        addr.split(/[,\n]/)[0]?.trim().slice(0, 80) ||
-        (type === 'drop' ? 'Drop location' : 'Pickup location');
       const coords = await geocodeAddress(addr);
       const loc: SavedLocation = { name, address: addr, contact: '', ...coords };
-      if (type === 'drop') setDropLocation(loc);
-      else setPickupLocation(loc);
+      if (type === 'drop') {
+        trackEvent('enter_drop', { location: addr, city: inferCityFromLocationText(addr), source: 'typed' });
+        setDropLocation(loc);
+      } else {
+        trackEvent('enter_pickup', { location: addr, city: inferCityFromLocationText(addr), source: 'typed' });
+        setPickupLocation(loc);
+      }
       goAfterSave();
     } finally {
       setIsSaving(false);
@@ -89,8 +96,18 @@ function EditPickupLocationContent() {
         longitude: result.longitude,
       };
       if (type === 'drop') {
+        trackEvent('enter_drop', {
+          location: locationData.address,
+          city: inferCityFromLocationText(locationData.address),
+          source: 'gps',
+        });
         setDropLocation(locationData);
       } else {
+        trackEvent('enter_pickup', {
+          location: locationData.address,
+          city: inferCityFromLocationText(locationData.address),
+          source: 'gps',
+        });
         setPickupLocation(locationData);
       }
       setSearchValue(result.shortAddress);
@@ -106,6 +123,11 @@ function EditPickupLocationContent() {
     const coords = await geocodeAddress(item.address);
     const loc: SavedLocation = { name: item.name, address: item.address, contact: item.contact, ...coords };
     if (type === 'drop') {
+      trackEvent('enter_drop', {
+        location: item.address,
+        city: inferCityFromLocationText(item.address),
+        source: 'recent',
+      });
       setDropLocation(loc);
       if (item.contact) {
         const parts = item.contact.split('|').map((p) => p.trim());
@@ -113,6 +135,11 @@ function EditPickupLocationContent() {
         setReceiverDetails({ name: parts[0] || '', mobile });
       }
     } else {
+      trackEvent('enter_pickup', {
+        location: item.address,
+        city: inferCityFromLocationText(item.address),
+        source: 'recent',
+      });
       setPickupLocation(loc);
       if (item.contact) {
         const parts = item.contact.split('|').map((p) => p.trim());
@@ -177,6 +204,17 @@ function EditPickupLocationContent() {
               enterKeyHint="search"
               autoComplete="street-address"
               value={searchValue}
+              onFocus={(e) => {
+                if (
+                  type !== 'pickup' ||
+                  mapSearchBookingStartedRef.current ||
+                  !e.nativeEvent.isTrusted
+                ) {
+                  return;
+                }
+                mapSearchBookingStartedRef.current = true;
+                trackEvent('booking_started', { source: 'landing' });
+              }}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && typedAddressOk) {

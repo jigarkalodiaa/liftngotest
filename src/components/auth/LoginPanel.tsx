@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { maskIndianMobile } from '@/lib/auth/mobileE164';
 import { useSendOtp, useResendOtp, useVerifyOtp } from '@/hooks/auth';
 import { loginPhoneSchema, loginOtpSchema, MOBILE_LENGTH, normalizePhoneInput, type LoginPhoneForm } from '@/lib/validations';
+import { trackLoginStarted, trackOtpSent, trackOtpVerified } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
 
 const SEND_DEBOUNCE_MS = 2500;
 const RESEND_COOLDOWN_SEC = 60;
@@ -154,17 +156,21 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
       return;
     }
     lastSendRef.current = now;
+    trackEvent('login_attempt', { method: 'phone_continue', ui: variant });
+    trackLoginStarted();
     try {
       await sendOtpMutation.mutateAsync(phoneNumber);
+      trackEvent('otp_sent', { ui: variant });
+      trackOtpSent();
       setStep('otp');
+      setCountdown(RESEND_COOLDOWN_SEC);
       setOtp(['', '', '', '']);
       setOtpError('');
-      setCountdown(RESEND_COOLDOWN_SEC);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not send OTP. Try again.';
       setSendError(msg);
     }
-  }, [phoneNumber, sendOtpMutation]);
+  }, [phoneNumber, sendOtpMutation, variant]);
 
   const runResendOtp = useCallback(async () => {
     setSendError('');
@@ -203,6 +209,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
         phone: phoneNumber,
         otp: otp.join(''),
       });
+      trackOtpVerified();
       setTimeout(() => onCompleted(nextPath), variant === 'page' ? 0 : 400);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Something went wrong. Please try again.';

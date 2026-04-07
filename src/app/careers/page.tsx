@@ -42,8 +42,8 @@ export default function CareersPage() {
               partnerships teams obsess over pickup punctuality, commercial vehicle utilisation, and honest pricing—not driver churn masked as
               “growth.” We run deep programmes around{' '}
               <strong className="text-gray-800">Khatu Shyam Ji</strong> (hyperlocal temple-town vendors, food partners, and marketplace shops)
-              and <strong className="text-gray-800">Delhi NCR</strong>, starting with Noida for structured B2B lanes. We are deliberately not a
-              pan-India consumer gimmick; we want people who enjoy owning density in a geography before expanding.
+              and <strong className="text-gray-800">Delhi NCR</strong>, starting with Noida for structured B2B lanes. We go deep in each market
+              before expanding — we want people who enjoy building density in a geography and making it truly reliable.
             </p>
             <p className="mt-4 text-base text-gray-600 leading-relaxed max-w-3xl">
               Roles span engineering (routing, reliability, fraud prevention), operations (launch playbooks, escalation), driver success

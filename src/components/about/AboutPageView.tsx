@@ -1,5 +1,6 @@
 import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
+import MarketingPageShell from '@/components/marketing/MarketingPageShell';
 import { ABOUT_FLEET_IMAGES, ABOUT_HERO_IMAGE } from '@/config/aboutImages';
 import { BRAND, MISSION, VISION } from '@/lib/site';
 import { ROUTES } from '@/lib/constants';
@@ -18,18 +19,12 @@ import {
 const BTN_PRIMARY =
   'inline-flex w-full min-h-[48px] items-center justify-center rounded-xl bg-[var(--color-primary)] px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:opacity-95 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 sm:w-auto';
 
-const BTN_PRIMARY_SM =
-  'inline-flex w-full min-h-[48px] items-center justify-center rounded-xl bg-[var(--color-primary)] px-6 py-3 text-base font-semibold text-white shadow-sm hover:opacity-95 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 sm:w-auto';
-
 const BTN_SECONDARY =
   'inline-flex w-full min-h-[48px] items-center justify-center rounded-xl border border-gray-200 bg-white px-6 py-3 text-base font-semibold text-gray-800 shadow-sm hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 sm:w-auto';
 
 const CARD =
   'rounded-2xl border border-gray-100/80 bg-white shadow-sm transition-shadow hover:shadow-md hover:border-[var(--color-primary)]/20';
 
-const textEyebrow =
-  'text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-primary)] sm:text-sm';
-const textH1 = 'text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-[2.75rem] lg:leading-tight';
 const textH2 = 'text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl';
 const textH3 = 'text-lg font-semibold text-gray-900';
 const textLead = 'text-lg font-semibold leading-snug text-gray-900 sm:text-xl';
@@ -147,60 +142,46 @@ const FLOW = [
 ] as const;
 
 export default function AboutPageView() {
+  const heroAside = (
+    <div>
+      <div className="overflow-hidden rounded-2xl border border-white/20 bg-white/10 shadow-2xl ring-1 ring-white/10 backdrop-blur-sm">
+        <div className="relative aspect-[4/3] w-full">
+          <Image
+            src={ABOUT_HERO_IMAGE.src}
+            alt={ABOUT_HERO_IMAGE.alt}
+            fill
+            className="object-cover object-center"
+            sizes="(max-width: 1024px) 100vw, 400px"
+            priority
+          />
+        </div>
+      </div>
+      <p className="mt-3 text-center text-xs text-white/65 sm:text-left">
+        Walk, two-wheeler, and three-wheeler cargo—EV or fuel matched to your lane.
+      </p>
+    </div>
+  );
+
   return (
     <article className="flex-1">
-      <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6 sm:pb-16 sm:pt-10 lg:px-8 lg:pt-14">
-        {/* Hero */}
-        <section className="relative mb-14 overflow-hidden rounded-3xl border border-gray-100 bg-gradient-to-br from-[var(--color-primary)]/[0.06] via-white to-[var(--landing-primary)]/[0.08] px-6 py-10 shadow-sm sm:mb-16 sm:p-10 lg:p-12">
-          <div
-            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[var(--color-primary)]/10 blur-3xl"
-            aria-hidden
-          />
-          <div className="relative grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)] lg:items-center">
-            <div>
-              <p className={`mb-3 ${textEyebrow}`}>Hyperlocal logistics · EV &amp; fuel cargo</p>
-              <h1 className={`mb-5 ${textH1}`}>About {BRAND.name}</h1>
-              <p className={`mb-4 max-w-xl ${textLead}`}>
-                {BRAND.name} is your{' '}
-                <span className="text-[var(--color-primary)]">intra-city goods transport</span> partner—built around{' '}
-                <strong className="font-semibold text-gray-900">B2B lanes</strong>, three-wheel cargo (electric plus CNG, diesel,
-                and petrol where needed), and neighbourhoods we know well—starting with{' '}
-                <strong className="font-semibold text-gray-900">Khatu Shyam Ji</strong> and similar dense markets.
-              </p>
-              <p className={`mb-8 max-w-xl ${textProse}`}>
-                We are <strong className="font-semibold text-gray-900">not a passenger cab app</strong>. Last-mile delivery,
-                shop transfers, wholesale drops, event material, and corridor logistics around mandir zones are the focus—
-                with upfront pricing tied to distance and demand, and a driver model built around completions and punctuality.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Link href={ROUTES.PICKUP_LOCATION} className={BTN_PRIMARY_SM}>
-                  Book a delivery
-                </Link>
-                <Link href="/services" className={BTN_SECONDARY}>
-                  Explore services
-                </Link>
-              </div>
-            </div>
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-gray-100 shadow-md ring-1 ring-black/5">
-                <div className="relative aspect-[4/3] w-full">
-                  <Image
-                    src={ABOUT_HERO_IMAGE.src}
-                    alt={ABOUT_HERO_IMAGE.alt}
-                    fill
-                    className="object-cover object-center"
-                    sizes="(max-width: 1024px) 100vw, 420px"
-                    priority
-                  />
-                </div>
-              </div>
-              <p className="mt-3 text-center text-xs text-gray-500 sm:text-left">
-                Booking modes: walk, two-wheeler, and three-wheeler cargo—EV or conventional fuel matched to your lane.
-              </p>
-            </div>
-          </div>
-        </section>
-
+      <MarketingPageShell
+        badge="Hyperlocal logistics · EV & fuel cargo"
+        title={<>About {BRAND.name}</>}
+        lead={`${BRAND.name} is your intra-city goods transport partner for B2B—three-wheel cargo (electric, CNG, diesel, petrol as the lane demands), upfront pricing, and depth in Khatu Shyam Ji and dense markets. We are not a passenger cab app: deliveries, wholesale drops, and corridor logistics with POD-friendly handoffs.`}
+        chips={['B2B & wholesale first', '3W EV + fuel', 'Khatu · NCR lanes']}
+        links={[
+          { href: ROUTES.PICKUP_LOCATION, label: 'Book a delivery' },
+          { href: '/services', label: 'Services' },
+          { href: '/faq', label: 'FAQs' },
+          { href: '/contact', label: 'Contact' },
+        ]}
+        crumbs={[
+          { label: 'Home', href: '/' },
+          { label: 'About' },
+        ]}
+        heroAside={heroAside}
+      >
+        <div className="w-full pb-8 pt-2 sm:pb-12 sm:pt-4">
         {/* Quick facts */}
         <section className="mb-14 sm:mb-16" aria-label="Liftngo at a glance">
           <ul className="grid gap-4 sm:grid-cols-3">
@@ -383,7 +364,8 @@ export default function AboutPageView() {
             </Link>
           </div>
         </section>
-      </div>
+        </div>
+      </MarketingPageShell>
     </article>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef, useCallback } from 'react';
+import type { FocusEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SavedLocation } from '@/types/booking';
 import {
@@ -23,6 +24,9 @@ import {
 } from '@/lib/storage';
 import { ROUTES, PICKUP_LOCATION_MODE_DEFAULTS, TRIP_OPTIONS_FROM_KHATU_TRAVEL } from '@/lib/constants';
 import { senderDetailsSchema, receiverDetailsSchema, validatePersonName } from '@/lib/validations';
+import { trackPickupLocationEntered, trackDropLocationEntered } from '@/lib/analytics';
+import { trackEvent } from '@/lib/posthogAnalytics';
+import { inferCityFromLocationText } from '@/lib/posthog/locationMeta';
 import { geocodeAddress } from '@/utils/geocode';
 
 type PersonalForm = {
@@ -32,22 +36,6 @@ type PersonalForm = {
   receiverMobile: string;
 };
 
-const IconPencil = ({ className = 'h-4 w-4' }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden
-  >
-    <path d="M12 20h9" />
-    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-  </svg>
-);
-
 export default function EditPickupContent() {
   const router = useRouter();
   const pathname = usePathname();
@@ -56,6 +44,13 @@ export default function EditPickupContent() {
   const fromKhatuTravel = searchParams.get('from') === TRIP_OPTIONS_FROM_KHATU_TRAVEL;
   const addDefaults = searchParams.get('mode') === PICKUP_LOCATION_MODE_DEFAULTS;
   const editedDefaultsType = searchParams.get('edited');
+
+  const wizardBookingStartedRef = useRef(false);
+  const onWizardPickupFieldFocus = useCallback((e: FocusEvent<HTMLElement>) => {
+    if (!e.nativeEvent.isTrusted || wizardBookingStartedRef.current) return;
+    wizardBookingStartedRef.current = true;
+    trackEvent('booking_started', { source: 'landing' });
+  }, []);
 
   /** Add-defaults flow: first paint clears pickup/drop; skip one pathname hydrate so storage does not immediately refill. After /edit, hydrate runs normally. */
   const skipNextPickupDropHydrateRef = useRef(false);
@@ -359,6 +354,19 @@ export default function EditPickupContent() {
         return;
       }
       setSenderDetails({ name: result.data.senderName, mobile: result.data.senderMobile });
+      const flow = fromFood ? 'food_flow' : fromKhatuTravel ? 'khatu_flow' : 'standard';
+      const pickupLocationSummary = fromFood
+        ? (pickup?.address?.trim() ?? '')
+        : landmarkDraft.trim()
+          ? `${addrDraft.trim()} · Near ${landmarkDraft.trim()}`
+          : addrDraft.trim();
+      trackEvent('enter_pickup', {
+        location: pickupLocationSummary,
+        city: inferCityFromLocationText(pickupLocationSummary),
+        flow,
+        source: 'pickup_wizard',
+      });
+      trackPickupLocationEntered(flow);
       setStep(2);
       router.replace(buildPickupLocationReturnTo(2));
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -395,6 +403,17 @@ export default function EditPickupContent() {
         return;
       }
       setReceiverDetails({ name: result.data.receiverName, mobile: result.data.receiverMobile });
+      const flow = fromFood ? 'food_flow' : fromKhatuTravel ? 'khatu_flow' : 'standard';
+      const dropLocationSummary = dropLandmarkDraft.trim()
+        ? `${addr.trim()} · Near ${dropLandmarkDraft.trim()}`
+        : addr.trim();
+      trackEvent('enter_drop', {
+        location: dropLocationSummary,
+        city: inferCityFromLocationText(dropLocationSummary),
+        flow,
+        source: 'pickup_wizard',
+      });
+      trackDropLocationEntered(flow);
       if (addDefaults) {
         const savedPickup = getPickupLocation();
         const effectivePickup = savedLocationHasAddress(pickup) ? pickup : savedPickup;
@@ -493,49 +512,74 @@ export default function EditPickupContent() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <div className="flex-1 text-center">
-            <div className="text-[20px] font-semibold text-gray-900">
+          <div className="flex-1 text-center px-1">
+            <div className="text-[18px] font-semibold leading-snug text-gray-900 sm:text-[20px]">
               {fromFood && step === 2
                 ? 'Food delivery'
                 : addDefaults
-                  ? 'Add default location'
+                  ? 'Save a default trip'
                   : step === 1 && !fromFood
-                    ? 'Enter Pickup Location'
+                    ? 'Pickup location'
                     : step === 1
                       ? 'Pickup details'
-                      : 'Enter Drop Location'}
+                      : 'Drop location'}
             </div>
-            <div className="mt-1 text-[12px] text-gray-500">
+            <div className="mt-1 text-[12px] leading-snug text-gray-500">
               {fromFood && step === 2
-                ? 'Where to deliver your food?'
+                ? 'Where should we deliver?'
                 : addDefaults
                   ? step === 1
-                    ? 'Step 1 of 2 · Pickup & sender'
-                    : 'Step 2 of 2 · Drop & receiver'
+                    ? 'Step 1 of 2 — pickup point and contact there'
+                    : 'Step 2 of 2 — usual drop-off and receiver'
                   : step === 1 && !fromFood
-                    ? 'Tell us where to pick up your order'
+                    ? 'Where should we pick up?'
                     : step === 1
-                      ? 'Confirm sender details for this order'
-                      : 'Tell us where to deliver your order'}
+                      ? 'Sender details for this order'
+                      : 'Where should we deliver?'}
             </div>
           </div>
           <div className="w-9" />
         </header>
 
-        <div className="mb-4 flex h-1.5 shrink-0 overflow-hidden rounded-full bg-[var(--color-primary)]/15 sm:mb-5">
-          {fromFood && step === 2 ? (
-            <div className="w-full bg-[var(--color-primary)]" />
-          ) : (
-            <>
+        {addDefaults ? (
+          <div className="mb-4 shrink-0 sm:mb-5">
+            <div className="flex h-2 gap-1.5">
               <div
-                className={`w-1/2 transition-colors ${step >= 1 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-primary)]/25'}`}
+                className={`h-full flex-1 rounded-full transition-colors ${step >= 1 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-primary)]/20'}`}
               />
               <div
-                className={`flex-1 transition-colors ${step >= 2 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-primary)]/25'}`}
+                className={`h-full flex-1 rounded-full transition-colors ${step >= 2 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-primary)]/20'}`}
               />
-            </>
-          )}
-        </div>
+            </div>
+            <div className="mt-1.5 flex justify-between text-[11px] font-semibold">
+              <span className={step === 1 ? 'text-gray-900' : 'text-[var(--color-primary)]'}>1 · Pickup</span>
+              <span className={step === 2 ? 'text-gray-900' : 'text-gray-400'}>2 · Drop-off</span>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-4 flex h-1.5 shrink-0 overflow-hidden rounded-full bg-[var(--color-primary)]/15 sm:mb-5">
+            {fromFood && step === 2 ? (
+              <div className="w-full bg-[var(--color-primary)]" />
+            ) : (
+              <>
+                <div
+                  className={`w-1/2 transition-colors ${step >= 1 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-primary)]/25'}`}
+                />
+                <div
+                  className={`flex-1 transition-colors ${step >= 2 ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-primary)]/25'}`}
+                />
+              </>
+            )}
+          </div>
+        )}
+
+        {addDefaults ? (
+          <div className="mb-4 shrink-0 rounded-xl border border-blue-100 bg-blue-50/95 px-3 py-2.5 text-left text-[11px] leading-relaxed text-blue-950 sm:text-xs">
+            <span className="font-semibold text-blue-900">Saved route for your dashboard.</span> After both steps, this pickup →
+            drop pair appears in &quot;Choose trip&quot; for quick booking. Map search is optional if you already have the full
+            address.
+          </div>
+        ) : null}
 
         <div
           className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-white/70 bg-white/60 shadow-[0_8px_40px_rgba(15,23,42,0.1)] backdrop-blur-md max-lg:min-h-0 lg:max-h-[min(640px,calc(100dvh-10rem))] lg:flex-none lg:self-stretch"
@@ -545,84 +589,78 @@ export default function EditPickupContent() {
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
                   {!fromFood ? (
-                    <div className="rounded-2xl border border-white/80 bg-white/50 p-4 shadow-[0_4px_24px_rgba(15,23,42,0.06)] backdrop-blur-sm sm:p-5">
-                      <button
-                        type="button"
-                        onClick={() => router.push(buildEditLocationUrl('pickup'))}
-                        className="relative mb-4 w-full overflow-hidden rounded-xl border border-[var(--color-primary)]/15 bg-gradient-to-br from-[var(--color-primary)]/10 via-[var(--landing-orange)]/8 to-white/90 p-4 text-left shadow-sm ring-1 ring-black/[0.04] transition hover:border-[var(--color-primary)]/25"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/90 text-[var(--color-primary)] shadow-[0_2px_8px_rgba(15,23,42,0.08)]"
-                            aria-hidden
-                          >
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                              />
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[13px] font-semibold text-gray-900">Search or adjust on map</p>
-                            <p className="mt-0.5 text-[11px] leading-snug text-gray-600">
-                              Use saved places, search, or GPS — tap to open
-                            </p>
-                          </div>
-                          <span className="shrink-0 text-[var(--color-primary)]" title="Open">
-                            <IconPencil />
-                          </span>
+                    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                        <div className="min-w-0">
+                          <h2 className="text-[15px] font-bold text-gray-900">
+                            {addDefaults ? 'Usual pickup point' : 'Pickup address'}
+                          </h2>
+                          <p className="mt-1 text-[11px] leading-snug text-gray-500 sm:text-xs">
+                            {addDefaults
+                              ? 'Either type the address or use map search to pick the place. One method is enough — you don’t have to do both.'
+                              : 'Enter the address below, or refine the pin with map search.'}
+                          </p>
                         </div>
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => router.push(buildEditLocationUrl('pickup'))}
+                          className="flex h-11 shrink-0 items-center justify-center gap-2 self-stretch rounded-xl border border-[var(--color-primary)]/35 bg-white px-4 text-[13px] font-semibold text-[var(--color-primary)] shadow-sm transition hover:bg-[var(--color-primary)]/[0.06] active:scale-[0.99] sm:self-auto"
+                        >
+                          <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Map / search
+                        </button>
+                      </div>
 
-                      <div>
-                        <label className="mb-1.5 flex items-center gap-1.5 text-[12px] font-medium text-gray-700">
-                          <span className="text-[var(--color-primary)]" aria-hidden>
-                            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                              />
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                          </span>
-                          Pickup address
-                          <span className="font-normal text-red-500">*</span>
+                      <div className="mt-4">
+                        <label htmlFor="pickup-address-main" className="mb-1.5 block text-[12px] font-medium text-gray-700">
+                          Address <span className="font-normal text-red-500">*</span>
                         </label>
                         <textarea
                           ref={pickupAddressRef}
                           id="pickup-address-main"
                           autoComplete="street-address"
-                          placeholder="Enter pickup location"
+                          placeholder={
+                            addDefaults
+                              ? 'House / shop no., street, area, city (same as you’d share on WhatsApp)'
+                              : 'Street, area, landmark, city…'
+                          }
                           value={addrDraft}
+                          onFocus={onWizardPickupFieldFocus}
                           onChange={(e) => {
                             setAddrDraft(e.target.value);
                             setPickupAddressError('');
                           }}
-                          rows={3}
-                          className={`min-h-[100px] w-full resize-y rounded-xl border bg-white/90 px-3 py-3 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 sm:text-[14px] ${
+                          rows={4}
+                          className={`min-h-[108px] w-full resize-y rounded-xl border bg-white px-3 py-3 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 sm:text-[14px] ${
                             pickupAddressError ? 'border-red-400' : 'border-gray-200'
                           }`}
                         />
                         {pickupAddressError ? (
                           <p className="mt-1.5 text-[11px] text-red-500">{pickupAddressError}</p>
                         ) : (
-                          <p className="mt-1.5 text-[11px] text-gray-400">Required · type an address or use search above</p>
+                          <p className="mt-1.5 text-[11px] text-gray-400">Minimum 5 characters.</p>
                         )}
                       </div>
 
-                      <div className="mt-4">
-                        <label className="mb-1.5 block text-[12px] font-medium text-gray-600">Landmark (optional)</label>
+                      <div className="mt-3">
+                        <label htmlFor="pickup-landmark" className="mb-1.5 block text-[12px] font-medium text-gray-600">
+                          Landmark <span className="font-normal text-gray-400">(optional)</span>
+                        </label>
                         <input
+                          id="pickup-landmark"
                           type="text"
                           autoComplete="off"
-                          placeholder="e.g. Near City mall gate"
+                          placeholder="e.g. Opposite metro gate 2"
                           value={landmarkDraft}
                           onChange={(e) => setLandmarkDraft(e.target.value)}
-                          className="h-12 w-full rounded-xl border border-gray-200 bg-white/90 px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15"
+                          className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15"
                         />
                       </div>
                     </div>
@@ -645,20 +683,29 @@ export default function EditPickupContent() {
                     </div>
                   )}
 
-                  <div className="mt-4 rounded-2xl border border-white/80 bg-white/50 p-4 shadow-[0_4px_24px_rgba(15,23,42,0.06)] backdrop-blur-sm sm:p-5">
+                  <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+                    <h3 className="text-[13px] font-bold text-gray-900">
+                      {addDefaults ? 'Who meets us at pickup?' : 'Sender / pickup contact'}
+                    </h3>
+                    <p className="mb-3 mt-1 text-[11px] leading-snug text-gray-500">
+                      {addDefaults
+                        ? 'We use this if the driver needs to call about this pickup point.'
+                        : 'Details for the person at the pickup location.'}
+                    </p>
                     <div className="space-y-4">
                       <div>
                         <label htmlFor="pickup-contact-name" className="mb-1 block text-[12px] font-medium text-gray-600">
-                          Contact name
+                          Name
                         </label>
                         <input
                           id="pickup-contact-name"
                           type="text"
-                          placeholder="Your name (min. 3 letters)"
+                          placeholder="Full name (min. 3 letters)"
                           {...register('senderName', {
                             onBlur: (e) => setValue('senderName', e.target.value.trim()),
                           })}
-                          className={`w-full min-h-[52px] rounded-xl border bg-white/90 px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
+                          onFocus={onWizardPickupFieldFocus}
+                          className={`w-full min-h-[48px] rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
                             errors.senderName ? 'border-red-400' : 'border-gray-200'
                           }`}
                         />
@@ -668,7 +715,7 @@ export default function EditPickupContent() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-[12px] font-medium text-gray-600">Phone number</label>
+                        <label className="mb-1 block text-[12px] font-medium text-gray-600">Mobile</label>
                         <input
                           type="tel"
                           inputMode="numeric"
@@ -681,7 +728,7 @@ export default function EditPickupContent() {
                               if (digits !== currentMobile) setUseCurrentMobile(false);
                             },
                           })}
-                          className={`w-full min-h-[52px] rounded-xl border bg-white/90 px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
+                          className={`w-full min-h-[48px] rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
                             errors.senderMobile || (senderMobile && senderMobile.replace(/\D/g, '').length !== 10)
                               ? 'border-red-400'
                               : 'border-gray-200'
@@ -706,7 +753,7 @@ export default function EditPickupContent() {
                           className="h-4 w-4 shrink-0 rounded border-gray-300 text-[var(--color-primary)]"
                         />
                         <span>
-                          Use my number on file:{' '}
+                          Use my account number:{' '}
                           <span className="font-semibold text-gray-800">{currentMobile || '—'}</span>
                         </span>
                       </label>
@@ -714,11 +761,6 @@ export default function EditPickupContent() {
                   </div>
 
                   <div className="min-h-6 flex-1" aria-hidden />
-
-                  <div className="flex shrink-0 justify-center gap-1.5 pb-4 pt-6" aria-hidden>
-                    <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
-                    <span className="h-2 w-2 rounded-full bg-gray-300" />
-                  </div>
                 </div>
               </div>
             </div>
@@ -728,12 +770,18 @@ export default function EditPickupContent() {
                 <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain px-4 pt-4 pb-2 sm:px-5 sm:pt-5">
                   <div
                     ref={deliveryHighlightRef}
-                    className="rounded-2xl border border-white/80 bg-white/50 p-4 shadow-[0_4px_24px_rgba(15,23,42,0.06)] backdrop-blur-sm sm:p-5"
+                    className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
                     aria-describedby={needsFoodDeliveryAddress ? 'food-delivery-address-hint' : undefined}
                   >
                     {fromFood && pickup ? (
                       <p className="mb-3 text-[12px] leading-relaxed text-gray-600">
                         Pickup: <strong className="text-gray-800">{pickup.name}</strong> — add where to deliver below.
+                      </p>
+                    ) : null}
+                    {addDefaults ? (
+                      <p className="mb-3 rounded-lg bg-gray-50 px-3 py-2 text-[11px] leading-relaxed text-gray-600">
+                        Almost done — this is the <strong className="text-gray-800">usual drop-off</strong> for the route you
+                        started in step 1.
                       </p>
                     ) : null}
                     {needsFoodDeliveryAddress ? (
@@ -742,101 +790,112 @@ export default function EditPickupContent() {
                       </p>
                     ) : null}
 
-                    <button
-                      type="button"
-                      onClick={() => router.push(buildEditLocationUrl('drop'))}
-                      className="relative mb-4 w-full overflow-hidden rounded-xl border border-[var(--color-primary)]/15 bg-gradient-to-br from-[var(--color-primary)]/10 via-[var(--landing-orange)]/8 to-white/90 p-4 text-left shadow-sm ring-1 ring-black/[0.04] transition hover:border-[var(--color-primary)]/25"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/90 text-[var(--color-primary)] shadow-[0_2px_8px_rgba(15,23,42,0.08)]"
-                          aria-hidden
-                        >
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[13px] font-semibold text-gray-900">Search or adjust on map</p>
-                          <p className="mt-0.5 text-[11px] leading-snug text-gray-600">
-                            Use saved places, search, or GPS — tap to open
-                          </p>
-                        </div>
-                        <span className="shrink-0 text-[var(--color-primary)]" title="Open">
-                          <IconPencil />
-                        </span>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                      <div className="min-w-0">
+                        <h2 className="text-[15px] font-bold text-gray-900">
+                          {fromFood ? 'Delivery address' : addDefaults ? 'Usual drop-off point' : 'Drop-off address'}
+                        </h2>
+                        <p className="mt-1 text-[11px] leading-snug text-gray-500 sm:text-xs">
+                          {addDefaults
+                            ? 'Same rule as pickup: type the address or use map search — one method is enough.'
+                            : fromFood
+                              ? 'Where the order should arrive.'
+                              : 'Enter below or refine with map search.'}
+                        </p>
                       </div>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => router.push(buildEditLocationUrl('drop'))}
+                        className="flex h-11 shrink-0 items-center justify-center gap-2 self-stretch rounded-xl border border-[var(--color-primary)]/35 bg-white px-4 text-[13px] font-semibold text-[var(--color-primary)] shadow-sm transition hover:bg-[var(--color-primary)]/[0.06] active:scale-[0.99] sm:self-auto"
+                      >
+                        <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Map / search
+                      </button>
+                    </div>
 
-                    <div>
-                      <label className="mb-1.5 flex items-center gap-1.5 text-[12px] font-medium text-gray-700">
-                        <span className="text-[var(--color-primary)]" aria-hidden>
-                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                        </span>
-                        {fromFood ? 'Delivery address' : 'Drop address'}
-                        <span className="font-normal text-red-500">*</span>
+                    <div className="mt-4">
+                      <label htmlFor="drop-address-main" className="mb-1.5 block text-[12px] font-medium text-gray-700">
+                        Address <span className="font-normal text-red-500">*</span>
                       </label>
                       <textarea
                         ref={dropAddressRef}
                         id="drop-address-main"
                         autoComplete="street-address"
-                        placeholder={fromFood ? 'Enter delivery address' : 'Enter drop location'}
+                        placeholder={
+                          addDefaults
+                            ? 'Full drop-off address (building, street, area, city…)'
+                            : fromFood
+                              ? 'Full delivery address'
+                              : 'Street, area, landmark, city…'
+                        }
                         value={dropAddrDraft}
                         onChange={(e) => {
                           setDropAddrDraft(e.target.value);
                           setDropAddressError('');
                         }}
-                        rows={3}
-                        className={`min-h-[100px] w-full resize-y rounded-xl border bg-white/90 px-3 py-3 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 sm:text-[14px] ${
+                        rows={4}
+                        className={`min-h-[108px] w-full resize-y rounded-xl border bg-white px-3 py-3 text-[15px] leading-relaxed text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 sm:text-[14px] ${
                           dropAddressError ? 'border-red-400' : 'border-gray-200'
                         }`}
                       />
                       {dropAddressError ? (
                         <p className="mt-1.5 text-[11px] text-red-500">{dropAddressError}</p>
                       ) : (
-                        <p className="mt-1.5 text-[11px] text-gray-400">Required · type an address or use search above</p>
+                        <p className="mt-1.5 text-[11px] text-gray-400">Minimum 5 characters.</p>
                       )}
                     </div>
 
-                    <div className="mt-4">
-                      <label className="mb-1.5 block text-[12px] font-medium text-gray-600">Landmark (optional)</label>
+                    <div className="mt-3">
+                      <label htmlFor="drop-landmark" className="mb-1.5 block text-[12px] font-medium text-gray-600">
+                        Landmark <span className="font-normal text-gray-400">(optional)</span>
+                      </label>
                       <input
+                        id="drop-landmark"
                         type="text"
                         autoComplete="off"
-                        placeholder="e.g. Near City mall gate"
+                        placeholder="e.g. Building lobby, gate code"
                         value={dropLandmarkDraft}
                         onChange={(e) => setDropLandmarkDraft(e.target.value)}
-                        className="h-12 w-full rounded-xl border border-gray-200 bg-white/90 px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15"
+                        className="h-11 w-full rounded-xl border border-gray-200 bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15"
                       />
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-2xl border border-white/80 bg-white/50 p-4 shadow-[0_4px_24px_rgba(15,23,42,0.06)] backdrop-blur-sm sm:p-5">
+                  <div className="mt-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+                    <h3 className="text-[13px] font-bold text-gray-900">
+                      {addDefaults ? 'Who receives at drop-off?' : fromFood ? 'Delivery contact' : 'Receiver / drop contact'}
+                    </h3>
+                    <p className="mb-3 mt-1 text-[11px] leading-snug text-gray-500">
+                      {addDefaults
+                        ? 'Shown on your saved trip; we may call if the driver needs help finding the door.'
+                        : 'Person we can reach at the delivery point.'}
+                    </p>
                     <div className="space-y-4">
                       <div>
                         <label htmlFor="receiver-contact-name" className="mb-1 block text-[12px] font-medium text-gray-600">
-                          Contact name
+                          Name
                         </label>
                         <input
                           id="receiver-contact-name"
                           type="text"
-                          placeholder={fromFood ? 'Your name (min. 3 letters)' : "Receiver's name (min. 3 letters)"}
+                          placeholder={
+                            addDefaults
+                              ? 'Receiver name (min. 3 letters)'
+                              : fromFood
+                                ? 'Your name (min. 3 letters)'
+                                : "Receiver's name (min. 3 letters)"
+                          }
                           {...register('receiverName', {
                             onBlur: (e) => setValue('receiverName', e.target.value.trim()),
                           })}
-                          className={`w-full min-h-[52px] rounded-xl border bg-white/90 px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
+                          className={`w-full min-h-[48px] rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
                             errors.receiverName ? 'border-red-400' : 'border-gray-200'
                           }`}
                         />
@@ -846,7 +905,7 @@ export default function EditPickupContent() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-[12px] font-medium text-gray-600">Phone number</label>
+                        <label className="mb-1 block text-[12px] font-medium text-gray-600">Mobile</label>
                         <input
                           type="tel"
                           inputMode="numeric"
@@ -859,7 +918,7 @@ export default function EditPickupContent() {
                               if (digits !== currentMobile) setUseReceiverCurrentMobile(false);
                             },
                           })}
-                          className={`w-full min-h-[52px] rounded-xl border bg-white/90 px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
+                          className={`w-full min-h-[48px] rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/15 ${
                             errors.receiverMobile || (receiverMobile && receiverMobile.replace(/\D/g, '').length !== 10)
                               ? 'border-red-400'
                               : 'border-gray-200'
@@ -884,7 +943,7 @@ export default function EditPickupContent() {
                           className="h-4 w-4 shrink-0 rounded border-gray-300 text-[var(--color-primary)]"
                         />
                         <span>
-                          Use my number on file:{' '}
+                          Use my account number:{' '}
                           <span className="font-semibold text-gray-800">{currentMobile || '—'}</span>
                         </span>
                       </label>
@@ -892,11 +951,6 @@ export default function EditPickupContent() {
                   </div>
 
                   <div className="min-h-6 flex-1" aria-hidden />
-
-                  <div className="flex shrink-0 justify-center gap-1.5 pb-4 pt-6" aria-hidden>
-                    <span className="h-2 w-2 rounded-full bg-gray-300" />
-                    <span className="h-2 w-2 rounded-full bg-[var(--color-primary)]" />
-                  </div>
                 </div>
               </div>
             </div>
@@ -923,10 +977,14 @@ export default function EditPickupContent() {
             ) : (
               <>
                 {step === 1
-                  ? 'Confirm Pickup Location'
-                  : fromFood
-                    ? 'Continue to book delivery'
-                    : 'Confirm Drop Location'}
+                  ? addDefaults
+                    ? 'Continue to drop-off'
+                    : 'Confirm pickup'
+                  : addDefaults
+                    ? 'Save default trip'
+                    : fromFood
+                      ? 'Continue to book delivery'
+                      : 'Confirm drop-off'}
                 <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>

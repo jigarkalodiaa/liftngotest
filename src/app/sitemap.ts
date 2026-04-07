@@ -5,24 +5,36 @@ import { SEO_CITIES } from '@/data/seoCities';
 import { getAllPosts } from '@/lib/blog';
 import { RESTAURANTS_KHATUSHYAM } from '@/data/restaurantsKhatushyam';
 import { KHATU_SHOPS } from '@/data/khatuShops';
+import { KHATU_HOTELS } from '@/data/khatuHotels';
+
+const SITE = SITE_URL.replace(/\/$/, '');
+
+/** One shared last-mod for bulk static URLs — avoids “every URL updated every second” noise; refreshed on ISR. */
+const STATIC_SITEMAP_LASTMOD = new Date();
+
+/**
+ * Regenerate periodically so `lastModified` for static rows advances after deploys without per-request churn.
+ * Blog rows still use real `publishedAt` / `modifiedAt`.
+ */
+export const revalidate = 86400;
 
 function entry(
   path: string,
   priority: number,
   changeFrequency: MetadataRoute.Sitemap[0]['changeFrequency'],
+  lastModified: Date = STATIC_SITEMAP_LASTMOD,
 ): MetadataRoute.Sitemap[0] {
   return {
     url: `${SITE}${path === '/' ? '' : path}`,
-    lastModified: new Date(),
+    lastModified,
     changeFrequency,
     priority,
   };
 }
 
-const SITE = SITE_URL.replace(/\/$/, '');
-
 /**
- * Built from `MARKETING_PATHS` (edit there when adding routes) plus city SEO slugs — deduped by path.
+ * Built from `MARKETING_PATHS` (edit there when adding routes), city SEO slugs, Khatu/restaurant listings,
+ * and blog posts — deduped by path, sorted by URL for stable output.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const seen = new Set<string>();
@@ -56,6 +68,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     out.push(entry(path, 0.78, 'weekly'));
   }
 
+  for (const hotel of KHATU_HOTELS) {
+    if (!hotel.liftngoVerified) continue;
+    const path = `/khatu/hotels/${hotel.id}`;
+    if (seen.has(path)) continue;
+    seen.add(path);
+    out.push(entry(path, 0.76, 'weekly'));
+  }
+
   for (const post of getAllPosts()) {
     const path = `/blog/${post.slug}`;
     if (seen.has(path)) continue;
@@ -68,5 +88,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     });
   }
 
+  out.sort((a, b) => a.url.localeCompare(b.url));
   return out;
 }

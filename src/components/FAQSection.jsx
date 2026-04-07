@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { trackSelectContent } from '@/lib/analytics';
 
 const DEFAULT_FAQS = [
   {
@@ -61,7 +62,13 @@ export default function FAQSection({ items = DEFAULT_FAQS, className = '', id = 
   const faqJsonLd = useMemo(() => JSON.stringify(buildFaqJsonLd(items)), [items]);
 
   const toggle = (faqId) => {
-    setOpenId((current) => (current === faqId ? null : faqId));
+    setOpenId((current) => {
+      const next = current === faqId ? null : faqId;
+      if (next) {
+        trackSelectContent('faq_accordion', faqId, { page: id });
+      }
+      return next;
+    });
   };
 
   return (

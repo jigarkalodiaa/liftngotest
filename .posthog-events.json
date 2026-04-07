@@ -1,0 +1,31 @@
+{
+  "events": [
+    "booking_started",
+    "enter_pickup",
+    "enter_drop",
+    "route_generated",
+    "vehicle_selected",
+    "view_price",
+    "apply_coupon",
+    "login_prompt_shown",
+    "login_attempt",
+    "otp_sent",
+    "otp_success",
+    "booking_review_viewed",
+    "ride_booked",
+    "booking_failed",
+    "page_viewed",
+    "cta_clicked",
+    "tab_switched",
+    "modal_opened",
+    "modal_closed",
+    "payment_initiated",
+    "payment_success",
+    "payment_failed",
+    "payment_verified",
+    "lead_submitted",
+    "whatsapp_clicked",
+    "call_clicked",
+    "user_identified"
+  ]
+}
