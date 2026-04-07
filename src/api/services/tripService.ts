@@ -145,3 +145,12 @@ export async function getTrip(tripId: string): Promise<TripResponse> {
 export async function cancelTrip(tripId: string, reason?: string): Promise<void> {
   return apiClient.post(API_PATHS.tripCancel(tripId), { reason });
 }
+
+export async function getActiveTrip(): Promise<TripResponse | null> {
+  return apiClient.get<TripResponse | null>(API_PATHS.tripsActive);
+}
+
+/** Contract-specific cancel endpoint: PATCH `/trips/:id/cancel`. */
+export async function cancelTripPatch(tripId: string, reason?: string): Promise<void> {
+  return apiClient.patch(API_PATHS.tripCancel(tripId), { reason });
+}

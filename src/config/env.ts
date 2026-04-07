@@ -48,6 +48,7 @@ export const GOOGLE_MAP_KEY = getEnv('NEXT_PUBLIC_GOOGLE_MAP_KEY', '');
 export const API_TIMEOUT_MS = Math.max(5000, parseInt(getEnv('NEXT_PUBLIC_API_TIMEOUT_MS', '20000'), 10) || 20000);
 
 export const IS_DEV = getEnv('NODE_ENV', 'development') === 'development';
+export const WS_URL = getEnv('NEXT_PUBLIC_WS_URL', 'http://localhost:3001');
 
 /** Demo OTP for local/dev login. Use NEXT_PUBLIC_DEMO_OTP in .env.local; never commit real secrets. */
 export const DEMO_OTP = getEnv('NEXT_PUBLIC_DEMO_OTP', '');

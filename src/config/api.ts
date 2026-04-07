@@ -5,6 +5,7 @@
 
 export const API_PATHS = {
   trips: '/trips',
+  tripsActive: '/trips/active',
   tripById: (id: string) => `/trips/${id}`,
   tripCancel: (id: string) => `/trips/${id}/cancel`,
   tripDirections: '/trips/directions',

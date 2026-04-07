@@ -1,5 +1,25 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Ngrok testing workflow
+
+For real-device testing (REST + Socket.IO), see `docs/ngrok-workflow.md`.
+
+Quick commands:
+
+```bash
+# 1) start backend tunnel
+npm run ngrok:backend
+
+# 2) update .env.local from .env.ngrok template
+npm run env:ngrok -- --url https://YOUR_URL.ngrok-free.app
+
+# 3) start app
+npm run dev:ngrok
+
+# or auto-detect ngrok URL from local ngrok API and start
+npm run dev:ngrok:auto
+```
+
 ## Getting Started
 
 First, run the development server:

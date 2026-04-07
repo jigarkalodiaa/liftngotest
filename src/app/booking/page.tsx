@@ -2,11 +2,13 @@
 
 import Image from '@/components/OptimizedImage';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { getPickupLocation, getDropLocation, getSenderDetails } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
 import { SUPPORT_PHONE } from '@/config/env';
 import { IconButton, BackIcon, Button, CloseIcon } from '@/components/ui';
+import { useCustomerTripRealtime } from '@/hooks/booking';
+import SocketConnectionBanner from '@/components/booking/SocketConnectionBanner';
 
 /** E.164-style tel link for driver/support (uses NEXT_PUBLIC_SUPPORT_PHONE when set). */
 const SUPPORT_TEL = SUPPORT_PHONE
@@ -19,8 +21,8 @@ const PRICE_ANIMATION_MS = 300;
 
 export default function BookingPage() {
   const router = useRouter();
-  const [pickup, setPickup] = useState(getPickupLocation());
-  const [drop, setDrop] = useState(getDropLocation());
+  const [pickup] = useState(getPickupLocation());
+  const [drop] = useState(getDropLocation());
   const [showPriceBreakup, setShowPriceBreakup] = useState(false);
   const [priceBreakupOpen, setPriceBreakupOpen] = useState(false);
   const [cancelButtonVisible, setCancelButtonVisible] = useState(false);
@@ -32,6 +34,13 @@ export default function BookingPage() {
   const [arrivalCountdown, setArrivalCountdown] = useState(5 * 60);
 
   const userName = getSenderDetails()?.name || 'there';
+  const realtimeUserId = useMemo(() => {
+    const sender = getSenderDetails();
+    const phone = sender?.mobile?.replace(/\D/g, '');
+    if (phone) return phone;
+    return sender?.name?.trim() || null;
+  }, []);
+  const { connectionState } = useCustomerTripRealtime(realtimeUserId);
 
   useEffect(() => { const t = setTimeout(() => setDriverAssigned(true), 5000); return () => clearTimeout(t); }, []);
   useEffect(() => { if (!driverAssigned) return; const t = setTimeout(() => setDriverArrived(true), 5000); return () => clearTimeout(t); }, [driverAssigned]);
@@ -41,11 +50,9 @@ export default function BookingPage() {
     return () => clearInterval(interval);
   }, [driverArrived]);
 
-  useEffect(() => { setPickup(getPickupLocation()); setDrop(getDropLocation()); }, []);
   useEffect(() => { const t = requestAnimationFrame(() => setCancelButtonVisible(true)); return () => cancelAnimationFrame(t); }, []);
   useEffect(() => {
     if (showPriceBreakup) { const t = requestAnimationFrame(() => setPriceBreakupOpen(true)); return () => cancelAnimationFrame(t); }
-    setPriceBreakupOpen(false);
   }, [showPriceBreakup]);
 
   const closePriceBreakup = useCallback(() => {
@@ -134,6 +141,7 @@ export default function BookingPage() {
             )}
           </div>
         )}
+        <SocketConnectionBanner connectionState={connectionState} />
 
         {/* Bottom card */}
         <div className="relative z-10 -mt-6 flex-1 rounded-t-3xl bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
