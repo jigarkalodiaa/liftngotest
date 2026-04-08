@@ -86,6 +86,8 @@ export interface HotelBookingDraft {
   liftngoVerified: boolean;
   checkIn: string;
   checkOut: string;
+  guestName: string;
+  rooms: number;
   guests: number;
   guestNote: string;
   nights: number;

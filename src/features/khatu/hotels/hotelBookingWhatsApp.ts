@@ -18,6 +18,8 @@ export function buildHotelOwnerWhatsAppMessage(
   params: {
     checkIn: string;
     checkOut: string;
+    guestName: string;
+    rooms: number;
     guests: number;
     note: string;
     nights: number;
@@ -45,6 +47,8 @@ export function buildHotelOwnerWhatsAppMessage(
     `*Guest request*`,
     `Check-in: ${params.checkIn}`,
     `Check-out: ${params.checkOut}`,
+    `Guest name: ${params.guestName || '—'}`,
+    `Rooms: ${params.rooms}`,
     `Nights: ${params.nights}`,
     `Guests: ${params.guests}`,
     `Estimated stay total: *₹${params.estimatedTotalInr.toLocaleString('en-IN')}* (${params.nights} × ₹${hotel.pricePerNight})`,

@@ -29,13 +29,12 @@ export default function KhatuHeroOffer({ onBookNow }: KhatuHeroOfferProps) {
         <button
           type="button"
           onClick={() => setFareInfoOpen(true)}
-          className="flex shrink-0 items-center gap-0.5 text-xs font-semibold text-blue-600 underline underline-offset-2 transition hover:text-blue-700 sm:gap-1 sm:text-sm"
+          className="grid h-7 w-7 shrink-0 place-items-center text-blue-600 transition-colors hover:text-blue-700 sm:h-8 sm:w-8"
           aria-label="Open fare details and terms"
         >
-          <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center text-[11px] font-bold leading-none" aria-hidden>
+          <span className="text-[12px] font-bold leading-none sm:text-[13px]" aria-hidden>
             i
           </span>
-          T&amp;C
         </button>
       </div>
 

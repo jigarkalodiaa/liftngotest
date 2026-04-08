@@ -107,6 +107,7 @@ export const ROUTES = {
   /** Marketing alias → restaurant discovery (see next.config redirect). */
   FOOD_MENU: '/food-menu',
   /** Khatu vertical — temples, rides, marketplace, guide. */
+  KHATU: '/khatu',
   KHATU_HOTELS: '/khatu/hotels',
   KHATU_TRAVEL: '/khatu/travel',
   KHATU_MARKETPLACE: '/khatu/marketplace',

@@ -34,6 +34,12 @@ const ITEMS: ServiceItem[] = [
     title: 'Khatu marketplace',
     href: ROUTES.KHATU_MARKETPLACE,
   },
+  {
+    Icon: Car,
+    title: 'Khatu Yatra package',
+    href: ROUTES.KHATU,
+    iconClassName: 'text-[var(--khatu-saffron)]',
+  },
 ];
 
 export default function KhatuServicesGrid() {

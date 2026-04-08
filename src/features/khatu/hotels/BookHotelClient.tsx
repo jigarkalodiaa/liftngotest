@@ -63,6 +63,8 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
   const payLaterMode = searchParams.get('mode') === 'pay_later';
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
+  const [guestName, setGuestName] = useState('');
+  const [rooms, setRooms] = useState('1');
   const [guests, setGuests] = useState('2');
   const [note, setNote] = useState('');
   const [whatsappOpened, setWhatsappOpened] = useState(false);
@@ -73,15 +75,18 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
   const ownerDigits = (hotel.ownerWhatsApp ?? '').replace(/\D/g, '');
 
   const nights = useMemo(() => countNights(checkIn, checkOut), [checkIn, checkOut]);
+  const roomsNum = Math.max(0, parseInt(rooms, 10) || 0);
   const guestsNum = Math.max(0, parseInt(guests, 10) || 0);
   const estimatedTotalInr = nights > 0 ? nights * hotel.pricePerNight : 0;
 
   const validationError = useMemo(() => {
     if (!checkIn || !checkOut) return 'Select check-in and check-out dates.';
     if (nights <= 0) return 'Check-out must be after check-in.';
+    if (guestName.trim().length < 2) return 'Enter guest name.';
+    if (roomsNum < 1) return 'Enter at least 1 room.';
     if (guestsNum < 1) return 'Enter at least 1 guest.';
     return '';
-  }, [checkIn, checkOut, nights, guestsNum]);
+  }, [checkIn, checkOut, nights, guestName, roomsNum, guestsNum]);
 
   const waMessage = useMemo(
     () =>
@@ -90,12 +95,14 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
         : buildHotelOwnerWhatsAppMessage(hotel, {
             checkIn,
             checkOut,
+            guestName: guestName.trim(),
+            rooms: roomsNum,
             guests: guestsNum,
             note,
             nights,
             estimatedTotalInr,
           }),
-    [hotel, checkIn, checkOut, guestsNum, note, nights, estimatedTotalInr, validationError]
+    [hotel, checkIn, checkOut, guestName, roomsNum, guestsNum, note, nights, estimatedTotalInr, validationError]
   );
 
   const whatsappUrl = useMemo(() => hotelOwnerWhatsAppHref(ownerDigits, waMessage), [ownerDigits, waMessage]);
@@ -104,8 +111,29 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
     !validationError && whatsappOpened && Boolean(whatsappUrl) && estimatedTotalInr > 0;
 
   useEffect(() => {
+    const qIn = searchParams.get('checkIn');
+    const qOut = searchParams.get('checkOut');
+    const qName = searchParams.get('guestName');
+    const qRooms = searchParams.get('rooms');
+    const qGuests = searchParams.get('guests');
+    const qNote = searchParams.get('note');
+    if (qIn) setCheckIn(qIn);
+    if (qOut) setCheckOut(qOut);
+    if (qName) setGuestName(qName);
+    if (qRooms) setRooms(qRooms.replace(/\D/g, '').slice(0, 2));
+    if (qGuests) setGuests(qGuests.replace(/\D/g, '').slice(0, 2));
+    if (qNote) setNote(qNote);
+  }, [searchParams]);
+
+  useEffect(() => {
     if (!payLaterMode || typeof window === 'undefined') return;
     const existingDraft = getHotelBookingDraft();
+    const seededCheckIn = searchParams.get('checkIn') ?? '';
+    const seededCheckOut = searchParams.get('checkOut') ?? '';
+    const seededGuestName = searchParams.get('guestName') ?? '';
+    const seededRooms = searchParams.get('rooms') ?? '';
+    const seededGuests = searchParams.get('guests') ?? '';
+    const seededNote = searchParams.get('note') ?? '';
     const fallbackIn = plusDaysIso(1);
     const fallbackOut = plusDaysIso(2);
     const draft: HotelBookingDraft =
@@ -123,10 +151,12 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
             familyRooms: hotel.familyRooms,
             rating: hotel.rating,
             liftngoVerified: hotel.liftngoVerified,
-            checkIn: fallbackIn,
-            checkOut: fallbackOut,
-            guests: 2,
-            guestNote: '',
+            checkIn: seededCheckIn || fallbackIn,
+            checkOut: seededCheckOut || fallbackOut,
+            guestName: seededGuestName,
+            rooms: Math.max(1, parseInt(seededRooms || '1', 10) || 1),
+            guests: Math.max(1, parseInt(seededGuests || '2', 10) || 2),
+            guestNote: seededNote,
             nights: 1,
             estimatedTotalInr: hotel.pricePerNight,
             ownerWhatsAppDigits: ownerDigits,
@@ -134,7 +164,10 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
     setHotelBookingDraft(draft);
     setCheckIn(draft.checkIn);
     setCheckOut(draft.checkOut);
+    setGuestName(draft.guestName || '');
+    setRooms(String(draft.rooms || 1));
     setGuests(String(draft.guests));
+    setNote(draft.guestNote || '');
     const key = `liftngo_active_hotel_booking_${hotel.id}`;
     const existingId = window.sessionStorage.getItem(key) || '';
     const existingRow = existingId ? getHotelBookingHistory().find((row) => row.id === existingId) : undefined;
@@ -147,7 +180,7 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
     window.sessionStorage.setItem(key, created.id);
     setActiveBookingId(created.id);
     setCancelled(false);
-  }, [hotel, ownerDigits, payLaterMode]);
+  }, [hotel, ownerDigits, payLaterMode, searchParams]);
 
   const persistAndGoPayment = () => {
     if (!canContinue || validationError) return;
@@ -165,6 +198,8 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
       liftngoVerified: hotel.liftngoVerified,
       checkIn,
       checkOut,
+      guestName: guestName.trim(),
+      rooms: roomsNum,
       guests: guestsNum,
       guestNote: note.trim(),
       nights,
@@ -235,8 +270,8 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
                 <div className="flex justify-between"><span className="text-stone-500">Checkin</span><span className="font-medium text-stone-800">{dateLabel(checkIn)}</span></div>
                 <div className="flex justify-between"><span className="text-stone-500">Checkout</span><span className="font-medium text-stone-800">{dateLabel(checkOut)}</span></div>
                 <div className="flex justify-between"><span className="text-stone-500">Booking ID</span><span className="font-medium text-stone-800">{activeBookingId.slice(-8).toUpperCase() || '-'}</span></div>
-                <div className="flex justify-between"><span className="text-stone-500">Reserved For</span><span className="font-medium text-stone-800">Prateek Jha</span></div>
-                <div className="flex justify-between"><span className="text-stone-500">Room & guest</span><span className="font-medium text-stone-800">1 room · {guests || '2'} adults</span></div>
+                <div className="flex justify-between"><span className="text-stone-500">Reserved For</span><span className="font-medium text-stone-800">{guestName || 'Guest'}</span></div>
+                <div className="flex justify-between"><span className="text-stone-500">Room & guest</span><span className="font-medium text-stone-800">{rooms || '1'} room · {guests || '2'} adults</span></div>
               </div>
 
               <button
@@ -316,7 +351,34 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
               />
             </label>
           </div>
-          <label className="text-xs font-semibold text-amber-900" htmlFor="hk-guests">
+          <label className="text-xs font-semibold text-amber-900" htmlFor="hk-name">
+            Name
+            <input
+              id="hk-name"
+              value={guestName}
+              onChange={(e) => {
+                setGuestName(e.target.value);
+                setWhatsappOpened(false);
+              }}
+              className="mt-1 w-full rounded-xl border border-amber-200 px-2 py-2 text-sm text-amber-950"
+              placeholder="Enter guest name"
+            />
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="text-xs font-semibold text-amber-900" htmlFor="hk-rooms">
+              Rooms
+              <input
+                id="hk-rooms"
+                inputMode="numeric"
+                value={rooms}
+                onChange={(e) => {
+                  setRooms(e.target.value.replace(/\D/g, '').slice(0, 2));
+                  setWhatsappOpened(false);
+                }}
+                className="mt-1 w-full rounded-xl border border-amber-200 px-2 py-2 text-sm text-amber-950"
+              />
+            </label>
+            <label className="text-xs font-semibold text-amber-900" htmlFor="hk-guests">
             Guests
             <input
               id="hk-guests"
@@ -328,7 +390,8 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
               }}
               className="mt-1 w-full rounded-xl border border-amber-200 px-2 py-2 text-sm text-amber-950"
             />
-          </label>
+            </label>
+          </div>
           <label className="text-xs font-semibold text-amber-900" htmlFor="hk-note">
             Notes for partner hotel
             <textarea

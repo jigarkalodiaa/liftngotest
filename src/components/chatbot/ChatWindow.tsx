@@ -20,6 +20,7 @@ const SEND_THROTTLE_MS = 400;
 const SESSION_KEY = 'liftngo_chat_session';
 /** Show WhatsApp escalation only after this many user-sent messages. */
 const WHATSAPP_AFTER_USER_MESSAGES = 10;
+const WELCOME_SUGGESTIONS = ['Book a delivery', 'Order food', 'Khatu hotels', 'Track booking'];
 
 type Props = {
   onClose: () => void;
@@ -36,6 +37,7 @@ export default function ChatWindow({ onClose }: Props) {
   const endRef = useRef<HTMLDivElement>(null);
   const lastSendAt = useRef(0);
   const sessionIdRef = useRef<string | null>(null);
+  const welcomeShownRef = useRef(false);
   const whatsappHref = useMemo(() => getWhatsAppUrl(CHAT_WHATSAPP_PREFILL), []);
 
   useEffect(() => {
@@ -46,6 +48,19 @@ export default function ChatWindow({ onClose }: Props) {
       sessionStorage.setItem(SESSION_KEY, id);
     }
     sessionIdRef.current = id;
+  }, []);
+
+  useEffect(() => {
+    if (welcomeShownRef.current) return;
+    welcomeShownRef.current = true;
+    setMessages([
+      {
+        role: 'assistant',
+        content:
+          'Welcome to Liftngo Assistant. I can help you with instant booking, live trip updates, food ordering, and Khatu travel plans. What would you like to do first?',
+        suggestionChips: WELCOME_SUGGESTIONS,
+      },
+    ]);
   }, []);
 
   const userMessageCount = messages.filter((m) => m.role === 'user').length;
@@ -190,6 +205,14 @@ export default function ChatWindow({ onClose }: Props) {
     ]);
   }, []);
 
+  const openQuickRoute = useCallback(
+    (href: string) => {
+      router.push(href);
+      onClose();
+    },
+    [router, onClose],
+  );
+
   return (
     <div
       id="liftngo-chat-panel"
@@ -220,17 +243,6 @@ export default function ChatWindow({ onClose }: Props) {
         role="log"
         aria-live="polite"
       >
-        {messages.length === 0 && (
-          <p className="text-center text-xs leading-relaxed text-gray-500">
-            Ask about booking, Noida and NCR delivery, B2B, or vehicles. After {WHATSAPP_AFTER_USER_MESSAGES} messages from you
-            in this chat, <span className="font-medium">Continue on WhatsApp</span> will appear below when configured. For urgent
-            matters, you can also use the{' '}
-            <a href={ROUTES.CONTACT} className="font-medium text-[var(--color-primary)] underline underline-offset-2">
-              Contact
-            </a>{' '}
-            page anytime.
-          </p>
-        )}
         {messages.map((msg, i) => (
           <MessageBubble
             key={`${msg.role}-${i}`}
@@ -254,6 +266,39 @@ export default function ChatWindow({ onClose }: Props) {
       </div>
 
       <div className="shrink-0 space-y-2 border-t border-gray-100 bg-white p-3 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.06)]">
+        {messages.length <= 2 ? (
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => openQuickRoute(ROUTES.PICKUP_LOCATION)}
+              className="rounded-xl border border-gray-200 bg-white px-2.5 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Book delivery
+            </button>
+            <button
+              type="button"
+              onClick={() => openQuickRoute(ROUTES.FIND_RESTAURANT)}
+              className="rounded-xl border border-gray-200 bg-white px-2.5 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Order food
+            </button>
+            <button
+              type="button"
+              onClick={() => openQuickRoute(ROUTES.KHATU_HOTELS)}
+              className="rounded-xl border border-gray-200 bg-white px-2.5 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Khatu hotels
+            </button>
+            <button
+              type="button"
+              onClick={() => openQuickRoute(ROUTES.HISTORY)}
+              className="rounded-xl border border-gray-200 bg-white px-2.5 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+            >
+              Track booking
+            </button>
+          </div>
+        ) : null}
+
         {showWhatsAppEscalation ? (
           whatsappHref ? (
             <a
