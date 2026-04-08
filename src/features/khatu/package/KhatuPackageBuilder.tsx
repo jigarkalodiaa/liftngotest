@@ -1,15 +1,13 @@
 'use client';
 
 import { memo } from 'react';
-import { Building2, Car, ShieldCheck, Sparkles, UtensilsCrossed, Waves, Waypoints } from 'lucide-react';
+import { Car, ShieldCheck, UtensilsCrossed, Waves, Waypoints } from 'lucide-react';
 import type { KhatuPackageServices, KhatuServiceKey } from './types';
 
 const SERVICE_LABELS: Array<{ key: KhatuServiceKey; title: string; subtitle: string; Icon: typeof Car }> = [
   { key: 'cab', title: 'Cab', subtitle: 'Pickup and local commute', Icon: Car },
-  { key: 'hotel', title: 'Hotel', subtitle: 'Stay near temple area', Icon: Building2 },
-  { key: 'food', title: 'Food', subtitle: 'Meal support for trip window', Icon: UtensilsCrossed },
-  { key: 'guide', title: 'Guide', subtitle: 'On-ground help and support', Icon: Sparkles },
-  { key: 'darshan', title: 'Darshan', subtitle: 'Queue and darshan assistance', Icon: ShieldCheck },
+  { key: 'food', title: 'Food', subtitle: 'User books via Liftngo Food at listed menu prices', Icon: UtensilsCrossed },
+  { key: 'darshan', title: 'Darshan', subtitle: 'Free darshan support', Icon: ShieldCheck },
   { key: 'waterPark', title: 'Water park', subtitle: 'Family activity add-on', Icon: Waves },
   { key: 'returnTrip', title: 'Return trip', subtitle: 'Khatu to source drop', Icon: Waypoints },
 ];
@@ -57,7 +55,9 @@ function KhatuPackageBuilder({ services, servicePriceMap, onToggle }: Props) {
               </span>
             </div>
             <div className="mt-2 border-t border-stone-200/70 pt-2">
-              <p className="text-xs font-semibold text-stone-700">+ ₹{servicePriceMap[item.key]}</p>
+              <p className="text-xs font-semibold text-stone-700">
+                {item.key === 'food' ? 'Dynamic menu pricing in Food section' : `+ ₹${servicePriceMap[item.key]}`}
+              </p>
             </div>
           </button>
         );
