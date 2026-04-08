@@ -3,19 +3,11 @@
 import { memo } from 'react';
 import type { KhatuDriverDetails } from './types';
 
-type TimelineItem = {
-  key: string;
-  label: string;
-  done: boolean;
-  active: boolean;
-};
-
 type Props = {
-  timeline: TimelineItem[];
   driver: KhatuDriverDetails;
 };
 
-function KhatuPackageTrackingCard({ timeline, driver }: Props) {
+function KhatuPackageTrackingCard({ driver }: Props) {
   return (
     <section className="rounded-xl border border-stone-200/80 bg-white p-3 shadow-sm sm:p-4">
       <div className="flex items-start justify-between gap-3">
@@ -42,21 +34,6 @@ function KhatuPackageTrackingCard({ timeline, driver }: Props) {
         Your Khatu trip coordination and status updates are handled by your travel agent partner.
       </p>
 
-      <ul className="mt-3 space-y-2">
-        {timeline.map((item) => (
-          <li key={item.key} className="flex items-start gap-2">
-            <span
-              className={`mt-0.5 inline-block h-4 w-4 rounded-full border ${
-                item.active || item.done
-                  ? 'border-[var(--khatu-saffron)] bg-[var(--khatu-saffron)]'
-                  : 'border-stone-300 bg-white'
-              }`}
-              aria-hidden
-            />
-            <span className={`text-xs ${item.active || item.done ? 'font-semibold text-stone-900' : 'text-stone-600'}`}>{item.label}</span>
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }

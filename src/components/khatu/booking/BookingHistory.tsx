@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import type { KhatuBookingRecord } from './types';
 import BookingCard from './BookingCard';
 
@@ -10,6 +10,13 @@ type Props = {
 };
 
 function BookingHistory({ bookings, loading = false }: Props) {
+  const [showAll, setShowAll] = useState(false);
+  const hasMoreThanTwo = bookings.length > 2;
+  const visibleBookings = useMemo(
+    () => (showAll ? bookings : bookings.slice(0, 2)),
+    [bookings, showAll],
+  );
+
   return (
     <section className="rounded-2xl border border-stone-200/80 bg-white p-3.5 shadow-sm sm:p-4">
       <div className="flex items-center justify-between gap-2">
@@ -34,9 +41,18 @@ function BookingHistory({ bookings, loading = false }: Props) {
         </p>
       ) : (
         <div className="mt-3 space-y-2.5">
-          {bookings.map((booking) => (
+          {visibleBookings.map((booking) => (
             <BookingCard key={booking.id} booking={booking} />
           ))}
+          {hasMoreThanTwo ? (
+            <button
+              type="button"
+              onClick={() => setShowAll((prev) => !prev)}
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs font-semibold text-stone-700 transition-colors hover:bg-stone-100"
+            >
+              {showAll ? 'Show less trips' : `View all trips (${bookings.length})`}
+            </button>
+          ) : null}
         </div>
       )}
     </section>

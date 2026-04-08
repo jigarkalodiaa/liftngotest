@@ -5,13 +5,14 @@ import type { KhatuPackageServices, KhatuServiceKey } from '@/features/khatu/pac
 
 const LABELS: Record<KhatuServiceKey, string> = {
   cab: 'Cab',
-  hotel: 'Hotel',
   food: 'Food',
-  guide: 'Guide',
   darshan: 'Darshan',
   waterPark: 'Water park',
   returnTrip: 'Return trip',
+  hotel: 'Hotel',
+  guide: 'Guide',
 };
+const VISIBLE_SUMMARY_KEYS: KhatuServiceKey[] = ['cab', 'food', 'darshan', 'waterPark', 'returnTrip'];
 
 type Props = {
   services: KhatuPackageServices;
@@ -23,7 +24,7 @@ type Props = {
 
 function BookingSummary({ services, basePrice, addOnsTotal, totalPrice, sticky = false }: Props) {
   const selectedRows = useMemo(
-    () => (Object.keys(services) as KhatuServiceKey[]).map((key) => ({ label: LABELS[key], selected: services[key] })),
+    () => VISIBLE_SUMMARY_KEYS.map((key) => ({ label: LABELS[key], selected: services[key] })),
     [services],
   );
 

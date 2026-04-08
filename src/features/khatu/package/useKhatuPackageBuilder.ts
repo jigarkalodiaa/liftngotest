@@ -7,10 +7,10 @@ const BASE_PRICE_INR = 1499;
 
 const SERVICE_PRICE_MAP: Record<KhatuServiceKey, number> = {
   cab: 699,
-  hotel: 1400,
-  food: 499,
-  guide: 399,
-  darshan: 599,
+  hotel: 0,
+  food: 0,
+  guide: 0,
+  darshan: 0,
   waterPark: 899,
   returnTrip: 699,
 };
@@ -36,6 +36,10 @@ export function useKhatuPackageBuilder() {
     setServices(DEFAULT_SERVICES);
   }, []);
 
+  const applyServices = useCallback((next: KhatuPackageServices) => {
+    setServices(next);
+  }, []);
+
   const selectedServiceKeys = useMemo(
     () => (Object.keys(services) as KhatuServiceKey[]).filter((key) => services[key]),
     [services],
@@ -52,6 +56,7 @@ export function useKhatuPackageBuilder() {
     services,
     toggleService,
     resetServices,
+    applyServices,
     selectedServiceKeys,
     hasSelection: selectedServiceKeys.length > 0,
     basePrice: BASE_PRICE_INR,
