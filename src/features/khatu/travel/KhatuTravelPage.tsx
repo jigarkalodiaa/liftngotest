@@ -21,7 +21,6 @@ export default function KhatuTravelPage() {
   const router = useRouter();
   const [routeId, setRouteId] = useState<TravelRouteId>('khatu-salasar');
   const [vehicleType, setVehicleType] = useState<RideVehicleType>('suv');
-  const [note, setNote] = useState('');
   const mutation = useBookRideMutation();
 
   const route = useMemo(
@@ -39,7 +38,6 @@ export default function KhatuTravelPage() {
       const res = await mutation.mutateAsync({
         routeId,
         vehicleType,
-        note: note.trim() || undefined,
       });
       const { pickup, drop } = getKhatuRouteDefaultLocations(routeId);
       setPickupLocation(pickup);

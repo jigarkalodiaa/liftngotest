@@ -24,7 +24,7 @@ export default function InfoTooltip({ title, children, triggerLabel = 'More info
     <span className={`inline-flex align-baseline ${className}`}>
       <button
         type="button"
-        className="ml-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-[var(--color-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+        className="ml-1 inline-flex h-7 w-7 shrink-0 items-center justify-center text-gray-500 transition-colors hover:text-[var(--color-primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
         aria-label={triggerLabel}
         aria-hasdialog="dialog"
         onClick={() => dialogRef.current?.showModal()}

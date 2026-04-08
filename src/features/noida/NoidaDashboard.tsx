@@ -435,7 +435,7 @@ export default function NoidaDashboard({
               <button
                 type="button"
                 onClick={() => setHeroPricingDetailsOpen(true)}
-                className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/15 sm:h-8 sm:w-8"
+                className="grid h-7 w-7 shrink-0 place-items-center text-white transition-colors hover:text-white/85 sm:h-8 sm:w-8"
                 aria-label="Pricing details, how it works, and terms"
               >
                 <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} aria-hidden />
@@ -647,7 +647,7 @@ export default function NoidaDashboard({
             <button
               type="button"
               onClick={() => setGrowthPlanDetailsOpen(true)}
-              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-white text-gray-600 shadow-sm transition-colors hover:bg-gray-100"
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center text-gray-600 transition-colors hover:text-gray-800"
               aria-label="Plan details"
             >
               <Info className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
@@ -824,7 +824,7 @@ export default function NoidaDashboard({
           <div className="pointer-events-none absolute right-2 top-2 z-10 flex items-start gap-1 sm:right-3 sm:top-3 sm:gap-1.5 md:right-3.5 md:top-3.5">
             <button
               type="button"
-              className="pointer-events-auto grid h-7 w-7 shrink-0 place-items-center rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm transition-colors hover:bg-gray-50 sm:h-8 sm:w-8"
+              className="pointer-events-auto grid h-7 w-7 shrink-0 place-items-center text-gray-600 transition-colors hover:text-gray-800 sm:h-8 sm:w-8"
               aria-label="How fleet pricing and the calculator work"
               onClick={(e) => {
                 e.stopPropagation();
@@ -1199,7 +1199,7 @@ export default function NoidaDashboard({
           <button
             type="button"
             onClick={() => setOrderFreshLegalOpen(true)}
-            className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-sky-200/90 bg-white text-sky-600 shadow-sm transition-colors hover:bg-sky-50 sm:h-7 sm:w-7"
+            className="grid h-6 w-6 shrink-0 place-items-center text-sky-600 transition-colors hover:text-sky-700 sm:h-7 sm:w-7"
             aria-label="Fresh and Local: availability, Notify, and terms"
           >
             <Info className="h-3 w-3 sm:h-3.5 sm:w-3.5" strokeWidth={2} aria-hidden />
@@ -1325,7 +1325,7 @@ export default function NoidaDashboard({
             <button
               type="button"
               onClick={() => setSubscriptionStripInfoOpen(true)}
-              className="grid h-7 w-7 place-items-center rounded-full border border-stone-200/90 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-800 sm:h-8 sm:w-8"
+              className="grid h-7 w-7 place-items-center text-stone-500 transition-colors hover:text-stone-800 sm:h-8 sm:w-8"
               aria-label="Subscription packs: benefits, validity, and terms"
             >
               <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} aria-hidden />
@@ -1548,14 +1548,28 @@ export default function NoidaDashboard({
               Best Plan
             </button>
             {[
-              { label: 'Home', icon: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m8 0h3a1 1 0 001-1V10', href: homeHref },
-              { label: 'History', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', href: ROUTES.HISTORY },
+              {
+                label: 'Home',
+                icon: 'M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m8 0h3a1 1 0 001-1V10',
+                href: homeHref,
+                active: pathname === ROUTES.DASHBOARD || pathname === ROUTES.NOIDA,
+              },
+              {
+                label: 'History',
+                icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+                href: ROUTES.HISTORY,
+                active: pathname === ROUTES.HISTORY,
+              },
             ].map((tab) => (
               <button
                 key={tab.label}
                 type="button"
                 onClick={() => router.push(tab.href)}
-                className="flex min-h-[48px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1 text-[9px] font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-800 active:scale-[0.98] md:min-h-12 md:w-14 md:flex-none md:flex-initial"
+                className={`flex min-h-[48px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1 text-[9px] font-medium transition-colors active:scale-[0.98] md:min-h-12 md:w-14 md:flex-none md:flex-initial ${
+                  tab.active
+                    ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                }`}
               >
                 <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />

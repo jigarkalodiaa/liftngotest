@@ -323,7 +323,7 @@ function PlansHubPageContent() {
               trackModalOpen('plans_page_intro', 'hero_info');
               setInfoOpen({ kind: 'hub' });
             }}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/15 sm:h-10 sm:w-10"
+            className="grid h-9 w-9 shrink-0 place-items-center text-white transition-colors hover:text-white/85 sm:h-10 sm:w-10"
             aria-label="How this plans page works and how Liftngo prices fairly"
           >
             <Info className="h-4 w-4" strokeWidth={2} aria-hidden />
@@ -421,7 +421,7 @@ function PlansHubPageContent() {
                   setInfoOpen({ kind: 'tab', tab: activeTab });
                 }
               }}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-stone-200 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-800"
+              className="grid h-8 w-8 shrink-0 place-items-center text-stone-500 transition-colors hover:text-stone-800"
               aria-label={`${tabData.headline}: definitions and fine print`}
             >
               <Info className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
@@ -497,7 +497,7 @@ function PlansHubPageContent() {
                   <button
                     type="button"
                     onClick={() => setInfoOpen({ kind: 'card', card })}
-                    className="grid h-7 w-7 place-items-center rounded-full border border-stone-200/90 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50"
+                    className="grid h-7 w-7 place-items-center text-stone-500 transition-colors hover:text-stone-800"
                     aria-label={
                       card.href === ROUTES.PLANS_SUBSCRIPTION
                         ? `${card.title}: vehicle, distance, validity, terms, and legal summary`

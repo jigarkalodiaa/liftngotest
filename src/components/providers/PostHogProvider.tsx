@@ -36,6 +36,24 @@ export default function PostHogAnalyticsProvider({ children }: { children: React
     initPosthog();
   }, []);
 
+  useEffect(() => {
+    if (!enabled) return;
+    const onError = (event: ErrorEvent) => {
+      posthog.captureException(event.error ?? new Error(event.message || 'window_error'));
+    };
+    const onRejection = (event: PromiseRejectionEvent) => {
+      const reason =
+        event.reason instanceof Error ? event.reason : new Error(String(event.reason ?? 'unhandled_rejection'));
+      posthog.captureException(reason);
+    };
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onRejection);
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onRejection);
+    };
+  }, [enabled]);
+
   if (!enabled) {
     return <>{children}</>;
   }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Bike, Info, X } from 'lucide-react';
+import { Bike, X } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 
 interface KhatuHeroOfferProps {
@@ -32,7 +32,9 @@ export default function KhatuHeroOffer({ onBookNow }: KhatuHeroOfferProps) {
           className="flex shrink-0 items-center gap-0.5 text-xs font-semibold text-blue-600 underline underline-offset-2 transition hover:text-blue-700 sm:gap-1 sm:text-sm"
           aria-label="Open fare details and terms"
         >
-          <Info className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+          <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center text-[11px] font-bold leading-none" aria-hidden>
+            i
+          </span>
           T&amp;C
         </button>
       </div>
@@ -47,7 +49,7 @@ export default function KhatuHeroOffer({ onBookNow }: KhatuHeroOfferProps) {
       <button
         type="button"
         onClick={onBookNow}
-        className="mt-5 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[var(--khatu-hero-cta)] px-5 py-3 text-center text-sm font-semibold text-white shadow-md shadow-[#a3431f]/25 transition hover:bg-[var(--khatu-hero-cta-hover)] active:scale-[0.99] sm:mt-6 sm:min-h-[50px] sm:rounded-2xl sm:text-base"
+        className="mt-5 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-[#8c3719] bg-[#a3431f] px-5 py-3 text-center text-sm font-semibold text-white shadow-md shadow-[#a3431f]/25 transition hover:bg-[#8c3719] active:scale-[0.99] sm:mt-6 sm:min-h-[50px] sm:rounded-2xl sm:text-base"
       >
         Book Your First Ride
         <span className="text-base leading-none sm:text-lg" aria-hidden>

@@ -48,7 +48,7 @@ export default function LeasePage() {
         <button
           type="button"
           onClick={() => setInfoOpen({ kind: 'platform_earn' })}
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-slate-200/90 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 md:h-9 md:w-9"
+          className="grid h-8 w-8 shrink-0 place-items-center text-slate-500 transition-colors hover:text-slate-700 md:h-9 md:w-9"
           aria-label="How platform earning relates to lease cost"
         >
           <Info className="h-3.5 w-3.5 md:h-4 md:w-4" strokeWidth={2} aria-hidden />
@@ -68,7 +68,7 @@ export default function LeasePage() {
                 <button
                   type="button"
                   onClick={() => setInfoOpen({ kind: 'plan', plan })}
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-slate-200/90 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50"
+                  className="grid h-8 w-8 shrink-0 place-items-center text-slate-500 transition-colors hover:text-slate-700"
                   aria-label={`${plan.vehicle}: monthly ROI, what’s included, and billing notes`}
                 >
                   <Info className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />

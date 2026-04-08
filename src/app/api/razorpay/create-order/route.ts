@@ -16,15 +16,12 @@ function extractError(err: unknown): string {
 }
 
 export async function POST(req: NextRequest) {
-  const secret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
-  const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+  const secret = process.env.RAZORPAY_KEY_SECRET;
+  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 
   if (!keyId || !secret || secret === 'YOUR_KEY_SECRET_HERE') {
     return NextResponse.json(
-      {
-        error:
-          'Razorpay is not configured. Set RAZORPAY_KEY_ID (or NEXT_PUBLIC_RAZORPAY_KEY_ID) and RAZORPAY_KEY_SECRET in .env.local, then restart the dev server.',
-      },
+      { error: 'Razorpay is not configured. Set RAZORPAY_KEY_SECRET in .env.local and restart the dev server.' },
       { status: 500 },
     );
   }

@@ -9,13 +9,12 @@ let _instance: Razorpay | null = null;
 export function getRazorpay(): Razorpay {
   if (_instance) return _instance;
 
-  // Accept either server-only `RAZORPAY_KEY_ID` or public key id fallback.
-  const key_id = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
-  const key_secret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
+  const key_id = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
   if (!key_id || !key_secret) {
     throw new Error(
-      'Razorpay is not configured. Set RAZORPAY_KEY_ID (or NEXT_PUBLIC_RAZORPAY_KEY_ID) and RAZORPAY_KEY_SECRET in your environment.',
+      'Razorpay is not configured. Set NEXT_PUBLIC_RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your environment.',
     );
   }
 

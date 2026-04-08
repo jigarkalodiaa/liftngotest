@@ -6,7 +6,7 @@
  * are silently dropped. Legitimate re-fires after the cooldown go through normally.
  */
 
-import { event as gtagEvent } from '@/lib/gtag';
+import { dataLayerEvent, event as gtagEvent } from '@/lib/gtag';
 import { trackEvent as phTrackEvent } from '@/lib/posthogAnalytics';
 
 const DEDUP_MS = 2000;
@@ -55,6 +55,7 @@ export function trackEvent(name: AnalyticsEventName, params?: Record<string, str
 
   _lastFired.set(key, now);
   gtagEvent(name, params);
+  dataLayerEvent(name, params);
 }
 
 /* ─── existing helpers ─── */
