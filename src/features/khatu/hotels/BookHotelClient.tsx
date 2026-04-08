@@ -2,14 +2,21 @@
 
 import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import PageHeader from '@/components/ui/PageHeader';
 import { ROUTES } from '@/lib/constants';
 import { SUPPORT_PHONE } from '@/config/env';
 import type { KhatuHotel } from '@/types/khatu';
 import type { HotelBookingDraft } from '@/types/booking';
-import { setHotelBookingDraft, setPickupLocation } from '@/lib/storage';
+import {
+  appendHotelBookingHistoryFromDraft,
+  getHotelBookingDraft,
+  getHotelBookingHistory,
+  markHotelBookingCancelled,
+  setHotelBookingDraft,
+  setPickupLocation,
+} from '@/lib/storage';
 import { buildHotelOwnerWhatsAppMessage, hotelOwnerWhatsAppHref } from '@/features/khatu/hotels/hotelBookingWhatsApp';
 import { trackWhatsAppClick } from '@/lib/analytics';
 
@@ -36,13 +43,31 @@ function countNights(checkIn: string, checkOut: string): number {
   return Math.round(ms / (24 * 60 * 60 * 1000));
 }
 
+function plusDaysIso(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const da = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${da}`;
+}
+
+function dateLabel(iso: string): string {
+  if (!iso) return '-';
+  return new Date(`${iso}T12:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
 export default function BookHotelClient({ hotel }: BookHotelClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const payLaterMode = searchParams.get('mode') === 'pay_later';
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState('2');
   const [note, setNote] = useState('');
   const [whatsappOpened, setWhatsappOpened] = useState(false);
+  const [activeBookingId, setActiveBookingId] = useState('');
+  const [cancelled, setCancelled] = useState(false);
 
   const img = hotel.images[0] ?? '/globe.svg';
   const ownerDigits = (hotel.ownerWhatsApp ?? '').replace(/\D/g, '');
@@ -78,6 +103,52 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
   const canContinue =
     !validationError && whatsappOpened && Boolean(whatsappUrl) && estimatedTotalInr > 0;
 
+  useEffect(() => {
+    if (!payLaterMode || typeof window === 'undefined') return;
+    const existingDraft = getHotelBookingDraft();
+    const fallbackIn = plusDaysIso(1);
+    const fallbackOut = plusDaysIso(2);
+    const draft: HotelBookingDraft =
+      existingDraft && existingDraft.hotelId === hotel.id
+        ? existingDraft
+        : {
+            hotelId: hotel.id,
+            hotelName: hotel.name,
+            addressLine: hotel.addressLine,
+            distanceKmFromTemple: hotel.distanceKmFromTemple,
+            pricePerNight: hotel.pricePerNight,
+            availability: hotel.availability,
+            parking: hotel.parking,
+            ac: hotel.ac,
+            familyRooms: hotel.familyRooms,
+            rating: hotel.rating,
+            liftngoVerified: hotel.liftngoVerified,
+            checkIn: fallbackIn,
+            checkOut: fallbackOut,
+            guests: 2,
+            guestNote: '',
+            nights: 1,
+            estimatedTotalInr: hotel.pricePerNight,
+            ownerWhatsAppDigits: ownerDigits,
+          };
+    setHotelBookingDraft(draft);
+    setCheckIn(draft.checkIn);
+    setCheckOut(draft.checkOut);
+    setGuests(String(draft.guests));
+    const key = `liftngo_active_hotel_booking_${hotel.id}`;
+    const existingId = window.sessionStorage.getItem(key) || '';
+    const existingRow = existingId ? getHotelBookingHistory().find((row) => row.id === existingId) : undefined;
+    if (existingRow) {
+      setActiveBookingId(existingRow.id);
+      setCancelled(existingRow.status === 'cancelled');
+      return;
+    }
+    const created = appendHotelBookingHistoryFromDraft(draft);
+    window.sessionStorage.setItem(key, created.id);
+    setActiveBookingId(created.id);
+    setCancelled(false);
+  }, [hotel, ownerDigits, payLaterMode]);
+
   const persistAndGoPayment = () => {
     if (!canContinue || validationError) return;
     const draft: HotelBookingDraft = {
@@ -108,6 +179,81 @@ export default function BookHotelClient({ hotel }: BookHotelClientProps) {
     });
     router.push(`${ROUTES.PAYMENT}?from=khatu_hotel`);
   };
+
+  const payNowFromPayLater = () => {
+    const d = getHotelBookingDraft();
+    if (!d || d.hotelId !== hotel.id) return;
+    router.push(`${ROUTES.PAYMENT}?from=khatu_hotel`);
+  };
+
+  const cancelPayLaterBooking = () => {
+    if (!activeBookingId) return;
+    const ok = typeof window === 'undefined' ? false : window.confirm('Cancel this hotel booking?');
+    if (!ok) return;
+    const changed = markHotelBookingCancelled(activeBookingId);
+    if (changed) setCancelled(true);
+  };
+
+  if (payLaterMode) {
+    return (
+      <div className="min-h-screen bg-[#f4f5f7] pb-28">
+        <div className="mx-auto max-w-lg">
+          <PageHeader title="Booking" onBack={() => router.push(`${ROUTES.KHATU_HOTELS}/${hotel.id}`)} />
+          <div className="rounded-none bg-emerald-600 px-4 py-3 text-white">
+            <p className="text-2xl font-semibold">{cancelled ? 'Booking cancelled' : 'Your booking is confirmed'}</p>
+          </div>
+
+          <div className="space-y-3 px-3 py-3">
+            <div className="rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
+              <p className="text-sm font-medium text-stone-600">{cancelled ? 'Booking amount' : 'Amount to be paid later'}</p>
+              <div className="mt-2 flex items-end justify-between">
+                <p className="text-xs text-stone-500">Total amount</p>
+                <p className="text-2xl font-bold tabular-nums text-stone-800">₹{hotel.pricePerNight}</p>
+              </div>
+              <button
+                type="button"
+                onClick={payNowFromPayLater}
+                disabled={cancelled}
+                className="mt-3 flex min-h-11 w-full items-center justify-center rounded-xl bg-[var(--color-primary)] text-sm font-semibold text-white disabled:opacity-50"
+              >
+                Pay ₹{hotel.pricePerNight} now
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-2xl font-semibold leading-tight text-stone-800">{hotel.name}</h2>
+                  <p className="mt-1 text-sm text-stone-600">{hotel.addressLine}</p>
+                </div>
+                <div className="relative h-20 w-28 overflow-hidden rounded-xl">
+                  <Image src={img} alt={`${hotel.name} room`} fill className="object-cover" sizes="120px" />
+                </div>
+              </div>
+
+              <div className="mt-3 grid gap-2 border-t border-stone-200 pt-3 text-sm">
+                <div className="flex justify-between"><span className="text-stone-500">Checkin</span><span className="font-medium text-stone-800">{dateLabel(checkIn)}</span></div>
+                <div className="flex justify-between"><span className="text-stone-500">Checkout</span><span className="font-medium text-stone-800">{dateLabel(checkOut)}</span></div>
+                <div className="flex justify-between"><span className="text-stone-500">Booking ID</span><span className="font-medium text-stone-800">{activeBookingId.slice(-8).toUpperCase() || '-'}</span></div>
+                <div className="flex justify-between"><span className="text-stone-500">Reserved For</span><span className="font-medium text-stone-800">Prateek Jha</span></div>
+                <div className="flex justify-between"><span className="text-stone-500">Room & guest</span><span className="font-medium text-stone-800">1 room · {guests || '2'} adults</span></div>
+              </div>
+
+              <button
+                type="button"
+                onClick={cancelPayLaterBooking}
+                disabled={cancelled}
+                className="mt-4 flex min-h-11 w-full items-center justify-between rounded-xl border border-rose-200 px-3 text-sm font-semibold text-rose-600 disabled:opacity-50"
+              >
+                <span>{cancelled ? 'Booking cancelled' : 'Cancel booking'}</span>
+                <span aria-hidden>›</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/90 via-white to-white pb-44">

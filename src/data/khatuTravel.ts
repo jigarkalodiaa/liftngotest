@@ -12,6 +12,15 @@ export const KHATU_TRAVEL_ROUTES: KhatuTravelRoute[] = [
     typicalMinutes: 52,
   },
   {
+    id: 'salasar-khatu',
+    label: 'Salasar → Khatu',
+    labelHi: 'सालासर → खाटू',
+    from: 'Salasar Balaji',
+    to: 'Khatu Shyam Ji',
+    distanceKm: 28,
+    typicalMinutes: 52,
+  },
+  {
     id: 'khatu-ringus',
     label: 'Khatu → Ringus',
     labelHi: 'खाटू → रिंगस',
@@ -85,6 +94,10 @@ const KHATU_CORRIDOR_DEFAULT_ADDRESSES: Record<TravelRouteId, { pickup: string; 
     pickup:
       'Khatu Shyam Ji Temple, Khatu (Sikar), Rajasthan — default pickup for corridor ride to Salasar',
     drop: 'Salasar Balaji Mandir, Salasar, Churu, Rajasthan — default drop',
+  },
+  'salasar-khatu': {
+    pickup: 'Salasar Balaji Mandir, Salasar, Churu, Rajasthan — default pickup to Khatu',
+    drop: 'Khatu Shyam Ji Temple, Khatu (Sikar), Rajasthan — default drop at mandir',
   },
   'khatu-ringus': {
     pickup:

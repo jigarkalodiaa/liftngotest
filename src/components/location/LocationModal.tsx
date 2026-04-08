@@ -92,7 +92,7 @@ export default function LocationModal() {
               className="flex min-h-[48px] w-full items-center justify-center rounded-xl px-4 text-base font-semibold text-white disabled:opacity-60"
               style={{ backgroundColor: theme.colors.primary }}
             >
-              अनुमति दें — Allow location
+              Allow location
             </button>
             <button
               type="button"

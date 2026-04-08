@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { estimateKhatuRideFareInr, getKhatuRoute, KHATU_RIDE_VEHICLE_OPTIONS } from '@/data/khatuTravel';
 import type { RideVehicleType, TravelRouteId } from '@/types/khatu';
 
-const travelRouteIds = z.enum(['khatu-salasar', 'khatu-ringus', 'ringus-khatu']);
+const travelRouteIds = z.enum(['khatu-salasar', 'salasar-khatu', 'khatu-ringus', 'ringus-khatu']);
 const vehicleTypes = z.enum(['two_wheeler', 'hatchback', 'sedan', 'suv']);
 
 const bodySchema = z.object({

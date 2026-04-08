@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   getPickupLocation,
   getDropLocation,
@@ -46,13 +46,11 @@ import {
   PaymentFooterBar,
 } from './components/PaymentSections';
 import PaymentModals from './components/PaymentModals';
+import { useDirections } from '@/hooks/booking';
+import { useCreateBooking } from '@/hooks/booking';
+import { toApiVehicleType } from '@/api/services/tripService';
+import { toIndianE164 } from '@/lib/auth/mobileE164';
 
-const TRIP_FARE = 522;
-const GST_AMOUNT = 8;
-const PLATFORM_FEE = 10;
-const TOTAL_AMOUNT = TRIP_FARE + GST_AMOUNT + PLATFORM_FEE;
-
-/** All-in delivery charge shown on payment when booking from restaurant food flow */
 const FOOD_PAYMENT_FLAT_INR = 50;
 
 const BOOKING_PAYMENT_CONSENT_VERSION = 'booking_payment_v1';
@@ -63,7 +61,6 @@ export default function PaymentPage() {
   const fromFood = searchParams.get('from') === 'food';
   const fromKhatuHotel = searchParams.get('from') === 'khatu_hotel';
   const [vehicle, setVehicle] = useState<ServiceId | null>(null);
-  /** SSR + hydration: always null until useEffect sync — never read localStorage in useState initializer */
   const [pickup, setPickup] = useState<SavedLocation | null>(null);
   const [drop, setDrop] = useState<SavedLocation | null>(null);
   const [sender, setSender] = useState<PersonDetails | null>(null);
@@ -85,12 +82,44 @@ export default function PaymentPage() {
   const [acceptBookingLegal, setAcceptBookingLegal] = useState(false);
   const { openPayment } = useRazorpay();
 
+  const createBookingMutation = useCreateBooking();
+
+  const { data: directionsData } = useDirections(pickup, drop);
+
+  const routeFares = useMemo(() => {
+    const route = directionsData?.routes?.[0];
+    if (!route) return null;
+    return {
+      fares: route.vehicleFares,
+      distance: route.distanceFormatted,
+      duration: route.durationFormatted,
+      currency: route.currency,
+    };
+  }, [directionsData]);
+
+  const selectedFare = useMemo(() => {
+    if (!routeFares?.fares || !vehicle) return null;
+    const apiType = toApiVehicleType(vehicle);
+    const fareMap: Record<string, number> = {
+      BIKE: routeFares.fares.bike,
+      AUTO: routeFares.fares.auto,
+      MINI_TRUCK: routeFares.fares.miniTruck,
+      TRUCK: routeFares.fares.truck,
+    };
+    return fareMap[apiType] ?? null;
+  }, [routeFares, vehicle]);
+
+  const tripFare = selectedFare ?? 0;
+  const gstAmount = Math.round(tripFare * 0.05 * 100) / 100;
+  const platformFee = 10;
+  const couponDiscount = appliedCoupon ? Math.min(400, Math.round(tripFare * 0.1)) : 0;
+  const totalAmount = Math.round((tripFare + gstAmount + platformFee - couponDiscount) * 100) / 100;
   const payableInr =
     fromKhatuHotel && hotelDraft
       ? hotelDraft.estimatedTotalInr
       : fromFood
         ? FOOD_PAYMENT_FLAT_INR
-        : TOTAL_AMOUNT;
+        : totalAmount;
 
   const syncFromStorage = useCallback(() => {
     setVehicle(getSelectedService() ?? 'threeWheeler');
@@ -136,6 +165,7 @@ export default function PaymentPage() {
       router.replace(ROUTES.KHATU_HOTELS);
     }
   }, [fromKhatuHotel, router]);
+
   useEffect(() => {
     window.addEventListener('focus', syncFromStorage);
     return () => window.removeEventListener('focus', syncFromStorage);
@@ -182,6 +212,81 @@ export default function PaymentPage() {
     setReceiver(sender);
   }, [pickup, drop, sender, receiver]);
 
+  const handleBookNow = useCallback(() => {
+    if (fromKhatuHotel && hotelDraft) {
+      appendHotelBookingHistoryFromDraft(hotelDraft);
+      clearHotelBookingDraft();
+      setHotelDraft(null);
+      router.push(`${ROUTES.HISTORY}?tab=hotel`);
+      return;
+    }
+
+    if (fromFood && deliveryGoods) {
+      const amt = `₹${FOOD_PAYMENT_FLAT_INR.toLocaleString('en-IN')}`;
+      const addrHint = drop?.address?.trim() || pickup?.address?.trim() || undefined;
+      if (deliveryGoods.source === 'marketplace') {
+        appendMarketplaceHistoryFromDeliveryGoods(deliveryGoods, amt, addrHint);
+      } else {
+        appendFoodDeliveryHistory(deliveryGoods, amt, pickup?.name);
+      }
+      clearDeliveryGoodsDescription();
+      setDeliveryGoods(null);
+    }
+
+    if (
+      pickup?.latitude != null && pickup?.longitude != null &&
+      drop?.latitude != null && drop?.longitude != null &&
+      sender && receiver && vehicle
+    ) {
+      const goodsDesc = selectedGoodType?.title
+        ? `${selectedGoodType.title} - ${weightKg}kg, ${packages} pkg`
+        : undefined;
+
+      createBookingMutation.mutate(
+        {
+          origin: {
+            address: pickup.address,
+            latitude: pickup.latitude,
+            longitude: pickup.longitude,
+          },
+          destination: {
+            address: drop.address,
+            latitude: drop.latitude,
+            longitude: drop.longitude,
+          },
+          vehicleType: toApiVehicleType(vehicle),
+          sender: {
+            name: sender.name,
+            mobile: toIndianE164(sender.mobile),
+          },
+          receiver: {
+            name: receiver.name,
+            mobile: toIndianE164(receiver.mobile),
+          },
+          packageDescription: goodsDesc,
+          packageWeight: weightKg > 0 ? weightKg : undefined,
+          gstin: gstin || undefined,
+          couponCode: appliedCoupon || undefined,
+        },
+        {
+          onSuccess: () => {
+            router.push(ROUTES.BOOKING);
+          },
+        },
+      );
+      return;
+    }
+
+    router.push(ROUTES.BOOKING);
+  }, [
+    fromKhatuHotel, hotelDraft, fromFood, deliveryGoods,
+    pickup, drop, sender, receiver, vehicle,
+    selectedGoodType, weightKg, packages, gstin, appliedCoupon,
+    createBookingMutation, router,
+  ]);
+
+  const isBooking = createBookingMutation.isPending;
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.colors.white }}>
       <PageContainer className="pb-32 pt-4">
@@ -199,6 +304,18 @@ export default function PaymentPage() {
           }}
         />
         <VehicleCard serviceId={vehicle} />
+
+        {routeFares && (
+          <div className="mt-3 flex items-center gap-3 rounded-xl border border-[var(--color-primary)]/15 bg-[var(--color-primary)]/5 px-4 py-2.5">
+            <svg className="h-4 w-4 shrink-0 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            <span className="text-[13px] font-semibold text-gray-900">{routeFares.distance}</span>
+            <span className="text-gray-300">·</span>
+            <span className="text-[13px] text-gray-600">{routeFares.duration}</span>
+          </div>
+        )}
+
         <AddressCta onClick={openAddressModal} />
         <GstSection gstin={gstin} businessName={businessName} onAddOrEdit={() => setShowGstModal(true)} />
         {fromKhatuHotel && hotelDraft ? (
@@ -237,10 +354,10 @@ export default function PaymentPage() {
           />
         ) : null}
         <PriceDetailsSection
-          tripFare={TRIP_FARE}
-          gst={GST_AMOUNT}
-          platformFee={PLATFORM_FEE}
-          totalAmount={TOTAL_AMOUNT}
+          tripFare={tripFare}
+          gst={gstAmount}
+          platformFee={platformFee}
+          totalAmount={totalAmount}
           foodFlatInr={fromFood ? FOOD_PAYMENT_FLAT_INR : undefined}
           hotelStay={
             fromKhatuHotel && hotelDraft

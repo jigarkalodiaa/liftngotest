@@ -18,6 +18,8 @@ export class AppError extends Error {
 
 export interface ApiErrorPayload {
   message?: string;
+  /** Some backends use `error` instead of `message`. */
+  error?: string;
   code?: string;
   errors?: Record<string, string[]>;
 }
@@ -31,8 +33,8 @@ export function normalizeApiError(error: unknown): string {
 
   if (error && typeof error === 'object' && 'response' in error) {
     const ax = error as { response?: { data?: ApiErrorPayload; status?: number } };
-    const data = ax.response?.data;
-    const msg = data?.message ?? data?.errors?.message?.[0];
+    const data = ax.response?.data as ApiErrorPayload | undefined;
+    const msg = data?.message ?? (typeof data?.error === 'string' ? data.error : undefined) ?? data?.errors?.message?.[0];
     if (typeof msg === 'string') {
       if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
         console.warn('[API Error]', ax.response?.status, data);

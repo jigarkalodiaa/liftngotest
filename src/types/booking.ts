@@ -7,6 +7,8 @@ export interface SavedLocation {
   name: string;
   address: string;
   contact: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface PersonDetails {

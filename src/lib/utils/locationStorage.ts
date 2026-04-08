@@ -1,6 +1,6 @@
 /**
- * Layered persistence for dashboard user location: localStorage (primary), sessionStorage, cookie backup.
- * Keys live in `@/lib/constants` (`STORAGE_KEYS`, `SESSION_KEYS`).
+ * Layered persistence for dashboard user location: sessionStorage (primary), cookie backup.
+ * Keys live in `@/lib/constants` (`STORAGE_KEYS`).
  */
 
 import { STORAGE_KEYS } from '@/lib/constants';
@@ -47,16 +47,6 @@ function writeCookie(name: string, value: string, maxAgeSec: number) {
 export function getUserLocation(): StoredUserLocation | null {
   if (typeof window === 'undefined') return null;
 
-  const rawLocal = localStorage.getItem(STORAGE_KEYS.DASHBOARD_USER_LOCATION);
-  if (rawLocal) {
-    try {
-      const p = JSON.parse(rawLocal) as unknown;
-      if (isStoredUserLocation(p)) return p;
-    } catch {
-      /* fall through */
-    }
-  }
-
   const rawSession = sessionStorage.getItem(STORAGE_KEYS.DASHBOARD_USER_LOCATION);
   if (rawSession) {
     try {
@@ -88,25 +78,15 @@ export function saveUserLocation(data: Omit<StoredUserLocation, 'updatedAt'> & {
   };
   const json = JSON.stringify(full);
   try {
-    localStorage.setItem(STORAGE_KEYS.DASHBOARD_USER_LOCATION, json);
-  } catch {
-    /* quota / private mode */
-  }
-  try {
     sessionStorage.setItem(STORAGE_KEYS.DASHBOARD_USER_LOCATION, json);
   } catch {
-    /* ignore */
+    /* quota / private mode */
   }
   writeCookie(COOKIE_NAME, json, COOKIE_MAX_AGE_SEC);
 }
 
 export function clearUserLocation() {
   if (typeof window === 'undefined') return;
-  try {
-    localStorage.removeItem(STORAGE_KEYS.DASHBOARD_USER_LOCATION);
-  } catch {
-    /* ignore */
-  }
   try {
     sessionStorage.removeItem(STORAGE_KEYS.DASHBOARD_USER_LOCATION);
   } catch {

@@ -369,7 +369,7 @@ export function NoidaB2bProductMirrorBody() {
                   trackModalOpen('noida_b2b_subscription_pack_info', 'subscription_strip');
                   setSubscriptionStripInfoOpen(true);
                 }}
-                className="grid h-7 w-7 place-items-center rounded-full border border-stone-200/90 bg-white text-stone-500 shadow-sm transition-colors hover:bg-stone-50 hover:text-stone-800 sm:h-8 sm:w-8"
+                className="grid h-7 w-7 place-items-center text-stone-500 transition-colors hover:text-stone-800 sm:h-8 sm:w-8"
                 aria-label="Subscription packs: benefits, validity, and terms"
               >
                 <Info className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} aria-hidden />
@@ -757,7 +757,7 @@ function PricingFareModal() {
     <>
       <button
         type="button"
-        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50 active:scale-95"
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-gray-600 transition-colors hover:text-gray-800 active:scale-95"
         aria-label="Fare and distance details"
         onClick={() => {
           trackModalOpen('noida_b2b_fare_explainer', 'pricing_snapshot');

@@ -25,6 +25,8 @@ export const STORAGE_KEYS = {
   USER_PROFILE: 'liftngo_user_profile',
   /** Persisted food menu cart while browsing / after login (keyed by `restaurantId`). */
   FOOD_ORDER_CART_DRAFT: 'liftngo_food_order_cart_draft',
+  /** Food cart checkout — customer name, phone, drop address (before Razorpay). */
+  FOOD_CHECKOUT_DROP: 'liftngo_food_checkout_drop',
   /** Dashboard zone: geo + zone id (`khatu` | `default`) for location-aware UI. */
   DASHBOARD_USER_LOCATION: 'liftngo_dashboard_user_location',
   /** Khatu marketplace cart (single-shop, persisted). */
@@ -84,6 +86,10 @@ export const ROUTES = {
   NOIDA_B2B_LOGISTICS: '/noida-b2b-logistics',
   HISTORY: '/history',
   FIND_RESTAURANT: '/find-restaurant',
+  /** Food menu — cart & Razorpay checkout (draft in sessionStorage). */
+  FIND_RESTAURANT_CART: '/find-restaurant/cart',
+  /** Terms of use (legal). */
+  TERMS: '/terms',
   /** Marketing: contact & sitelinks (support, social, addresses). */
   CONTACT: '/contact',
   /** Contact page — business enquiry form block. */

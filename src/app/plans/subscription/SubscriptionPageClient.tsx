@@ -106,7 +106,7 @@ export default function SubscriptionPageClient() {
         <button
           type="button"
           onClick={() => setInfoOpen({ kind: 'why_pack' })}
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-emerald-300/60 bg-white text-emerald-700 shadow-sm transition-colors hover:bg-emerald-50"
+          className="grid h-8 w-8 shrink-0 place-items-center text-emerald-700 transition-colors hover:text-emerald-800"
           aria-label="Subscription pack benefits and what’s included"
         >
           <Info className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
@@ -411,7 +411,7 @@ function TierCard({
               <button
                 type="button"
                 onClick={onTierInfo}
-                className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition-colors hover:bg-gray-50"
+                className="grid h-7 w-7 shrink-0 place-items-center text-gray-500 transition-colors hover:text-gray-700"
                 aria-label={`${tier.name}: full inclusions and notes`}
               >
                 <Info className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />

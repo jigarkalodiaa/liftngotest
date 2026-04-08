@@ -1,6 +1,6 @@
 /**
  * Client-side storage helpers for booking data.
- * Centralizes localStorage keys and parsing; safe for SSR (no-op when window is undefined).
+ * Centralizes sessionStorage keys and parsing; safe for SSR (no-op when window is undefined).
  */
 
 import type {
@@ -42,7 +42,7 @@ const ALLOWED_PRODUCT_POST_LOGIN_PATHS = new Set<string>([
 ]);
 
 function isAllowedFindRestaurantPostLoginPath(pathOnly: string): boolean {
-  if (pathOnly === ROUTES.FIND_RESTAURANT) return true;
+  if (pathOnly === ROUTES.FIND_RESTAURANT || pathOnly === ROUTES.FIND_RESTAURANT_CART) return true;
   const prefix = `${ROUTES.FIND_RESTAURANT}/`;
   if (!pathOnly.startsWith(prefix)) return false;
   const slug = pathOnly.slice(prefix.length);
@@ -89,7 +89,13 @@ function isSavedLocation(v: unknown): v is SavedLocation & { contact?: string } 
 }
 
 function normalizeSavedLocation(o: SavedLocation & { contact?: string }): SavedLocation {
-  return { name: o.name, address: o.address, contact: o.contact ?? '' };
+  return {
+    name: o.name,
+    address: o.address,
+    contact: o.contact ?? '',
+    ...(typeof o.latitude === 'number' ? { latitude: o.latitude } : {}),
+    ...(typeof o.longitude === 'number' ? { longitude: o.longitude } : {}),
+  };
 }
 
 function isPersonDetails(v: unknown): v is PersonDetails {
@@ -142,9 +148,9 @@ function parseStopWaypointsFromStorage(raw: string | null): BookingStopWaypoint[
 
 function buildLegacyWaypointFromKeys(): BookingStopWaypoint | null {
   if (typeof window === 'undefined') return null;
-  const rawLoc = safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_LOCATION), isSavedLocation);
+  const rawLoc = safeParse(window.sessionStorage.getItem(STORAGE_KEYS.STOP_LOCATION), isSavedLocation);
   if (!savedLocationHasAddress(rawLoc)) return null;
-  const details = safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
+  const details = safeParse(window.sessionStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
   return {
     id: LEGACY_SINGLE_STOP_ID,
     location: normalizeSavedLocation(rawLoc),
@@ -156,11 +162,11 @@ function syncLegacyStopKeys(waypoints: BookingStopWaypoint[]): void {
   try {
     const first = waypoints[0];
     if (first && savedLocationHasAddress(first.location)) {
-      window.localStorage?.setItem(STORAGE_KEYS.STOP_LOCATION, JSON.stringify(first.location));
-      window.localStorage?.setItem(STORAGE_KEYS.STOP_DETAILS, JSON.stringify(first.contact));
+      window.sessionStorage?.setItem(STORAGE_KEYS.STOP_LOCATION, JSON.stringify(first.location));
+      window.sessionStorage?.setItem(STORAGE_KEYS.STOP_DETAILS, JSON.stringify(first.contact));
     } else {
-      window.localStorage?.removeItem(STORAGE_KEYS.STOP_LOCATION);
-      window.localStorage?.removeItem(STORAGE_KEYS.STOP_DETAILS);
+      window.sessionStorage?.removeItem(STORAGE_KEYS.STOP_LOCATION);
+      window.sessionStorage?.removeItem(STORAGE_KEYS.STOP_DETAILS);
     }
   } catch {
     // ignore
@@ -170,13 +176,13 @@ function syncLegacyStopKeys(waypoints: BookingStopWaypoint[]): void {
 /** All intermediate stops in order; migrates legacy single `stop_location` + `stop_details` on first read. */
 export function getStopWaypoints(): BookingStopWaypoint[] {
   if (typeof window === 'undefined') return [];
-  let list = parseStopWaypointsFromStorage(window.localStorage.getItem(STORAGE_KEYS.STOP_WAYPOINTS));
+  let list = parseStopWaypointsFromStorage(window.sessionStorage.getItem(STORAGE_KEYS.STOP_WAYPOINTS));
   if (list.length > 0) return list;
   const legacy = buildLegacyWaypointFromKeys();
   if (!legacy) return [];
   try {
     list = [legacy];
-    window.localStorage.setItem(STORAGE_KEYS.STOP_WAYPOINTS, JSON.stringify(list));
+    window.sessionStorage.setItem(STORAGE_KEYS.STOP_WAYPOINTS, JSON.stringify(list));
     syncLegacyStopKeys(list);
   } catch {
     return [legacy];
@@ -190,10 +196,10 @@ export function setStopWaypoints(waypoints: BookingStopWaypoint[]): void {
       .filter((w) => savedLocationHasAddress(w.location))
       .map((w) => normalizeWaypoint(w));
     if (normalized.length === 0) {
-      window?.localStorage?.removeItem(STORAGE_KEYS.STOP_WAYPOINTS);
+      window?.sessionStorage?.removeItem(STORAGE_KEYS.STOP_WAYPOINTS);
       syncLegacyStopKeys([]);
     } else {
-      window?.localStorage?.setItem(STORAGE_KEYS.STOP_WAYPOINTS, JSON.stringify(normalized));
+      window?.sessionStorage?.setItem(STORAGE_KEYS.STOP_WAYPOINTS, JSON.stringify(normalized));
       syncLegacyStopKeys(normalized);
     }
   } catch {
@@ -224,7 +230,7 @@ function isDefaultTrip(v: unknown): v is DefaultTrip {
 export function getCustomDefaultTrips(): DefaultTrip[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.CUSTOM_DEFAULT_TRIPS) || 'null') as unknown;
+    const raw = JSON.parse(window.sessionStorage.getItem(STORAGE_KEYS.CUSTOM_DEFAULT_TRIPS) || 'null') as unknown;
     if (!Array.isArray(raw)) return [];
     return raw.filter(isDefaultTrip);
   } catch {
@@ -240,7 +246,7 @@ export function addCustomDefaultTrip(trip: Omit<DefaultTrip, 'id'>): void {
     const deduped = current.filter(
       (t) => !(t.fromAddress === trip.fromAddress && t.toAddress === trip.toAddress)
     );
-    window?.localStorage?.setItem(
+    window?.sessionStorage?.setItem(
       STORAGE_KEYS.CUSTOM_DEFAULT_TRIPS,
       JSON.stringify([nextItem, ...deduped].slice(0, 20))
     );
@@ -251,13 +257,13 @@ export function addCustomDefaultTrip(trip: Omit<DefaultTrip, 'id'>): void {
 
 export function getPickupLocation(): SavedLocation | null {
   if (typeof window === 'undefined') return null;
-  const raw = safeParse(window.localStorage.getItem(STORAGE_KEYS.PICKUP_LOCATION), isSavedLocation);
+  const raw = safeParse(window.sessionStorage.getItem(STORAGE_KEYS.PICKUP_LOCATION), isSavedLocation);
   return raw ? normalizeSavedLocation(raw) : null;
 }
 
 export function getDropLocation(): SavedLocation | null {
   if (typeof window === 'undefined') return null;
-  const raw = safeParse(window.localStorage.getItem(STORAGE_KEYS.DROP_LOCATION), isSavedLocation);
+  const raw = safeParse(window.sessionStorage.getItem(STORAGE_KEYS.DROP_LOCATION), isSavedLocation);
   return raw ? normalizeSavedLocation(raw) : null;
 }
 
@@ -269,36 +275,36 @@ export function getStopLocation(): SavedLocation | null {
 
 export function getSenderDetails(): PersonDetails | null {
   if (typeof window === 'undefined') return null;
-  return safeParse(window.localStorage.getItem(STORAGE_KEYS.SENDER_DETAILS), isPersonDetails);
+  return safeParse(window.sessionStorage.getItem(STORAGE_KEYS.SENDER_DETAILS), isPersonDetails);
 }
 
 export function getReceiverDetails(): PersonDetails | null {
   if (typeof window === 'undefined') return null;
-  return safeParse(window.localStorage.getItem(STORAGE_KEYS.RECEIVER_DETAILS), isPersonDetails);
+  return safeParse(window.sessionStorage.getItem(STORAGE_KEYS.RECEIVER_DETAILS), isPersonDetails);
 }
 
 export function getStopDetails(): PersonDetails | null {
   if (typeof window === 'undefined') return null;
   const w = getStopWaypoints();
   if (w[0]) return w[0].contact;
-  return safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
+  return safeParse(window.sessionStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
 }
 
 export function getLandingPickupLocation(): string | null {
   if (typeof window === 'undefined') return null;
-  const v = window.localStorage.getItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION);
+  const v = window.sessionStorage.getItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION);
   return v && v.trim() ? v.trim() : null;
 }
 
 export function getStoredPhone(): string {
   if (typeof window === 'undefined') return '';
-  return window.localStorage.getItem(STORAGE_KEYS.PHONE) || '';
+  return window.sessionStorage.getItem(STORAGE_KEYS.PHONE) || '';
 }
 
 export function setStoredPhone(phone: string): void {
   try {
-    if (phone?.trim()) window?.localStorage?.setItem(STORAGE_KEYS.PHONE, phone.trim());
-    else window?.localStorage?.removeItem(STORAGE_KEYS.PHONE);
+    if (phone?.trim()) window?.sessionStorage?.setItem(STORAGE_KEYS.PHONE, phone.trim());
+    else window?.sessionStorage?.removeItem(STORAGE_KEYS.PHONE);
   } catch {
     // ignore
   }
@@ -306,8 +312,8 @@ export function setStoredPhone(phone: string): void {
 
 export function setLoggedIn(value: boolean): void {
   try {
-    if (value) window?.localStorage?.setItem(STORAGE_KEYS.LOGGED_IN, 'true');
-    else window?.localStorage?.removeItem(STORAGE_KEYS.LOGGED_IN);
+    if (value) window?.sessionStorage?.setItem(STORAGE_KEYS.LOGGED_IN, 'true');
+    else window?.sessionStorage?.removeItem(STORAGE_KEYS.LOGGED_IN);
   } catch {
     // ignore
   }
@@ -316,7 +322,7 @@ export function setLoggedIn(value: boolean): void {
 /** Returns whether the user is logged in (client-only). */
 export function getLoggedIn(): boolean {
   if (typeof window === 'undefined') return false;
-  return window.localStorage.getItem(STORAGE_KEYS.LOGGED_IN) === 'true';
+  return window.sessionStorage.getItem(STORAGE_KEYS.LOGGED_IN) === 'true';
 }
 
 /** True if user has session (logged-in flag or auth token). Used for My Details / protected menu items. */
@@ -328,14 +334,14 @@ export function isUserAuthenticated(): boolean {
 /** Temporary dummy auth token set after OTP verification (client-only). */
 export function getAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
-  const t = window.localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+  const t = window.sessionStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
   return t && t.trim() ? t.trim() : null;
 }
 
 export function setAuthToken(token: string): void {
   try {
-    if (token?.trim()) window?.localStorage?.setItem(STORAGE_KEYS.AUTH_TOKEN, token.trim());
-    else window?.localStorage?.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+    if (token?.trim()) window?.sessionStorage?.setItem(STORAGE_KEYS.AUTH_TOKEN, token.trim());
+    else window?.sessionStorage?.removeItem(STORAGE_KEYS.AUTH_TOKEN);
   } catch {
     // ignore
   }
@@ -343,7 +349,7 @@ export function setAuthToken(token: string): void {
 
 export function clearAuthToken(): void {
   try {
-    window?.localStorage?.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.AUTH_TOKEN);
   } catch {
     // ignore
   }
@@ -351,14 +357,14 @@ export function clearAuthToken(): void {
 
 export function getSelectedService(): ServiceId | null {
   if (typeof window === 'undefined') return null;
-  const v = window.localStorage.getItem(STORAGE_KEYS.SELECTED_SERVICE);
+  const v = window.sessionStorage.getItem(STORAGE_KEYS.SELECTED_SERVICE);
   if (v === 'walk' || v === 'twoWheeler' || v === 'threeWheeler' || v === 'fourWheeler') return v;
   return null;
 }
 
 export function setSelectedService(id: ServiceId): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.SELECTED_SERVICE, id);
+    window?.sessionStorage?.setItem(STORAGE_KEYS.SELECTED_SERVICE, id);
   } catch {
     // ignore
   }
@@ -366,7 +372,7 @@ export function setSelectedService(id: ServiceId): void {
 
 export function setPickupLocation(loc: SavedLocation): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.PICKUP_LOCATION, JSON.stringify(loc));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.PICKUP_LOCATION, JSON.stringify(loc));
   } catch {
     // ignore
   }
@@ -374,7 +380,7 @@ export function setPickupLocation(loc: SavedLocation): void {
 
 export function clearPickupLocation(): void {
   try {
-    window?.localStorage?.removeItem(STORAGE_KEYS.PICKUP_LOCATION);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.PICKUP_LOCATION);
   } catch {
     // ignore
   }
@@ -382,7 +388,7 @@ export function clearPickupLocation(): void {
 
 export function clearDropLocation(): void {
   try {
-    window?.localStorage?.removeItem(STORAGE_KEYS.DROP_LOCATION);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.DROP_LOCATION);
   } catch {
     // ignore
   }
@@ -395,7 +401,7 @@ export function savedLocationHasAddress(loc: SavedLocation | null | undefined): 
 
 export function setDropLocation(loc: SavedLocation): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.DROP_LOCATION, JSON.stringify(loc));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.DROP_LOCATION, JSON.stringify(loc));
   } catch {
     // ignore
   }
@@ -410,7 +416,7 @@ export function setStopLocation(loc: SavedLocation | null): void {
   const norm = normalizeSavedLocation(loc as SavedLocation & { contact?: string });
   const w = getStopWaypoints();
   if (w.length === 0) {
-    const orphan = safeParse(window.localStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
+    const orphan = safeParse(window.sessionStorage.getItem(STORAGE_KEYS.STOP_DETAILS), isPersonDetails);
     setStopWaypoints([
       {
         id: makeStopId(),
@@ -425,7 +431,7 @@ export function setStopLocation(loc: SavedLocation | null): void {
 
 export function setSenderDetails(d: PersonDetails): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.SENDER_DETAILS, JSON.stringify(d));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.SENDER_DETAILS, JSON.stringify(d));
   } catch {
     // ignore
   }
@@ -433,7 +439,7 @@ export function setSenderDetails(d: PersonDetails): void {
 
 export function setReceiverDetails(d: PersonDetails): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.RECEIVER_DETAILS, JSON.stringify(d));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.RECEIVER_DETAILS, JSON.stringify(d));
   } catch {
     // ignore
   }
@@ -441,7 +447,7 @@ export function setReceiverDetails(d: PersonDetails): void {
 
 export function clearReceiverDetails(): void {
   try {
-    window?.localStorage?.removeItem(STORAGE_KEYS.RECEIVER_DETAILS);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.RECEIVER_DETAILS);
   } catch {
     // ignore
   }
@@ -453,7 +459,7 @@ export function setStopDetails(d: PersonDetails): void {
   const nextContact: PersonDetails = { name: d.name.trim(), mobile: d.mobile.replace(/\D/g, '') };
   if (w.length === 0) {
     try {
-      window.localStorage.setItem(STORAGE_KEYS.STOP_DETAILS, JSON.stringify(nextContact));
+      window.sessionStorage.setItem(STORAGE_KEYS.STOP_DETAILS, JSON.stringify(nextContact));
     } catch {
       // ignore
     }
@@ -466,7 +472,7 @@ export function setStopDetails(d: PersonDetails): void {
 export function clearStopDetails(): void {
   try {
     const w = getStopWaypoints();
-    window?.localStorage?.removeItem(STORAGE_KEYS.STOP_DETAILS);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.STOP_DETAILS);
     if (w.length > 0) {
       setStopWaypoints(w.map((item, i) => (i === 0 ? { ...item, contact: { name: '', mobile: '' } } : item)));
     }
@@ -477,8 +483,8 @@ export function clearStopDetails(): void {
 
 export function setLandingPickupLocation(value: string | null): void {
   try {
-    if (value?.trim()) window?.localStorage?.setItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION, value.trim());
-    else window?.localStorage?.removeItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION);
+    if (value?.trim()) window?.sessionStorage?.setItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION, value.trim());
+    else window?.sessionStorage?.removeItem(STORAGE_KEYS.LANDING_PICKUP_LOCATION);
   } catch {
     // ignore
   }
@@ -568,6 +574,10 @@ export interface DeliveryGoodsDescription {
   items: { name: string; quantity: number; price: string }[];
   /** Omit or `restaurant` = Find Restaurant; `marketplace` = Khatu marketplace shop. */
   source?: 'restaurant' | 'marketplace';
+  /** Drop / customer details collected at food checkout (before Razorpay). */
+  dropContactName?: string;
+  dropContactPhone?: string;
+  dropAddress?: string;
 }
 
 function isDeliveryGoodsDescription(v: unknown): v is DeliveryGoodsDescription {
@@ -590,6 +600,15 @@ function isDeliveryGoodsDescription(v: unknown): v is DeliveryGoodsDescription {
   ) {
     return false;
   }
+  if ('dropContactName' in o && o.dropContactName !== undefined && typeof o.dropContactName !== 'string') {
+    return false;
+  }
+  if ('dropContactPhone' in o && o.dropContactPhone !== undefined && typeof o.dropContactPhone !== 'string') {
+    return false;
+  }
+  if ('dropAddress' in o && o.dropAddress !== undefined && typeof o.dropAddress !== 'string') {
+    return false;
+  }
   return o.items.every(
     (i) =>
       typeof i === 'object' &&
@@ -605,13 +624,13 @@ function isDeliveryGoodsDescription(v: unknown): v is DeliveryGoodsDescription {
 
 export function getDeliveryGoodsDescription(): DeliveryGoodsDescription | null {
   if (typeof window === 'undefined') return null;
-  const raw = safeParse(window.localStorage.getItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION), isDeliveryGoodsDescription);
+  const raw = safeParse(window.sessionStorage.getItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION), isDeliveryGoodsDescription);
   return raw;
 }
 
 export function setDeliveryGoodsDescription(data: DeliveryGoodsDescription): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION, JSON.stringify(data));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION, JSON.stringify(data));
   } catch {
     // ignore
   }
@@ -619,7 +638,7 @@ export function setDeliveryGoodsDescription(data: DeliveryGoodsDescription): voi
 
 export function clearDeliveryGoodsDescription(): void {
   try {
-    window?.localStorage?.removeItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.DELIVERY_GOODS_DESCRIPTION);
   } catch {
     // ignore
   }
@@ -668,12 +687,12 @@ function isHotelHistoryItem(v: unknown): v is HotelHistoryItem {
 
 export function getHotelBookingDraft(): HotelBookingDraft | null {
   if (typeof window === 'undefined') return null;
-  return safeParse(window.localStorage.getItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT), isHotelBookingDraft);
+  return safeParse(window.sessionStorage.getItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT), isHotelBookingDraft);
 }
 
 export function setHotelBookingDraft(data: HotelBookingDraft): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT, JSON.stringify(data));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT, JSON.stringify(data));
   } catch {
     // ignore
   }
@@ -681,7 +700,7 @@ export function setHotelBookingDraft(data: HotelBookingDraft): void {
 
 export function clearHotelBookingDraft(): void {
   try {
-    window?.localStorage?.removeItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.HOTEL_BOOKING_DRAFT);
   } catch {
     // ignore
   }
@@ -692,7 +711,7 @@ const HISTORY_MAX = 50;
 export function getHotelBookingHistory(): HotelHistoryItem[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.HOTEL_BOOKING_HISTORY) || 'null') as unknown;
+    const raw = JSON.parse(window.sessionStorage.getItem(STORAGE_KEYS.HOTEL_BOOKING_HISTORY) || 'null') as unknown;
     if (!Array.isArray(raw)) return [];
     return raw.filter(isHotelHistoryItem);
   } catch {
@@ -720,11 +739,32 @@ export function appendHotelBookingHistoryFromDraft(draft: HotelBookingDraft): Ho
   };
   try {
     const prev = getHotelBookingHistory();
-    window?.localStorage?.setItem(STORAGE_KEYS.HOTEL_BOOKING_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.HOTEL_BOOKING_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
   } catch {
     // ignore
   }
   return item;
+}
+
+/** Mark a hotel stay as cancelled by id; returns true when updated. */
+export function markHotelBookingCancelled(bookingId: string): boolean {
+  if (typeof window === 'undefined') return false;
+  const id = bookingId.trim();
+  if (!id) return false;
+  try {
+    const list = getHotelBookingHistory();
+    let changed = false;
+    const next = list.map((row) => {
+      if (row.id !== id || row.status === 'cancelled') return row;
+      changed = true;
+      return { ...row, status: 'cancelled' as const };
+    });
+    if (!changed) return false;
+    window.sessionStorage.setItem(STORAGE_KEYS.HOTEL_BOOKING_HISTORY, JSON.stringify(next.slice(0, HISTORY_MAX)));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function isFoodDeliveryHistoryItem(v: unknown): v is FoodDeliveryHistoryItem {
@@ -779,7 +819,7 @@ function isSalasarRideHistoryItem(v: unknown): v is SalasarRideHistoryItem {
 export function getFoodDeliveryHistory(): FoodDeliveryHistoryItem[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.FOOD_DELIVERY_HISTORY) || 'null') as unknown;
+    const raw = JSON.parse(window.sessionStorage.getItem(STORAGE_KEYS.FOOD_DELIVERY_HISTORY) || 'null') as unknown;
     if (!Array.isArray(raw)) return [];
     return raw.filter(isFoodDeliveryHistoryItem);
   } catch {
@@ -790,7 +830,7 @@ export function getFoodDeliveryHistory(): FoodDeliveryHistoryItem[] {
 export function getMarketplaceOrderHistory(): MarketplaceOrderHistoryItem[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY) || 'null') as unknown;
+    const raw = JSON.parse(window.sessionStorage.getItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY) || 'null') as unknown;
     if (!Array.isArray(raw)) return [];
     return raw.filter(isMarketplaceOrderHistoryItem);
   } catch {
@@ -801,7 +841,7 @@ export function getMarketplaceOrderHistory(): MarketplaceOrderHistoryItem[] {
 export function getSalasarRideHistory(): SalasarRideHistoryItem[] {
   if (typeof window === 'undefined') return [];
   try {
-    const raw = JSON.parse(window.localStorage.getItem(STORAGE_KEYS.SALASAR_RIDE_HISTORY) || 'null') as unknown;
+    const raw = JSON.parse(window.sessionStorage.getItem(STORAGE_KEYS.SALASAR_RIDE_HISTORY) || 'null') as unknown;
     if (!Array.isArray(raw)) return [];
     return raw.filter(isSalasarRideHistoryItem);
   } catch {
@@ -828,7 +868,7 @@ export function appendFoodDeliveryHistory(
   };
   try {
     const prev = getFoodDeliveryHistory();
-    window?.localStorage?.setItem(STORAGE_KEYS.FOOD_DELIVERY_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.FOOD_DELIVERY_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
   } catch {
     // ignore
   }
@@ -854,7 +894,7 @@ export function appendMarketplaceHistoryFromDeliveryGoods(
   };
   try {
     const prev = getMarketplaceOrderHistory();
-    window?.localStorage?.setItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
   } catch {
     // ignore
   }
@@ -882,7 +922,7 @@ export function appendMarketplaceHistoryFromCheckout(entry: {
   };
   try {
     const prev = getMarketplaceOrderHistory();
-    window?.localStorage?.setItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.MARKETPLACE_ORDER_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
   } catch {
     // ignore
   }
@@ -906,7 +946,7 @@ export function appendSalasarRideHistoryFromQuote(booking: SavedKhatuRideBooking
   };
   try {
     const prev = getSalasarRideHistory();
-    window?.localStorage?.setItem(STORAGE_KEYS.SALASAR_RIDE_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.SALASAR_RIDE_HISTORY, JSON.stringify([item, ...prev].slice(0, HISTORY_MAX)));
   } catch {
     // ignore
   }
@@ -940,12 +980,12 @@ function isFoodOrderCartDraft(v: unknown): v is FoodOrderCartDraft {
 
 export function getFoodOrderCartDraft(): FoodOrderCartDraft | null {
   if (typeof window === 'undefined') return null;
-  return safeParse(window.localStorage.getItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT), isFoodOrderCartDraft);
+  return safeParse(window.sessionStorage.getItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT), isFoodOrderCartDraft);
 }
 
 export function setFoodOrderCartDraft(data: FoodOrderCartDraft): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT, JSON.stringify(data));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT, JSON.stringify(data));
   } catch {
     // ignore
   }
@@ -953,7 +993,7 @@ export function setFoodOrderCartDraft(data: FoodOrderCartDraft): void {
 
 export function clearFoodOrderCartDraft(): void {
   try {
-    window?.localStorage?.removeItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.FOOD_ORDER_CART_DRAFT);
   } catch {
     // ignore
   }
@@ -976,12 +1016,12 @@ function isUserProfile(v: unknown): v is UserProfile {
 
 export function getUserProfile(): UserProfile | null {
   if (typeof window === 'undefined') return null;
-  return safeParse(window.localStorage.getItem(STORAGE_KEYS.USER_PROFILE), isUserProfile);
+  return safeParse(window.sessionStorage.getItem(STORAGE_KEYS.USER_PROFILE), isUserProfile);
 }
 
 export function setUserProfile(profile: UserProfile): void {
   try {
-    window?.localStorage?.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
+    window?.sessionStorage?.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile));
   } catch {
     // ignore
   }
@@ -989,7 +1029,7 @@ export function setUserProfile(profile: UserProfile): void {
 
 export function clearUserProfile(): void {
   try {
-    window?.localStorage?.removeItem(STORAGE_KEYS.USER_PROFILE);
+    window?.sessionStorage?.removeItem(STORAGE_KEYS.USER_PROFILE);
   } catch {
     // ignore
   }
@@ -1022,20 +1062,20 @@ function clearAccessibleCookies(): void {
 }
 
 /**
- * Full client logout: wipe `localStorage`, `sessionStorage`, and non-HttpOnly cookies for this origin.
+ * Full client logout: wipe sessionStorage, localStorage (legacy), and non-HttpOnly cookies.
  * Call from the Logout UI. Server HttpOnly session cookies require a server `Set-Cookie` /logout if used.
  */
 export function performFullClientLogout(): void {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage.clear();
+    window.sessionStorage.clear();
   } catch {
     /* private mode / blocked */
   }
   try {
-    window.sessionStorage.clear();
+    window.localStorage.clear();
   } catch {
-    /* ignore */
+    /* legacy cleanup */
   }
   clearAccessibleCookies();
 }

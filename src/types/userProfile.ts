@@ -1,5 +1,5 @@
 /**
- * Saved profile from Menu → My Details (localStorage).
+ * Saved profile from Menu → My Details (sessionStorage).
  * Used for dashboard greeting (fullName) and future features.
  */
 export interface UserProfile {

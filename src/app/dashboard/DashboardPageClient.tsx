@@ -239,7 +239,7 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
   }, [router]);
 
   const bgClass = isKhatuZone
-    ? 'bg-gradient-to-b from-amber-50/90 via-orange-50/30 to-white'
+    ? 'bg-[var(--khatu-cream)]'
     : isNoidaZone
       ? 'bg-gradient-to-b from-blue-50/80 via-white to-white'
       : 'bg-white';
@@ -385,7 +385,7 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
                                   type="button"
                                   aria-label="Full address and route"
                                   onClick={() => setRouteDetailTripId(trip.id)}
-                                  className="grid h-8 w-8 place-items-center rounded-full text-gray-500 transition-colors hover:bg-white"
+                                  className="grid h-8 w-8 place-items-center text-gray-500 transition-colors hover:text-gray-700"
                                 >
                                   <Info className="h-4 w-4" strokeWidth={2} aria-hidden />
                                 </button>

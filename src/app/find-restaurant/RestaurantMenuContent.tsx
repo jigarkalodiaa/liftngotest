@@ -1,25 +1,22 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Restaurant } from '@/data/restaurantsKhatushyam';
-import { getRestaurantCoverImage, parsePrice, RESTAURANT_OWNER_WHATSAPP } from '@/data/restaurantsKhatushyam';
-import {
-  setPickupLocation,
-  setDeliveryGoodsDescription,
-  setPostLoginRedirect,
-  setLoginContinuationMessage,
-  isUserAuthenticated,
-  setFoodOrderCartDraft,
-  getFoodOrderCartDraft,
-  clearFoodOrderCartDraft,
-} from '@/lib/storage';
+import { parsePrice } from '@/data/restaurantsKhatushyam';
+import { Leaf, Star } from 'lucide-react';
+import { setFoodOrderCartDraft, getFoodOrderCartDraft, clearFoodOrderCartDraft } from '@/lib/storage';
 import { ROUTES } from '@/lib/constants';
-import { trackWhatsAppClick, trackBookNowClick } from '@/lib/analytics';
 import { FOOD_CART_ITEM_ADDED, FOOD_CART_UPDATED } from '@/lib/foodCartEvents';
+
+const MENU_DISCLAIMER_BULLETS = [
+  'Menu prices may vary at the outlet; the restaurant partner decides the final bill.',
+  'Nutritional information is indicative only and not verified or updated by Liftngo.',
+  'Daily calorie allowances vary by person; consult a professional for medical diets.',
+  'Some descriptions may be partner- or AI-assisted; tell us if anything looks wrong.',
+] as const;
 
 type CartItem = { name: string; price: string; quantity: number };
 
@@ -64,11 +61,6 @@ const IconPrasad = ({ className = 'w-5 h-5' }: { className?: string }) => (
     <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" />
   </svg>
 );
-const IconPhone = ({ className = 'w-4 h-4' }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-  </svg>
-);
 const CATEGORY_ICONS: Record<string, React.ReactElement> = {
   Thali: <IconPlate />, Rajasthani: <IconPlate />, Main: <IconCurry />, Snacks: <IconSnack />,
   'North Indian': <IconCurry />, Beverages: <IconBeverage />, Paratha: <IconBread />, Curry: <IconCurry />,
@@ -79,50 +71,108 @@ function getCategoryIcon(category: string) {
   return CATEGORY_ICONS[category] ?? <IconPlate />;
 }
 
-/** Prevent flex layouts from inflating inline SVGs on mobile. */
-function CategoryIconWrap({ children }: { children: ReactNode }) {
+/** Indian vegetarian mark — green square with inner circle */
+function VegMark() {
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)] [&_svg]:h-5 [&_svg]:w-5 [&_svg]:min-h-5 [&_svg]:min-w-5 [&_svg]:max-h-5 [&_svg]:max-w-5 [&_svg]:shrink-0">
-      {children}
+    <span
+      className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] border border-emerald-600 bg-white sm:h-4 sm:w-4"
+      aria-label="Vegetarian"
+    >
+      <span className="h-2 w-2 rounded-full bg-emerald-600" />
     </span>
   );
 }
 
-function MenuItemThumb({
-  item,
-  category,
-}: {
-  item: { name: string; image?: string };
-  category: string;
-}) {
-  if (item.image) {
-    return (
-      <div className="relative h-[4.25rem] w-[4.25rem] shrink-0 overflow-hidden rounded-xl bg-amber-50 ring-1 ring-[var(--landing-primary)]/10 sm:h-[4.75rem] sm:w-[4.75rem]">
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          className="object-cover transition-transform duration-300 ease-out group-hover:scale-110"
-          sizes="(max-width: 640px) 76px, 86px"
-        />
-      </div>
-    );
-  }
+function restaurantMetaLine(r: Restaurant): string {
+  const eta = r.listingEta?.trim();
+  const dist = r.listingDistance?.trim();
+  if (eta && dist) return `${eta}   ${dist}`;
+  if (eta) return eta;
+  if (dist) return dist;
+  const est = r.deliveryEstimate?.replace(/^Est\.\s*delivery\s*/i, '').trim();
+  return [est, r.distanceLabel].filter(Boolean).join('   ') || '';
+}
+
+function restaurantNearTemple(r: Restaurant): boolean {
   return (
-    <div
-      className="flex h-[4.25rem] w-[4.25rem] shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--color-primary)]/10 to-amber-50 text-[var(--color-primary)] sm:h-[4.75rem] sm:w-[4.75rem] [&_svg]:h-7 [&_svg]:w-7 [&_svg]:min-h-7 [&_svg]:min-w-7 [&_svg]:max-h-7 [&_svg]:max-w-7 [&_svg]:shrink-0"
-      aria-hidden
-    >
-      {getCategoryIcon(category)}
-    </div>
+    r.nearTemple ??
+    (/temple|khatushyam/i.test(r.distanceLabel ?? '') || /temple|khatushyam/i.test(r.listingTags ?? ''))
   );
 }
 
-const IconWhatsApp = ({ className = 'w-5 h-5' }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-  </svg>
-);
+function RecommendedDishCard({
+  item,
+  category,
+  showVegMark,
+  inCart,
+  onAdd,
+  onRemove,
+}: {
+  item: { name: string; price: string; image?: string };
+  category: string;
+  showVegMark: boolean;
+  inCart?: { quantity: number };
+  onAdd: () => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-sm">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-t-2xl bg-neutral-100">
+        {item.image ? (
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 45vw, 280px"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-neutral-100 text-[var(--color-primary)] [&_svg]:h-10 [&_svg]:w-10">
+            {getCategoryIcon(category)}
+          </div>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col p-2.5 sm:p-3">
+        <div className="flex items-start gap-1.5">
+          {showVegMark ? <VegMark /> : <span className="w-3.5 shrink-0 sm:w-4" aria-hidden />}
+          <span className="min-w-0 flex-1 text-sm font-medium leading-snug text-neutral-900">{item.name}</span>
+        </div>
+        <div className="mt-2 flex items-end justify-between gap-2">
+          <span className="text-sm font-bold tabular-nums text-neutral-900">{item.price}</span>
+          {inCart ? (
+            <div className="flex shrink-0 items-center gap-0.5 rounded-lg border border-[var(--color-primary)]/40 bg-white px-0.5 py-0.5">
+              <button
+                type="button"
+                onClick={onRemove}
+                className="flex h-7 w-7 items-center justify-center rounded-md text-base font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+                aria-label={`Remove one ${item.name}`}
+              >
+                −
+              </button>
+              <span className="min-w-[1.25rem] text-center text-xs font-bold text-neutral-900">{inCart.quantity}</span>
+              <button
+                type="button"
+                onClick={onAdd}
+                className="flex h-7 w-7 items-center justify-center rounded-md text-base font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/5"
+                aria-label={`Add one ${item.name}`}
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onAdd}
+              className="shrink-0 rounded-lg border border-[var(--color-primary)] bg-white px-2.5 py-1 text-xs font-semibold text-[var(--color-primary)] shadow-sm transition-colors hover:bg-[var(--color-primary)]/[0.06] sm:px-3 sm:text-[13px]"
+            >
+              + Add
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const IconCart = ({ className = 'w-5 h-5' }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -131,37 +181,21 @@ const IconCart = ({ className = 'w-5 h-5' }: { className?: string }) => (
   </svg>
 );
 
-const IconDelivery = ({ className = 'w-5 h-5' }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="1" y="3" width="15" height="13" />
-    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-    <circle cx="5.5" cy="18.5" r="2.5" />
-    <circle cx="18.5" cy="18.5" r="2.5" />
-  </svg>
-);
-
-function loadDraftForRestaurant(restaurantId: string): { cart: CartItem[]; whatsappOpened: boolean } {
-  if (typeof window === 'undefined') return { cart: [], whatsappOpened: false };
+function loadDraftForRestaurant(restaurantId: string): CartItem[] {
+  if (typeof window === 'undefined') return [];
   const d = getFoodOrderCartDraft();
-  if (d?.restaurantId !== restaurantId) return { cart: [], whatsappOpened: false };
-  return { cart: d.items, whatsappOpened: d.whatsappOpened };
+  if (d?.restaurantId !== restaurantId) return [];
+  return d.items;
 }
 
 export default function RestaurantMenuContent({ restaurant }: { restaurant: Restaurant }) {
   const router = useRouter();
-  const [cart, setCart] = useState<CartItem[]>(() => loadDraftForRestaurant(restaurant.id).cart);
-  const [showPaymentConfirm, setShowPaymentConfirm] = useState(false);
+  const [cart, setCart] = useState<CartItem[]>(() => loadDraftForRestaurant(restaurant.id));
   const [orderDrawerOpen, setOrderDrawerOpen] = useState(false);
-  /** Unlocks "Book delivery boy" only after user taps Send order via WhatsApp (same session). */
-  const [whatsappOpened, setWhatsappOpened] = useState(() => loadDraftForRestaurant(restaurant.id).whatsappOpened);
   const prevCartQtyRef = useRef(cart.reduce((s, i) => s + i.quantity, 0));
 
   useEffect(() => {
-    if (cart.length === 0) setWhatsappOpened(false);
-  }, [cart.length]);
-
-  useEffect(() => {
-    if (cart.length === 0 && !whatsappOpened) {
+    if (cart.length === 0) {
       clearFoodOrderCartDraft();
       prevCartQtyRef.current = 0;
       if (typeof window !== 'undefined') {
@@ -174,7 +208,7 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
     setFoodOrderCartDraft({
       restaurantId: restaurant.id,
       items: cart,
-      whatsappOpened,
+      whatsappOpened: false,
     });
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent(FOOD_CART_UPDATED));
@@ -183,16 +217,21 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
       }
     }
     prevCartQtyRef.current = totalQty;
-  }, [cart, whatsappOpened, restaurant.id]);
+  }, [cart, restaurant.id]);
 
-  const canBookDelivery = cart.length > 0 && whatsappOpened;
+  const recommendedItems = useMemo(
+    () =>
+      restaurant.menu.map((item) => ({
+        item,
+        category: item.category || 'Other',
+      })),
+    [restaurant.menu],
+  );
 
-  const groupedMenu = restaurant.menu.reduce<Record<string, typeof restaurant.menu>>((acc, item) => {
-    const cat = item.category || 'Other';
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(item);
-    return acc;
-  }, {});
+  const pureVegRestaurant = restaurant.pureVeg ?? /veg|vegetarian/i.test(restaurant.description);
+  const nearTemple = restaurantNearTemple(restaurant);
+  const listingMeta = restaurantMetaLine(restaurant);
+  const ratingLabel = restaurant.rating != null ? restaurant.rating.toFixed(1) : null;
 
   const addToOrder = (name: string, price: string) => {
     setCart((prev) => {
@@ -223,225 +262,73 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
 
   const cartItemCount = useMemo(() => cart.reduce((n, item) => n + item.quantity, 0), [cart]);
 
-  const whatsappMessage = useMemo(() => {
-    if (cart.length === 0) return '';
-    const lines = [
-      `Order for *${restaurant.name}*`,
-      '————————————',
-      ...cart.map((c) => `${c.name} x ${c.quantity} — ₹${parsePrice(c.price) * c.quantity}`),
-      '————————————',
-      `*Total: ₹${totalAmount}*`,
-      '',
-      'Please confirm. Thank you!',
-    ];
-    return lines.join('\n');
-  }, [cart, restaurant.name, totalAmount]);
-
-  const whatsappUrl =
-    whatsappMessage.trim() !== ''
-      ? `https://wa.me/${RESTAURANT_OWNER_WHATSAPP}?text=${encodeURIComponent(whatsappMessage)}`
-      : null;
-
-  const handleBookDeliveryClick = () => {
-    trackBookNowClick('restaurant_menu_book_delivery');
-    setShowPaymentConfirm(true);
-  };
-
-  const handlePaymentConfirmed = () => {
-    trackBookNowClick('restaurant_menu_after_payment');
-    const pickupUrl = `${ROUTES.PICKUP_LOCATION}?step=2&from=food&fresh=1`;
-    const pickupAddress = restaurant.address?.trim() || restaurant.name;
-    setPickupLocation({
-      name: restaurant.name,
-      address: pickupAddress,
-      contact: restaurant.phone?.trim() ?? '',
-    });
-    setDeliveryGoodsDescription({
-      restaurantName: restaurant.name,
-      items: cart.map((c) => ({ name: c.name, quantity: c.quantity, price: c.price })),
-      source: 'restaurant',
-    });
-
-    if (!isUserAuthenticated()) {
-      setPostLoginRedirect(pickupUrl);
-      setLoginContinuationMessage('Please login to continue your booking.');
-      setShowPaymentConfirm(false);
-      router.push(`${ROUTES.LOGIN}?from=food`);
-      return;
-    }
-
-    setShowPaymentConfirm(false);
-    router.push(pickupUrl);
-  };
-
-  const heroImageSrc = getRestaurantCoverImage(restaurant);
-
-  const handleStickyBookClick = () => {
-    if (canBookDelivery) {
-      handleBookDeliveryClick();
-      return;
-    }
-    if (cart.length > 0) {
-      setOrderDrawerOpen(true);
-      document.getElementById('your-order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
-    <main className="relative min-h-screen flex-1 bg-gradient-to-b from-[#FFF9F4] via-[var(--landing-bg)] to-white pb-28 sm:pb-32">
-      <div className="mx-auto max-w-2xl px-4 pb-8 pt-6 sm:px-6 sm:pt-8">
-        <Link
-          href="/find-restaurant"
-          className="mb-5 inline-flex min-h-11 w-fit items-center gap-2 rounded-full border border-[var(--landing-primary)]/20 bg-white/90 px-4 py-2 text-sm font-semibold text-[var(--color-primary)] shadow-sm transition-colors hover:border-[var(--landing-primary)]/35"
-          aria-label="Back to restaurants"
-        >
-          <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          All restaurants
-        </Link>
+    <main className="relative min-h-screen flex-1 bg-white pb-28 sm:pb-32">
+      <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3 sm:max-w-6xl sm:px-6">
+          <Link
+            href="/find-restaurant"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-neutral-200 bg-white text-neutral-800 shadow-sm transition-colors hover:bg-neutral-50"
+            aria-label="Back to Food"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </Link>
+          <h1 className="text-lg font-bold tracking-tight text-neutral-900 sm:text-xl">Food</h1>
+        </div>
+      </header>
 
-        <header className="relative mb-8 min-h-[220px] overflow-hidden rounded-3xl border border-[var(--landing-primary)]/12 shadow-[0_8px_32px_-12px_rgba(245,158,11,0.2)] sm:min-h-[260px]">
-          <Image
-            src={heroImageSrc}
-            alt={`${restaurant.name} — favourite dishes`}
-            fill
-            priority
-            className="object-cover"
-            sizes="(max-width: 672px) 100vw, 672px"
-          />
-          <div
-            className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/92 via-[var(--color-primary)]/50 to-[var(--landing-orange)]/40"
-            aria-hidden
-          />
-          <div className="relative z-10 flex min-h-[220px] flex-col justify-end p-5 sm:min-h-[260px] sm:p-7">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/90">Menu · Khatu Shyam Ji</p>
-            <h1 className="mt-1 text-balance text-2xl font-bold leading-tight text-white sm:text-3xl">{restaurant.name}</h1>
-            <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-white/90 sm:text-base">{restaurant.description}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {(['Fresh food', 'Fast delivery', 'Near temple'] as const).map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full border border-white/35 bg-white/15 px-2.5 py-1 text-[0.6875rem] font-semibold text-white backdrop-blur-[2px]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-            <div className="mt-3 flex flex-wrap gap-3 text-xs text-white/95">
-              <span className="rounded-full bg-white/15 px-2.5 py-1 font-medium backdrop-blur-[2px]">
-                Verified by Liftngo
-              </span>
-              <span className="rounded-full bg-white/15 px-2.5 py-1 font-medium backdrop-blur-[2px]">
-                Trusted food partner
-              </span>
-              <span className="rounded-full bg-white/15 px-2.5 py-1 font-medium backdrop-blur-[2px]">
-                Fresh &amp; hygienic
-              </span>
-            </div>
-            {(restaurant.rating != null || restaurant.deliveryEstimate) && (
-              <div className="mt-4 flex flex-wrap gap-4 border-t border-white/20 pt-3 text-sm font-semibold text-white">
-                {restaurant.rating != null && <span>★ {restaurant.rating.toFixed(1)}</span>}
-                {restaurant.deliveryEstimate && <span>{restaurant.deliveryEstimate}</span>}
-              </div>
-            )}
-          </div>
-        </header>
+      <div className="mx-auto max-w-2xl px-4 pb-6 pt-4 sm:max-w-6xl sm:px-6 sm:pb-8 sm:pt-5">
+        <div className="flex flex-wrap gap-2">
+          {pureVegRestaurant ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-900 ring-1 ring-emerald-100 sm:text-xs">
+              <Leaf className="h-3 w-3 shrink-0 text-emerald-600" strokeWidth={2} aria-hidden />
+              Pure Veg restaurant
+            </span>
+          ) : null}
+          {nearTemple ? (
+            <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-900/90 ring-1 ring-amber-100/90 sm:text-xs">
+              Near Temple
+            </span>
+          ) : null}
+        </div>
 
-        <section
-          className="mt-6 rounded-2xl border border-[var(--landing-primary)]/15 bg-gradient-to-br from-white to-amber-50/30 p-5 sm:p-6 text-gray-700"
-          aria-labelledby={`about-${restaurant.id}`}
-        >
-          <h2 id={`about-${restaurant.id}`} className="text-lg font-semibold text-gray-900">
-            About {restaurant.name} on Liftngo
-          </h2>
-          <p className="mt-3 text-sm sm:text-base leading-relaxed">
-            {restaurant.description}
-          </p>
-          <p className="mt-4 text-sm sm:text-base leading-relaxed">
-            Devotees and travellers around <strong className="text-gray-800">Khatu Shyam Ji</strong> often want hot meals without guessing stall
-            quality. We list this kitchen with transparent menu prices so you can compare items before you confirm. After you build a cart, share
-            delivery details on WhatsApp so the outlet can acknowledge prep time and any day-specific substitutions (for example festival specials
-            or sold-out staples).
-          </p>
-          <p className="mt-4 text-sm sm:text-base leading-relaxed">
-            A <strong className="text-gray-800">Liftngo rider</strong> handles the goods leg: they meet the restaurant at handoff, ride with
-            insulated packaging where needed, and complete at your pin with proof you can reference if something is delayed. That separation—
-            kitchen confirmation, then rider booking—reduces the chaos of temple-town phone tag during peak hours.
-          </p>
-          <p className="mt-4 text-sm text-gray-600 leading-relaxed">
-            Browsing other tuck shops or dhabas? See the{' '}
-            <Link href="/find-restaurant" className="font-semibold text-[var(--color-primary)] hover:underline">
-              full directory of Liftngo food partners near Khatu Shyam Ji
-            </Link>
-            . For non-food parcels, use the main <Link href="/book-delivery" className="font-semibold text-[var(--color-primary)] hover:underline">book delivery</Link>{' '}
-            flow instead.
-          </p>
+        <div className="mt-3 flex items-start justify-between gap-3">
+          <h2 className="text-pretty text-xl font-bold leading-tight text-neutral-900 sm:text-2xl">{restaurant.name}</h2>
+          {ratingLabel ? (
+            <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-emerald-500 px-2 py-1 text-xs font-semibold tabular-nums text-white shadow-sm sm:text-sm">
+              <Star className="h-3.5 w-3.5 fill-white text-white" strokeWidth={0} aria-hidden />
+              {ratingLabel}
+            </span>
+          ) : null}
+        </div>
+        {listingMeta ? <p className="mt-2 text-xs font-medium text-neutral-500 sm:text-sm">{listingMeta}</p> : null}
+
+        <section className="mt-6" aria-labelledby="recommended-heading">
+          <h3 id="recommended-heading" className="text-base font-bold text-neutral-900 sm:text-lg">
+            Recommended for you
+          </h3>
+          <ul className="mt-3 grid grid-cols-2 gap-3 sm:mt-4 sm:gap-4" role="list">
+            {recommendedItems.map(({ item, category }) => {
+              const inCart = cart.find((c) => c.name === item.name);
+              return (
+                <li key={item.name} className="h-full">
+                  <RecommendedDishCard
+                    item={item}
+                    category={category}
+                    showVegMark={pureVegRestaurant}
+                    inCart={inCart}
+                    onAdd={() => addToOrder(item.name, item.price)}
+                    onRemove={() => removeFromOrder(item.name)}
+                  />
+                </li>
+              );
+            })}
+          </ul>
         </section>
 
         <div id="menu" className="space-y-6">
-          {Object.entries(groupedMenu).map(([category, items]) => (
-            <section
-              key={category}
-              className="rounded-2xl border border-[var(--landing-primary)]/12 bg-gradient-to-br from-white via-[#FFFCF8] to-amber-50/25 p-4 shadow-[0_4px_20px_-8px_rgba(44,45,91,0.12)] sm:p-5"
-            >
-              <div className="mb-4 flex items-center gap-3">
-                <CategoryIconWrap>{getCategoryIcon(category)}</CategoryIconWrap>
-                <h2 className="text-sm font-bold uppercase tracking-wide text-[var(--color-primary)]">{category}</h2>
-              </div>
-              <ul className="space-y-3">
-                {items.map((item) => {
-                  const inCart = cart.find((c) => c.name === item.name);
-                  return (
-                    <li
-                      key={item.name}
-                      className="group flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--landing-primary)]/10 bg-white/90 py-2.5 ps-2 pe-3 shadow-sm transition-all duration-200 hover:border-[var(--landing-orange)]/35 hover:shadow-md sm:gap-4 sm:px-3"
-                    >
-                      <MenuItemThumb item={item} category={category} />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-2">
-                          <span className="text-sm font-semibold text-gray-900">{item.name}</span>
-                          <span className="whitespace-nowrap text-sm font-bold text-[var(--color-primary)]">{item.price}</span>
-                        </div>
-                      </div>
-                      <div className="flex shrink-0 items-center gap-1 sm:ms-auto">
-                        {inCart ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => removeFromOrder(item.name)}
-                              className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 text-lg font-medium text-gray-800 transition-colors hover:bg-gray-200"
-                              aria-label={`Remove one ${item.name}`}
-                            >
-                              −
-                            </button>
-                            <span className="w-8 text-center text-sm font-bold text-gray-900">{inCart.quantity}</span>
-                            <button
-                              type="button"
-                              onClick={() => addToOrder(item.name, item.price)}
-                              className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-primary)] text-lg font-medium text-white transition-[transform,opacity] hover:opacity-90 active:scale-95"
-                              aria-label={`Add one ${item.name}`}
-                            >
-                              +
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => addToOrder(item.name, item.price)}
-                            className="rounded-xl bg-[var(--color-primary)] px-4 py-2 text-xs font-bold text-white shadow-sm transition-[transform,opacity] hover:opacity-95 active:scale-95"
-                          >
-                            Add
-                          </button>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ))}
-
           {cart.length > 0 && (
             <div
               id="your-order"
@@ -464,73 +351,19 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
                 ))}
               </ul>
               <p className="flex items-center justify-between border-t border-gray-200/80 pt-3 text-base font-bold text-gray-900">
-                Total
+                Subtotal
                 <span className="text-lg text-[var(--color-primary)]">₹{totalAmount}</span>
               </p>
-              {whatsappUrl && (
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => {
-                    trackWhatsAppClick('restaurant_menu');
-                    setWhatsappOpened(true);
-                  }}
-                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--whatsapp-green)] py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--whatsapp-green)] focus-visible:ring-offset-2"
-                >
-                  <IconWhatsApp className="h-5 w-5 shrink-0" />
-                  Send order via WhatsApp
-                </a>
-              )}
+              <Link
+                href={ROUTES.FIND_RESTAURANT_CART}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1D3A] py-3.5 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+              >
+                View cart &amp; pay
+              </Link>
             </div>
           )}
 
-          {cart.length > 0 && (
-            <p className="rounded-2xl border border-[var(--landing-primary)]/10 bg-[var(--color-primary)]/[0.04] px-4 py-3 text-xs leading-relaxed text-gray-700 sm:text-sm">
-              <strong className="text-gray-900">Next:</strong> Tap <strong className="text-[var(--color-primary)]">Send order via WhatsApp</strong> first (unlocks delivery). Pay the restaurant, then{' '}
-              <strong className="text-[var(--color-primary)]">Book delivery boy</strong>. You&apos;ll add your drop address next.
-            </p>
-          )}
-
-          <div id="book-delivery-section" className="scroll-mt-24 rounded-2xl border border-[var(--landing-primary)]/12 bg-white/95 p-4 shadow-sm sm:p-5">
-            <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--color-primary)]">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--color-primary)]/10 [&_svg]:h-5 [&_svg]:w-5 [&_svg]:min-h-5 [&_svg]:min-w-5 [&_svg]:max-h-5 [&_svg]:max-w-5">
-                <IconDelivery className="text-[var(--color-primary)]" />
-              </span>
-              Book delivery
-            </h3>
-            <p className="mb-3 text-sm leading-relaxed text-gray-600">
-              Pickup stays at <strong className="text-gray-900">{restaurant.name}</strong>. After you&apos;ve paid the restaurant, we&apos;ll ask for{' '}
-              <strong className="text-gray-900">your delivery address</strong>.
-            </p>
-            {cart.length === 0 && <p className="mb-3 text-xs text-gray-500">Add items above to build your order.</p>}
-            {cart.length > 0 && !whatsappOpened && (
-              <p className="mb-3 rounded-xl border border-amber-200/80 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-                Tap <strong>Send order via WhatsApp</strong> above to unlock booking.
-              </p>
-            )}
-            <button
-              type="button"
-              onClick={handleBookDeliveryClick}
-              disabled={!canBookDelivery}
-              aria-disabled={!canBookDelivery}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-3.5 text-sm font-bold text-white shadow-md transition-[opacity,transform] hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-45 active:enabled:scale-[0.99]"
-            >
-              <IconDelivery className="h-5 w-5 shrink-0" />
-              Book delivery boy
-            </button>
-          </div>
-
-          <div className="space-y-3 rounded-2xl border border-[var(--landing-primary)]/10 bg-gradient-to-br from-[#FFF9F4] to-white p-4 sm:p-5">
-            {restaurant.phone && (
-              <a
-                href={`tel:${restaurant.phone.replace(/\s/g, '')}`}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
-              >
-                <IconPhone className="h-4 w-4 shrink-0 opacity-90" />
-                Call to order
-              </a>
-            )}
+          <div className="rounded-2xl border border-[var(--landing-primary)]/10 bg-gradient-to-br from-[#FFF9F4] to-white p-4 sm:p-5">
             <Link
               href="/find-restaurant"
               className="flex w-full items-center justify-center rounded-xl border-2 border-[var(--landing-primary)]/20 bg-white py-3 text-sm font-semibold text-gray-800 transition-colors hover:bg-[var(--landing-bg)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
@@ -539,6 +372,19 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
             </Link>
           </div>
         </div>
+
+        <footer className="mt-8 -mx-4 border-t border-neutral-200/80 bg-[#F8F8F8] px-4 py-6 sm:-mx-6 sm:px-6 sm:py-8">
+          <h3 className="text-sm font-bold text-neutral-800">Disclaimer</h3>
+          <ul className="mt-3 list-disc space-y-2 pl-4 text-xs leading-relaxed text-neutral-500 sm:text-[13px]">
+            {MENU_DISCLAIMER_BULLETS.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <h3 className="mt-6 text-sm font-bold text-neutral-800">Address</h3>
+          <p className="mt-2 text-xs leading-relaxed text-neutral-500 sm:text-[13px]">
+            {restaurant.address ?? 'Contact the restaurant or Liftngo support for the full address.'}
+          </p>
+        </footer>
       </div>
 
       {/* Order summary drawer (same pattern as /find-restaurant listing) */}
@@ -593,28 +439,17 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
             </ul>
           )}
         </div>
-        {cart.length > 0 && whatsappUrl && (
-          <div className="border-t border-gray-100 p-4 space-y-2">
-            {!whatsappOpened && (
-              <p className="text-center text-xs text-amber-900">
-                Send your order on WhatsApp to unlock <strong>Book delivery boy</strong>.
-              </p>
-            )}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                trackWhatsAppClick('restaurant_menu_drawer');
-                setWhatsappOpened(true);
-              }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--whatsapp-green)] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+        {cart.length > 0 ? (
+          <div className="space-y-2 border-t border-gray-100 p-4">
+            <Link
+              href={ROUTES.FIND_RESTAURANT_CART}
+              onClick={() => setOrderDrawerOpen(false)}
+              className="flex w-full items-center justify-center rounded-xl bg-[#1A1D3A] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-95"
             >
-              <IconWhatsApp className="h-5 w-5 shrink-0" />
-              Send order via WhatsApp
-            </a>
+              View cart &amp; pay
+            </Link>
           </div>
-        )}
+        ) : null}
       </div>
 
       <div
@@ -628,7 +463,7 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
           </div>
           <button
             type="button"
-            onClick={() => setOrderDrawerOpen(true)}
+            onClick={() => (cart.length > 0 ? router.push(ROUTES.FIND_RESTAURANT_CART) : setOrderDrawerOpen(true))}
             className="flex min-h-[3.25rem] min-w-0 flex-1 flex-col items-center justify-center rounded-xl border border-[var(--landing-primary)]/25 bg-white px-2 text-center transition hover:bg-[var(--landing-bg)] sm:flex-row sm:gap-2 sm:px-3"
           >
             <span className="text-xs font-bold text-[var(--color-primary)] sm:text-sm">Your list</span>
@@ -641,59 +476,19 @@ export default function RestaurantMenuContent({ restaurant }: { restaurant: Rest
               className="inline-flex min-h-[3.25rem] flex-[1.25] cursor-not-allowed items-center justify-center rounded-xl bg-gray-200 px-3 text-center text-xs font-bold text-gray-500 sm:text-sm"
               aria-disabled="true"
             >
-              Book delivery boy
+              Cart &amp; pay
             </span>
           ) : (
             <button
               type="button"
-              onClick={handleStickyBookClick}
-              className={`inline-flex min-h-[3.25rem] flex-[1.25] items-center justify-center rounded-xl px-3 text-center text-xs font-bold text-white shadow-md transition-[opacity,transform] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 sm:text-sm ${
-                canBookDelivery
-                  ? 'bg-[var(--color-primary)] hover:opacity-95 active:scale-[0.99]'
-                  : 'bg-[var(--color-primary)]/85 hover:opacity-95 active:scale-[0.99]'
-              }`}
+              onClick={() => router.push(ROUTES.FIND_RESTAURANT_CART)}
+              className="inline-flex min-h-[3.25rem] flex-[1.25] items-center justify-center rounded-xl bg-[#1A1D3A] px-3 text-center text-xs font-bold text-white shadow-md transition hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1A1D3A] focus-visible:ring-offset-2 sm:text-sm"
             >
-              {canBookDelivery ? 'Book delivery boy' : 'Next: WhatsApp'}
+              Cart &amp; pay
             </button>
           )}
         </div>
       </div>
-
-      {showPaymentConfirm && (
-        <>
-          <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-[1px]" onClick={() => setShowPaymentConfirm(false)} aria-hidden />
-          <div
-            className="fixed left-1/2 top-1/2 z-[101] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--landing-primary)]/15 bg-white p-6 shadow-2xl"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="payment-confirm-title"
-            aria-describedby="payment-confirm-desc"
-          >
-            <h2 id="payment-confirm-title" className="mb-1 text-lg font-bold text-gray-900">
-              Confirm payment
-            </h2>
-            <p id="payment-confirm-desc" className="mb-5 text-sm leading-relaxed text-gray-600">
-              Have you paid <strong className="text-gray-900">{restaurant.name}</strong> for your order? We&apos;ll then ask for your <strong>delivery address</strong> and complete the booking.
-            </p>
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handlePaymentConfirmed}
-                className="w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-95"
-              >
-                Yes, I&apos;ve paid — Book delivery
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPaymentConfirm(false)}
-                className="w-full rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
-              >
-                No, not yet
-              </button>
-            </div>
-          </div>
-        </>
-      )}
     </main>
   );
 }

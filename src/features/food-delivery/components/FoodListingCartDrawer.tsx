@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import type { FoodOrderCartDraft } from '@/lib/storage';
 import { parsePrice } from '@/data/restaurantsKhatushyam';
-import { ContinueToMenuAuthLink } from '@/features/food-delivery/components/FoodDeliveryAuthLinks';
+import { ROUTES } from '@/lib/constants';
 
 type CartLine = FoodOrderCartDraft['items'][number];
 
@@ -71,8 +72,21 @@ export function FoodListingCartDrawer({
           )}
         </div>
         {hasItems && (
-          <div className="border-t border-gray-100 p-4">
-            <ContinueToMenuAuthLink href={menuHref} onNavigate={onClose} />
+          <div className="space-y-2 border-t border-gray-100 p-4">
+            <Link
+              href={ROUTES.FIND_RESTAURANT_CART}
+              onClick={onClose}
+              className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[#1A1D3A] text-sm font-semibold text-white hover:opacity-95"
+            >
+              View cart &amp; pay
+            </Link>
+            <Link
+              href={menuHref}
+              onClick={onClose}
+              className="flex min-h-11 w-full items-center justify-center rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-800 hover:bg-gray-50"
+            >
+              Back to menu
+            </Link>
           </div>
         )}
       </div>

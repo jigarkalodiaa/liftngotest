@@ -13,6 +13,7 @@ export default async function RestaurantMenuPage({ params }: Props) {
   if (!restaurant) notFound();
   return (
     <ContentLayout
+      variant="app"
       breadcrumbs={[
         BREADCRUMB_HOME,
         BREADCRUMB_FIND_RESTAURANT,

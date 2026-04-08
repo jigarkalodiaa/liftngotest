@@ -17,6 +17,11 @@
   --khatu-saffron-soft: #ea580c;
   --khatu-gold: #b45309;
   --khatu-cream: #faf7f2;
+  /** Hero offer card — warm off-white (Khatu launch promo). */
+  --khatu-hero-card: #fffbf5;
+  /** Primary CTA on hero — terracotta (reference design). */
+  --khatu-hero-cta: #a3431f;
+  --khatu-hero-cta-hover: #8c3719;
   --khatu-ivory: #fffefb;
   --khatu-stone: #1c1917;
   --khatu-stone-muted: #57534e;

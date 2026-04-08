@@ -34,6 +34,14 @@ export interface Restaurant {
   distanceLabel?: string;
   /** Typical delivery window copy for listing cards */
   deliveryEstimate?: string;
+  /** Listing card ETA line, e.g. "10 - 15 Min" */
+  listingEta?: string;
+  /** Listing card distance, e.g. "2.7 km" */
+  listingDistance?: string;
+  /** Show "Pure Veg" pill on listing card */
+  pureVeg?: boolean;
+  /** Show "Near Temple" pill on listing card */
+  nearTemple?: boolean;
 }
 
 export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
@@ -48,6 +56,10 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     rating: 4.9,
     distanceLabel: '~2 min from temple',
     deliveryEstimate: 'Est. delivery 25–40 min',
+    listingEta: '10 - 15 Min',
+    listingDistance: '2.7 km',
+    pureVeg: true,
+    nearTemple: true,
     menu: [
       {
         name: 'Rajasthani Thali',
@@ -98,6 +110,10 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     rating: 4.8,
     distanceLabel: 'Main road · Temple lane',
     deliveryEstimate: 'Est. delivery 20–35 min',
+    listingEta: '15 - 25 Min',
+    listingDistance: '3.1 km',
+    pureVeg: true,
+    nearTemple: false,
     menu: [
       {
         name: 'Rajma Chawal',
@@ -148,6 +164,10 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     rating: 4.9,
     distanceLabel: '~4 min walk',
     deliveryEstimate: 'Est. delivery 30–45 min',
+    listingEta: '12 - 20 Min',
+    listingDistance: '1.4 km',
+    pureVeg: true,
+    nearTemple: true,
     menu: [
       {
         name: 'Prasad Thali',
@@ -198,6 +218,10 @@ export const RESTAURANTS_KHATUSHYAM: Restaurant[] = [
     rating: 4.7,
     distanceLabel: '~6 min from temple',
     deliveryEstimate: 'Est. delivery 35–50 min',
+    listingEta: '20 - 30 Min',
+    listingDistance: '4.2 km',
+    pureVeg: true,
+    nearTemple: false,
     menu: [
       {
         name: 'Veg Biryani',
