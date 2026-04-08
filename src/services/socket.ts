@@ -39,7 +39,8 @@ class SocketService {
     this.connectionArgs = { userId, role };
     this.manualDisconnect = false;
 
-    if (this.socket?.connected && this.socket.auth?.userId === userId && this.socket.auth?.role === role) {
+    const existingAuth = this.socket?.auth as { userId?: string; role?: string } | undefined;
+    if (this.socket?.connected && existingAuth?.userId === userId && existingAuth?.role === role) {
       return this.socket;
     }
 

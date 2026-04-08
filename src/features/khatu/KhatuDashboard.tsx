@@ -1,7 +1,7 @@
 'use client';
 
 import Image from '@/components/OptimizedImage';
-import { Landmark } from 'lucide-react';
+import { Building2, Zap } from 'lucide-react';
 import type { ServiceId } from '@/types/booking';
 import { PageContainer } from '@/components/ui';
 import { LOGO_PATH, SITE_NAME } from '@/lib/site';
@@ -34,160 +34,112 @@ export default function KhatuDashboard({
   openLocationModal,
   setIsMenuOpen,
   router,
-  services,
-  activeService,
-  handleSelectService,
   onFlagshipBookNow,
   onOpenChooseTrip,
 }: KhatuDashboardProps) {
   return (
-    <PageContainer className="relative z-0 pb-10 pt-3 sm:pt-4">
-      <header className="sticky top-3 z-30 overflow-hidden rounded-3xl border border-amber-200/50 bg-gradient-to-r from-amber-50 via-white to-amber-50/90 page-card shadow-md shadow-amber-900/10">
-        <div className="flex items-center justify-between gap-4 sm:gap-6">
-          <Image
-            src={LOGO_PATH}
-            alt={`${SITE_NAME} — Khatu`}
-            width={200}
-            height={56}
-            className="h-9 w-auto max-w-[200px] object-contain"
-            priority
-          />
-          <button
-            type="button"
-            onClick={() => setIsMenuOpen(true)}
-            aria-label="Open menu"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-amber-900 transition-colors hover:bg-amber-100"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-      </header>
+    <PageContainer className="relative z-0 pt-2 sm:pt-3" stack={false}>
+      <div className="flex min-w-0 flex-col gap-3 sm:gap-4 lg:gap-5 pb-6 sm:pb-8">
+        {/* Header — white bar, same feel on mobile + desktop */}
+        <header className="sticky top-2 z-30 overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm shadow-stone-900/[0.06] sm:rounded-3xl sm:top-3">
+          <div className="flex min-w-0 items-center justify-between gap-3 px-3 py-2.5 sm:gap-4 sm:px-5 sm:py-3">
+            <Image
+              src={LOGO_PATH}
+              alt={`${SITE_NAME} — Khatu`}
+              width={200}
+              height={56}
+              className="h-7 w-auto max-w-[min(48vw,170px)] shrink-0 object-contain sm:h-8 sm:max-w-[190px] lg:h-9"
+              priority
+            />
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <button
+                type="button"
+                onClick={openLocationModal}
+                className="flex max-w-[6rem] items-center gap-1 truncate rounded-full border border-stone-200/90 bg-white px-2.5 py-2 text-[11px] font-medium text-[var(--khatu-stone)] shadow-sm transition-colors hover:bg-stone-50/90 sm:max-w-none sm:text-xs"
+              >
+                <Building2 className="h-3.5 w-3.5 shrink-0 text-[var(--khatu-stone-muted)]" strokeWidth={1.5} aria-hidden />
+                <span className="truncate">{dashboardLocation?.city?.trim() || 'Khatu'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(true)}
+                aria-label="Open menu"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-amber-900 transition-colors hover:bg-amber-50 sm:h-10 sm:w-10"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </header>
 
-      <div className="flex items-center justify-center gap-4 rounded-2xl border border-stone-200/80 bg-[var(--khatu-ivory)] page-card text-center text-xs font-medium text-[var(--khatu-stone-muted)] sm:gap-6">
-        <Landmark className="h-4 w-4 shrink-0 text-[var(--khatu-saffron)]" strokeWidth={1.75} aria-hidden />
-        <span>
-          Khatu Shyam Ji zone · Temple & tourism
-          {dashboardLocation?.city ? ` · ${dashboardLocation.city}` : ''}
-        </span>
-      </div>
-
-      <h1
-        className="break-words text-2xl font-bold leading-tight sm:text-3xl"
-        style={{ color: theme.colors.gray800 }}
-      >
-        Hi, {userName}
-      </h1>
-
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <button
-          type="button"
-          onClick={openLocationModal}
-          className="text-xs font-semibold text-amber-800 underline underline-offset-2"
-        >
-          Change service area
-        </button>
-      </div>
-
-      <div className="mt-5">
-        <KhatuHeroOffer onBookNow={onFlagshipBookNow} />
-      </div>
-
-      <button
-        type="button"
-        onClick={() => router.push(ROUTES.PICKUP_LOCATION)}
-        className="mt-6 flex min-h-[3.5rem] min-w-0 w-full items-center gap-3.5 rounded-2xl border border-amber-200/80 bg-white px-5 py-4 text-left shadow-sm transition-colors hover:bg-amber-50/50"
-      >
-        <span className="flex h-5 w-5 shrink-0 text-amber-600" aria-hidden>
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 10a2 2 0 110-4 2 2 0 010 4z" />
-          </svg>
-        </span>
-        <span
-          className="min-w-0 flex-1 text-left font-medium leading-snug line-clamp-2"
-          style={{
-            fontSize: theme.fontSizes.md,
-            color: pickup?.name || pickup?.address ? theme.colors.gray900 : theme.colors.gray400,
-          }}
-        >
-          {pickup?.name || pickup?.address || 'Enter Pickup Location'}
-        </span>
-      </button>
-
-      <KhatuServicesGrid />
-
-      <h2 className="text-center font-normal" style={{ fontSize: theme.fontSizes.lg, color: theme.colors.gray800 }}>
-        Choose service
-      </h2>
-      <p className="mt-1 text-center text-xs text-[var(--khatu-stone-muted)]">
-        Introductory two-wheeler slabs on your first ride — see offer above
-      </p>
-
-      <div className="relative z-10 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
-        {services.map((s) => {
-          const active = s.id === activeService;
-          const launch = s.id === 'twoWheeler';
-          return (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => handleSelectService(s.id)}
-              className={`rounded-2xl bg-white px-2 pt-4 pb-3 text-center transition-all border ${
-                active ? 'shadow-md ring-1' : 'border-gray-200 shadow-sm hover:shadow-md'
-              } ${launch ? 'ring-2 ring-amber-400/80' : ''}`}
-              style={
-                active ? { borderColor: `${theme.colors.primary}66`, boxShadow: `0 0 0 1px ${theme.colors.primary}33` } : undefined
-              }
+        {/* Desktop: greeting + pickup left, hero right · Mobile: stacked */}
+        <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-6 xl:gap-8">
+          <div className="flex min-w-0 flex-col gap-3 lg:col-span-5 lg:gap-3.5">
+            <h1
+              className="break-words text-xl font-bold leading-tight tracking-tight sm:text-2xl lg:text-3xl"
+              style={{ color: theme.colors.gray800 }}
             >
-              {launch ? (
-                <span className="mb-1 inline-flex rounded-full bg-[var(--khatu-saffron)]/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[var(--khatu-saffron)]">
-                  Launch fare
-                </span>
-              ) : (
-                <span className="mb-1 block h-4" aria-hidden />
-              )}
-              <div className="relative mx-auto h-[72px] w-[80px] pointer-events-none">
-                <Image src={s.image} alt={s.label} fill className="object-contain" sizes="80px" />
-              </div>
-              <div className="mt-2 font-medium" style={{ fontSize: theme.fontSizes.sm, color: theme.colors.gray800 }}>
-                {s.label}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+              Hi, {userName}
+            </h1>
 
-      <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => router.push(ROUTES.PICKUP_LOCATION)}
+              className="flex min-h-[3rem] min-w-0 w-full items-center gap-3 rounded-xl border border-stone-200/90 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:border-amber-200/90 hover:bg-amber-50/40 sm:rounded-2xl"
+            >
+              <span className="flex h-5 w-5 shrink-0 text-amber-600" aria-hidden>
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 10a2 2 0 110-4 2 2 0 010 4z" />
+                </svg>
+              </span>
+              <span
+                className="min-w-0 flex-1 text-left font-medium leading-snug line-clamp-2"
+                style={{
+                  fontSize: theme.fontSizes.md,
+                  color: pickup?.name || pickup?.address ? theme.colors.gray900 : theme.colors.gray400,
+                }}
+              >
+                {pickup?.name || pickup?.address || 'Enter Pickup Location'}
+              </span>
+            </button>
+          </div>
+
+          <div className="min-w-0 lg:col-span-7">
+            <KhatuHeroOffer onBookNow={onFlagshipBookNow} />
+          </div>
+        </div>
+
+        <KhatuServicesGrid />
+
         <button
           type="button"
           onClick={onOpenChooseTrip}
-          className="min-h-[48px] rounded-2xl border-2 border-amber-300/70 bg-white px-8 py-3 text-sm font-bold text-amber-950 shadow-md hover:bg-amber-50"
+          className="group flex w-full min-w-0 flex-row items-center gap-3 rounded-2xl bg-white px-3.5 py-3.5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md sm:gap-4 sm:px-4 sm:py-4 md:gap-5 md:px-5 md:py-5"
+          aria-label="Open quick book and saved places"
         >
-          More trips & saved places
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center self-center rounded-xl bg-emerald-50 text-emerald-500 sm:h-11 sm:w-11">
+            <Zap className="h-[1.05rem] w-[1.05rem] sm:h-5 sm:w-5" strokeWidth={1.5} aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1 self-center text-left">
+            <p className="text-xs font-semibold leading-snug text-gray-900 sm:text-sm md:text-base">Quick book &amp; saved places</p>
+            <p className="mt-1 line-clamp-2 text-[9px] leading-snug text-gray-500 sm:mt-1 sm:text-[11px] md:text-xs">
+              Frequent routes · 1-tap repeat
+            </p>
+          </div>
+          <span className="flex min-h-10 shrink-0 items-center justify-center self-center rounded-xl bg-[var(--color-primary)] px-3 py-2.5 text-[9px] font-semibold text-white shadow-sm transition-all group-hover:shadow-md sm:min-h-11 sm:px-3.5 sm:py-3 sm:text-[10px]">
+            Open
+          </span>
         </button>
-      </div>
 
-      <div className="page-section relative overflow-hidden rounded-3xl border border-amber-200/50 bg-gradient-to-b from-amber-100/40 to-[var(--landing-bg)]/80 px-4">
-        <div className="relative mx-auto h-[min(52vw,260px)] w-full max-w-[340px] sm:h-[280px]">
-          <Image
-            src="/hero-delivery.svg"
-            alt="LiftnGo — Khatu logistics"
-            width={400}
-            height={300}
-            className="h-full w-full object-contain object-center"
-            sizes="(max-width: 640px) 52vw, 340px"
-          />
+        <div className="text-center">
+          <p className="text-lg font-semibold tracking-tight text-gray-800">Goods Time Pe</p>
+          <p className="text-sm font-medium text-gray-400">Business Prime Pe</p>
+          <p className="mt-1.5 text-[11px] text-gray-300">Trusted by businesses · Transparent pricing</p>
         </div>
       </div>
-
-      <p className="text-center text-base font-semibold leading-snug tracking-tight text-[var(--khatu-stone-muted)] sm:text-lg">
-        Your Khatu companion
-        <span className="mt-1 block text-sm font-normal text-[var(--khatu-stone-muted)]">
-          Rides · food · stays · prasad & shops
-        </span>
-      </p>
     </PageContainer>
   );
 }

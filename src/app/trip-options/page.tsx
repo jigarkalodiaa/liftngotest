@@ -25,13 +25,10 @@ import { readKhatuRideBooking } from '@/lib/khatuSessionStorage';
 import { getKhatuRouteDefaultLocations, KHATU_RIDE_VEHICLE_OPTIONS, khatuVehicleImage } from '@/data/khatuTravel';
 import type { RideVehicleType, TravelRouteId } from '@/types/khatu';
 import { theme } from '@/config/theme';
-<<<<<<< HEAD
 import { useDirections } from '@/hooks/booking';
 import type { VehicleFares } from '@/api/services/tripService';
-=======
 import { trackCheckPriceClick, trackFunnelStep, trackSelectContent } from '@/lib/analytics';
 import { trackEvent } from '@/lib/posthogAnalytics';
->>>>>>> master
 
 type KhatuQuoteVehicle = {
   type: RideVehicleType;
@@ -155,7 +152,14 @@ export default function TripOptionsPage() {
     if (!fromKhatuTravel) return;
     const booking = readKhatuRideBooking();
     const routeId = booking?.route?.id as TravelRouteId | undefined;
-    if (routeId !== 'khatu-salasar' && routeId !== 'khatu-ringus' && routeId !== 'ringus-khatu') return;
+    if (
+      routeId !== 'khatu-salasar' &&
+      routeId !== 'salasar-khatu' &&
+      routeId !== 'khatu-ringus' &&
+      routeId !== 'ringus-khatu'
+    ) {
+      return;
+    }
     const defaults = getKhatuRouteDefaultLocations(routeId);
     const pickupSaved = getPickupLocation();
     const dropSaved = getDropLocation();

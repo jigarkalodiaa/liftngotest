@@ -29,3 +29,8 @@ export async function getTripDriverStatus(bookingId: string): Promise<TripDriver
 export async function getDriverLocation(bookingId: string): Promise<{ lat: number; lng: number }> {
   return apiClient.get<{ lat: number; lng: number }>(API_PATHS.bookingDriverLocation(bookingId));
 }
+
+/** Set driver online/offline — `PATCH .../api/v1/drivers/online` with `{ isOnline }` (path is plural `drivers`). */
+export async function patchDriverOnline(isOnline: boolean): Promise<void> {
+  await apiClient.patch(API_PATHS.driverOnline, { isOnline });
+}

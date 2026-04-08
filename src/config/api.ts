@@ -4,6 +4,8 @@
  */
 
 export const API_PATHS = {
+  /** Driver presence — PATCH body `{ isOnline: boolean }`. Resolves to `{API_BASE}/drivers/online` (plural) when base is e.g. `http://localhost:3001/api/v1`. */
+  driverOnline: '/drivers/online',
   trips: '/trips',
   tripsActive: '/trips/active',
   tripById: (id: string) => `/trips/${id}`,

@@ -1,91 +1,81 @@
 import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
+import { Leaf, Star } from 'lucide-react';
 import type { Restaurant } from '@/data/restaurantsKhatushyam';
 import { getRestaurantCoverImage } from '@/data/restaurantsKhatushyam';
-import { FOOD_RESTAURANT_CARD_TAGS } from '@/features/food-delivery/constants';
-import { AddressWithKhatushyamMapsLink } from '@/features/food-delivery/components/AddressWithKhatushyamMapsLink';
-import { IconCheck, IconClock, IconShield, IconStar } from '@/features/food-delivery/components/FoodDeliveryListingIcons';
 
 type Props = { restaurant: Restaurant };
 
+function listingMetaLine(r: Restaurant): string {
+  const eta = r.listingEta?.trim();
+  const dist = r.listingDistance?.trim();
+  if (eta && dist) return `${eta}   ${dist}`;
+  if (eta) return eta;
+  if (dist) return dist;
+  const est = r.deliveryEstimate?.replace(/^Est\.\s*delivery\s*/i, '').trim();
+  return [est, r.distanceLabel].filter(Boolean).join('   ') || '';
+}
+
 export function RestaurantPartnerCard({ restaurant }: Props) {
   const cover = getRestaurantCoverImage(restaurant);
+  const meta = listingMetaLine(restaurant);
+  const rating = restaurant.rating != null ? restaurant.rating.toFixed(1) : null;
+  const pureVeg = restaurant.pureVeg ?? /veg|vegetarian/i.test(restaurant.description);
+  const nearTemple =
+    restaurant.nearTemple ??
+    (/temple|khatushyam/i.test(restaurant.distanceLabel ?? '') ||
+      /temple|khatushyam/i.test(restaurant.listingTags ?? ''));
 
   return (
-    <li className="group h-full">
-      <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-[var(--landing-primary)]/15 bg-white shadow-[0_2px_20px_-6px_rgba(44,45,91,0.12)] transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_32px_-10px_rgba(44,45,91,0.22)]">
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#FFF5EB]">
-          <Image
-            src={cover}
-            alt={`Food at ${restaurant.name}`}
-            fill
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority={false}
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/50 via-transparent to-amber-400/15" />
-        </div>
-        <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <h3 className="text-lg font-bold tracking-tight text-gray-900 sm:text-xl">{restaurant.name}</h3>
-          <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-gray-600">{restaurant.description}</p>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            {FOOD_RESTAURANT_CARD_TAGS.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-[var(--landing-orange)]/25 bg-gradient-to-b from-amber-50 to-orange-50/80 px-2.5 py-1 text-[0.6875rem] font-semibold text-orange-950/85"
-              >
-                {tag}
-              </span>
-            ))}
+    <li className="h-full">
+      <Link
+        href={`/find-restaurant/${restaurant.id}`}
+        className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+      >
+        <article className="flex h-full flex-col overflow-hidden rounded-[15px] border border-neutral-200/90 bg-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)] transition-shadow duration-200 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)]">
+          <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-neutral-100 sm:aspect-[16/8]">
+            <Image
+              src={cover}
+              alt={`Food at ${restaurant.name}`}
+              fill
+              className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.02]"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority={false}
+            />
           </div>
+          <div className="flex flex-1 flex-col px-3.5 pb-3.5 pt-2.5 sm:px-4 sm:pb-4 sm:pt-3">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="min-w-0 flex-1 text-[15px] font-bold leading-snug tracking-tight text-neutral-900 sm:text-base">
+                {restaurant.name}
+              </h3>
+              {rating ? (
+                <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold tabular-nums text-emerald-800 ring-1 ring-emerald-100">
+                  <Star className="h-3 w-3 fill-emerald-600 stroke-emerald-600" strokeWidth={0} aria-hidden />
+                  {rating}
+                </span>
+              ) : null}
+            </div>
 
-          <ul className="mt-3 space-y-1.5 text-xs text-gray-700 sm:text-[0.8125rem]" role="list">
-            <li className="flex items-start gap-2">
-              <IconCheck className="mt-0.5 text-[var(--color-primary)]" />
-              <span>Verified by Liftngo</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <IconStar className="mt-0.5 text-[var(--color-primary)]" />
-              <span>Trusted food partners</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <IconShield className="mt-0.5 text-[var(--color-primary)]" />
-              <span>Fresh &amp; hygienic</span>
-            </li>
-          </ul>
+            {meta ? (
+              <p className="mt-1.5 text-xs font-medium text-neutral-500 sm:text-[13px]">{meta}</p>
+            ) : null}
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-gray-100 pt-3 text-xs text-gray-600">
-            {restaurant.deliveryEstimate && (
-              <span className="inline-flex items-center gap-1 font-medium text-gray-800">
-                <IconClock className="!h-3.5 !w-3.5 !min-h-3.5 !min-w-3.5 !max-h-3.5 !max-w-3.5 text-[var(--color-primary)]" />
-                {restaurant.deliveryEstimate}
-              </span>
-            )}
-            {restaurant.rating != null && (
-              <span className="inline-flex items-center gap-1 tabular-nums">
-                <IconStar className="!h-3.5 !w-3.5 !min-h-3.5 !min-w-3.5 !max-h-3.5 !max-w-3.5 text-[var(--color-primary)]" />
-                {restaurant.rating.toFixed(1)}
-              </span>
-            )}
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {pureVeg ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-900 ring-1 ring-emerald-100 sm:text-xs">
+                  <Leaf className="h-3 w-3 shrink-0 text-emerald-600" strokeWidth={2} aria-hidden />
+                  Pure Veg restaurant
+                </span>
+              ) : null}
+              {nearTemple ? (
+                <span className="rounded-full bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-900/90 ring-1 ring-amber-100/90 sm:text-xs">
+                  Near Temple
+                </span>
+              ) : null}
+            </div>
           </div>
-
-          {restaurant.address && (
-            <p className="mt-2 line-clamp-2 text-xs text-gray-500">
-              <AddressWithKhatushyamMapsLink address={restaurant.address} />
-            </p>
-          )}
-
-          <div className="mt-auto pt-5">
-            <Link
-              href={`/find-restaurant/${restaurant.id}`}
-              className="inline-flex min-h-[3rem] w-full items-center justify-center rounded-xl bg-[var(--color-primary)] px-4 text-sm font-semibold text-white transition-opacity hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
-            >
-              View Menu &amp; Order
-            </Link>
-          </div>
-        </div>
-      </article>
+        </article>
+      </Link>
     </li>
   );
 }

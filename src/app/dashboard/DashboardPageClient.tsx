@@ -239,7 +239,7 @@ export function DashboardPageClient({ dashboardPath = ROUTES.DASHBOARD }: Dashbo
   }, [router]);
 
   const bgClass = isKhatuZone
-    ? 'bg-gradient-to-b from-amber-50/90 via-orange-50/30 to-white'
+    ? 'bg-[var(--khatu-cream)]'
     : isNoidaZone
       ? 'bg-gradient-to-b from-blue-50/80 via-white to-white'
       : 'bg-white';

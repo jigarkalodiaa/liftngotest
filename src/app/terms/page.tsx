@@ -6,6 +6,7 @@ import ContentLayout from '@/components/layout/ContentLayout';
 import { BREADCRUMB_HOME } from '@/lib/breadcrumbsNav';
 import { indiaPhotoBangaloreLoadedTruck } from '@/config/indiaLogisticsImages';
 import { TERMS_LAST_UPDATED_ISO, TERMS_SECTIONS } from '@/data/termsOfService';
+import TermsBackButton from './TermsBackButton';
 
 const LAST_UPDATED_DISPLAY = new Date(TERMS_LAST_UPDATED_ISO).toLocaleDateString('en-IN', {
   year: 'numeric',
@@ -45,6 +46,9 @@ export default function TermsPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-[#12152a]/95 via-[#12152a]/65 to-[#12152a]/40" />
           </div>
           <div className="relative mx-auto max-w-4xl px-4 py-12 text-center sm:px-6 sm:py-16 lg:px-8">
+            <div className="mb-3 flex justify-center sm:mb-4">
+              <TermsBackButton />
+            </div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-white/60">Legal</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-[2.5rem]">
               Terms of Service

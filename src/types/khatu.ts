@@ -65,7 +65,7 @@ export interface KhatuProduct {
   quickDelivery: boolean;
 }
 
-export type TravelRouteId = 'khatu-salasar' | 'khatu-ringus' | 'ringus-khatu';
+export type TravelRouteId = 'khatu-salasar' | 'salasar-khatu' | 'khatu-ringus' | 'ringus-khatu';
 
 export interface KhatuTravelRoute {
   id: TravelRouteId;

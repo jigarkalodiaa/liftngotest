@@ -42,7 +42,7 @@ const ALLOWED_PRODUCT_POST_LOGIN_PATHS = new Set<string>([
 ]);
 
 function isAllowedFindRestaurantPostLoginPath(pathOnly: string): boolean {
-  if (pathOnly === ROUTES.FIND_RESTAURANT) return true;
+  if (pathOnly === ROUTES.FIND_RESTAURANT || pathOnly === ROUTES.FIND_RESTAURANT_CART) return true;
   const prefix = `${ROUTES.FIND_RESTAURANT}/`;
   if (!pathOnly.startsWith(prefix)) return false;
   const slug = pathOnly.slice(prefix.length);
@@ -574,6 +574,10 @@ export interface DeliveryGoodsDescription {
   items: { name: string; quantity: number; price: string }[];
   /** Omit or `restaurant` = Find Restaurant; `marketplace` = Khatu marketplace shop. */
   source?: 'restaurant' | 'marketplace';
+  /** Drop / customer details collected at food checkout (before Razorpay). */
+  dropContactName?: string;
+  dropContactPhone?: string;
+  dropAddress?: string;
 }
 
 function isDeliveryGoodsDescription(v: unknown): v is DeliveryGoodsDescription {
@@ -594,6 +598,15 @@ function isDeliveryGoodsDescription(v: unknown): v is DeliveryGoodsDescription {
     o.source !== 'restaurant' &&
     o.source !== 'marketplace'
   ) {
+    return false;
+  }
+  if ('dropContactName' in o && o.dropContactName !== undefined && typeof o.dropContactName !== 'string') {
+    return false;
+  }
+  if ('dropContactPhone' in o && o.dropContactPhone !== undefined && typeof o.dropContactPhone !== 'string') {
+    return false;
+  }
+  if ('dropAddress' in o && o.dropAddress !== undefined && typeof o.dropAddress !== 'string') {
     return false;
   }
   return o.items.every(
@@ -731,6 +744,27 @@ export function appendHotelBookingHistoryFromDraft(draft: HotelBookingDraft): Ho
     // ignore
   }
   return item;
+}
+
+/** Mark a hotel stay as cancelled by id; returns true when updated. */
+export function markHotelBookingCancelled(bookingId: string): boolean {
+  if (typeof window === 'undefined') return false;
+  const id = bookingId.trim();
+  if (!id) return false;
+  try {
+    const list = getHotelBookingHistory();
+    let changed = false;
+    const next = list.map((row) => {
+      if (row.id !== id || row.status === 'cancelled') return row;
+      changed = true;
+      return { ...row, status: 'cancelled' as const };
+    });
+    if (!changed) return false;
+    window.sessionStorage.setItem(STORAGE_KEYS.HOTEL_BOOKING_HISTORY, JSON.stringify(next.slice(0, HISTORY_MAX)));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function isFoodDeliveryHistoryItem(v: unknown): v is FoodDeliveryHistoryItem {
