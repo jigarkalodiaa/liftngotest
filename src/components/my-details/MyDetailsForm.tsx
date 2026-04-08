@@ -75,89 +75,166 @@ export default function MyDetailsForm() {
   };
 
   const inputClass =
-    'w-full min-h-[52px] rounded-xl border bg-white px-3 text-[14px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[var(--color-primary)] border-gray-300';
+    'w-full min-h-11 rounded-xl border border-gray-300 bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 transition-colors focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10';
+  const labelClass = 'mb-1.5 block text-xs font-semibold text-gray-700';
+  const errorClass = 'mt-1 text-[11px] text-red-600';
 
   if (!allowed) {
     return (
-      <div className="max-w-lg mx-auto px-4 sm:px-6 py-16 flex items-center justify-center text-sm text-gray-500">
-        Loading…
+      <div className="mx-auto flex max-w-2xl items-center justify-center px-4 py-16 text-sm text-gray-500 sm:px-6">
+        Loading...
       </div>
     );
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 sm:px-6 py-8 sm:py-12">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">My details</h1>
-      <p className="text-sm text-gray-600 mb-8 leading-relaxed">
-        Your profile is saved on this device. Update anything you need below.
-      </p>
+    <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8">
+      <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-sm sm:p-6">
+        <h1 className="text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">My details</h1>
+        <p className="mt-1.5 text-sm leading-relaxed text-gray-600">
+          Keep your saved profile up to date for faster checkout and support.
+        </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        <div>
-          <label className="mb-1 block text-[12px] font-medium text-gray-600">Name *</label>
-          <input type="text" placeholder="Full name" {...register('fullName')} className={inputClass} aria-required />
-          {errors.fullName && <p className="mt-1 text-[11px] text-red-500">{errors.fullName.message}</p>}
-        </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
+          <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-3 sm:p-4">
+            <h2 className="text-xs font-bold uppercase tracking-wide text-gray-600">Basic profile</h2>
+            <div className="mt-3 space-y-4">
+              <div>
+                <label className={labelClass} htmlFor="fullName">Full name *</label>
+                <input
+                  id="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  autoComplete="name"
+                  maxLength={100}
+                  {...register('fullName')}
+                  className={inputClass}
+                  aria-required
+                />
+                {errors.fullName && <p className={errorClass}>{errors.fullName.message}</p>}
+              </div>
 
-        <div>
-          <label className="mb-1 block text-[12px] font-medium text-gray-600">Alternate mobile</label>
-          <input type="tel" inputMode="numeric" placeholder="Optional" {...register('alternatePhone')} className={inputClass} />
-          {errors.alternatePhone && <p className="mt-1 text-[11px] text-red-500">{errors.alternatePhone.message}</p>}
-        </div>
+              <div>
+                <label className={labelClass} htmlFor="email">Email address</label>
+                <input
+                  id="email"
+                  type="email"
+                  inputMode="email"
+                  placeholder="name@example.com"
+                  autoComplete="email"
+                  maxLength={120}
+                  {...register('email')}
+                  className={inputClass}
+                />
+                {errors.email && <p className={errorClass}>{errors.email.message}</p>}
+              </div>
+            </div>
+          </section>
 
-        <div>
-          <label className="mb-1 block text-[12px] font-medium text-gray-600">Emergency contact</label>
-          <input type="text" placeholder="Optional" {...register('emergencyContactName')} className={inputClass} />
-          {errors.emergencyContactName && <p className="mt-1 text-[11px] text-red-500">{errors.emergencyContactName.message}</p>}
-        </div>
+          <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-3 sm:p-4">
+            <h2 className="text-xs font-bold uppercase tracking-wide text-gray-600">Contact details</h2>
+            <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className={labelClass} htmlFor="alternatePhone">Alternate mobile</label>
+                <input
+                  id="alternatePhone"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="10-digit number"
+                  autoComplete="tel-national"
+                  maxLength={10}
+                  {...register('alternatePhone')}
+                  className={inputClass}
+                />
+                {errors.alternatePhone && <p className={errorClass}>{errors.alternatePhone.message}</p>}
+              </div>
 
-        <div>
-          <label className="mb-1 block text-[12px] font-medium text-gray-600">Emergency mobile</label>
-          <input type="tel" inputMode="numeric" placeholder="Optional" {...register('emergencyContactPhone')} className={inputClass} />
-          {errors.emergencyContactPhone && <p className="mt-1 text-[11px] text-red-500">{errors.emergencyContactPhone.message}</p>}
-        </div>
+              <div>
+                <label className={labelClass} htmlFor="emergencyContactPhone">Emergency mobile</label>
+                <input
+                  id="emergencyContactPhone"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="10-digit number"
+                  autoComplete="tel-national"
+                  maxLength={10}
+                  {...register('emergencyContactPhone')}
+                  className={inputClass}
+                />
+                {errors.emergencyContactPhone && <p className={errorClass}>{errors.emergencyContactPhone.message}</p>}
+              </div>
+            </div>
 
-        <div>
-          <label className="mb-1 block text-[12px] font-medium text-gray-600">Account number</label>
-          <input type="text" placeholder="Optional" autoComplete="off" {...register('accountNumber')} className={inputClass} />
-          {errors.accountNumber && <p className="mt-1 text-[11px] text-red-500">{errors.accountNumber.message}</p>}
-        </div>
+            <div className="mt-4">
+              <label className={labelClass} htmlFor="emergencyContactName">Emergency contact name</label>
+              <input
+                id="emergencyContactName"
+                type="text"
+                placeholder="Person to contact in urgency"
+                autoComplete="off"
+                maxLength={100}
+                {...register('emergencyContactName')}
+                className={inputClass}
+              />
+              {errors.emergencyContactName && <p className={errorClass}>{errors.emergencyContactName.message}</p>}
+            </div>
+          </section>
 
-        <div>
-          <label className="mb-1 block text-[12px] font-medium text-gray-600">Address</label>
-          <textarea
-            rows={3}
-            placeholder="Optional"
-            {...register('address')}
-            className={`${inputClass} min-h-[100px] py-3 resize-y`}
-          />
-          {errors.address && <p className="mt-1 text-[11px] text-red-500">{errors.address.message}</p>}
-        </div>
+          <section className="rounded-xl border border-gray-100 bg-gray-50/50 p-3 sm:p-4">
+            <h2 className="text-xs font-bold uppercase tracking-wide text-gray-600">Billing and address</h2>
+            <div className="mt-3 space-y-4">
+              <div>
+                <label className={labelClass} htmlFor="accountNumber">Bank account number</label>
+                <input
+                  id="accountNumber"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="9-18 digits"
+                  autoComplete="off"
+                  maxLength={18}
+                  {...register('accountNumber')}
+                  className={inputClass}
+                />
+                {errors.accountNumber && <p className={errorClass}>{errors.accountNumber.message}</p>}
+              </div>
 
-        <div>
-          <label className="mb-1 block text-[12px] font-medium text-gray-600">Email</label>
-          <input type="email" inputMode="email" placeholder="Optional" {...register('email')} className={inputClass} />
-          {errors.email && <p className="mt-1 text-[11px] text-red-500">{errors.email.message}</p>}
-        </div>
+              <div>
+                <label className={labelClass} htmlFor="address">Address</label>
+                <textarea
+                  id="address"
+                  rows={3}
+                  placeholder="House/Flat, area, landmark"
+                  maxLength={500}
+                  {...register('address')}
+                  className={`${inputClass} min-h-[96px] resize-y py-2.5`}
+                />
+                {errors.address && <p className={errorClass}>{errors.address.message}</p>}
+              </div>
+            </div>
+          </section>
 
-        {saved && (
-          <p className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800" role="status">
-            Saved.
-          </p>
-        )}
+          {saved && (
+            <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+              Details saved successfully.
+            </p>
+          )}
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full rounded-xl bg-[var(--color-primary)] py-3.5 text-[15px] font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-50"
-        >
-          Save
-        </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full rounded-xl bg-[var(--color-primary)] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSubmitting ? 'Saving...' : 'Save details'}
+          </button>
 
-        <Link href={ROUTES.DASHBOARD} className="block text-center text-sm font-medium text-[var(--color-primary)] py-2">
-          Back to dashboard
-        </Link>
-      </form>
+          <Link
+            href={ROUTES.DASHBOARD}
+            className="block py-1 text-center text-sm font-medium text-[var(--color-primary)]"
+          >
+            Back to dashboard
+          </Link>
+        </form>
+      </div>
     </div>
   );
 }

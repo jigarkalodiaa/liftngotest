@@ -1,9 +1,11 @@
 'use client';
 
 import Image from '@/components/OptimizedImage';
+import { useEffect, useState } from 'react';
 import { Building2, Zap } from 'lucide-react';
 import type { ServiceId } from '@/types/booking';
 import { PageContainer } from '@/components/ui';
+import { BookingHistory, type KhatuBookingRecord, getKhatuBookings } from '@/components/khatu/booking';
 import { LOGO_PATH, SITE_NAME } from '@/lib/site';
 import { theme } from '@/config/theme';
 import { ROUTES } from '@/lib/constants';
@@ -37,6 +39,17 @@ export default function KhatuDashboard({
   onFlagshipBookNow,
   onOpenChooseTrip,
 }: KhatuDashboardProps) {
+  const [bookings, setBookings] = useState<KhatuBookingRecord[]>([]);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
+
+  useEffect(() => {
+    setBookings(getKhatuBookings());
+    setBookingsLoading(false);
+    const onFocus = () => setBookings(getKhatuBookings());
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, []);
+
   return (
     <PageContainer className="relative z-0 pt-2 sm:pt-3" stack={false}>
       <div className="flex min-w-0 flex-col gap-3 sm:gap-4 lg:gap-5 pb-6 sm:pb-8">
@@ -133,6 +146,8 @@ export default function KhatuDashboard({
             Open
           </span>
         </button>
+
+        <BookingHistory bookings={bookings} loading={bookingsLoading} />
 
         <div className="text-center">
           <p className="text-lg font-semibold tracking-tight text-gray-800">Goods Time Pe</p>

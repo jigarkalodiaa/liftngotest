@@ -190,6 +190,38 @@ export const userProfileFormSchema = z.object({
     .transform((s) => normalizeAddressInput(s))
     .refine((s) => s.length <= 500, 'Address is too long'),
   email: profileEmailSchema,
+}).superRefine((data, ctx) => {
+  const hasEmergencyName = data.emergencyContactName.length > 0;
+  const hasEmergencyPhone = data.emergencyContactPhone.length > 0;
+
+  if (hasEmergencyName !== hasEmergencyPhone) {
+    if (!hasEmergencyName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['emergencyContactName'],
+        message: 'Emergency contact name is required when emergency phone is provided',
+      });
+    }
+    if (!hasEmergencyPhone) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['emergencyContactPhone'],
+        message: 'Emergency phone is required when emergency contact name is provided',
+      });
+    }
+  }
+
+  if (
+    data.alternatePhone.length > 0 &&
+    data.emergencyContactPhone.length > 0 &&
+    data.alternatePhone === data.emergencyContactPhone
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['emergencyContactPhone'],
+      message: 'Emergency phone should be different from alternate phone',
+    });
+  }
 });
 
 export type UserProfileForm = z.infer<typeof userProfileFormSchema>;
