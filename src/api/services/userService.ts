@@ -1,5 +1,5 @@
 /**
- * User profile — external API (`NEXT_PUBLIC_API_URL`).
+ * User profile — external API service.
  */
 
 import apiClient from '@/api/client';

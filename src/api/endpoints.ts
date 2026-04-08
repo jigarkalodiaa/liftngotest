@@ -1,6 +1,6 @@
 /**
  * API route constants — use instead of string literals.
- * - `EXTERNAL_*`: appended to `NEXT_PUBLIC_API_URL` (except `/api/*`, which stay on this app).
+ * - `EXTERNAL_*`: appended to configured external base (except `/api/*`, which stay on this app).
  * - `NEXT_*`: same-origin Next.js Route Handlers.
  */
 

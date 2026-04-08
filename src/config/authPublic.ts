@@ -5,7 +5,6 @@
 export function getPublicAuthApiBase(): string {
   if (typeof process === 'undefined') return '';
   const primary = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const fallback = process.env.NEXT_PUBLIC_API_URL;
-  const raw = (typeof primary === 'string' && primary.trim() ? primary : fallback) ?? '';
+  const raw = typeof primary === 'string' && primary.trim() ? primary : '';
   return String(raw).trim().replace(/\/$/, '');
 }
