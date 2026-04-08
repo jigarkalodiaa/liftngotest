@@ -1,4 +1,4 @@
-export * from './authService';
+export * from '@/service/authIntegrationService';
 export * from './bookingService';
 export * from './driverService';
 export * from './khatuService';

@@ -38,7 +38,7 @@ export const API_AUTH_BASE_URL = getEnv(
  */
 export const API_AUTH_INTERNAL_BASE_URL = getEnv('API_INTERNAL_BASE_URL', API_AUTH_BASE_URL).replace(/\/$/, '');
 
-/** POST path for verify OTP (appended to internal base). */
+/** POST path for verify OTP (appended to internal base). Keep in sync with `BACKEND_PATHS.AUTH_VERIFY_OTP` in path.js. */
 export const AUTH_VERIFY_OTP_PATH = getEnv('AUTH_VERIFY_OTP_PATH', '/auth/verify-otp');
 
 /** Google Maps key for maps/places. Use NEXT_PUBLIC_GOOGLE_MAP_KEY in .env.local */

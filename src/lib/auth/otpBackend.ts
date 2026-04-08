@@ -1,4 +1,4 @@
-import { API_AUTH_INTERNAL_BASE_URL, AUTH_VERIFY_OTP_PATH } from '@/config/env';
+import { getVerifyOtpUrl } from '@/path';
 
 export type VerifyOtpUser = {
   userId: string;
@@ -31,13 +31,11 @@ export type VerifyOtpBackendResult = {
  * Expects the standard `{ success, data: { user, accessToken } }` envelope.
  */
 export async function verifyOtpWithBackend(mobile: string, otp: string): Promise<VerifyOtpBackendResult | null> {
-  const base = API_AUTH_INTERNAL_BASE_URL.trim();
-  if (!base) {
+  const url = getVerifyOtpUrl().trim();
+  if (!url) {
     console.error('[auth] Set NEXT_PUBLIC_API_BASE_URL or API_INTERNAL_BASE_URL for OTP verify.');
     return null;
   }
-
-  const url = `${base}${AUTH_VERIFY_OTP_PATH.startsWith('/') ? '' : '/'}${AUTH_VERIFY_OTP_PATH}`;
 
   let res: Response;
   try {

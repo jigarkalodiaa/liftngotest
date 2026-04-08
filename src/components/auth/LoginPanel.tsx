@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { maskIndianMobile } from '@/lib/auth/mobileE164';
-import { useSendOtp, useResendOtp, useVerifyOtp } from '@/hooks/auth';
+import { maskIndianMobile, toIndianE164 } from '@/lib/auth/mobileE164';
+import { sendOtp, verifyOtp } from '@/service/authIntegrationService';
+import { finalizeLoginSessionAfterOtp } from '@/lib/auth/finalizeLoginSession';
 import { loginPhoneSchema, loginOtpSchema, MOBILE_LENGTH, normalizePhoneInput, type LoginPhoneForm } from '@/lib/validations';
 
 const SEND_DEBOUNCE_MS = 2500;
@@ -35,9 +36,8 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   const [otpError, setOtpError] = useState('');
   const [sendError, setSendError] = useState('');
   const lastSendRef = useRef(0);
-  const sendOtpMutation = useSendOtp();
-  const resendOtpMutation = useResendOtp();
-  const verifyOtpMutation = useVerifyOtp();
+  const [isSending, setIsSending] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const {
     register,
@@ -154,8 +154,14 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
       return;
     }
     lastSendRef.current = now;
+    setIsSending(true);
     try {
-      await sendOtpMutation.mutateAsync(phoneNumber);
+      const digits = normalizePhoneInput(phoneNumber);
+      const mobile = toIndianE164(digits);
+      const result = await sendOtp(mobile);
+      if (!result.success) {
+        throw new Error(result.message || 'Could not send OTP. Try again.');
+      }
       setStep('otp');
       setOtp(['', '', '', '']);
       setOtpError('');
@@ -163,8 +169,10 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not send OTP. Try again.';
       setSendError(msg);
+    } finally {
+      setIsSending(false);
     }
-  }, [phoneNumber, sendOtpMutation]);
+  }, [phoneNumber]);
 
   const runResendOtp = useCallback(async () => {
     setSendError('');
@@ -174,16 +182,24 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
       return;
     }
     lastSendRef.current = now;
+    setIsSending(true);
     try {
-      await resendOtpMutation.mutateAsync(phoneNumber);
+      const digits = normalizePhoneInput(phoneNumber);
+      const mobile = toIndianE164(digits);
+      const result = await sendOtp(mobile);
+      if (!result.success) {
+        throw new Error(result.message || 'Could not resend OTP. Try again.');
+      }
       setOtp(['', '', '', '']);
       setOtpError('');
       setCountdown(RESEND_COOLDOWN_SEC);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Could not resend OTP. Try again.';
       setSendError(msg);
+    } finally {
+      setIsSending(false);
     }
-  }, [phoneNumber, resendOtpMutation]);
+  }, [phoneNumber]);
 
   const onPhoneSubmit = useCallback(() => {
     void runSendOtp();
@@ -191,25 +207,35 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
 
   const handleVerify = useCallback(async () => {
     setOtpError('');
-    const result = loginOtpSchema.safeParse({ otp: otp.join('') });
-    if (!result.success) {
-      const first = result.error.issues[0];
+    const validation = loginOtpSchema.safeParse({ otp: otp.join('') });
+    if (!validation.success) {
+      const first = validation.error.issues[0];
       setOtpError(first?.message ?? 'Please enter a valid 4-digit OTP');
       return;
     }
 
+    setIsVerifying(true);
     try {
-      const { nextPath } = await verifyOtpMutation.mutateAsync({
-        phone: phoneNumber,
-        otp: otp.join(''),
+      const digits = normalizePhoneInput(phoneNumber);
+      const mobile = toIndianE164(digits);
+      const result = await verifyOtp(mobile, otp.join(''));
+      console.log('verifyOtp result:', result);
+      if (!result.success) {
+        throw new Error(result.message || 'Invalid or expired OTP. Please try again.');
+      }
+      debugger
+      const nextPath = finalizeLoginSessionAfterOtp(phoneNumber, {
+        accessToken: result.data?.accessToken ?? undefined,
       });
       setTimeout(() => onCompleted(nextPath), variant === 'page' ? 0 : 400);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Something went wrong. Please try again.';
       setOtpError(msg);
       setOtp(['', '', '', '']);
+    } finally {
+      setIsVerifying(false);
     }
-  }, [otp, phoneNumber, onCompleted, variant, verifyOtpMutation]);
+  }, [otp, phoneNumber, onCompleted, variant]);
 
   const formatTimer = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -227,7 +253,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   const phoneDigits = normalizePhoneInput(phoneNumber);
   const otpValid = loginOtpSchema.safeParse({ otp: otp.join('') }).success;
   const otpFilled = otp.every((d) => d !== '');
-  const canSend = phoneDigits.length === MOBILE_LENGTH && termsChecked && !sendOtpMutation.isPending;
+  const canSend = phoneDigits.length === MOBILE_LENGTH && termsChecked && !isSending;
 
   const shellClass =
     variant === 'modal'
@@ -376,13 +402,13 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
               ) : (
                 <button
                   type="button"
-                  disabled={resendOtpMutation.isPending}
+                  disabled={isSending}
                   onClick={() => {
                     void runResendOtp();
                   }}
                   className="font-semibold text-[var(--color-primary)] disabled:opacity-50"
                 >
-                  {resendOtpMutation.isPending ? 'Sending…' : 'Resend OTP'}
+                  {isSending ? 'Sending…' : 'Resend OTP'}
                 </button>
               )}
             </p>
@@ -412,7 +438,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
             disabled={!canSend}
             className="w-full py-4 bg-[var(--color-primary)] text-white font-semibold rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {sendOtpMutation.isPending ? 'Sending OTP…' : 'Send OTP'}
+            {isSending ? 'Sending OTP…' : 'Send OTP'}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
@@ -421,10 +447,10 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
           <button
             type="button"
             onClick={() => void handleVerify()}
-            disabled={!otpFilled || verifyOtpMutation.isPending}
+            disabled={!otpFilled || isVerifying}
             className="w-full py-4 bg-[var(--color-primary)] text-white font-semibold rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {verifyOtpMutation.isPending ? 'Verifying…' : 'Verify & login'}
+            {isVerifying ? 'Verifying…' : 'Verify & login'}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>

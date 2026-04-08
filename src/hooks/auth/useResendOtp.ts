@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { resendOtp } from '@/api/services/authService';
+import { resendOtp } from '@/service/authIntegrationService';
 import { toIndianE164 } from '@/lib/auth/mobileE164';
 import { normalizePhoneInput } from '@/lib/validations';
 

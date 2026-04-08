@@ -8,6 +8,7 @@
 
 import axios, { type AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import { API_BASE_URL, API_TIMEOUT_MS } from '@/config/env';
+import { getRefreshTokenUrl } from '@/path';
 import { ROUTES } from '@/lib/constants';
 import { clearAuthToken, getAuthToken, setAuthToken, setLoggedIn } from '@/lib/storage';
 import { AppError, normalizeApiError } from '@/utils/error';
@@ -73,7 +74,7 @@ apiClient.interceptors.response.use(
         if (session?.refreshToken) {
           const refreshed = await fetchHttp<ApiResponse<{ accessToken: string; refreshToken?: string }>>({
             method: 'POST',
-            url: `${trimmedBase}/auth/refresh`,
+            url: getRefreshTokenUrl(),
             data: { refresh: session.refreshToken },
           });
 
