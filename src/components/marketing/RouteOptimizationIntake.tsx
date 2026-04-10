@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { BarChart3, Loader2 } from 'lucide-react';
 import { trackFormSubmit } from '@/lib/analytics';
 import { normalizeLeadPhoneInput, parseIndianMobile } from '@/lib/validations';
+import { apiClient } from '@/lib/api';
 
 const LEAD_SOURCE = 'route_optimization_grow_with_liftngo';
 
@@ -51,42 +52,30 @@ export default function RouteOptimizationIntake({ id = 'route-analysis', classNa
 
     setStatus('loading');
     try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: '',
-          phone: digits,
-          query:
-            'Autonomous route optimization request — subscriber requested savings-oriented lane report via grow-with-liftngo; share report on this number when ready.',
-          source: LEAD_SOURCE,
-          company: '',
-          email: '',
-          city: '',
-          website: honeypot,
-        }),
+      await apiClient.post('/api/leads', {
+        name: '',
+        phone: digits,
+        query:
+          'Autonomous route optimization request — subscriber requested savings-oriented lane report via grow-with-liftngo; share report on this number when ready.',
+        source: LEAD_SOURCE,
+        company: '',
+        email: '',
+        city: '',
+        website: honeypot,
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string; ok?: boolean };
-
-      if (res.status === 503) {
-        setStatus('error');
-        setServerMessage(
-          data.error ?? 'Online intake is unavailable. Please use the business enquiry form or contact channels.',
-        );
-        return;
-      }
-
-      if (!res.ok) {
-        setStatus('error');
-        setServerMessage(data.error ?? 'Something went wrong. Try again shortly.');
-        return;
-      }
 
       trackFormSubmit(LEAD_SOURCE);
       setStatus('success');
-    } catch {
+    } catch (err) {
       setStatus('error');
-      setServerMessage('Network error. Check your connection and try again.');
+      const error = err as { status?: number; message?: string };
+      if (error.status === 503) {
+        setServerMessage(
+          'Online intake is unavailable. Please use the business enquiry form or contact channels.',
+        );
+      } else {
+        setServerMessage(error.message ?? 'Something went wrong. Try again shortly.');
+      }
     }
   };
 

@@ -108,12 +108,15 @@ class SocketService {
       this.setState('FAILED');
       return;
     }
-    const delayMs = Math.min(30000, 1000 * Math.pow(2, Math.min(this.reconnectAttempt, 5)));
+    // Exponential backoff with jitter to prevent thundering herd
+    const baseDelay = Math.min(30000, 1000 * Math.pow(2, Math.min(this.reconnectAttempt, 5)));
+    const jitter = baseDelay * 0.3 * Math.random(); // 0-30% jitter
+    const delayMs = Math.round(baseDelay + jitter);
     this.setState('RECONNECTING');
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null;
       if (!this.connectionArgs || this.manualDisconnect) return;
-      this.log('[ws] reconnect attempt', this.reconnectAttempt);
+      this.log('[ws] reconnect attempt', this.reconnectAttempt, 'delay:', delayMs);
       this.setState('CONNECTING');
       this.connect(this.connectionArgs.userId, this.connectionArgs.role);
     }, delayMs);

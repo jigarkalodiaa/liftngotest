@@ -6,6 +6,27 @@ import { CustomerTripStatus, type Driver, type Location, type Trip } from '@/typ
 
 export type SocketConnectionState = 'CONNECTED' | 'CONNECTING' | 'RECONNECTING' | 'FAILED' | 'DISCONNECTED';
 
+/** Valid state transitions to prevent out-of-sync updates */
+const VALID_TRANSITIONS: Record<CustomerTripStatus, CustomerTripStatus[]> = {
+  [CustomerTripStatus.IDLE]: [CustomerTripStatus.SEARCHING],
+  [CustomerTripStatus.SEARCHING]: [CustomerTripStatus.ASSIGNED, CustomerTripStatus.CANCELLED, CustomerTripStatus.EXPIRED],
+  [CustomerTripStatus.ASSIGNED]: [CustomerTripStatus.ARRIVING, CustomerTripStatus.CANCELLED],
+  [CustomerTripStatus.ARRIVING]: [CustomerTripStatus.PICKED_UP, CustomerTripStatus.CANCELLED],
+  [CustomerTripStatus.PICKED_UP]: [CustomerTripStatus.IN_TRANSIT, CustomerTripStatus.CANCELLED],
+  [CustomerTripStatus.IN_TRANSIT]: [CustomerTripStatus.COMPLETED, CustomerTripStatus.CANCELLED],
+  [CustomerTripStatus.COMPLETED]: [],
+  [CustomerTripStatus.CANCELLED]: [],
+  [CustomerTripStatus.EXPIRED]: [],
+};
+
+function isValidTransition(from: CustomerTripStatus, to: CustomerTripStatus): boolean {
+  // Allow same status (idempotent)
+  if (from === to) return true;
+  // Allow any transition to terminal states for recovery
+  if (to === CustomerTripStatus.CANCELLED || to === CustomerTripStatus.EXPIRED) return true;
+  return VALID_TRANSITIONS[from]?.includes(to) ?? false;
+}
+
 type CustomerTripStoreState = {
   currentTrip: Trip | null;
   tripStatus: CustomerTripStatus;
@@ -54,11 +75,27 @@ export const useCustomerTripStore = create<CustomerTripStoreState>()(
           isSearching: false,
         }),
       updateStatus: (status, timestamp) =>
-        set((state) => ({
-          tripStatus: status,
-          isSearching: status === CustomerTripStatus.SEARCHING,
-          lastEventTimestamp: Math.max(state.lastEventTimestamp, timestamp),
-        })),
+        set((state) => {
+          // Prevent stale updates
+          if (timestamp < state.lastEventTimestamp) {
+            if (process.env.NODE_ENV === 'development') {
+              console.debug('[trip-store] Ignoring stale update', { status, timestamp, lastEvent: state.lastEventTimestamp });
+            }
+            return state;
+          }
+          // Validate transition
+          if (!isValidTransition(state.tripStatus, status)) {
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('[trip-store] Invalid transition', { from: state.tripStatus, to: status });
+            }
+            return state;
+          }
+          return {
+            tripStatus: status,
+            isSearching: status === CustomerTripStatus.SEARCHING,
+            lastEventTimestamp: Math.max(state.lastEventTimestamp, timestamp),
+          };
+        }),
       updateLocation: (location) => set({ driverLocation: location }),
       resetTrip: () =>
         set({

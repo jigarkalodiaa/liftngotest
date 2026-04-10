@@ -123,30 +123,6 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
     }
   }, [countdown]);
 
-  const handleKeyPress = useCallback(
-    (key: string) => {
-      if (step === 'phone') {
-        if (key === 'backspace') setValue('phone', phoneNumber.slice(0, -1), { shouldValidate: true });
-        else if (/^\d$/.test(key) && phoneNumber.replace(/\D/g, '').length < 10)
-          setValue('phone', phoneNumber + key, { shouldValidate: true });
-      } else {
-        const emptyIndex = otp.findIndex((d) => d === '');
-        if (key === 'backspace') {
-          const lastFilled = otp.map((d, i) => (d !== '' ? i : -1)).filter((i) => i !== -1).pop();
-          if (lastFilled !== undefined) {
-            const next = [...otp];
-            next[lastFilled] = '';
-            setOtp(next);
-          }
-        } else if (/^\d$/.test(key) && emptyIndex !== -1) {
-          const next = [...otp];
-          next[emptyIndex] = key;
-          setOtp(next);
-        }
-      }
-    },
-    [step, phoneNumber, otp, setValue],
-  );
 
   const runSendOtp = useCallback(async () => {
     setSendError('');
@@ -224,12 +200,6 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  const keypadKeys: { key: string; id: string }[][] = [
-    [{ key: '1', id: 'k1' }, { key: '2', id: 'k2' }, { key: '3', id: 'k3' }],
-    [{ key: '4', id: 'k4' }, { key: '5', id: 'k5' }, { key: '6', id: 'k6' }],
-    [{ key: '7', id: 'k7' }, { key: '8', id: 'k8' }, { key: '9', id: 'k9' }],
-    [{ key: 'backspace', id: 'backspace' }, { key: '0', id: 'k0' }, { key: 'enter', id: 'enter' }],
-  ];
 
   const phoneDigits = normalizePhoneInput(phoneNumber);
   const otpValid = loginOtpSchema.safeParse({ otp: otp.join('') }).success;
@@ -357,7 +327,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
                   const digits = e.target.value.replace(/\D/g, '').slice(0, 4).split('');
                   setOtp([digits[0] ?? '', digits[1] ?? '', digits[2] ?? '', digits[3] ?? '']);
                 }}
-                className="absolute opacity-0 w-0 h-0 p-0 m-0 border-0 pointer-events-none overflow-hidden"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-text"
                 aria-label="Enter 4-digit OTP"
               />
               {otp.map((digit, i) => (
@@ -394,19 +364,6 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
               )}
             </p>
 
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={termsChecked}
-                onChange={(e) => setValue('termsAccepted', e.target.checked)}
-                className="mt-0.5 h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-[var(--color-primary)]"
-              />
-              <span className="text-xs text-gray-600">
-                By continuing, you agree to calls, including by{' '}
-                <span className="font-semibold text-gray-800">IVR auto-dialer, WhatsApp, or Emails</span> from Liftngo and its
-                affiliates.
-              </span>
-            </label>
           </>
         )}
       </div>
@@ -439,48 +396,6 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
         )}
       </div>
 
-      <div className="bg-gray-100 p-4 md:hidden">
-        <div className="grid grid-cols-3 gap-2">
-          {keypadKeys.flat().map(({ key: k, id }) => (
-            <button
-              key={id}
-              type="button"
-              aria-label={k === 'backspace' ? 'Backspace' : k === 'enter' ? 'Submit' : `Digit ${k}`}
-              onClick={() => {
-                if (k === 'enter') {
-                  if (step === 'phone') handleSubmit(onPhoneSubmit)();
-                  else void handleVerify();
-                } else {
-                  handleKeyPress(k);
-                }
-              }}
-              className={`h-14 rounded-xl text-xl font-medium flex items-center justify-center transition-colors ${
-                k === 'backspace'
-                  ? 'bg-[#E8E8ED] text-gray-700 hover:bg-gray-200 col-span-1'
-                  : k === 'enter'
-                    ? 'bg-[var(--color-primary)] text-white hover:opacity-90 col-span-1'
-                    : 'bg-white text-gray-900 hover:bg-gray-50 border border-gray-200 shadow-sm'
-              }`}
-            >
-              {k === 'backspace' ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} aria-hidden>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414-6.414a2 2 0 011.414-.586H19a2 2 0 012 2v10a2 2 0 01-2 2h-8.172a2 2 0 01-1.414-.586L3 12z"
-                  />
-                </svg>
-              ) : k === 'enter' ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              ) : (
-                k
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

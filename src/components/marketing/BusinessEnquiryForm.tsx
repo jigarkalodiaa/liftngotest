@@ -6,6 +6,7 @@ import { Loader2, Send } from 'lucide-react';
 import { SUPPORT_EMAIL } from '@/config/env';
 import { trackFormSubmit } from '@/lib/analytics';
 import { normalizeLeadPhoneInput, parseIndianMobile } from '@/lib/validations';
+import { apiClient } from '@/lib/api';
 
 type Props = {
   id?: string;
@@ -75,42 +76,29 @@ export default function BusinessEnquiryForm({
 
     setStatus('loading');
     try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: trimmedName,
-          phone: digits,
-          query: message.trim(),
-          source: leadSource,
-          company: company.trim(),
-          email: em,
-          city: city.trim(),
-          website: honeypot,
-        }),
+      await apiClient.post('/api/leads', {
+        name: trimmedName,
+        phone: digits,
+        query: message.trim(),
+        source: leadSource,
+        company: company.trim(),
+        email: em,
+        city: city.trim(),
+        website: honeypot,
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string; ok?: boolean };
-
-      if (res.status === 503) {
-        setStatus('error');
-        setServerMessage(
-          data.error ??
-            'We could not record your enquiry online right now. Please email or call us using the options above.',
-        );
-        return;
-      }
-
-      if (!res.ok) {
-        setStatus('error');
-        setServerMessage(data.error ?? 'Something went wrong. Please try again or reach us by email.');
-        return;
-      }
 
       trackFormSubmit(leadSource);
       setStatus('success');
-    } catch {
+    } catch (err) {
       setStatus('error');
-      setServerMessage('Network error. Check your connection and try again.');
+      const error = err as { status?: number; message?: string };
+      if (error.status === 503) {
+        setServerMessage(
+          'We could not record your enquiry online right now. Please email or call us using the options above.',
+        );
+      } else {
+        setServerMessage(error.message ?? 'Something went wrong. Please try again or reach us by email.');
+      }
     }
   };
 
