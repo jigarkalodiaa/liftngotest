@@ -6,6 +6,7 @@ import MessageBubble from './MessageBubble';
 import { ROUTES } from '@/lib/constants';
 import { trackWhatsAppClick } from '@/lib/analytics';
 import { getWhatsAppUrl } from '@/lib/whatsapp';
+import { apiClient } from '@/lib/api';
 import {
   CHAT_WHATSAPP_PREFILL,
   LEAD_ASK_NAME,
@@ -112,14 +113,10 @@ export default function ChatWindow({ onClose }: Props) {
       const sid = sessionIdRef.current;
       const logTurn = (botText: string) => {
         if (!sid) return;
-        void fetch('/api/chat/log', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: sid,
-            user_message: trimmed.slice(0, 8000),
-            bot_response: botText.slice(0, 8000),
-          }),
+        void apiClient.post('/api/chat/log', {
+          session_id: sid,
+          user_message: trimmed.slice(0, 8000),
+          bot_response: botText.slice(0, 8000),
         }).catch(() => {});
       };
 
@@ -129,15 +126,11 @@ export default function ChatWindow({ onClose }: Props) {
           .map((m) => m.content)
           .join(' | ')
           .slice(0, 4000);
-        void fetch('/api/leads', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: merged.name ?? '',
-            phone: merged.phone ?? '',
-            query,
-            source: 'chatbot_widget',
-          }),
+        void apiClient.post('/api/leads', {
+          name: merged.name ?? '',
+          phone: merged.phone ?? '',
+          query,
+          source: 'chatbot_widget',
         }).catch(() => {});
       };
 

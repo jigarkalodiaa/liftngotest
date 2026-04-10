@@ -89,6 +89,7 @@ export default function TripOptionsPage() {
   const [sender, setSender] = useState<PersonDetails | null>(null);
   const [receiver, setReceiver] = useState<PersonDetails | null>(null);
   const [selected, setSelected] = useState<OptionId>('two');
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const { data: directionsData, isLoading: directionsLoading } = useDirections(pickup, drop);
 
@@ -634,7 +635,8 @@ export default function TripOptionsPage() {
             )}
             <button
               type="button"
-              className={`rounded-xl py-3.5 font-semibold transition-opacity hover:opacity-95 ${fromFood ? 'w-full text-white' : 'flex-1 border'}`}
+              disabled={isNavigating}
+              className={`rounded-xl py-3.5 font-semibold transition-opacity hover:opacity-95 disabled:opacity-60 disabled:cursor-not-allowed ${fromFood ? 'w-full text-white' : 'flex-1 border'}`}
               style={{
                 backgroundColor: fromFood ? theme.colors.primary : theme.colors.white,
                 borderColor: fromFood ? undefined : theme.colors.primary,
@@ -643,12 +645,14 @@ export default function TripOptionsPage() {
                 ...(fromFood ? {} : { borderWidth: 1, borderStyle: 'solid' as const }),
               }}
               onClick={() => {
+                if (isNavigating) return;
+                setIsNavigating(true);
                 trackCheckPriceClick(OPTION_TO_SERVICE[selected]);
                 trackFunnelStep('booking', 'trip_options_to_payment', OPTION_TO_SERVICE[selected]);
                 router.push(fromFood ? `${ROUTES.PAYMENT}?from=food` : ROUTES.PAYMENT);
               }}
             >
-              Book Now
+              {isNavigating ? 'Loading...' : 'Book Now'}
             </button>
           </div>
         </div>

@@ -53,9 +53,25 @@ export default function Header() {
       return;
     }
 
+    // Ensure compact pickup starts as false - only show after scroll
+    setCompactPickup(false);
+
     let cancelled = false;
     let observer: IntersectionObserver | null = null;
     let frames = 0;
+    let sentinelOutOfView = false;
+
+    // Only show compact pickup when user scrolls AND sentinel is out of view
+    const handleScroll = () => {
+      if (cancelled) return;
+      // Check if we've scrolled past the hero (scrollY > 100px as threshold)
+      if (window.scrollY > 100 && sentinelOutOfView) {
+        setCompactPickup(true);
+      } else if (window.scrollY <= 50) {
+        setCompactPickup(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     const tryObserve = () => {
       if (cancelled) return;
@@ -70,7 +86,13 @@ export default function Header() {
       observer = new IntersectionObserver(
         ([entry]) => {
           if (!cancelled) {
-            setCompactPickup(!entry.isIntersecting);
+            sentinelOutOfView = !entry.isIntersecting;
+            // Only show if scrolled past threshold
+            if (sentinelOutOfView && window.scrollY > 100) {
+              setCompactPickup(true);
+            } else if (entry.isIntersecting) {
+              setCompactPickup(false);
+            }
           }
         },
         { root: null, threshold: 0, rootMargin: '0px' }
@@ -83,6 +105,7 @@ export default function Header() {
     return () => {
       cancelled = true;
       observer?.disconnect();
+      window.removeEventListener('scroll', handleScroll);
     };
   }, [isHome]);
 
