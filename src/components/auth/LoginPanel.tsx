@@ -354,7 +354,12 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
                       transition: 'all 150ms ease-out',
                     }}
                   >
-                    {digit}
+                    {isFilled ? digit : isHighlighted ? (
+                      <span 
+                        className="w-0.5 h-6 rounded-full animate-pulse"
+                        style={{ backgroundColor: '#2C2D5B' }}
+                      />
+                    ) : null}
                   </div>
                 );
               })}

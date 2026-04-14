@@ -127,32 +127,63 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
                 : 'none',
             }}
           >
-            <input
-              ref={el => { inputRefs.current[i] = el; }}
-              type="text"
-              inputMode="numeric"
-              autoComplete={i === 0 ? 'one-time-code' : 'off'}
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              onPaste={handlePaste}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              style={{
-                width: '100%',
-                height: '100%',
-                background: 'transparent',
-                textAlign: 'center',
-                fontSize: 26,
-                fontWeight: 700,
-                outline: 'none',
-                border: 'none',
-                color: '#2C2D5B',
-                caretColor: '#2C2D5B',
-              }}
-              aria-label={`Digit ${i + 1}`}
-            />
+            {isFilled ? (
+              <input
+                ref={el => { inputRefs.current[i] = el; }}
+                type="text"
+                inputMode="numeric"
+                autoComplete={i === 0 ? 'one-time-code' : 'off'}
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(i, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(i, e)}
+                onPaste={handlePaste}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  background: 'transparent',
+                  textAlign: 'center',
+                  fontSize: 26,
+                  fontWeight: 700,
+                  outline: 'none',
+                  border: 'none',
+                  color: '#2C2D5B',
+                  caretColor: 'transparent',
+                }}
+                aria-label={`Digit ${i + 1}`}
+              />
+            ) : (
+              <>
+                <input
+                  ref={el => { inputRefs.current[i] = el; }}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete={i === 0 ? 'one-time-code' : 'off'}
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChange(i, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(i, e)}
+                  onPaste={handlePaste}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  style={{
+                    position: 'absolute',
+                    opacity: 0,
+                    width: 1,
+                    height: 1,
+                  }}
+                  aria-label={`Digit ${i + 1}`}
+                />
+                {isHighlighted && (
+                  <span 
+                    className="w-0.5 h-7 rounded-full animate-pulse"
+                    style={{ backgroundColor: '#2C2D5B' }}
+                  />
+                )}
+              </>
+            )}
           </div>
         );
       })}
