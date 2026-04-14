@@ -22,7 +22,13 @@ export default function CoconutMenuPage() {
           <div>
             <p className="text-xs font-semibold text-gray-900">{COCONUT_VENDOR.area}</p>
             <p className="text-[11px] text-gray-600">{COCONUT_VENDOR.pickupAddress}</p>
-            <p className="text-[11px] text-gray-500">Delivery in {COCONUT_VENDOR.estimatedMinutes} min · ₹{COCONUT_VENDOR.deliveryFlatInr} delivery</p>
+            <p className="text-[11px] text-gray-500">
+              Delivery in {COCONUT_VENDOR.estimatedMinutes} min · {COCONUT_VENDOR.deliveryFlatInr === 0 ? (
+                <span className="font-semibold text-green-600">FREE Delivery</span>
+              ) : (
+                `₹${COCONUT_VENDOR.deliveryFlatInr} delivery`
+              )}
+            </p>
           </div>
         </div>
 

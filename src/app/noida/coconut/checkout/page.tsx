@@ -51,7 +51,9 @@ export default function CoconutCheckoutPage() {
 
   const subtotal = coconutCartSubtotal(items);
   const delivery = COCONUT_VENDOR.deliveryFlatInr;
-  const grand = subtotal + delivery;
+  const handlingCharge = COCONUT_VENDOR.handlingChargeInr ?? 0;
+  const platformFee = COCONUT_VENDOR.platformFeeInr ?? 0;
+  const grand = subtotal + delivery + handlingCharge + platformFee;
 
   const placeOrder = useCallback(async () => {
     setPayError(null);

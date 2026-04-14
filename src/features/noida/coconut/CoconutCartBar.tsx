@@ -15,7 +15,9 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
 
   const count = items.reduce((n, i) => n + i.quantity, 0);
   const subtotal = coconutCartSubtotal(items);
-  const grand = subtotal + COCONUT_VENDOR.deliveryFlatInr;
+  const handlingCharge = COCONUT_VENDOR.handlingChargeInr ?? 0;
+  const platformFee = COCONUT_VENDOR.platformFeeInr ?? 0;
+  const grand = subtotal + COCONUT_VENDOR.deliveryFlatInr + handlingCharge + platformFee;
 
   const goCheckout = () => {
     trackViewCart(count, grand, 'noida_coconut_menu');
@@ -42,7 +44,7 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
           </div>
           <div className="shrink-0 text-right">
             <p className="text-sm font-semibold tabular-nums text-gray-900">₹{grand}</p>
-            <p className="text-[10px] text-gray-500">incl. delivery</p>
+            <p className="text-[10px] text-gray-500">incl. fees</p>
           </div>
         </button>
 
