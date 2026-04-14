@@ -63,7 +63,7 @@ const jsonLd = {
           item: {
             '@type': 'Product',
             name: 'Nariyal Pani (Tender Coconut Water)',
-            description: 'Fresh green tender coconut with straw — chilled, naturally sweet.',
+            description: 'Fresh green tender coconut with straw — naturally sweet and hydrating.',
             offers: {
               '@type': 'Offer',
               price: '60',

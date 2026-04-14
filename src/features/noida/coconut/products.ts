@@ -15,7 +15,7 @@ export const COCONUT_PRODUCTS: CoconutProduct[] = [
   {
     id: 'tender-coconut',
     name: 'Nariyal Pani',
-    shortDescription: 'Fresh green tender coconut with straw — chilled, naturally sweet, and hydrating.',
+    shortDescription: 'Fresh green tender coconut with straw — naturally sweet and hydrating.',
     priceInr: 60,
     image: '/images/coconut/tender.png',
     visual: '🌴🥥🧊',
@@ -49,7 +49,7 @@ export const COCONUT_PRODUCTS: CoconutProduct[] = [
   {
     id: 'coconut-chunks',
     name: 'Fresh Coconut Chunks',
-    shortDescription: 'Ready-to-eat white coconut meat, diced and chilled. 200 g cup.',
+    shortDescription: 'Ready-to-eat white coconut meat, freshly diced. 200 g cup.',
     priceInr: 70,
     image: '/images/coconut/chunks.png',
     visual: '🥥🥣',
