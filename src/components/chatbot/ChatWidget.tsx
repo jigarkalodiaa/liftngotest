@@ -1,11 +1,15 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { trackChatToggle } from '@/lib/analytics';
 import ChatWindow from './ChatWindow';
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  if (pathname === '/noida/coconut') return null;
+
   const close = useCallback(() => {
     trackChatToggle('close');
     setOpen(false);
