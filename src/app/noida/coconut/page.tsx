@@ -1,54 +1,236 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { PageHeader } from '@/components/ui';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, MapPin, Clock, Leaf, BadgeCheck, Star, Zap, ShieldCheck, Check, Truck } from 'lucide-react';
 import { COCONUT_PRODUCTS, COCONUT_VENDOR } from '@/features/noida/coconut/products';
 import CoconutProductCard from '@/features/noida/coconut/CoconutProductCard';
 import CoconutCartBar from '@/features/noida/coconut/CoconutCartBar';
 
+// CSS Styles matching checkout page
+const menuStyles = `
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+  @keyframes slidein {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .menu-slidein { animation: slidein 0.4s ease forwards; }
+  .menu-float { animation: float 2.5s ease-in-out infinite; }
+  .menu-pulse { animation: pulse 2s ease-in-out infinite; }
+  .live-dot { animation: livePulse 1.5s ease-in-out infinite; }
+`;
+
 export default function CoconutMenuPage() {
   const router = useRouter();
+  const [socialProof, setSocialProof] = useState({ people: 23, mins: 4 });
+  const [timerText, setTimerText] = useState('');
 
   const singles = COCONUT_PRODUCTS.filter((p) => !p.combo);
   const combos = COCONUT_PRODUCTS.filter((p) => p.combo);
 
-  return (
-    <div className="min-h-screen bg-gray-50 pb-40">
-      <div className="mx-auto max-w-xl px-4 pt-4 sm:max-w-2xl sm:px-6">
-        <PageHeader title={COCONUT_VENDOR.name} onBack={() => router.push('/dashboard')} />
+  // Dynamic social proof
+  useEffect(() => {
+    const updateSocialProof = () => {
+      const n = Math.floor(Math.random() * 8) + 18;
+      const t = Math.floor(Math.random() * 7) + 2;
+      setSocialProof({ people: n, mins: t });
+    };
+    updateSocialProof();
+    const interval = setInterval(updateSocialProof, Math.random() * 60000 + 30000);
+    return () => clearInterval(interval);
+  }, []);
 
-        <div className="mt-2 flex items-center gap-2 rounded-xl bg-blue-50 px-3 py-2">
-          <span className="text-lg" aria-hidden>📍</span>
-          <div>
-            <p className="text-xs font-semibold text-gray-900">{COCONUT_VENDOR.area}</p>
-            <p className="text-[11px] text-gray-600">{COCONUT_VENDOR.pickupAddress}</p>
-            <p className="text-[11px] text-gray-500">
-              Delivery in {COCONUT_VENDOR.estimatedMinutes} min · {COCONUT_VENDOR.deliveryFlatInr === 0 ? (
-                <span className="font-semibold text-green-600">FREE Delivery</span>
-              ) : (
-                `₹${COCONUT_VENDOR.deliveryFlatInr} delivery`
-              )}
-            </p>
+  // Countdown timer - updates every second
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const end = new Date();
+      end.setHours(23, 59, 59, 0);
+      const diff = Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000));
+      const h = Math.floor(diff / 3600);
+      const m = Math.floor((diff % 3600) / 60);
+      const s = diff % 60;
+      setTimerText(`${h}h ${m}m ${s}s`);
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="min-h-screen pb-36" style={{ background: '#F0FAF4', fontFamily: 'Nunito, sans-serif' }}>
+      <style>{menuStyles}</style>
+      
+      {/* HEADER - Liftngo Theme */}
+      <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3" style={{ background: '#2C2D5B' }}>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => router.push('/dashboard')}
+            className="flex h-8 w-8 items-center justify-center rounded-full"
+            style={{ background: 'rgba(255,255,255,0.15)' }}
+          >
+            <ChevronLeft className="h-5 w-5 text-white" strokeWidth={2.5} />
+          </button>
+          <h1 className="text-base text-white" style={{ fontWeight: 900 }}>{COCONUT_VENDOR.name}</h1>
+        </div>
+        <div className="flex items-center gap-1.5 rounded-[12px] px-3 py-1" style={{ background: 'rgba(255,255,255,0.12)' }}>
+          <ShieldCheck className="h-3.5 w-3.5" style={{ color: '#A5B4FC' }} strokeWidth={2.5} />
+          <span className="text-[11px]" style={{ color: '#A5B4FC', fontWeight: 700 }}>100% Fresh</span>
+        </div>
+      </header>
+
+      {/* OFFER BANNER */}
+      <div className="flex items-center justify-between gap-2 px-4 py-2.5" style={{ background: '#10B981' }}>
+        <span className="shrink-0 rounded-[12px] px-2.5 py-1 text-[10px]" style={{ background: '#fff', color: '#059669', fontWeight: 900 }}>
+          LOWEST PRICE
+        </span>
+        <span className="flex-1 text-[12px]" style={{ color: '#fff', fontWeight: 700 }}>
+          ₹79 only · Same as counter · Zero markup
+        </span>
+        <span className="shrink-0 rounded-[12px] border px-2 py-1 text-[10px]" style={{ background: 'rgba(255,255,255,0.2)', borderColor: 'rgba(255,255,255,0.3)', color: '#fff', fontWeight: 700 }}>
+          {timerText}
+        </span>
+      </div>
+
+      {/* TRUST STRIP */}
+      <div className="flex gap-2 overflow-x-auto px-4 py-2.5" style={{ background: '#ECFDF5', borderBottom: '1px solid #C6E8D2' }}>
+        {[
+          { icon: <Leaf className="h-3 w-3" />, text: '100% Fresh' },
+          { icon: <Check className="h-3 w-3" />, text: 'Counter price' },
+          { icon: <Truck className="h-3 w-3" />, text: 'Free delivery' },
+          { icon: <Clock className="h-3 w-3" />, text: '15–25 min' },
+        ].map((pill, i) => (
+          <span key={i} className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[12px] border bg-white px-3 py-1.5 text-[11px]" style={{ borderColor: '#C6E8D2', color: '#1B6B3A', fontWeight: 700 }}>
+            {pill.icon}
+            {pill.text}
+          </span>
+        ))}
+      </div>
+
+      <div className="mx-auto max-w-xl sm:max-w-2xl">
+
+        {/* HERO TEXT */}
+        <div className="menu-slidein mx-3 mt-3 rounded-[12px] border bg-white p-4 text-center" style={{ borderColor: '#E5F0EA', animationDelay: '0.05s' }}>
+          <h2 className="text-xl" style={{ color: '#1A1A1A', fontWeight: 900 }}>
+            Beat the heat
+          </h2>
+          <p className="text-base" style={{ color: '#1B6B3A', fontWeight: 800 }}>
+            Fresh nariyal, at your door.
+          </p>
+          <p className="mt-1 text-sm" style={{ color: '#6B7280' }}>
+            Same price as the counter. Zero markup.
+          </p>
+        </div>
+        
+        {/* LOCATION */}
+        <div className="menu-slidein mx-3 mt-3 flex items-center gap-3 rounded-[12px] border bg-white p-3" style={{ borderColor: '#E5F0EA', animationDelay: '0.1s' }}>
+          <div className="flex h-11 w-11 items-center justify-center rounded-[12px]" style={{ background: '#E8F5EC' }}>
+            <MapPin className="h-5 w-5" style={{ color: '#1B6B3A' }} strokeWidth={2} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm" style={{ color: '#1A1A1A', fontWeight: 800 }}>{COCONUT_VENDOR.area}</p>
+            <p className="text-[11px] truncate" style={{ color: '#6B7280' }}>{COCONUT_VENDOR.pickupAddress}</p>
+            <div className="mt-1 flex items-center gap-1">
+              <Truck className="h-3 w-3" style={{ color: '#1B6B3A' }} />
+              <span className="text-[10px]" style={{ color: '#1B6B3A', fontWeight: 700 }}>Delivered by LiftNGo</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 rounded-[12px] px-2.5 py-1.5" style={{ background: '#D1FAE5' }}>
+            <Clock className="h-3.5 w-3.5" style={{ color: '#065F46' }} strokeWidth={2} />
+            <span className="text-[11px]" style={{ color: '#065F46', fontWeight: 800 }}>{COCONUT_VENDOR.estimatedMinutes} min</span>
           </div>
         </div>
 
-        <h2 className="mt-6 text-xs font-bold uppercase tracking-widest text-gray-400">Single Items</h2>
-        <div className="mt-3 space-y-3">
+        {/* PRODUCTS */}
+        <div className="mx-3 mt-4 space-y-4">
           {singles.map((p) => (
-            <CoconutProductCard key={p.id} product={p} />
+            <CoconutProductCard key={p.id} product={p} isFeatured />
+          ))}
+          {combos.map((p) => (
+            <CoconutProductCard key={p.id} product={p} isPack />
           ))}
         </div>
 
-        {combos.length > 0 && (
-          <>
-            <h2 className="mt-8 text-xs font-bold uppercase tracking-widest text-gray-400">Combos &amp; Packs</h2>
-            <div className="mt-3 space-y-3">
-              {combos.map((p) => (
-                <CoconutProductCard key={p.id} product={p} />
-              ))}
+        {/* SOCIAL PROOF */}
+        <div className="menu-slidein mx-3 mt-4 flex items-center gap-3 rounded-[12px] border bg-white p-3" style={{ borderColor: '#E5F0EA', animationDelay: '0.2s' }}>
+          <div className="flex -space-x-2">
+            {['R', 'S', 'A'].map((initial, i) => (
+              <div
+                key={i}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-[11px] text-white ring-2 ring-white"
+                style={{ backgroundColor: ['#1B6B3A', '#059669', '#10B981'][i], fontWeight: 800 }}
+              >
+                {initial}
+              </div>
+            ))}
+          </div>
+          <p className="flex-1 text-[12px]" style={{ color: '#6B7280' }}>
+            <span style={{ color: '#1A1A1A', fontWeight: 800 }}>{socialProof.people} people</span> from Sector 53 ordered today · Last order {socialProof.mins} mins ago
+            <span className="live-dot ml-1.5 inline-block h-2 w-2 rounded-full" style={{ background: '#EF4444' }} />
+          </p>
+        </div>
+
+        {/* GUARANTEE STRIP */}
+        <div className="menu-slidein mx-3 mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-[12px] border bg-white px-4 py-3" style={{ borderColor: '#E5F0EA', animationDelay: '0.25s' }}>
+          {[
+            { icon: <Leaf className="h-3.5 w-3.5" />, text: '100% Fresh' },
+            { icon: <BadgeCheck className="h-3.5 w-3.5" />, text: 'Counter price' },
+            { icon: <Clock className="h-3.5 w-3.5" />, text: '15–25 min' },
+          ].map((item, i) => (
+            <span key={i} className="flex items-center gap-1 text-[11px]" style={{ color: '#3B8A5A', fontWeight: 700 }}>
+              <span style={{ color: '#1B6B3A' }}>{item.icon}</span>
+              {item.text}
+              {i < 2 && <span className="ml-2" style={{ color: '#C6E8D2' }}>·</span>}
+            </span>
+          ))}
+        </div>
+
+        {/* DELIVERY PARTNER */}
+        <div className="menu-slidein mx-3 mt-4 rounded-[12px] border bg-white" style={{ borderColor: '#E5F0EA', animationDelay: '0.3s' }}>
+          <div className="flex items-center justify-between rounded-[12px] p-3" style={{ background: '#2C2D5B', margin: '8px' }}>
+            <div className="flex items-center gap-2">
+              <Truck className="h-4 w-4" style={{ color: '#10B981' }} />
+              <span className="text-[11.5px]" style={{ color: '#E0E7FF', fontWeight: 700 }}>Free delivery on pack of 4 · GPS tracked</span>
             </div>
-          </>
-        )}
+            <span className="rounded-[12px] px-2 py-0.5 text-[10px]" style={{ background: '#10B981', color: '#fff', fontWeight: 900 }}>FREE</span>
+          </div>
+          <div className="flex items-center justify-between px-4 pb-3">
+            <span className="text-[11px]" style={{ color: '#6B7280', fontWeight: 600 }}>Delivered by our trusted partner</span>
+            <div className="flex items-center gap-1">
+              <Zap className="h-3 w-3" style={{ color: '#FF8C00' }} strokeWidth={2.5} />
+              <span className="text-[10px]" style={{ color: '#2C2D5B', fontWeight: 700 }}>Powered by LiftNGo</span>
+            </div>
+          </div>
+        </div>
+
+        {/* WHATSAPP SUPPORT */}
+        <a
+          href="https://chat.whatsapp.com/L2L11ZBkjIWGcA6M3kdQ2B"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="menu-slidein mx-3 mt-4 flex items-center justify-center gap-2 rounded-[12px] border p-3 transition-colors hover:bg-white"
+          style={{ background: '#ECFDF5', borderColor: '#C6E8D2', animationDelay: '0.35s' }}
+        >
+          <svg className="h-5 w-5" style={{ color: '#1B6B3A' }} viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          <span className="text-[12px]" style={{ color: '#1B6B3A', fontWeight: 800 }}>Need help? Chat with us on WhatsApp</span>
+        </a>
+
       </div>
 
       <CoconutCartBar onCheckout={() => router.push('/noida/coconut/checkout')} />

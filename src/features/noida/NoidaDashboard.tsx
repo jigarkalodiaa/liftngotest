@@ -1096,15 +1096,15 @@ export default function NoidaDashboard({
 
       {/* ── ORDER FRESH & LOCAL — compact summer card ────── */}
       <section
-        className="rounded-2xl p-3 shadow-sm ring-1 ring-sky-100/90 sm:p-4 md:p-5"
+        className="rounded-2xl p-3 shadow-sm ring-1 ring-green-100/90 sm:p-4 md:p-5"
         style={{
-          background: 'linear-gradient(160deg, rgba(224,242,254,0.75) 0%, #fff 50%, rgba(254,252,232,0.35) 100%)',
+          background: 'linear-gradient(160deg, rgba(220,252,231,0.75) 0%, #fff 50%, rgba(236,253,245,0.5) 100%)',
         }}
       >
         <div className="px-0.5">
           <h2 className="text-sm font-semibold text-slate-900 md:text-base lg:text-lg">Order Fresh &amp; Local</h2>
-          <p className="mt-0.5 flex items-center gap-1 text-[9px] font-medium leading-tight text-sky-700">
-            <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+          <p className="mt-0.5 flex items-center gap-1 text-[9px] font-medium leading-tight text-green-700">
+            <span className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-600">
               <Sun className="h-2.5 w-2.5" strokeWidth={2.5} />
             </span>
             Fresh nariyal pani · Noida
@@ -1121,40 +1121,35 @@ export default function NoidaDashboard({
               router.push('/noida/coconut');
             }
           }}
-          className="group mt-2 flex w-full min-w-0 cursor-pointer flex-row items-center overflow-hidden rounded-xl border border-sky-200/55 bg-gradient-to-br from-white via-sky-50/50 to-cyan-50/35 text-left shadow-md ring-1 ring-sky-100/55 transition-all duration-200 hover:-translate-y-px hover:border-sky-300/60 hover:shadow-lg hover:ring-cyan-100/70 sm:rounded-2xl"
-          style={{ boxShadow: '0 4px 20px -8px rgba(14,165,233,0.22)' }}
+          className="group mt-2 flex w-full min-w-0 cursor-pointer flex-row items-center overflow-hidden rounded-xl border border-green-200/55 bg-gradient-to-br from-white via-green-50/50 to-emerald-50/35 text-left shadow-md ring-1 ring-green-100/55 transition-all duration-200 hover:-translate-y-px hover:border-green-300/60 hover:shadow-lg hover:ring-emerald-100/70 sm:rounded-2xl"
+          style={{ boxShadow: '0 4px 20px -8px rgba(34,197,94,0.22)' }}
         >
-          <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden bg-gradient-to-br from-sky-200/90 to-cyan-100 sm:h-[5.25rem] sm:w-[5.25rem] md:h-24 md:w-24">
+          <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden bg-gradient-to-br from-green-100 to-emerald-50 sm:h-[5.25rem] sm:w-[5.25rem] md:h-24 md:w-24">
             <Image
-              src="/noida/coconut-summer-hero.png"
+              src="/images/coconut/nariyal-pani.png"
               alt="Fresh coconut water delivery in Noida Sector 53 — Liftngo local marketplace"
               fill
-              className="scale-[1.12] object-cover object-[50%_42%] brightness-[1.06] contrast-[1.04] saturate-[1.12] transition-transform duration-300 group-hover:scale-[1.18] sm:scale-[1.15] sm:group-hover:scale-[1.22]"
+              className="scale-[1.12] object-contain object-center brightness-[1.02] transition-transform duration-300 group-hover:scale-[1.18] sm:scale-[1.15] sm:group-hover:scale-[1.22]"
               sizes="(max-width:640px) 72px, 112px"
             />
-            <div
-              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/25 via-transparent to-amber-400/20 mix-blend-soft-light"
-              aria-hidden
-            />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-sky-950/15 to-transparent" aria-hidden />
           </div>
           <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-center gap-1.5 py-2.5 pl-2.5 pr-2.5 sm:gap-2 sm:py-3 sm:pl-3 sm:pr-3 md:py-3.5">
             <div className="flex flex-wrap items-center gap-1">
-              <span className="rounded-full bg-sky-100 px-1.5 py-px text-[8px] font-semibold text-sky-800 ring-1 ring-sky-200/60 sm:px-2 sm:text-[9px]">Popular</span>
+              <span className="rounded-full bg-green-100 px-1.5 py-px text-[8px] font-semibold text-green-800 ring-1 ring-green-200/60 sm:px-2 sm:text-[9px]">Popular</span>
               <span className="rounded-full bg-emerald-100 px-1.5 py-px text-[8px] font-semibold text-emerald-800 ring-1 ring-emerald-200/60 sm:px-2 sm:text-[9px]">Live</span>
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold leading-tight tracking-tight text-slate-900 sm:text-[13px]">Kanchanjunga Fresh Nariyal</p>
-              <p className="mt-0.5 text-[9px] leading-snug text-slate-600 sm:text-[10px]">Sector 53 · ~30 min · Fresh</p>
+              <p className="mt-0.5 text-[9px] leading-snug text-slate-600 sm:text-[10px]">Sector 53 · ~30 min · ₹79 only</p>
             </div>
-            <span className="mt-0.5 flex min-h-9 w-full items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-sky-500 via-sky-500 to-cyan-500 py-2 text-[10px] font-semibold text-white shadow-sm transition-all duration-200 group-hover:from-sky-600 group-hover:to-cyan-500 group-hover:shadow-md active:scale-[0.99] sm:min-h-10 sm:text-[11px]">
+            <span className="mt-0.5 flex min-h-9 w-full items-center justify-center gap-1 rounded-lg bg-[var(--color-primary)] py-2 text-[10px] font-semibold text-white shadow-sm transition-all duration-200 group-hover:opacity-90 group-hover:shadow-md active:scale-[0.99] sm:min-h-10 sm:text-[11px]">
               Order now
               <ArrowRight className="h-2.5 w-2.5 shrink-0 sm:h-3 sm:w-3" strokeWidth={2.5} />
             </span>
           </div>
         </div>
 
-        <p className="mt-1.5 text-center text-[8px] leading-tight text-sky-600/75">Combos &amp; secure pay — tap the card</p>
+        <p className="mt-1.5 text-center text-[8px] leading-tight text-green-600/75">Combos &amp; secure pay — tap the card</p>
 
         <div className="mt-2 grid min-w-0 grid-cols-2 gap-2 sm:mt-2.5 sm:gap-3">
           {ORDER_FRESH_LOCAL.filter((i) => !i.available).map((item) => {
