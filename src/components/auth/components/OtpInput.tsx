@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useRef, useEffect, useState } from 'react';
+import { memo, useRef, useEffect } from 'react';
 
 interface OtpInputProps {
   otp: string[];
@@ -12,8 +12,6 @@ interface OtpInputProps {
 
 function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange }: OtpInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [focusedIndex, setFocusedIndex] = useState<number>(0); // Start with first box highlighted
-  const [hasInteracted, setHasInteracted] = useState(false);
   
   // Sync the first input ref with the passed inputRef for auto-focus
   useEffect(() => {
@@ -22,88 +20,65 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
     }
   }, [inputRef]);
 
-  // Auto-focus first input on mount with multiple attempts for mobile
+  // Auto-focus first input on mount
   useEffect(() => {
-    const focusFirst = () => {
-      const firstEmpty = otp.findIndex(d => d === '');
-      const targetIndex = firstEmpty === -1 ? length - 1 : firstEmpty;
-      setFocusedIndex(targetIndex);
-      inputRefs.current[targetIndex]?.focus();
-    };
-    
-    // Try multiple times for mobile browsers
-    focusFirst();
-    const t1 = setTimeout(focusFirst, 100);
-    const t2 = setTimeout(focusFirst, 300);
-    const t3 = setTimeout(focusFirst, 500);
-    
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
+    const timer = setTimeout(() => {
+      inputRefs.current[0]?.focus();
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
+  
+  // Calculate which box should be highlighted (first empty one) - ALWAYS highlight this
+  const firstEmptyIndex = otp.findIndex(d => d === '');
+  const highlightIndex = firstEmptyIndex === -1 ? length - 1 : firstEmptyIndex;
 
   const handleChange = (index: number, value: string) => {
-    setHasInteracted(true);
-    const digit = value.replace(/\D/g, '').slice(-1); // Take only last digit
+    const digit = value.replace(/\D/g, '').slice(-1);
     const newOtp = [...otp];
     newOtp[index] = digit;
     onChange(newOtp);
 
     // Auto-advance to next input
     if (digit && index < length - 1) {
-      setFocusedIndex(index + 1);
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    setHasInteracted(true);
     if (e.key === 'Backspace') {
       if (!otp[index] && index > 0) {
-        // If current is empty, go back and clear previous
         const newOtp = [...otp];
         newOtp[index - 1] = '';
         onChange(newOtp);
-        setFocusedIndex(index - 1);
         inputRefs.current[index - 1]?.focus();
       } else {
-        // Clear current
         const newOtp = [...otp];
         newOtp[index] = '';
         onChange(newOtp);
       }
     } else if (e.key === 'ArrowLeft' && index > 0) {
-      setFocusedIndex(index - 1);
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === 'ArrowRight' && index < length - 1) {
-      setFocusedIndex(index + 1);
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    setHasInteracted(true);
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length);
     const newOtp = Array.from({ length }, (_, i) => pastedData[i] ?? '');
     onChange(newOtp);
     
-    // Focus appropriate input after paste
     const nextEmpty = newOtp.findIndex(d => d === '');
     const targetIndex = nextEmpty === -1 ? length - 1 : nextEmpty;
-    setFocusedIndex(targetIndex);
     inputRefs.current[targetIndex]?.focus();
   };
 
-  const handleFocus = (index: number) => {
-    setFocusedIndex(index);
+  const handleFocus = () => {
     onFocusChange?.(true);
   };
 
   const handleBlur = () => {
-    // Check if focus moved to another OTP input
     setTimeout(() => {
       const stillInOtp = inputRefs.current.some(ref => ref === document.activeElement);
       if (!stillInOtp) {
@@ -120,35 +95,28 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
     >
       {otp.map((digit, i) => {
         const isFilled = digit !== '';
-        const isHighlighted = i === focusedIndex;
-        
-        // Determine styles based on state
-        const borderColor = isFilled || isHighlighted ? '#2C2D5B' : '#d1d5db';
-        const bgColor = isFilled || isHighlighted ? '#ffffff' : '#f9fafb';
-        const shadow = isHighlighted 
-          ? '0 0 0 3px rgba(44, 45, 91, 0.3), 0 4px 12px rgba(0,0,0,0.15)' 
-          : isFilled 
-            ? '0 1px 3px rgba(0,0,0,0.1)' 
-            : 'none';
-        const scale = isHighlighted ? 'scale(1.08)' : 'scale(1)';
+        // First empty box is ALWAYS highlighted
+        const isHighlighted = i === highlightIndex;
         
         return (
           <div
             key={i}
-            onClick={() => {
-              inputRefs.current[i]?.focus();
-              setFocusedIndex(i);
-            }}
-            className={`
-              w-14 h-16 rounded-xl flex items-center justify-center cursor-text
-              transition-all duration-150
-              ${isHighlighted ? 'border-[3px]' : 'border-2'}
-            `}
+            onClick={() => inputRefs.current[i]?.focus()}
             style={{
-              borderColor,
-              backgroundColor: bgColor,
-              boxShadow: shadow,
-              transform: scale,
+              width: 56,
+              height: 64,
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'text',
+              transition: 'all 150ms',
+              border: isHighlighted ? '2px solid #2C2D5B' : isFilled ? '2px solid #2C2D5B' : '2px solid #d1d5db',
+              backgroundColor: isFilled || isHighlighted ? '#ffffff' : '#f9fafb',
+              boxShadow: isHighlighted 
+                ? '0 0 0 3px rgba(44, 45, 91, 0.25), 0 4px 12px rgba(0,0,0,0.1)' 
+                : 'none',
+              transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
             }}
           >
             <input
@@ -161,10 +129,17 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={handlePaste}
-              onFocus={() => handleFocus(i)}
+              onFocus={handleFocus}
               onBlur={handleBlur}
-              className="w-full h-full bg-transparent text-center text-2xl font-bold tabular-nums outline-none"
               style={{
+                width: '100%',
+                height: '100%',
+                background: 'transparent',
+                textAlign: 'center',
+                fontSize: 24,
+                fontWeight: 700,
+                outline: 'none',
+                border: 'none',
                 color: '#2C2D5B',
                 caretColor: '#2C2D5B',
               }}
