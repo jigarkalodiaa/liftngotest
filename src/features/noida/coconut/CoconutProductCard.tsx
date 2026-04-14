@@ -4,6 +4,7 @@ import { Minus, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { trackAddToCart, trackRemoveFromCart } from '@/lib/analytics';
+import { trackEvent as trackPosthogEvent } from '@/lib/posthogAnalytics';
 import type { CoconutProduct } from './products';
 import { useCoconutCartStore } from './coconutCartStore';
 
@@ -46,6 +47,13 @@ export default function CoconutProductCard({ product, isFeatured, isPack }: Coco
       image: product.image,
     });
     trackAddToCart(product.id, product.name, product.priceInr, 1);
+    trackPosthogEvent('add_to_cart', {
+      item_id: product.id,
+      item_name: product.name,
+      value: product.priceInr,
+      quantity: 1,
+      source: 'noida_coconut_menu',
+    });
   };
 
   return (
@@ -140,6 +148,13 @@ export default function CoconutProductCard({ product, isFeatured, isPack }: Coco
                   className="grid h-8 w-8 place-items-center rounded-[8px] bg-white text-gray-700 shadow-sm"
                   onClick={() => {
                     trackRemoveFromCart(product.id, 1, product.priceInr);
+                    trackPosthogEvent('remove_from_cart', {
+                      item_id: product.id,
+                      item_name: product.name,
+                      value: product.priceInr,
+                      quantity: 1,
+                      source: 'noida_coconut_menu',
+                    });
                     setQuantity(product.id, qty - 1);
                   }}
                 >

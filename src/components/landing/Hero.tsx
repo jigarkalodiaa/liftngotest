@@ -148,9 +148,7 @@ function Hero({ heroTitleLevel = 'h1', pickupBookingSource }: HeroProps) {
                 href="/noida/coconut"
                 className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 sm:w-auto sm:px-6 sm:text-base"
               >
-                <span className="text-base leading-none" aria-hidden>
-                  🥥
-                </span>
+                
                 Order coconut in Noida
               </Link>
             </div>

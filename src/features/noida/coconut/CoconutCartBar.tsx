@@ -2,6 +2,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { trackCheckoutStarted, trackViewCart } from '@/lib/analytics';
+import { trackEvent as trackPosthogEvent } from '@/lib/posthogAnalytics';
 import { useCoconutCartStore, coconutCartSubtotal } from './coconutCartStore';
 import { COCONUT_VENDOR } from './products';
 
@@ -65,6 +66,16 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
   const goCheckout = () => {
     trackViewCart(count, grand, 'noida_coconut_menu');
     trackCheckoutStarted('noida_coconut_checkout', grand);
+    trackPosthogEvent('view_cart', {
+      source: 'noida_coconut_menu',
+      item_count: count,
+      value: grand,
+    });
+    trackPosthogEvent('checkout_started', {
+      flow: 'noida_coconut_checkout',
+      amount: grand,
+      source: 'noida_coconut_menu',
+    });
     onCheckout();
   };
 

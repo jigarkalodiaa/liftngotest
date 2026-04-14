@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, MapPin, Clock, Leaf, BadgeCheck, Star, Zap, ShieldCheck, Check, Truck } from 'lucide-react';
+import { trackEvent as trackGaEvent, trackWhatsAppClick } from '@/lib/analytics';
+import { trackEvent as trackPosthogEvent } from '@/lib/posthogAnalytics';
 import { COCONUT_PRODUCTS, COCONUT_VENDOR } from '@/features/noida/coconut/products';
 import CoconutProductCard from '@/features/noida/coconut/CoconutProductCard';
 import CoconutCartBar from '@/features/noida/coconut/CoconutCartBar';
@@ -68,6 +70,11 @@ export default function CoconutMenuPage() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    trackGaEvent('funnel_step', { flow: 'noida_coconut', step: 'menu_view' });
+    trackPosthogEvent('funnel_step', { flow: 'noida_coconut', step: 'menu_view' });
+  }, []);
+
   return (
     <div className="min-h-screen pb-36" style={{ background: '#F0FAF4', fontFamily: 'Nunito, sans-serif' }}>
       <style>{menuStyles}</style>
@@ -77,7 +84,11 @@ export default function CoconutMenuPage() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => {
+              trackGaEvent('cta_click', { cta_name: 'coconut_back', source: 'noida_coconut_menu' });
+              trackPosthogEvent('coconut_back_clicked', { source: 'noida_coconut_menu' });
+              router.push('/dashboard');
+            }}
             className="flex h-8 w-8 items-center justify-center rounded-full"
             style={{ background: 'rgba(255,255,255,0.15)' }}
           >
@@ -214,6 +225,7 @@ export default function CoconutMenuPage() {
           href="https://chat.whatsapp.com/L2L11ZBkjIWGcA6M3kdQ2B"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackWhatsAppClick('noida_coconut_menu')}
           className="menu-slidein mx-3 mt-4 flex items-center justify-center gap-2 rounded-[12px] border p-3 transition-colors hover:bg-white"
           style={{ background: '#ECFDF5', borderColor: '#C6E8D2', animationDelay: '0.35s' }}
         >
