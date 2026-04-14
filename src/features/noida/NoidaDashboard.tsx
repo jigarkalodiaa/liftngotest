@@ -192,7 +192,7 @@ const LOCAL_UPCOMING_STYLES: Record<
 };
 
 const ORDER_FRESH_LOCAL: LocalProduct[] = [
-  { emoji: '🥥', name: 'Fresh Coconut Water', sub: 'Sector 53 · Noida', available: true, href: '/noida/coconut', tag: 'Popular' },
+  { emoji: '🥥', name: 'Kanchanjunga Fresh Nariyal', sub: 'Sector 53 · Noida', available: true, href: '/noida/coconut', tag: 'Popular' },
   { emoji: '🥟', name: 'Samosa & Snacks', available: false, accent: 'amber' },
   { emoji: '🛒', name: 'Office Groceries', available: false, accent: 'emerald' },
 ];
@@ -1144,7 +1144,7 @@ export default function NoidaDashboard({
               <span className="rounded-full bg-emerald-100 px-1.5 py-px text-[8px] font-semibold text-emerald-800 ring-1 ring-emerald-200/60 sm:px-2 sm:text-[9px]">Live</span>
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold leading-tight tracking-tight text-slate-900 sm:text-[13px]">Fresh Coconut Water</p>
+              <p className="text-xs font-semibold leading-tight tracking-tight text-slate-900 sm:text-[13px]">Kanchanjunga Fresh Nariyal</p>
               <p className="mt-0.5 text-[9px] leading-snug text-slate-600 sm:text-[10px]">Sector 53 · ~30 min · Ice-cold</p>
             </div>
             <span className="mt-0.5 flex min-h-9 w-full items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-sky-500 via-sky-500 to-cyan-500 py-2 text-[10px] font-semibold text-white shadow-sm transition-all duration-200 group-hover:from-sky-600 group-hover:to-cyan-500 group-hover:shadow-md active:scale-[0.99] sm:min-h-10 sm:text-[11px]">

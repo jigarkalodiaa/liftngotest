@@ -178,8 +178,11 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
                 />
                 {isHighlighted && (
                   <span 
-                    className="w-0.5 h-7 rounded-full animate-pulse"
-                    style={{ backgroundColor: '#2C2D5B' }}
+                    className="w-0.5 h-7 rounded-full"
+                    style={{ 
+                      backgroundColor: '#2C2D5B',
+                      animation: 'blink 1s step-end infinite',
+                    }}
                   />
                 )}
               </>
@@ -187,6 +190,12 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
           </div>
         );
       })}
+      <style>{`
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }

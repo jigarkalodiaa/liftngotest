@@ -88,7 +88,7 @@ export const COCONUT_PRODUCTS: CoconutProduct[] = [
 
 export const COCONUT_VENDOR = {
   id: 'noida-coconut-sector53',
-  name: 'Fresh Coconut Water',
+  name: 'Kanchanjunga Fresh Nariyal',
   area: 'Sector 53, Noida',
   pickupAddress: 'Near Kanchanjunga Market, Sector 53, Noida',
   deliveryFlatInr: 29,

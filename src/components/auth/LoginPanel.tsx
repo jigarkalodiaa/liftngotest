@@ -356,14 +356,23 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
                   >
                     {isFilled ? digit : isHighlighted ? (
                       <span 
-                        className="w-0.5 h-6 rounded-full animate-pulse"
-                        style={{ backgroundColor: '#2C2D5B' }}
+                        className="w-0.5 h-6 rounded-full"
+                        style={{ 
+                          backgroundColor: '#2C2D5B',
+                          animation: 'blink 1s step-end infinite',
+                        }}
                       />
                     ) : null}
                   </div>
                 );
               })}
             </label>
+            <style>{`
+              @keyframes blink {
+                0%, 50% { opacity: 1; }
+                51%, 100% { opacity: 0; }
+              }
+            `}</style>
 
             {otpFilled && !otpValid && <ErrorMessage message="Please enter a valid 4-digit OTP" />}
             {otpError && <ErrorMessage message={otpError} />}
