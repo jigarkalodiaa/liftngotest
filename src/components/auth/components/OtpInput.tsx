@@ -122,31 +122,55 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
         const isFilled = digit !== '';
         const isHighlighted = i === focusedIndex;
         
+        // Determine styles based on state
+        const borderColor = isFilled || isHighlighted ? '#2C2D5B' : '#d1d5db';
+        const bgColor = isFilled || isHighlighted ? '#ffffff' : '#f9fafb';
+        const shadow = isHighlighted 
+          ? '0 0 0 3px rgba(44, 45, 91, 0.3), 0 4px 12px rgba(0,0,0,0.15)' 
+          : isFilled 
+            ? '0 1px 3px rgba(0,0,0,0.1)' 
+            : 'none';
+        const scale = isHighlighted ? 'scale(1.08)' : 'scale(1)';
+        
         return (
-          <input
+          <div
             key={i}
-            ref={el => { inputRefs.current[i] = el; }}
-            type="text"
-            inputMode="numeric"
-            autoComplete={i === 0 ? 'one-time-code' : 'off'}
-            maxLength={1}
-            value={digit}
-            onChange={(e) => handleChange(i, e.target.value)}
-            onKeyDown={(e) => handleKeyDown(i, e)}
-            onPaste={handlePaste}
-            onFocus={() => handleFocus(i)}
-            onBlur={handleBlur}
-            className="w-14 h-16 rounded-xl border-2 text-center text-2xl font-bold tabular-nums transition-all duration-150 outline-none"
-            style={{
-              borderColor: isFilled || isHighlighted ? '#2C2D5B' : '#d1d5db',
-              backgroundColor: isFilled || isHighlighted ? '#ffffff' : '#f9fafb',
-              color: '#2C2D5B',
-              caretColor: '#2C2D5B',
-              boxShadow: isHighlighted ? '0 0 0 4px rgba(44, 45, 91, 0.2), 0 4px 12px rgba(0,0,0,0.1)' : 'none',
-              transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
+            onClick={() => {
+              inputRefs.current[i]?.focus();
+              setFocusedIndex(i);
             }}
-            aria-label={`Digit ${i + 1}`}
-          />
+            className={`
+              w-14 h-16 rounded-xl flex items-center justify-center cursor-text
+              transition-all duration-150
+              ${isHighlighted ? 'border-[3px]' : 'border-2'}
+            `}
+            style={{
+              borderColor,
+              backgroundColor: bgColor,
+              boxShadow: shadow,
+              transform: scale,
+            }}
+          >
+            <input
+              ref={el => { inputRefs.current[i] = el; }}
+              type="text"
+              inputMode="numeric"
+              autoComplete={i === 0 ? 'one-time-code' : 'off'}
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleChange(i, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(i, e)}
+              onPaste={handlePaste}
+              onFocus={() => handleFocus(i)}
+              onBlur={handleBlur}
+              className="w-full h-full bg-transparent text-center text-2xl font-bold tabular-nums outline-none"
+              style={{
+                color: '#2C2D5B',
+                caretColor: '#2C2D5B',
+              }}
+              aria-label={`Digit ${i + 1}`}
+            />
+          </div>
         );
       })}
     </div>
