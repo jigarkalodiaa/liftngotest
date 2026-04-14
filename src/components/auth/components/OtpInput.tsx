@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useId, useState } from 'react';
+import { memo, useId, useState, useEffect } from 'react';
 
 interface OtpInputProps {
   otp: string[];
@@ -14,52 +14,59 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
   const id = useId();
   const [isFocused, setIsFocused] = useState(false);
 
+  // Check focus state on mount and when input ref changes
+  useEffect(() => {
+    const checkFocus = () => {
+      if (inputRef.current && document.activeElement === inputRef.current) {
+        setIsFocused(true);
+      }
+    };
+    
+    // Check immediately
+    checkFocus();
+    
+    // Also check after a small delay (for auto-focus scenarios)
+    const timer = setTimeout(checkFocus, 100);
+    return () => clearTimeout(timer);
+  }, [inputRef]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, '').slice(0, length).split('');
     const newOtp = Array.from({ length }, (_, i) => digits[i] ?? '');
     onChange(newOtp);
   };
 
+  const handleFocus = () => {
+    setIsFocused(true);
+    onFocusChange?.(true);
+  };
+
+  const handleBlur = () => {
+    // Small delay to prevent flicker on mobile
+    setTimeout(() => {
+      if (document.activeElement !== inputRef.current) {
+        setIsFocused(false);
+        onFocusChange?.(false);
+      }
+    }, 50);
+  };
+
+  const handleContainerClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      setIsFocused(true);
+      onFocusChange?.(true);
+    }
+  };
+
   // Find the active index (first empty box, or last box if all filled)
   const activeIndex = otp.findIndex((d) => d === '');
   const currentActiveIndex = activeIndex === -1 ? length - 1 : activeIndex;
 
-  // Determine which box should be highlighted
-  const getBoxStyle = (i: number, digit: string) => {
-    const isFilled = digit !== '';
-    const isActiveBox = isFocused && i === currentActiveIndex;
-    
-    if (isFilled) {
-      return {
-        borderColor: '#2C2D5B',
-        backgroundColor: '#ffffff',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-        transform: 'scale(1)',
-      };
-    }
-    
-    if (isActiveBox) {
-      return {
-        borderColor: '#2C2D5B',
-        backgroundColor: '#ffffff',
-        boxShadow: '0 0 0 4px rgba(44, 45, 91, 0.2), 0 4px 12px rgba(0,0,0,0.15)',
-        transform: 'scale(1.05)',
-      };
-    }
-    
-    return {
-      borderColor: '#d1d5db',
-      backgroundColor: '#f9fafb',
-      boxShadow: 'none',
-      transform: 'scale(1)',
-    };
-  };
-
   return (
     <div
-      onClick={() => {
-        inputRef.current?.focus();
-      }}
+      onClick={handleContainerClick}
+      onTouchStart={handleContainerClick}
       className="flex justify-center gap-3 mb-4 cursor-text select-none relative"
       role="group"
       aria-label="OTP digits – click to type"
@@ -73,14 +80,8 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
         maxLength={length}
         value={otp.join('')}
         onChange={handleChange}
-        onFocus={() => {
-          setIsFocused(true);
-          onFocusChange?.(true);
-        }}
-        onBlur={() => {
-          setIsFocused(false);
-          onFocusChange?.(false);
-        }}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         className="absolute inset-0 w-full h-full opacity-0 cursor-text z-10"
         style={{ caretColor: 'transparent' }}
         aria-label={`Enter ${length}-digit OTP`}
@@ -88,12 +89,28 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
       {otp.map((digit, i) => {
         const isFilled = digit !== '';
         const isActiveBox = isFocused && i === currentActiveIndex;
-        const styles = getBoxStyle(i, digit);
+        
+        // Styles based on state
+        let borderColor = '#d1d5db';
+        let backgroundColor = '#f9fafb';
+        let boxShadow = 'none';
+        let transform = 'scale(1)';
+        
+        if (isFilled) {
+          borderColor = '#2C2D5B';
+          backgroundColor = '#ffffff';
+          boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+        } else if (isActiveBox) {
+          borderColor = '#2C2D5B';
+          backgroundColor = '#ffffff';
+          boxShadow = '0 0 0 4px rgba(44, 45, 91, 0.25), 0 4px 12px rgba(0,0,0,0.15)';
+          transform = 'scale(1.08)';
+        }
         
         return (
           <div
             key={i}
-            style={styles}
+            style={{ borderColor, backgroundColor, boxShadow, transform }}
             className="w-14 h-16 rounded-xl border-2 flex items-center justify-center text-2xl font-bold tabular-nums transition-all duration-150"
           >
             {isFilled ? (
