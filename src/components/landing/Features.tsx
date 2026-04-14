@@ -15,25 +15,25 @@ function Step({ step, icon, title, description, isLast }: StepProps) {
     <div className="flex gap-4">
       {/* Step number and line */}
       <div className="flex flex-col items-center">
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[var(--landing-primary)] text-white flex items-center justify-center font-bold text-lg sm:text-xl shadow-lg">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center font-bold text-base sm:text-lg">
           {step}
         </div>
         {!isLast && (
-          <div className="w-0.5 h-full min-h-[40px] bg-gradient-to-b from-[var(--landing-primary)] to-[var(--landing-primary)]/20 my-2" />
+          <div className="w-0.5 h-full min-h-[40px] bg-gradient-to-b from-[var(--color-primary)]/40 to-[var(--color-primary)]/10 my-2" />
         )}
       </div>
       
       {/* Content */}
-      <div className="flex-1 pb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-[var(--landing-orange)]/15 flex items-center justify-center text-[var(--landing-orange)]">
+      <div className="flex-1 pb-6">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="w-9 h-9 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)]">
             {icon}
           </div>
-          <h3 className="text-lg sm:text-xl font-bold text-gray-900">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
             {title}
           </h3>
         </div>
-        <p className="text-gray-600 text-sm sm:text-base leading-relaxed pl-13">
+        <p className="text-gray-600 text-sm leading-relaxed ml-12">
           {description}
         </p>
       </div>

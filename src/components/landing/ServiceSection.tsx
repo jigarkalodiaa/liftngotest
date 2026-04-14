@@ -10,7 +10,6 @@ const SERVICES = [
     description: 'One-time delivery for your goods',
     icon: Package,
     href: '/pickup-location',
-    color: 'bg-blue-500',
   },
   { 
     id: 'rent', 
@@ -18,7 +17,6 @@ const SERVICES = [
     description: 'Rent vehicles for short-term use',
     icon: CalendarClock,
     href: '/plans/rent',
-    color: 'bg-green-500',
   },
   { 
     id: 'subscribe', 
@@ -26,7 +24,6 @@ const SERVICES = [
     description: 'Monthly subscription plans',
     icon: RefreshCw,
     href: '/plans/subscription',
-    color: 'bg-purple-500',
   },
   { 
     id: 'lease', 
@@ -34,7 +31,6 @@ const SERVICES = [
     description: 'Long-term vehicle leasing',
     icon: Building2,
     href: '/plans/lease',
-    color: 'bg-orange-500',
   },
   { 
     id: 'dedicated', 
@@ -42,7 +38,6 @@ const SERVICES = [
     description: 'Dedicated vehicles for your business',
     icon: Users,
     href: '/plans/custom',
-    color: 'bg-indigo-500',
   },
   { 
     id: 'expert', 
@@ -50,7 +45,6 @@ const SERVICES = [
     description: 'Get help from our logistics experts',
     icon: Headphones,
     href: '/contact',
-    color: 'bg-pink-500',
   },
 ];
 
@@ -78,8 +72,8 @@ export default function ServiceSection() {
                 href={s.href}
                 className="flex flex-col items-center p-4 sm:p-5 rounded-2xl bg-white shadow-sm border border-gray-100 text-center transition-all hover:shadow-md hover:border-[var(--color-primary)]/30 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
               >
-                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${s.color} flex items-center justify-center mb-3`}>
-                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center mb-3">
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-[var(--color-primary)]" />
                 </div>
                 <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
                   {s.label}

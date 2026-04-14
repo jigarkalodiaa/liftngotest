@@ -8,37 +8,31 @@ const FEATURES = [
     icon: Zap,
     title: 'Quick Booking',
     description: 'Book a delivery in under 60 seconds. No waiting, no hassle.',
-    color: 'bg-yellow-500',
   },
   {
     icon: IndianRupee,
     title: 'Low & Transparent Fares',
     description: 'Upfront pricing with no hidden charges. Pay only what you see.',
-    color: 'bg-green-500',
   },
   {
     icon: MapPin,
     title: 'Real-Time Tracking',
     description: 'Track your goods live on map from pickup to delivery.',
-    color: 'bg-blue-500',
   },
   {
     icon: Clock,
     title: 'On-Time Delivery',
     description: 'Our drivers are committed to delivering your goods on time, every time.',
-    color: 'bg-purple-500',
   },
   {
     icon: Shield,
     title: 'Safe & Secure',
     description: 'Verified drivers and insured deliveries for your peace of mind.',
-    color: 'bg-red-500',
   },
   {
     icon: Truck,
     title: 'Multi-Vehicle Options',
     description: '2-wheeler to 4-wheeler — choose the right vehicle for your cargo size.',
-    color: 'bg-indigo-500',
   },
 ];
 
@@ -67,8 +61,8 @@ export default function QuickRidesSection() {
                 key={feature.title}
                 className="flex gap-4 p-4 sm:p-5 rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
               >
-                <div className={`w-12 h-12 rounded-xl ${feature.color} flex items-center justify-center flex-shrink-0`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-6 h-6 text-[var(--color-primary)]" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">
