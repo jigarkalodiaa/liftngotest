@@ -1,144 +1,95 @@
 'use client';
 
-import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
-
-/** Icons: scooter, rupee (INR), steering wheel — white on orange circle */
-const ScooterIcon = () => (
-  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-    <path d="M19 10c-.1 0-.2 0-.3-.1l-1.7-1.7-2.5 2.5-1.4-1.4 2.5-2.5-1.6-1.6c-.2-.2-.2-.5 0-.7s.5-.2.7 0l1.9 1.9 2.2-2.2 1.4 1.4-2.2 2.2 1.6 1.6c.2.2.2.5 0 .7-.1.1-.2.1-.4.1zM7 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-3c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1zm10 3c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm0-3c-.6 0-1 .4-1 1s.4 1 1 1 1-.4 1-1-.4-1-1-1z" />
-  </svg>
-);
-const RupeeIcon = () => (
-  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" aria-hidden>
-    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="1.35" />
-    <text
-      x="12"
-      y="16.25"
-      textAnchor="middle"
-      fill="currentColor"
-      fontSize="12"
-      fontWeight="700"
-      fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif"
-    >
-      ₹
-    </text>
-  </svg>
-);
-const SteeringWheelIcon = () => (
-  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" aria-hidden>
-    <circle cx="12" cy="12" r="8" />
-    <path d="M12 6v4M12 14v4M6 12h4M14 12h4" />
-  </svg>
-);
+import { Zap, IndianRupee, MapPin, Clock, Shield, Truck } from 'lucide-react';
 
 const FEATURES = [
   {
-    icon: <ScooterIcon />,
-    text: 'Your dedicated advisor plans and manages all deliveries no coordination hassles.',
+    icon: Zap,
+    title: 'Quick Booking',
+    description: 'Book a delivery in under 60 seconds. No waiting, no hassle.',
+    color: 'bg-yellow-500',
   },
   {
-    icon: <RupeeIcon />,
-    text: 'GST-compliant billing options for per-trip or monthly bulk payments.',
+    icon: IndianRupee,
+    title: 'Low & Transparent Fares',
+    description: 'Upfront pricing with no hidden charges. Pay only what you see.',
+    color: 'bg-green-500',
   },
   {
-    icon: <SteeringWheelIcon />,
-    text: 'Trained drivers with fleets pre-aligned for bulk orders smooth and on time.',
+    icon: MapPin,
+    title: 'Real-Time Tracking',
+    description: 'Track your goods live on map from pickup to delivery.',
+    color: 'bg-blue-500',
+  },
+  {
+    icon: Clock,
+    title: 'On-Time Delivery',
+    description: 'Our drivers are committed to delivering your goods on time, every time.',
+    color: 'bg-purple-500',
+  },
+  {
+    icon: Shield,
+    title: 'Safe & Secure',
+    description: 'Verified drivers and insured deliveries for your peace of mind.',
+    color: 'bg-red-500',
+  },
+  {
+    icon: Truck,
+    title: 'Multi-Vehicle Options',
+    description: '2-wheeler to 4-wheeler — choose the right vehicle for your cargo size.',
+    color: 'bg-indigo-500',
   },
 ];
 
-/** Section matching Figma: "Get Quick Rides, Low Fares" — headline, 4-image collage (left portrait, middle 2 squares, right portrait), feature list, Find Restaurant CTA. */
+/** Section: Why Choose Liftngo - Key features and benefits */
 export default function QuickRidesSection() {
   return (
     <section
-      id="quick-rides"
+      id="why-liftngo"
       className="page-section w-full bg-[var(--landing-bg)]"
-      aria-labelledby="quick-rides-heading"
+      aria-labelledby="why-liftngo-heading"
     >
-      <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 sm:px-6 lg:px-8">
-        <h2 id="quick-rides-heading" className="mb-4 text-center text-2xl font-bold text-gray-900 sm:mb-6 sm:text-3xl lg:text-4xl">
-          Get Quick Rides,<br />
-          Low Fares
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <h2 id="why-liftngo-heading" className="mb-2 text-center text-2xl font-bold text-gray-900 sm:mb-3 sm:text-3xl lg:text-4xl">
+          Why Choose Liftngo?
         </h2>
+        <p className="text-center text-gray-500 mb-8 sm:mb-10 text-sm sm:text-base max-w-2xl mx-auto">
+          Fast, affordable, and reliable delivery service for all your logistics needs
+        </p>
 
-        {/* 4-image collage: 3 columns — left tall portrait, middle 2 stacked squares, right tall portrait; max height 178px */}
-        <div
-          className="
-            w-full max-w-4xl mx-auto mb-10 lg:mb-14 min-h-0
-            grid grid-cols-3 grid-rows-2 gap-4 sm:gap-6
-            aspect-[2.15/1] max-h-[min(52vw,17.5rem)] min-h-[7.5rem]
-            sm:max-h-[min(42vw,19rem)] lg:max-h-[20rem]
-          "
-        >
-          {/* Image 1: Large portrait (left) — delivery driver + van + boxes, full height */}
-          <div className="relative col-start-1 row-span-2 min-h-0 rounded-2xl overflow-hidden bg-[#4A90E2] shadow-md">
-            <Image
-              src="/images/quickrides/quickrides-1.png"
-              alt="Delivery driver with van and packages"
-              fill
-              className="object-cover object-center"
-              sizes="(max-width: 768px) 33vw, 280px"
-            />
-          </div>
-
-          {/* Image 2: Small square (top-middle) — scooter + map on phone */}
-          <div className="relative col-start-2 row-start-1 min-h-0 rounded-2xl overflow-hidden bg-[#E8E4F4] shadow-md">
-            <Image
-              src="/images/quickrides/quickrides-2.png"
-              alt="Track your ride on the app"
-              fill
-              className="object-cover object-center"
-              sizes="(max-width: 768px) 33vw, 200px"
-            />
-          </div>
-
-          {/* Image 3: Small square (bottom-middle) — food delivery app */}
-          <div className="relative col-start-2 row-start-2 min-h-0 rounded-2xl overflow-hidden bg-[#F5F0F8] shadow-md">
-            <Image
-              src="/images/quickrides/quickrides-3.png"
-              alt="Food delivery app"
-              fill
-              className="object-cover object-center"
-              sizes="(max-width: 768px) 33vw, 200px"
-            />
-          </div>
-
-          {/* Image 4: Medium portrait (right) — groceries stepping out of phone, full height */}
-          <div className="relative col-start-3 row-span-2 min-h-0 rounded-2xl overflow-hidden bg-[#FEF9E7] shadow-md">
-            <Image
-              src="/images/quickrides/quickrides-4.png"
-              alt="Fresh groceries delivery"
-              fill
-              className="object-cover object-center"
-              sizes="(max-width: 768px) 33vw, 280px"
-            />
-          </div>
+        {/* Features Grid */}
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
+          {FEATURES.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={feature.title}
+                className="flex gap-4 p-4 sm:p-5 rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              >
+                <div className={`w-12 h-12 rounded-xl ${feature.color} flex items-center justify-center flex-shrink-0`}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Feature list: orange circle + dark grey text, block centered, text left-aligned with icon */}
-        <ul className="mx-auto mb-6 w-full max-w-2xl space-y-4 sm:mb-8 sm:space-y-6">
-          {FEATURES.map((item, i) => (
-            <li key={i} className="flex gap-4 items-start">
-              <span
-                className="flex-shrink-0 w-11 h-11 rounded-full bg-[var(--landing-orange)] flex items-center justify-center"
-                aria-hidden
-              >
-                {item.icon}
-              </span>
-              <p className="text-gray-800 text-sm sm:text-base leading-relaxed pt-2.5">
-                {item.text}
-              </p>
-            </li>
-          ))}
-        </ul>
-
-        {/* CTA: dark purple/indigo button, centered — Figma "Find Restaurant" */}
-        <div className="flex justify-center">
+        {/* CTA */}
+        <div className="flex justify-center mt-8 sm:mt-10">
           <Link
-            href="/find-restaurant"
+            href="/pickup-location"
             className="inline-flex items-center justify-center rounded-xl bg-[var(--color-primary)] px-8 py-3.5 text-base font-semibold text-white hover:opacity-90 transition-opacity"
           >
-            Find Restaurant
+            Book Your First Delivery
           </Link>
         </div>
       </div>
