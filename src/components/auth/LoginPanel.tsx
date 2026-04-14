@@ -36,6 +36,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   const [countdown, setCountdown] = useState(0);
   const [otpError, setOtpError] = useState('');
   const [sendError, setSendError] = useState('');
+  const [keyboardInset, setKeyboardInset] = useState(0);
   const lastSendRef = useRef(0);
   const sendOtpMutation = useSendOtp();
   const resendOtpMutation = useResendOtp();
@@ -123,6 +124,25 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
     }
   }, [countdown]);
 
+  useEffect(() => {
+    if (variant !== 'modal' || !isActive || typeof window === 'undefined' || !window.visualViewport) return;
+    const viewport = window.visualViewport;
+    const updateKeyboardInset = () => {
+      const viewportBottom = viewport.height + viewport.offsetTop;
+      const occludedHeight = Math.max(0, window.innerHeight - viewportBottom);
+      setKeyboardInset(occludedHeight > 80 ? occludedHeight : 0);
+    };
+    updateKeyboardInset();
+    viewport.addEventListener('resize', updateKeyboardInset);
+    viewport.addEventListener('scroll', updateKeyboardInset);
+    window.addEventListener('orientationchange', updateKeyboardInset);
+    return () => {
+      viewport.removeEventListener('resize', updateKeyboardInset);
+      viewport.removeEventListener('scroll', updateKeyboardInset);
+      window.removeEventListener('orientationchange', updateKeyboardInset);
+    };
+  }, [variant, isActive]);
+
 
   const runSendOtp = useCallback(async () => {
     setSendError('');
@@ -208,7 +228,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
 
   const shellClass =
     variant === 'modal'
-      ? 'flex-1 flex flex-col w-full mt-auto md:mt-0 md:flex-initial md:max-h-[28rem] md:max-w-md md:rounded-2xl bg-white rounded-t-3xl max-h-[90vh] overflow-hidden shadow-2xl'
+      ? 'flex-1 flex flex-col w-full mt-auto md:mt-0 md:flex-initial md:max-h-[28rem] md:max-w-md md:rounded-2xl bg-white rounded-t-3xl max-h-[100dvh] overflow-hidden shadow-2xl'
       : 'w-full max-w-md mx-auto rounded-2xl bg-white shadow-xl border border-gray-100 overflow-hidden';
 
   if (!isActive) return null;
@@ -216,7 +236,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   return (
     <div ref={panelRef} className={shellClass}>
       <div className="flex items-center justify-between p-4 border-b border-gray-100">
-        <h2 className="text-lg font-bold text-gray-900">Login to Liftngo</h2>
+        <h2 className="text-lg font-bold text-gray-900">Login to Liftngo </h2>
         {onDismiss ? (
           <button
             type="button"
@@ -400,7 +420,18 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
         )}
       </div>
 
-      <div className="px-6 pb-4">
+      <div
+        className="px-6 pb-4"
+        style={
+          variant === 'modal'
+            ? {
+                paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))',
+                transform: keyboardInset > 0 ? `translateY(-${keyboardInset}px)` : undefined,
+                transition: 'transform 180ms ease-out',
+              }
+            : undefined
+        }
+      >
         {step === 'phone' ? (
           <button
             type="button"

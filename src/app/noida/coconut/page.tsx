@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, MapPin, Clock, Leaf, BadgeCheck, Star, Zap, ShieldCheck, Check, Truck } from 'lucide-react';
 import { COCONUT_PRODUCTS, COCONUT_VENDOR } from '@/features/noida/coconut/products';
 import CoconutProductCard from '@/features/noida/coconut/CoconutProductCard';
@@ -37,6 +37,7 @@ export default function CoconutMenuPage() {
   const router = useRouter();
   const [socialProof, setSocialProof] = useState({ people: 23, mins: 4 });
   const [timerText, setTimerText] = useState('');
+  const promoEndTimeRef = useRef(Date.now() + 60 * 60 * 1000);
 
   const singles = COCONUT_PRODUCTS.filter((p) => !p.combo);
   const combos = COCONUT_PRODUCTS.filter((p) => p.combo);
@@ -53,13 +54,10 @@ export default function CoconutMenuPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Countdown timer - updates every second
+  // Countdown timer - 1 hour window from page load
   useEffect(() => {
     const updateTimer = () => {
-      const now = new Date();
-      const end = new Date();
-      end.setHours(23, 59, 59, 0);
-      const diff = Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000));
+      const diff = Math.max(0, Math.floor((promoEndTimeRef.current - Date.now()) / 1000));
       const h = Math.floor(diff / 3600);
       const m = Math.floor((diff % 3600) / 60);
       const s = diff % 60;
@@ -85,11 +83,16 @@ export default function CoconutMenuPage() {
           >
             <ChevronLeft className="h-5 w-5 text-white" strokeWidth={2.5} />
           </button>
-          <h1 className="text-base text-white" style={{ fontWeight: 900 }}>{COCONUT_VENDOR.name}</h1>
+          <h1
+            className="text-base text-white sm:text-lg"
+            style={{ fontFamily: 'Inter, Segoe UI, Roboto, Arial, sans-serif', fontWeight: 700, letterSpacing: '-0.01em' }}
+          >
+            {COCONUT_VENDOR.name}
+          </h1>
         </div>
-        <div className="flex items-center gap-1.5 rounded-[12px] px-3 py-1" style={{ background: 'rgba(255,255,255,0.12)' }}>
-          <ShieldCheck className="h-3.5 w-3.5" style={{ color: '#A5B4FC' }} strokeWidth={2.5} />
-          <span className="text-[11px]" style={{ color: '#A5B4FC', fontWeight: 700 }}>100% Fresh</span>
+        <div className="flex items-center gap-1.5 rounded-[12px] border px-3 py-1" style={{ background: '#ECFDF5', borderColor: '#86EFAC' }}>
+          <ShieldCheck className="h-3.5 w-3.5" style={{ color: '#15803D' }} strokeWidth={2.5} />
+          <span className="text-[11px]" style={{ color: '#15803D', fontWeight: 700 }}>Verified Vendor</span>
         </div>
       </header>
 
@@ -107,14 +110,14 @@ export default function CoconutMenuPage() {
       </div>
 
       {/* TRUST STRIP */}
-      <div className="flex gap-2 overflow-x-auto px-4 py-2.5" style={{ background: '#ECFDF5', borderBottom: '1px solid #C6E8D2' }}>
+      <div className="grid grid-cols-2 gap-2 px-4 py-2.5 sm:grid-cols-4" style={{ background: '#ECFDF5', borderBottom: '1px solid #C6E8D2' }}>
         {[
           { icon: <Leaf className="h-3 w-3" />, text: '100% Fresh' },
           { icon: <Check className="h-3 w-3" />, text: 'Counter price' },
           { icon: <Truck className="h-3 w-3" />, text: 'Free delivery' },
           { icon: <Clock className="h-3 w-3" />, text: '15–25 min' },
         ].map((pill, i) => (
-          <span key={i} className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[12px] border bg-white px-3 py-1.5 text-[11px]" style={{ borderColor: '#C6E8D2', color: '#1B6B3A', fontWeight: 700 }}>
+          <span key={i} className="flex items-center justify-center gap-1.5 rounded-[12px] border bg-white px-2 py-1.5 text-[11px] text-center sm:px-3" style={{ borderColor: '#C6E8D2', color: '#1B6B3A', fontWeight: 700 }}>
             {pill.icon}
             {pill.text}
           </span>
@@ -124,15 +127,19 @@ export default function CoconutMenuPage() {
       <div className="mx-auto max-w-xl sm:max-w-2xl">
 
         {/* HERO TEXT */}
-        <div className="menu-slidein mx-3 mt-3 rounded-[12px] border bg-white p-4 text-center" style={{ borderColor: '#E5F0EA', animationDelay: '0.05s' }}>
-          <h2 className="text-xl" style={{ color: '#1A1A1A', fontWeight: 900 }}>
-            Beat the heat
+        <div
+          className="menu-slidein mx-3 mt-3 rounded-2xl border p-4"
+          style={{ borderColor: '#DDEDE7', background: 'linear-gradient(180deg, #FFFFFF 0%, #F7FBF9 100%)', animationDelay: '0.05s' }}
+        >
+          <div className="mb-2 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.04em]" style={{ borderColor: '#B7E4CF', color: '#166534', fontWeight: 800 }}>
+            <Leaf className="h-3 w-3" strokeWidth={2.2} />
+            Summer hydration
+          </div>
+          <h2 className="text-lg leading-tight text-gray-900" style={{ fontWeight: 900 }}>
+            Fresh nariyal, delivered in minutes
           </h2>
-          <p className="text-base" style={{ color: '#1B6B3A', fontWeight: 800 }}>
-            Fresh nariyal, at your door.
-          </p>
-          <p className="mt-1 text-sm" style={{ color: '#6B7280' }}>
-            Same price as the counter. Zero markup.
+          <p className="mt-1 text-sm leading-snug text-gray-600">
+            Counter pricing with zero markup. No hidden charges.
           </p>
         </div>
         
@@ -182,21 +189,6 @@ export default function CoconutMenuPage() {
             <span style={{ color: '#1A1A1A', fontWeight: 800 }}>{socialProof.people} people</span> from Sector 53 ordered today · Last order {socialProof.mins} mins ago
             <span className="live-dot ml-1.5 inline-block h-2 w-2 rounded-full" style={{ background: '#EF4444' }} />
           </p>
-        </div>
-
-        {/* GUARANTEE STRIP */}
-        <div className="menu-slidein mx-3 mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 rounded-[12px] border bg-white px-4 py-3" style={{ borderColor: '#E5F0EA', animationDelay: '0.25s' }}>
-          {[
-            { icon: <Leaf className="h-3.5 w-3.5" />, text: '100% Fresh' },
-            { icon: <BadgeCheck className="h-3.5 w-3.5" />, text: 'Counter price' },
-            { icon: <Clock className="h-3.5 w-3.5" />, text: '15–25 min' },
-          ].map((item, i) => (
-            <span key={i} className="flex items-center gap-1 text-[11px]" style={{ color: '#3B8A5A', fontWeight: 700 }}>
-              <span style={{ color: '#1B6B3A' }}>{item.icon}</span>
-              {item.text}
-              {i < 2 && <span className="ml-2" style={{ color: '#C6E8D2' }}>·</span>}
-            </span>
-          ))}
         </div>
 
         {/* DELIVERY PARTNER */}

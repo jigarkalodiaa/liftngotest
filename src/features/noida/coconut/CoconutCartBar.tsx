@@ -12,8 +12,10 @@ const cartBarStyles = `
     50% { box-shadow: 0 0 12px 8px rgba(255, 140, 0, 0.15); }
   }
   @keyframes cartShine {
-    0% { left: -80%; }
-    100% { left: 120%; }
+    0% { transform: translateX(-115%) skewX(-16deg); opacity: 0; }
+    8% { opacity: 1; }
+    58% { opacity: 0.85; }
+    100% { transform: translateX(155%) skewX(-16deg); opacity: 0; }
   }
   @keyframes cartPulse {
     0%, 100% { transform: scale(1); }
@@ -29,12 +31,19 @@ const cartBarStyles = `
     content: '';
     position: absolute;
     top: 0;
-    left: -80%;
-    width: 60%;
+    left: 0;
+    width: 24%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
-    transform: skewX(-20deg);
-    animation: cartShine 3s ease-in-out infinite;
+    background: linear-gradient(
+      90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.18) 22%,
+      rgba(255,255,255,1) 48%,
+      rgba(255,255,255,0.25) 70%,
+      rgba(255,255,255,0) 100%
+    );
+    filter: contrast(1.08);
+    animation: cartShine 0.9s linear infinite;
     pointer-events: none;
   }
 `;
@@ -64,9 +73,9 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
       <style>{cartBarStyles}</style>
       <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-3 pt-1" style={{ background: 'linear-gradient(to top, #F0FAF4 90%, transparent)' }}>
         <div className="cart-glow cart-shine mx-auto flex w-full max-w-xl items-center justify-between gap-3 rounded-[12px] px-4 py-3 sm:max-w-2xl" style={{ background: '#2C2D5B' }}>
-          <div className="min-w-0">
-            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>{count} item{count === 1 ? '' : 's'}</p>
+          <div className="min-w-0 leading-tight">
             <p className="text-xl font-bold tabular-nums text-white" style={{ fontWeight: 900 }}>₹{grand}</p>
+            <p className="mt-0.5 text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>{count} item{count === 1 ? '' : 's'}</p>
           </div>
           <button
             type="button"

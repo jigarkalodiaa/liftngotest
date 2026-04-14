@@ -61,13 +61,13 @@ export default function CoconutProductCard({ product, isFeatured, isPack }: Coco
       {isFeatured && (
         <div className="flex items-center justify-center gap-4 bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-2">
           <span className="flex items-center gap-1 text-[9px] font-semibold text-green-700">
-            <span>💧</span> Full of Water
+            Full of Water
           </span>
           <span className="flex items-center gap-1 text-[9px] font-semibold text-green-700">
-            <span>✓</span> Freshness Guaranteed
+            Freshness Guaranteed
           </span>
           <span className="flex items-center gap-1 text-[9px] font-semibold text-green-700">
-            <span>⭐</span> Premium Quality
+            Premium Quality
           </span>
         </div>
       )}
@@ -103,9 +103,9 @@ export default function CoconutProductCard({ product, isFeatured, isPack }: Coco
           {/* Badges */}
           {isFeatured && (
             <div className="mb-1 flex flex-wrap gap-1">
-              <span className="rounded bg-orange-100 px-1.5 py-0.5 text-[9px] font-bold text-orange-700">🔥 Popular</span>
-              <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[9px] font-bold text-yellow-700">⚡ Free delivery</span>
-              <span className="rounded bg-green-100 px-1.5 py-0.5 text-[9px] font-bold text-green-700">✅ Counter price</span>
+              <span className="rounded bg-orange-100 px-1.5 py-0.5 text-[9px] font-bold text-orange-700">Popular</span>
+              <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[9px] font-bold text-yellow-700">Free delivery</span>
+              <span className="rounded bg-green-100 px-1.5 py-0.5 text-[9px] font-bold text-green-700">Counter price</span>
             </div>
           )}
 
