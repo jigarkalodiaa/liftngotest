@@ -311,7 +311,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
 
             <label
               htmlFor="login-otp-input-page"
-              className="flex justify-center gap-2 mb-4 cursor-text select-none relative"
+              className="flex justify-center gap-3 mb-4 cursor-text select-none relative"
               role="group"
               aria-label="OTP digits – click to type"
             >
@@ -327,20 +327,52 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
                   const digits = e.target.value.replace(/\D/g, '').slice(0, 4).split('');
                   setOtp([digits[0] ?? '', digits[1] ?? '', digits[2] ?? '', digits[3] ?? '']);
                 }}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-text"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-text z-10"
                 aria-label="Enter 4-digit OTP"
               />
-              {otp.map((digit, i) => (
-                <div
-                  key={i}
-                  className={`w-12 h-14 rounded-lg border-2 flex items-center justify-center text-2xl font-bold tabular-nums ${
-                    digit ? 'border-[var(--color-primary)] text-[var(--color-primary)] bg-white' : 'border-gray-300 text-gray-400 bg-gray-50'
-                  }`}
-                >
-                  {digit}
-                </div>
-              ))}
+              {otp.map((digit, i) => {
+                const isFilled = digit !== '';
+                const filledCount = otp.filter(d => d !== '').length;
+                const isHighlighted = !isFilled && i === filledCount;
+                
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      width: 56,
+                      height: 64,
+                      borderRadius: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 24,
+                      fontWeight: 700,
+                      border: (isFilled || isHighlighted) ? '2px solid #2C2D5B' : '2px solid #d1d5db',
+                      backgroundColor: (isFilled || isHighlighted) ? '#ffffff' : '#f9fafb',
+                      color: '#2C2D5B',
+                      boxShadow: isHighlighted ? '0 0 0 3px rgba(44, 45, 91, 0.2)' : 'none',
+                      transition: 'all 150ms ease-out',
+                    }}
+                  >
+                    {isFilled ? digit : isHighlighted ? (
+                      <span 
+                        className="w-0.5 h-6 rounded-full"
+                        style={{ 
+                          backgroundColor: '#2C2D5B',
+                          animation: 'blink 1s step-end infinite',
+                        }}
+                      />
+                    ) : null}
+                  </div>
+                );
+              })}
             </label>
+            <style>{`
+              @keyframes blink {
+                0%, 50% { opacity: 1; }
+                51%, 100% { opacity: 0; }
+              }
+            `}</style>
 
             {otpFilled && !otpValid && <ErrorMessage message="Please enter a valid 4-digit OTP" />}
             {otpError && <ErrorMessage message={otpError} />}

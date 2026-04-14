@@ -1,9 +1,43 @@
 'use client';
 
-import { ShoppingBag } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { trackCheckoutStarted, trackViewCart } from '@/lib/analytics';
 import { useCoconutCartStore, coconutCartSubtotal } from './coconutCartStore';
 import { COCONUT_VENDOR } from './products';
+
+// CSS Styles for cart bar animations
+const cartBarStyles = `
+  @keyframes cartGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.4); }
+    50% { box-shadow: 0 0 12px 8px rgba(255, 140, 0, 0.15); }
+  }
+  @keyframes cartShine {
+    0% { left: -80%; }
+    100% { left: 120%; }
+  }
+  @keyframes cartPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+  .cart-glow { animation: cartGlow 2s ease-in-out infinite; }
+  .cart-pulse { animation: cartPulse 2s ease-in-out infinite; }
+  .cart-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .cart-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: skewX(-20deg);
+    animation: cartShine 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+`;
 
 type CoconutCartBarProps = {
   onCheckout: () => void;
@@ -15,7 +49,9 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
 
   const count = items.reduce((n, i) => n + i.quantity, 0);
   const subtotal = coconutCartSubtotal(items);
-  const grand = subtotal + COCONUT_VENDOR.deliveryFlatInr;
+  const handlingCharge = COCONUT_VENDOR.handlingChargeInr ?? 0;
+  const platformFee = COCONUT_VENDOR.platformFeeInr ?? 0;
+  const grand = subtotal + COCONUT_VENDOR.deliveryFlatInr + handlingCharge + platformFee;
 
   const goCheckout = () => {
     trackViewCart(count, grand, 'noida_coconut_menu');
@@ -24,36 +60,25 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/98 px-3 py-3 shadow-[0_-12px_40px_rgba(0,0,0,0.08)] backdrop-blur-md">
-      <div className="mx-auto w-full max-w-xl sm:max-w-2xl">
-        <button
-          type="button"
-          onClick={goCheckout}
-          className="flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-left"
-        >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-gray-200/80">
-            <ShoppingBag className="h-5 w-5 text-[var(--color-primary)]" strokeWidth={1.75} aria-hidden />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-semibold text-gray-900">{COCONUT_VENDOR.name}</p>
-            <p className="text-[11px] text-gray-500">
-              {count} item{count === 1 ? '' : 's'} · Subtotal ₹{subtotal}
-            </p>
+    <>
+      <style>{cartBarStyles}</style>
+      <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-3 pt-1" style={{ background: 'linear-gradient(to top, #F0FAF4 90%, transparent)' }}>
+        <div className="cart-glow cart-shine mx-auto flex w-full max-w-xl items-center justify-between gap-3 rounded-[12px] px-4 py-3 sm:max-w-2xl" style={{ background: '#2C2D5B' }}>
+          <div className="min-w-0">
+            <p className="text-xs" style={{ color: 'rgba(255,255,255,0.7)' }}>{count} item{count === 1 ? '' : 's'}</p>
+            <p className="text-xl font-bold tabular-nums text-white" style={{ fontWeight: 900 }}>₹{grand}</p>
           </div>
-          <div className="shrink-0 text-right">
-            <p className="text-sm font-semibold tabular-nums text-gray-900">₹{grand}</p>
-            <p className="text-[10px] text-gray-500">incl. delivery</p>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={goCheckout}
-          className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] text-sm font-semibold text-white shadow-md transition-opacity hover:opacity-95"
-        >
-          Proceed to Checkout
-        </button>
+          <button
+            type="button"
+            onClick={goCheckout}
+            className="cart-pulse flex items-center gap-2 rounded-[12px] px-5 py-2.5 text-sm"
+            style={{ background: '#fff', color: '#2C2D5B', fontWeight: 900 }}
+          >
+            Checkout
+            <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

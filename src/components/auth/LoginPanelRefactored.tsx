@@ -115,23 +115,61 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
     return () => panel.removeEventListener('keydown', handleTab);
   }, [variant, isActive]);
 
-  // Track keyboard visibility using visualViewport API
+  // Track keyboard visibility using visualViewport API + fallback
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.visualViewport) return;
-    const viewport = window.visualViewport;
+    if (typeof window === 'undefined') return;
 
+    let initialHeight = window.innerHeight;
+    
     const updateKeyboardHeight = () => {
-      const height = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-      setKeyboardHeight(height);
+      // Method 1: visualViewport API (most reliable on modern browsers)
+      if (window.visualViewport) {
+        const height = Math.max(0, window.innerHeight - window.visualViewport.height);
+        if (height > 100) { // Keyboard is likely open
+          setKeyboardHeight(height);
+          return;
+        }
+      }
+      
+      // Method 2: Compare window height (fallback for older browsers)
+      const currentHeight = window.innerHeight;
+      const diff = initialHeight - currentHeight;
+      if (diff > 100) {
+        setKeyboardHeight(diff);
+      } else {
+        setKeyboardHeight(0);
+      }
     };
 
-    updateKeyboardHeight();
-    viewport.addEventListener('resize', updateKeyboardHeight);
-    viewport.addEventListener('scroll', updateKeyboardHeight);
+    // Listen to multiple events for better detection
+    const handleResize = () => {
+      updateKeyboardHeight();
+    };
+
+    const handleFocusIn = () => {
+      // Small delay to let keyboard animation complete
+      setTimeout(updateKeyboardHeight, 300);
+    };
+
+    const handleFocusOut = () => {
+      setTimeout(() => setKeyboardHeight(0), 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+    
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateKeyboardHeight);
+    }
 
     return () => {
-      viewport.removeEventListener('resize', updateKeyboardHeight);
-      viewport.removeEventListener('scroll', updateKeyboardHeight);
+      window.removeEventListener('resize', handleResize);
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateKeyboardHeight);
+      }
     };
   }, []);
 
@@ -170,7 +208,7 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
   const phoneDigits = normalizePhoneInput(phoneNumber);
   const otpFilled = otp.every((d) => d !== '');
   const canSend = phoneDigits.length === MOBILE_LENGTH && termsChecked && !isSendingOtp;
-  const isKeyboardOpen = isInputFocused && keyboardHeight > 0;
+  const isKeyboardOpen = keyboardHeight > 100;
 
   // Shell styles
   const shellClass =
@@ -184,7 +222,10 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
     <div ref={panelRef} className={shellClass}>
       <PanelHeader title="Login to Liftngo" onDismiss={onDismiss} />
 
-      <div className="flex-1 min-h-0 p-6 overflow-y-auto">
+      <div 
+        className="flex-1 min-h-0 p-6 overflow-y-auto"
+        style={{ paddingBottom: isKeyboardOpen ? '80px' : undefined }}
+      >
         {step === 'phone' ? (
           <PhoneStep
             phoneNumber={phoneNumber}
@@ -214,13 +255,18 @@ export default function LoginPanel({ variant, isActive = true, onDismiss, onComp
         )}
       </div>
 
+      {/* Button container - fixed above keyboard when open */}
       <div
-        className={
-          isKeyboardOpen
-            ? 'fixed left-0 right-0 z-50 bg-white border-t border-gray-100 px-6 py-3 shadow-lg md:static md:border-0 md:shadow-none md:px-6 md:pb-4'
-            : 'px-6 pb-4'
-        }
-        style={isKeyboardOpen ? { bottom: `${keyboardHeight}px` } : undefined}
+        className="bg-white px-6 py-4 border-t border-gray-100 transition-all duration-200"
+        style={{
+          position: isKeyboardOpen ? 'fixed' : 'relative',
+          bottom: isKeyboardOpen ? 0 : undefined,
+          left: isKeyboardOpen ? 0 : undefined,
+          right: isKeyboardOpen ? 0 : undefined,
+          zIndex: isKeyboardOpen ? 9999 : undefined,
+          boxShadow: isKeyboardOpen ? '0 -4px 20px rgba(0,0,0,0.1)' : undefined,
+          paddingBottom: isKeyboardOpen ? 'env(safe-area-inset-bottom, 16px)' : '16px',
+        }}
       >
         {step === 'phone' ? (
           <PrimaryButton onClick={handleSendOtp} disabled={!canSend} isLoading={isSendingOtp} loadingText="Sending OTP…">

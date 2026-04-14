@@ -1,40 +1,39 @@
 'use client';
 
-import Image from '@/components/OptimizedImage';
+import { MapPin, Truck, Package, Navigation, CheckCircle } from 'lucide-react';
 
-interface FeatureCardProps {
-  illustration: string;
-  illustrationAlt: string;
+interface StepProps {
+  step: number;
+  icon: React.ReactNode;
   title: string;
   description: string;
+  isLast?: boolean;
 }
 
-function FeatureCard({ illustration, illustrationAlt, title, description }: FeatureCardProps) {
+function Step({ step, icon, title, description, isLast }: StepProps) {
   return (
-    <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:gap-6 sm:text-left">
-      <div className="flex-shrink-0">
-        <div
-          className="relative w-20 h-20 sm:w-40 sm:h-40 lg:w-44 lg:h-44 flex items-center justify-center page-card bg-[var(--landing-orange)]/15"
-          style={{
-            borderRadius: '60% 40% 50% 50% / 50% 55% 45% 50%',
-          }}
-        >
-          <Image
-            src={illustration}
-            alt={illustrationAlt}
-            width={160}
-            height={160}
-            className="w-10 h-10 sm:w-28 sm:h-28 lg:w-32 lg:h-32 object-contain"
-            loading="lazy"
-          />
+    <div className="flex gap-4">
+      {/* Step number and line */}
+      <div className="flex flex-col items-center">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center font-bold text-base sm:text-lg">
+          {step}
         </div>
+        {!isLast && (
+          <div className="w-0.5 h-full min-h-[40px] bg-gradient-to-b from-[var(--color-primary)]/40 to-[var(--color-primary)]/10 my-2" />
+        )}
       </div>
-
-      <div className="min-w-0 flex-1">
-        <h3 className="text-sm sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-3">
-          {title}
-        </h3>
-        <p className="text-gray-600 text-xs sm:text-base leading-relaxed">
+      
+      {/* Content */}
+      <div className="flex-1 pb-6">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="w-9 h-9 rounded-lg bg-[var(--landing-orange)]/10 flex items-center justify-center text-[var(--landing-orange)]">
+            {icon}
+          </div>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+            {title}
+          </h3>
+        </div>
+        <p className="text-gray-600 text-sm leading-relaxed ml-12">
           {description}
         </p>
       </div>
@@ -42,27 +41,31 @@ function FeatureCard({ illustration, illustrationAlt, title, description }: Feat
   );
 }
 
-const FEATURES = [
+const STEPS = [
   {
-    illustration: '/hero-delivery.svg',
-    illustrationAlt: 'Goods delivery — book cargo trips with Liftngo logistics',
-    title: 'Book goods deliveries',
-    description:
-      'Enter pickup and drop, choose 2W–4W cargo, and track handoffs. Built for boxes and commercial loads—not passenger rides.',
+    icon: <MapPin className="w-5 h-5" />,
+    title: 'Enter Pickup & Drop Location',
+    description: 'Open the app, enter your pickup address and drop destination. Select the type of goods you want to deliver.',
   },
   {
-    illustration: '/icons/app.svg',
-    illustrationAlt: 'Liftngo app for bookings and logistics',
-    title: 'Get the Liftngo app',
-    description:
-      'Customers and driver partners use one platform tuned for goods: fares, vehicle class, and completion-first logistics.',
+    icon: <Truck className="w-5 h-5" />,
+    title: 'Choose Vehicle & Book',
+    description: 'Select from 2-wheeler, 3-wheeler, or 4-wheeler based on your cargo size. Confirm booking and make payment.',
   },
   {
-    illustration: '/icons/driver.svg',
-    illustrationAlt: 'Driver partner — delivery and cargo trips',
-    title: 'Partner as a driver',
-    description:
-      'Earn on delivery and cargo trips with transparent payouts. We optimise for completed goods movement, not cab-style ratings.',
+    icon: <Package className="w-5 h-5" />,
+    title: 'Driver Picks Up Goods',
+    description: 'A nearby driver accepts your request and arrives at pickup location. Hand over your goods securely.',
+  },
+  {
+    icon: <Navigation className="w-5 h-5" />,
+    title: 'Track in Real-Time',
+    description: 'Track your delivery live on the map. Get updates as driver heads to the drop location.',
+  },
+  {
+    icon: <CheckCircle className="w-5 h-5" />,
+    title: 'Goods Delivered!',
+    description: 'Driver delivers goods at destination. You get confirmation and can rate your delivery experience.',
   },
 ];
 
@@ -74,12 +77,22 @@ export default function Features() {
       aria-labelledby="features-heading"
     >
       <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
-        <h2 id="features-heading" className="mb-6 text-center text-2xl font-bold text-gray-900 sm:mb-8 sm:text-3xl xl:text-4xl">
+        <h2 id="features-heading" className="mb-2 text-center text-2xl font-bold text-gray-900 sm:mb-3 sm:text-3xl xl:text-4xl">
           How it Works
         </h2>
-        <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6">
-          {FEATURES.map((f) => (
-            <FeatureCard key={f.title} {...f} />
+        <p className="text-center text-gray-500 mb-8 sm:mb-10 text-sm sm:text-base">
+          Book your delivery in 5 simple steps
+        </p>
+        <div className="mx-auto max-w-2xl">
+          {STEPS.map((s, i) => (
+            <Step 
+              key={s.title} 
+              step={i + 1} 
+              icon={s.icon}
+              title={s.title}
+              description={s.description}
+              isLast={i === STEPS.length - 1}
+            />
           ))}
         </div>
       </div>

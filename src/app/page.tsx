@@ -56,15 +56,15 @@ export default function Home() {
         aria-label="LiftnGo home: logistics, delivery, and transport services"
       >
         <Hero pickupBookingSource="homepage" />
-        <HomeSeoContent />
-        <HomeDeepAuthoritySection />
         <Features />
         <ServiceSection />
         <QuickRidesSection />
+        <HomeDeepAuthoritySection />
         <AppDownloadSection />
         <BlogSection />
         <TestimonialsSection />
         <FaqSection />
+        <HomeSeoContent />
       </main>
       <Footer />
     </PageWrapper>

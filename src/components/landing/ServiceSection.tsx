@@ -1,64 +1,90 @@
 'use client';
 
-import Image from '@/components/OptimizedImage';
 import Link from 'next/link';
+import { Package, CalendarClock, RefreshCw, Building2, Users, Headphones } from 'lucide-react';
 
 const SERVICES = [
-  { id: 'walk', label: 'Walk', image: '/dashboard/service-walk.png', href: '/services/walk' },
-  { id: 'two', label: '2 Wheeler', image: '/dashboard/service-2wheeler.png', href: '/services/2-wheeler' },
-  { id: 'three', label: '3 Wheeler', image: '/dashboard/service-3wheeler.png', href: '/services/3-wheeler' },
-  { id: 'four', label: '4 Wheeler', image: '/services/four-wheeler.svg', href: '/services/4-wheeler' },
+  { 
+    id: 'single', 
+    label: 'Book Single Delivery', 
+    description: 'One-time delivery for your goods',
+    icon: Package,
+    href: '/pickup-location',
+  },
+  { 
+    id: 'rent', 
+    label: 'Rent', 
+    description: 'Rent vehicles for short-term use',
+    icon: CalendarClock,
+    href: '/plans/rent',
+  },
+  { 
+    id: 'subscribe', 
+    label: 'Subscribe', 
+    description: 'Monthly subscription plans',
+    icon: RefreshCw,
+    href: '/plans/subscription',
+  },
+  { 
+    id: 'lease', 
+    label: 'Lease', 
+    description: 'Long-term vehicle leasing',
+    icon: Building2,
+    href: '/plans/lease',
+  },
+  { 
+    id: 'dedicated', 
+    label: 'Dedicated Fleet', 
+    description: 'Dedicated vehicles for your business',
+    icon: Users,
+    href: '/plans/custom',
+  },
+  { 
+    id: 'expert', 
+    label: 'Expert Support', 
+    description: 'Get help from our logistics experts',
+    icon: Headphones,
+    href: '/contact',
+  },
 ];
 
-/** Service section: walk through 4W with link to full fleet & roadmap. */
+/** Service section: all service types - single delivery, rent, subscribe, lease, dedicated, expert */
 export default function ServiceSection() {
   return (
     <section
       id="service"
-      className="page-section w-full bg-white"
+      className="page-section w-full bg-gray-50"
       aria-labelledby="service-heading"
     >
       <div className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-10">
-        <h2 id="service-heading" className="mb-4 text-center text-xl font-bold text-gray-900 sm:mb-6 sm:text-2xl lg:text-3xl">
-          Our Service
+        <h2 id="service-heading" className="mb-2 text-center text-xl font-bold text-gray-900 sm:mb-3 sm:text-2xl lg:text-3xl">
+          Our Services
         </h2>
-        <div className="mx-auto grid max-w-4xl grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4 sm:gap-x-6 sm:gap-y-6">
-          {SERVICES.map((s) => (
-            <Link
-              key={s.id}
-              href={s.href}
-              className="flex min-h-0 flex-col items-center rounded-2xl page-card text-center transition-colors hover:bg-gray-50/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
-            >
-              <div className="relative mx-auto h-[min(7.25rem,42vw)] w-[min(7.25rem,42vw)] shrink-0 rounded-2xl bg-[var(--color-primary)]/10 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32">
-                <div className="absolute inset-0 p-1.5 sm:p-2 md:p-2.5 lg:p-3">
-                  <div className="relative h-full w-full">
-                    <Image
-                      src={s.image}
-                      alt={s.label}
-                      fill
-                      className="object-contain object-center"
-                      sizes="(max-width: 640px) 116px, (max-width: 1024px) 96px, 128px"
-                    />
-                  </div>
-                </div>
-              </div>
-              <p className="mt-3 max-w-[9rem] text-sm font-semibold leading-snug text-gray-900 sm:mt-3 sm:max-w-none sm:text-base lg:text-base">
-                {s.label}
-              </p>
-            </Link>
-          ))}
-        </div>
-        <p className="mt-5 text-center text-sm text-gray-600 sm:mt-6">
-          <Link href="/services#fleet-roadmap" className="text-[var(--color-primary)] font-medium hover:underline">
-            Refrigerated, long haul &amp; more — coming soon
-          </Link>
-          <span className="mx-2 text-gray-300" aria-hidden>
-            ·
-          </span>
-          <Link href="/services" className="text-[var(--color-primary)] font-medium hover:underline">
-            All services &amp; fleet
-          </Link>
+        <p className="text-center text-gray-500 mb-6 sm:mb-8 text-sm sm:text-base">
+          Choose the service that fits your needs
         </p>
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-5">
+          {SERVICES.map((s) => {
+            const Icon = s.icon;
+            return (
+              <Link
+                key={s.id}
+                href={s.href}
+                className="flex flex-col items-center p-4 sm:p-5 rounded-2xl bg-white shadow-sm border border-gray-100 text-center transition-all hover:shadow-md hover:border-[var(--color-primary)]/30 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
+              >
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[var(--landing-orange)]/10 flex items-center justify-center mb-3">
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-[var(--landing-orange)]" />
+                </div>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
+                  {s.label}
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-500 leading-snug">
+                  {s.description}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
