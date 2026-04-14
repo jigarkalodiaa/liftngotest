@@ -61,8 +61,8 @@ export default function QuickRidesSection() {
                 key={feature.title}
                 className="flex gap-4 p-4 sm:p-5 rounded-2xl bg-white shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
               >
-                <div className="w-12 h-12 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-6 h-6 text-[var(--color-primary)]" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--landing-orange)]/10 flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-6 h-6 text-[var(--landing-orange)]" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">

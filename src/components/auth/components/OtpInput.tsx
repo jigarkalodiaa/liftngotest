@@ -29,8 +29,8 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
   }, []);
   
   // Calculate which box should be highlighted (first empty one) - ALWAYS highlight this
-  const firstEmptyIndex = otp.findIndex(d => d === '');
-  const highlightIndex = firstEmptyIndex === -1 ? length - 1 : firstEmptyIndex;
+  const filledCount = otp.filter(d => d !== '').length;
+  const highlightIndex = filledCount >= length ? length - 1 : filledCount;
 
   const handleChange = (index: number, value: string) => {
     const digit = value.replace(/\D/g, '').slice(-1);
@@ -87,12 +87,9 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
     }, 10);
   };
 
-  // Always highlight first box if all empty, otherwise highlight first empty box
+  // Highlight the box at highlightIndex (first empty box, or last if all filled)
   const shouldHighlight = (index: number): boolean => {
-    // If this box has a digit, show filled style
-    if (otp[index]) return false;
-    // Highlight the first empty box
-    return index === highlightIndex;
+    return index === highlightIndex && !otp[index];
   };
 
   return (

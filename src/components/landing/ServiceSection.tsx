@@ -72,8 +72,8 @@ export default function ServiceSection() {
                 href={s.href}
                 className="flex flex-col items-center p-4 sm:p-5 rounded-2xl bg-white shadow-sm border border-gray-100 text-center transition-all hover:shadow-md hover:border-[var(--color-primary)]/30 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2"
               >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[var(--color-primary)]/10 flex items-center justify-center mb-3">
-                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-[var(--color-primary)]" />
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[var(--landing-orange)]/10 flex items-center justify-center mb-3">
+                  <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-[var(--landing-orange)]" />
                 </div>
                 <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
                   {s.label}

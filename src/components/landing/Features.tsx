@@ -26,7 +26,7 @@ function Step({ step, icon, title, description, isLast }: StepProps) {
       {/* Content */}
       <div className="flex-1 pb-6">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center text-[var(--color-primary)]">
+          <div className="w-9 h-9 rounded-lg bg-[var(--landing-orange)]/10 flex items-center justify-center text-[var(--landing-orange)]">
             {icon}
           </div>
           <h3 className="text-base sm:text-lg font-semibold text-gray-900">
