@@ -87,6 +87,14 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
     }, 10);
   };
 
+  // Always highlight first box if all empty, otherwise highlight first empty box
+  const shouldHighlight = (index: number): boolean => {
+    // If this box has a digit, show filled style
+    if (otp[index]) return false;
+    // Highlight the first empty box
+    return index === highlightIndex;
+  };
+
   return (
     <div 
       className="flex justify-center gap-3 mb-4"
@@ -95,28 +103,31 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
     >
       {otp.map((digit, i) => {
         const isFilled = digit !== '';
-        // First empty box is ALWAYS highlighted
-        const isHighlighted = i === highlightIndex;
+        const isHighlighted = shouldHighlight(i);
+        
+        // Border: primary color for filled OR highlighted, gray for others
+        const borderStyle = (isFilled || isHighlighted) 
+          ? '2px solid #2C2D5B' 
+          : '2px solid #d1d5db';
         
         return (
           <div
             key={i}
             onClick={() => inputRefs.current[i]?.focus()}
             style={{
-              width: 56,
-              height: 64,
-              borderRadius: 12,
+              width: 60,
+              height: 68,
+              borderRadius: 14,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'text',
-              transition: 'all 150ms',
-              border: isHighlighted ? '2px solid #2C2D5B' : isFilled ? '2px solid #2C2D5B' : '2px solid #d1d5db',
-              backgroundColor: isFilled || isHighlighted ? '#ffffff' : '#f9fafb',
+              transition: 'all 150ms ease-out',
+              border: borderStyle,
+              backgroundColor: (isFilled || isHighlighted) ? '#ffffff' : '#f9fafb',
               boxShadow: isHighlighted 
-                ? '0 0 0 3px rgba(44, 45, 91, 0.25), 0 4px 12px rgba(0,0,0,0.1)' 
+                ? '0 0 0 3px rgba(44, 45, 91, 0.2)' 
                 : 'none',
-              transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
             }}
           >
             <input
@@ -136,7 +147,7 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
                 height: '100%',
                 background: 'transparent',
                 textAlign: 'center',
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: 700,
                 outline: 'none',
                 border: 'none',
