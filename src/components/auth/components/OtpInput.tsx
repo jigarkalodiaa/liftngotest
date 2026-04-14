@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useRef, useEffect } from 'react';
+import { memo, useRef, useEffect, useState } from 'react';
 
 interface OtpInputProps {
   otp: string[];
@@ -12,6 +12,8 @@ interface OtpInputProps {
 
 function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange }: OtpInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [focusedIndex, setFocusedIndex] = useState<number>(0); // Start with first box highlighted
+  const [hasInteracted, setHasInteracted] = useState(false);
   
   // Sync the first input ref with the passed inputRef for auto-focus
   useEffect(() => {
@@ -20,17 +22,30 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
     }
   }, [inputRef]);
 
-  // Auto-focus first input on mount
+  // Auto-focus first input on mount with multiple attempts for mobile
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const focusFirst = () => {
       const firstEmpty = otp.findIndex(d => d === '');
       const targetIndex = firstEmpty === -1 ? length - 1 : firstEmpty;
+      setFocusedIndex(targetIndex);
       inputRefs.current[targetIndex]?.focus();
-    }, 100);
-    return () => clearTimeout(timer);
+    };
+    
+    // Try multiple times for mobile browsers
+    focusFirst();
+    const t1 = setTimeout(focusFirst, 100);
+    const t2 = setTimeout(focusFirst, 300);
+    const t3 = setTimeout(focusFirst, 500);
+    
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, []);
 
   const handleChange = (index: number, value: string) => {
+    setHasInteracted(true);
     const digit = value.replace(/\D/g, '').slice(-1); // Take only last digit
     const newOtp = [...otp];
     newOtp[index] = digit;
@@ -38,17 +53,20 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
 
     // Auto-advance to next input
     if (digit && index < length - 1) {
+      setFocusedIndex(index + 1);
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    setHasInteracted(true);
     if (e.key === 'Backspace') {
       if (!otp[index] && index > 0) {
         // If current is empty, go back and clear previous
         const newOtp = [...otp];
         newOtp[index - 1] = '';
         onChange(newOtp);
+        setFocusedIndex(index - 1);
         inputRefs.current[index - 1]?.focus();
       } else {
         // Clear current
@@ -57,14 +75,17 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
         onChange(newOtp);
       }
     } else if (e.key === 'ArrowLeft' && index > 0) {
+      setFocusedIndex(index - 1);
       inputRefs.current[index - 1]?.focus();
     } else if (e.key === 'ArrowRight' && index < length - 1) {
+      setFocusedIndex(index + 1);
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
+    setHasInteracted(true);
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, length);
     const newOtp = Array.from({ length }, (_, i) => pastedData[i] ?? '');
     onChange(newOtp);
@@ -72,10 +93,12 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
     // Focus appropriate input after paste
     const nextEmpty = newOtp.findIndex(d => d === '');
     const targetIndex = nextEmpty === -1 ? length - 1 : nextEmpty;
+    setFocusedIndex(targetIndex);
     inputRefs.current[targetIndex]?.focus();
   };
 
-  const handleFocus = () => {
+  const handleFocus = (index: number) => {
+    setFocusedIndex(index);
     onFocusChange?.(true);
   };
 
@@ -95,30 +118,37 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
       role="group"
       aria-label="OTP input"
     >
-      {otp.map((digit, i) => (
-        <input
-          key={i}
-          ref={el => { inputRefs.current[i] = el; }}
-          type="text"
-          inputMode="numeric"
-          autoComplete={i === 0 ? 'one-time-code' : 'off'}
-          maxLength={1}
-          value={digit}
-          onChange={(e) => handleChange(i, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(i, e)}
-          onPaste={handlePaste}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          className="w-14 h-16 rounded-xl border-2 text-center text-2xl font-bold tabular-nums transition-all duration-150 outline-none focus:border-[#2C2D5B] focus:ring-4 focus:ring-[#2C2D5B]/20 focus:scale-105 focus:bg-white"
-          style={{
-            borderColor: digit ? '#2C2D5B' : '#d1d5db',
-            backgroundColor: digit ? '#ffffff' : '#f9fafb',
-            color: '#2C2D5B',
-            caretColor: '#2C2D5B',
-          }}
-          aria-label={`Digit ${i + 1}`}
-        />
-      ))}
+      {otp.map((digit, i) => {
+        const isFilled = digit !== '';
+        const isHighlighted = i === focusedIndex;
+        
+        return (
+          <input
+            key={i}
+            ref={el => { inputRefs.current[i] = el; }}
+            type="text"
+            inputMode="numeric"
+            autoComplete={i === 0 ? 'one-time-code' : 'off'}
+            maxLength={1}
+            value={digit}
+            onChange={(e) => handleChange(i, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(i, e)}
+            onPaste={handlePaste}
+            onFocus={() => handleFocus(i)}
+            onBlur={handleBlur}
+            className="w-14 h-16 rounded-xl border-2 text-center text-2xl font-bold tabular-nums transition-all duration-150 outline-none"
+            style={{
+              borderColor: isFilled || isHighlighted ? '#2C2D5B' : '#d1d5db',
+              backgroundColor: isFilled || isHighlighted ? '#ffffff' : '#f9fafb',
+              color: '#2C2D5B',
+              caretColor: '#2C2D5B',
+              boxShadow: isHighlighted ? '0 0 0 4px rgba(44, 45, 91, 0.2), 0 4px 12px rgba(0,0,0,0.1)' : 'none',
+              transform: isHighlighted ? 'scale(1.05)' : 'scale(1)',
+            }}
+            aria-label={`Digit ${i + 1}`}
+          />
+        );
+      })}
     </div>
   );
 }
