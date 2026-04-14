@@ -20,8 +20,8 @@ export const metadata = generatePageMetadata({
 
 const PROMOS = [
   {
-    title: '₹0 delivery fee on first order',
-    description: 'New to LiftnGo? Get zero delivery fee on your first booking. Perfect for trying our fast, reliable service. Other fees may apply.',
+    title: '60% OFF on first order',
+    description: 'New to LiftnGo? Get 60% off on your first booking. Perfect for trying our fast, reliable service. Other fees may apply.',
     cta: 'Book now',
     href: '/pickup-location',
     highlight: true,

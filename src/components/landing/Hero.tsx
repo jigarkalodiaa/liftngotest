@@ -14,7 +14,7 @@ export type HeroProps = {
   pickupBookingSource?: 'homepage' | 'landing';
 };
 
-/** Hero: ₹0 DELIVERY FEE, pickup input, Use my current location, illustration. */
+/** Hero: 60% OFF, pickup input, Use my current location, illustration. */
 function Hero({ heroTitleLevel = 'h1', pickupBookingSource }: HeroProps) {
   const { openLogin } = useMenu();
   const { pickupDraft: location, setPickupDraft: setLocation } = useLandingPickup();
@@ -84,12 +84,12 @@ function Hero({ heroTitleLevel = 'h1', pickupBookingSource }: HeroProps) {
             Goods Time Pe, Business Prime Pe
           </TitleTag>
           <p className="mt-2 text-[clamp(1.35rem,5.5vw,3.75rem)] font-bold leading-tight text-[var(--landing-orange)] sm:text-4xl lg:text-6xl max-w-4xl mx-auto">
-            ₹0 delivery fee on first order
+            60% OFF on first order
           </p>
           <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-1 pt-3 sm:pt-4 px-1">
             Multi-vehicle logistics · Khatu &amp; NCR · EV, CNG, Diesel, Petrol
           </p>
-          <p className="text-sm text-gray-400 mb-10 sm:mb-14">*Other fees apply</p>
+          <p className="text-sm text-gray-400 mb-10 sm:mb-14">*T&C may apply</p>
 
           <div className="relative z-10 mx-auto w-full max-w-lg text-left">
             <div className="flex min-h-14 min-w-0 items-center gap-2 rounded-2xl border border-gray-200 bg-white px-2 py-1 shadow-sm sm:h-14 sm:py-0">
