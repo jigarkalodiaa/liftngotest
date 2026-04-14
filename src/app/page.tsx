@@ -57,14 +57,14 @@ export default function Home() {
       >
         <Hero pickupBookingSource="homepage" />
         <Features />
-        <HomeSeoContent />
-        <HomeDeepAuthoritySection />
         <ServiceSection />
         <QuickRidesSection />
+        <HomeDeepAuthoritySection />
         <AppDownloadSection />
         <BlogSection />
         <TestimonialsSection />
         <FaqSection />
+        <HomeSeoContent />
       </main>
       <Footer />
     </PageWrapper>
