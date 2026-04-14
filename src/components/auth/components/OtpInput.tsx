@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useId, useState, useEffect, useCallback } from 'react';
+import { memo, useId, useState } from 'react';
 
 interface OtpInputProps {
   otp: string[];
@@ -20,53 +20,46 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
     onChange(newOtp);
   };
 
-  const handleFocus = useCallback(() => {
-    setIsFocused(true);
-    onFocusChange?.(true);
-  }, [onFocusChange]);
-
-  const handleBlur = useCallback(() => {
-    setIsFocused(false);
-    onFocusChange?.(false);
-  }, [onFocusChange]);
-
-  // Also handle click on the container to focus input
-  const handleContainerClick = useCallback(() => {
-    inputRef.current?.focus();
-    setIsFocused(true);
-    onFocusChange?.(true);
-  }, [inputRef, onFocusChange]);
-
-  // Sync focus state with actual input focus
-  useEffect(() => {
-    const input = inputRef.current;
-    if (!input) return;
-
-    const checkFocus = () => {
-      const hasFocus = document.activeElement === input;
-      setIsFocused(hasFocus);
-    };
-
-    // Check on mount
-    checkFocus();
-
-    // Also listen for focus events on document
-    document.addEventListener('focusin', checkFocus);
-    document.addEventListener('focusout', checkFocus);
-
-    return () => {
-      document.removeEventListener('focusin', checkFocus);
-      document.removeEventListener('focusout', checkFocus);
-    };
-  }, [inputRef]);
-
   // Find the active index (first empty box, or last box if all filled)
   const activeIndex = otp.findIndex((d) => d === '');
   const currentActiveIndex = activeIndex === -1 ? length - 1 : activeIndex;
 
+  // Determine which box should be highlighted
+  const getBoxStyle = (i: number, digit: string) => {
+    const isFilled = digit !== '';
+    const isActiveBox = isFocused && i === currentActiveIndex;
+    
+    if (isFilled) {
+      return {
+        borderColor: '#2C2D5B',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        transform: 'scale(1)',
+      };
+    }
+    
+    if (isActiveBox) {
+      return {
+        borderColor: '#2C2D5B',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 0 0 4px rgba(44, 45, 91, 0.2), 0 4px 12px rgba(0,0,0,0.15)',
+        transform: 'scale(1.05)',
+      };
+    }
+    
+    return {
+      borderColor: '#d1d5db',
+      backgroundColor: '#f9fafb',
+      boxShadow: 'none',
+      transform: 'scale(1)',
+    };
+  };
+
   return (
     <div
-      onClick={handleContainerClick}
+      onClick={() => {
+        inputRef.current?.focus();
+      }}
       className="flex justify-center gap-3 mb-4 cursor-text select-none relative"
       role="group"
       aria-label="OTP digits – click to type"
@@ -80,51 +73,40 @@ function OtpInputComponent({ otp, onChange, inputRef, length = 4, onFocusChange 
         maxLength={length}
         value={otp.join('')}
         onChange={handleChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
+        onFocus={() => {
+          setIsFocused(true);
+          onFocusChange?.(true);
+        }}
+        onBlur={() => {
+          setIsFocused(false);
+          onFocusChange?.(false);
+        }}
         className="absolute inset-0 w-full h-full opacity-0 cursor-text z-10"
+        style={{ caretColor: 'transparent' }}
         aria-label={`Enter ${length}-digit OTP`}
       />
       {otp.map((digit, i) => {
-        const isActive = isFocused && i === currentActiveIndex;
         const isFilled = digit !== '';
-        const showHighlight = isActive || (isFocused && i === 0 && otp.every(d => d === ''));
+        const isActiveBox = isFocused && i === currentActiveIndex;
+        const styles = getBoxStyle(i, digit);
         
         return (
           <div
             key={i}
-            style={{
-              borderColor: isFilled ? 'var(--color-primary)' : showHighlight ? 'var(--color-primary)' : '#d1d5db',
-              backgroundColor: showHighlight ? '#ffffff' : isFilled ? '#ffffff' : '#f9fafb',
-              boxShadow: showHighlight 
-                ? '0 0 0 4px rgba(44, 45, 91, 0.2), 0 4px 12px rgba(0,0,0,0.15)' 
-                : isFilled 
-                  ? '0 1px 3px rgba(0,0,0,0.08)' 
-                  : 'none',
-              transform: showHighlight ? 'scale(1.05)' : 'scale(1)',
-            }}
+            style={styles}
             className="w-14 h-16 rounded-xl border-2 flex items-center justify-center text-2xl font-bold tabular-nums transition-all duration-150"
           >
             {isFilled ? (
-              <span style={{ color: 'var(--color-primary)' }}>{digit}</span>
-            ) : showHighlight ? (
+              <span style={{ color: '#2C2D5B' }}>{digit}</span>
+            ) : isActiveBox ? (
               <span 
-                className="w-0.5 h-7 rounded-full"
-                style={{ 
-                  backgroundColor: 'var(--color-primary)',
-                  animation: 'blink 1s step-end infinite',
-                }}
+                className="w-0.5 h-7 rounded-full animate-pulse"
+                style={{ backgroundColor: '#2C2D5B' }}
               />
             ) : null}
           </div>
         );
       })}
-      <style>{`
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 }
