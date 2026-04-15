@@ -82,7 +82,7 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
   return (
     <>
       <style>{cartBarStyles}</style>
-      <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-3 pt-1" style={{ background: 'linear-gradient(to top, #F0FAF4 90%, transparent)' }}>
+      <div className="fixed inset-x-0 bottom-0 z-[60] px-3 pb-3 pt-1" style={{ background: 'linear-gradient(to top, #F0FAF4 90%, transparent)' }}>
         <div className="cart-glow cart-shine mx-auto flex w-full max-w-xl items-center justify-between gap-3 rounded-[12px] px-4 py-3 sm:max-w-2xl" style={{ background: '#2C2D5B' }}>
           <div className="min-w-0 leading-tight">
             <p className="text-xl font-bold tabular-nums text-white" style={{ fontWeight: 900 }}>₹{grand}</p>

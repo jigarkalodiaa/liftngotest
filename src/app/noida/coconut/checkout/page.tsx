@@ -9,13 +9,10 @@ import {
 } from '@/features/noida/coconut/coconutCartStore';
 import { COCONUT_VENDOR } from '@/features/noida/coconut/products';
 import { useRazorpay } from '@/lib/razorpay';
-import { buildPrepayLegalRazorpayNotes } from '@/lib/legal/PrepayLegalDeclaration';
 import { paymentResultFailureHref, paymentResultSuccessHref } from '@/lib/paymentResultUrl';
 import { trackBookingCompleted, trackCheckoutStarted, trackFunnelStep } from '@/lib/analytics';
 import { trackEvent } from '@/lib/posthogAnalytics';
 import { getBookingUserType } from '@/lib/posthog/bookingUserType';
-
-const COCONUT_CHECKOUT_CONSENT_VERSION = 'noida_coconut_checkout_v1';
 
 // CSS Styles
 const checkoutStyles = `
@@ -66,9 +63,106 @@ const checkoutStyles = `
     animation: shine 3s ease-in-out infinite;
     pointer-events: none;
   }
+  .checkout-hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .checkout-hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 type OrderState = { stage: 'checkout' } | { stage: 'placing' };
+type RecentAddress = { flat: string; location: string };
+
+const COCONUT_PHONE_COOKIE_KEY = 'liftngo_coconut_phone';
+const COCONUT_RECENT_LOCATIONS_COOKIE_KEY = 'liftngo_coconut_recent_locations';
+
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const cookie = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith(`${name}=`));
+  if (!cookie) return null;
+  return decodeURIComponent(cookie.slice(name.length + 1));
+}
+
+function setCookie(name: string, value: string, maxAgeSeconds: number): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${name}=${encodeURIComponent(value)};path=/;max-age=${maxAgeSeconds};SameSite=Lax`;
+}
+
+function normalizeIndianPhone(input: string): string {
+  const digits = input.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) return digits.slice(2);
+  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1);
+  if (digits.length >= 10) return digits.slice(-10);
+  return digits;
+}
+
+function maskPhone(phone: string): string {
+  if (phone.length !== 10) return phone;
+  return `${phone.slice(0, 2)}******${phone.slice(-2)}`;
+}
+
+function pickPhoneFromObject(obj: unknown): string | null {
+  if (typeof obj === 'string') {
+    const normalized = normalizeIndianPhone(obj);
+    return /^[6-9]\d{9}$/.test(normalized) ? normalized : null;
+  }
+  if (Array.isArray(obj)) {
+    for (const v of obj) {
+      const p = pickPhoneFromObject(v);
+      if (p) return p;
+    }
+    return null;
+  }
+  if (obj && typeof obj === 'object') {
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      const key = k.toLowerCase();
+      if (key.includes('phone') || key.includes('mobile') || key.includes('contact')) {
+        const p = pickPhoneFromObject(v);
+        if (p) return p;
+      }
+      if (v && typeof v === 'object') {
+        const nested = pickPhoneFromObject(v);
+        if (nested) return nested;
+      }
+    }
+  }
+  return null;
+}
+
+function parseRecentAddressesCookie(raw: string | null): RecentAddress[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    const list = parsed
+      .map((item) => {
+        if (!item || typeof item !== 'object') return null;
+        const o = item as Record<string, unknown>;
+        const flat = typeof o.flat === 'string' ? o.flat.trim() : '';
+        const location = typeof o.location === 'string' ? o.location.trim() : '';
+        if (!flat) return null;
+        return { flat, location };
+      })
+      .filter((v): v is RecentAddress => Boolean(v));
+    const seen = new Set<string>();
+    return list.filter((addr) => {
+      const key = `${addr.flat.toLowerCase()}|${addr.location.toLowerCase()}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  } catch {
+    return [];
+  }
+}
+
+function formatRecentAddress(addr: RecentAddress): string {
+  return `${addr.flat}${addr.location ? `, ${addr.location}` : ''}`;
+}
 
 export default function CoconutCheckoutPage() {
   const router = useRouter();
@@ -89,6 +183,8 @@ export default function CoconutCheckoutPage() {
   const [locationAddress, setLocationAddress] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [savedPhoneOption, setSavedPhoneOption] = useState<string | null>(null);
+  const [recentAddresses, setRecentAddresses] = useState<RecentAddress[]>([]);
   const address = `${flatAddress}${locationAddress ? ', ' + locationAddress : ''}`;
 
   const validatePhone = (value: string) => {
@@ -129,7 +225,6 @@ export default function CoconutCheckoutPage() {
   const isPhoneValid = contactPhone.length === 10 && /^[6-9]\d{9}$/.test(contactPhone);
   const [order, setOrder] = useState<OrderState>({ stage: 'checkout' });
   const [payError, setPayError] = useState<string | null>(null);
-  const [acceptLegal, setAcceptLegal] = useState(true);
   const [fetchingLocation, setFetchingLocation] = useState(false);
   // Calculate initial timer value with seconds
   const getTimerText = () => {
@@ -161,6 +256,76 @@ export default function CoconutCheckoutPage() {
     return () => {
       clearInterval(interval);
     };
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const cookiePhone = normalizeIndianPhone(getCookie(COCONUT_PHONE_COOKIE_KEY) ?? '');
+    const genericCookiePhone =
+      normalizeIndianPhone(getCookie('phone') ?? '') ||
+      normalizeIndianPhone(getCookie('mobile') ?? '') ||
+      normalizeIndianPhone(getCookie('contactPhone') ?? '');
+
+    const localStoragePhoneCandidates = [
+      localStorage.getItem('phone'),
+      localStorage.getItem('mobile'),
+      localStorage.getItem('contactPhone'),
+      localStorage.getItem('liftngo_phone'),
+    ]
+      .filter(Boolean)
+      .map((v) => normalizeIndianPhone(v ?? ''))
+      .filter((v) => /^[6-9]\d{9}$/.test(v));
+
+    let ooCaStoragePhone: string | null = null;
+    try {
+      const raw = localStorage.getItem('oocastorage');
+      if (raw) {
+        const parsed = JSON.parse(raw) as unknown;
+        ooCaStoragePhone = pickPhoneFromObject(parsed);
+      }
+    } catch {
+      ooCaStoragePhone = null;
+    }
+
+    const sessionPhone = normalizeIndianPhone(sessionStorage.getItem('phone') ?? '');
+    const allCandidates = [cookiePhone, genericCookiePhone, sessionPhone, ooCaStoragePhone, ...localStoragePhoneCandidates].filter(
+      (v): v is string => Boolean(v && /^[6-9]\d{9}$/.test(v)),
+    );
+    const bestPhone = allCandidates[0] ?? null;
+    if (bestPhone) {
+      setSavedPhoneOption(bestPhone);
+      if (!contactPhone) setContactPhone(bestPhone);
+    }
+
+    const recent = parseRecentAddressesCookie(getCookie(COCONUT_RECENT_LOCATIONS_COOKIE_KEY));
+    setRecentAddresses(recent.slice(0, 3));
+  }, [mounted, contactPhone]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (!isPhoneValid) return;
+    setCookie(COCONUT_PHONE_COOKIE_KEY, contactPhone, 60 * 60 * 24 * 90);
+    try {
+      localStorage.setItem('liftngo_phone', contactPhone);
+    } catch {
+      // ignore
+    }
+  }, [mounted, contactPhone, isPhoneValid]);
+
+  const saveRecentAddress = useCallback((flatRaw: string, locationRaw: string) => {
+    const flat = flatRaw.trim();
+    const location = locationRaw.trim();
+    if (flat.length < 5) return;
+
+    const next: RecentAddress = { flat, location };
+    setRecentAddresses((prev) => {
+      const key = `${next.flat.toLowerCase()}|${next.location.toLowerCase()}`;
+      const deduped = prev.filter((item) => `${item.flat.toLowerCase()}|${item.location.toLowerCase()}` !== key);
+      const merged = [next, ...deduped].slice(0, 3);
+      setCookie(COCONUT_RECENT_LOCATIONS_COOKIE_KEY, JSON.stringify(merged), 60 * 60 * 24 * 30);
+      return merged;
+    });
   }, []);
 
   // Original delivery price for savings calculation
@@ -224,10 +389,7 @@ export default function CoconutCheckoutPage() {
 
   const placeOrder = useCallback(async () => {
     setPayError(null);
-    if (!acceptLegal) {
-      setPayError('Please confirm the declaration below to pay.');
-      return;
-    }
+    saveRecentAddress(flatAddress, locationAddress);
     setOrder({ stage: 'placing' });
     trackCheckoutStarted('noida_coconut_razorpay', grand);
 
@@ -238,7 +400,6 @@ export default function CoconutCheckoutPage() {
       notes: {
         flow: 'noida_coconut',
         address: address.slice(0, 250),
-        ...buildPrepayLegalRazorpayNotes(COCONUT_CHECKOUT_CONSENT_VERSION),
       },
       prefill: { contact: contactPhone ? `+91${contactPhone.replace(/\D/g, '')}` : undefined },
       onSuccess: ({ paymentId }) => {
@@ -338,7 +499,7 @@ ${data.flat}, ${data.area}
         );
       },
     });
-  }, [acceptLegal, address, clear, contactPhone, delivery, flatAddress, grand, handlingCharge, items, locationAddress, openPayment, platformFee, router, subtotal]);
+  }, [address, clear, contactPhone, delivery, flatAddress, grand, handlingCharge, items, locationAddress, openPayment, platformFee, router, saveRecentAddress, subtotal]);
 
   if (!mounted) {
     return <div className="min-h-screen bg-gray-50" aria-busy="true" />;
@@ -393,7 +554,7 @@ ${data.flat}, ${data.area}
       </div>
 
       {/* SAVINGS STRIP */}
-      <div className="flex gap-2 overflow-x-auto px-4 py-2.5" style={{ background: '#ECFDF5', borderBottom: '1px solid #C6E8D2' }}>
+      <div className="checkout-hide-scrollbar flex gap-2 overflow-x-auto px-4 py-2.5" style={{ background: '#ECFDF5', borderBottom: '1px solid #C6E8D2' }}>
         {[
           { icon: <Star className="h-3 w-3" />, text: `You saved ₹${savings} today` },
           { icon: <Check className="h-3 w-3" />, text: 'Counter price ₹79' },
@@ -549,6 +710,39 @@ ${data.flat}, ${data.area}
             </button>
           </div>
           <div className="space-y-3 px-4 py-3">
+            {recentAddresses.length > 0 && (
+              <div>
+                <p className="text-[11px]" style={{ color: '#6B7280', fontWeight: 700 }}>Recent location</p>
+                <div className="mt-2 space-y-2">
+                  {recentAddresses.map((item) => (
+                    <button
+                      key={formatRecentAddress(item)}
+                      type="button"
+                      onClick={() => {
+                        setFlatAddress(item.flat);
+                        setLocationAddress(item.location);
+                      }}
+                      className="w-full rounded-[12px] border px-3 py-2.5 text-left transition-colors hover:bg-white"
+                      style={{ borderColor: '#C6E8D2', background: '#F8FDF9', color: '#1B6B3A' }}
+                    >
+                      <div className="flex items-start gap-2">
+                        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: '#1B6B3A' }} />
+                        <div className="min-w-0">
+                          <p className="truncate text-[12px]" style={{ fontWeight: 800 }}>
+                            {item.flat}
+                          </p>
+                          {item.location ? (
+                            <p className="truncate text-[11px]" style={{ color: '#4B5563', fontWeight: 600 }}>
+                              {item.location}
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div>
               <label className="text-[13px]" style={{ color: '#1B6B3A', fontWeight: 800 }} htmlFor="co-flat">
                 Flat / Building <span style={{ color: '#EF4444' }}>*</span>
@@ -605,6 +799,19 @@ ${data.flat}, ${data.area}
             <span className="text-[13px] tracking-wide" style={{ color: '#1B6B3A', fontWeight: 800, letterSpacing: '0.5px' }}>CONTACT NUMBER</span>
           </div>
           <div className="px-4 py-3">
+            {savedPhoneOption && contactPhone !== savedPhoneOption && (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = validatePhone(savedPhoneOption);
+                  setContactPhone(next);
+                }}
+                className="mb-2 w-full rounded-[10px] border px-3 py-2 text-left text-[12px] transition-colors hover:bg-white"
+                style={{ borderColor: '#C6E8D2', background: '#F8FDF9', color: '#1B6B3A', fontWeight: 700 }}
+              >
+                Use my number: +91 {maskPhone(savedPhoneOption)}
+              </button>
+            )}
             <div className="flex items-center gap-2">
               <span className="text-[14px]" style={{ color: '#6B7280', fontWeight: 600 }}>+91</span>
               <input
@@ -626,7 +833,7 @@ ${data.flat}, ${data.area}
           </div>
         </div>
 
-        {/* TRUST + AGREE SECTION */}
+        {/* TRUST SECTION */}
         <div className="checkout-slidein mx-3 mt-3 mb-24 rounded-[18px] border bg-white" style={{ borderColor: '#E5F0EA', animationDelay: '0.28s' }}>
           {/* Trust Pills */}
           <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 px-3 py-2.5">
@@ -643,19 +850,6 @@ ${data.flat}, ${data.area}
               </span>
             ))}
           </div>
-          {/* Agree Row */}
-          <label className="flex cursor-pointer items-start gap-2 border-t px-3 py-2.5" style={{ borderColor: '#F0FAF4' }}>
-            <div
-              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 transition-colors"
-              style={{ background: acceptLegal ? '#1B6B3A' : '#fff', borderColor: acceptLegal ? '#1B6B3A' : '#C6E8D2' }}
-            >
-              {acceptLegal && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
-            </div>
-            <input type="checkbox" checked={acceptLegal} onChange={(e) => setAcceptLegal(e.target.checked)} className="sr-only" />
-            <span className="text-[11px]" style={{ color: '#6B7280' }}>
-              I agree to the <a href="/terms" className="underline" style={{ color: '#1B6B3A', fontWeight: 700 }}>Terms</a> & <a href="/privacy" className="underline" style={{ color: '#1B6B3A', fontWeight: 700 }}>Privacy Policy</a>
-            </span>
-          </label>
           {/* Razorpay Strip */}
           <div className="flex items-center justify-center gap-1.5 border-t px-3 py-2" style={{ borderColor: '#F0FAF4' }}>
             <svg className="h-3.5 w-3.5" style={{ color: '#6B7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" strokeWidth="2"/><line x1="1" y1="10" x2="23" y2="10" strokeWidth="2"/></svg>
@@ -680,7 +874,7 @@ ${data.flat}, ${data.area}
         >
           <button
             type="button"
-            disabled={order.stage === 'placing' || !acceptLegal || flatAddress.trim().length < 5 || !isPhoneValid}
+            disabled={order.stage === 'placing' || flatAddress.trim().length < 5 || !isPhoneValid}
             onClick={() => void placeOrder()}
             className="flex w-full items-center justify-between disabled:opacity-50"
           >
