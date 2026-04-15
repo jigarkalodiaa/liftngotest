@@ -260,13 +260,13 @@ function ReferEarnSection() {
             YOUR REFERRAL LINK
           </p>
           <div className="mt-2">
-            {/* <input
+            <input
               readOnly
               value={REFERRAL_LINK_DISPLAY}
               className="min-h-[48px] w-full rounded-[10px] border bg-[#FAFAFA] px-3 text-[12px] font-semibold outline-none ring-[#4CAF50] focus:ring-2"
               style={{ borderColor: '#E0E0E0', color: '#333' }}
               aria-label="Your referral link"
-            /> */}
+            />
           </div>
 
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
