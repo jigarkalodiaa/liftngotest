@@ -74,9 +74,18 @@ const checkoutStyles = `
 
 type OrderState = { stage: 'checkout' } | { stage: 'placing' };
 type RecentAddress = { flat: string; location: string };
+type SlackOrderData = {
+  items: { name: string; qty: number; price: number }[];
+  total: number;
+  phone: string;
+  flat: string;
+  area: string;
+};
+type PaymentMethod = 'online' | 'cod';
 
 const COCONUT_PHONE_COOKIE_KEY = 'liftngo_coconut_phone';
 const COCONUT_RECENT_LOCATIONS_COOKIE_KEY = 'liftngo_coconut_recent_locations';
+const COCONUT_COD_WHATSAPP_DIGITS = '918580584898';
 
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null;
@@ -226,6 +235,7 @@ export default function CoconutCheckoutPage() {
   const [order, setOrder] = useState<OrderState>({ stage: 'checkout' });
   const [payError, setPayError] = useState<string | null>(null);
   const [fetchingLocation, setFetchingLocation] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('online');
   // Calculate initial timer value with seconds
   const getTimerText = () => {
     const now = new Date();
@@ -387,6 +397,89 @@ export default function CoconutCheckoutPage() {
   const deliverySavings = delivery === 0 ? originalDelivery : 0;
   const savings = packSavings + deliverySavings;
 
+  const sendSlackNotification = async (orderData: SlackOrderData) => {
+    try {
+      console.log('🚀 Sending Slack notification...');
+
+      const res = await fetch('/api/slack', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: `🚚 New Order - Liftngo
+
+💰 Amount: ₹${orderData.total}
+📦 Items: ${orderData.items.length}
+📞 Phone: +91${orderData.phone}
+📍 Address: ${orderData.flat}, ${orderData.area}
+
+🕒 ${new Date().toLocaleString('en-IN')}`,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Slack API failed: ${res.status}`);
+      }
+      console.log('✅ Slack sent');
+    } catch (err) {
+      console.error('❌ Slack error:', err);
+    }
+  };
+
+  const placeCodOrder = useCallback(() => {
+    setPayError(null);
+    saveRecentAddress(flatAddress, locationAddress);
+    setOrder({ stage: 'placing' });
+
+    const orderRef = `COD-${Date.now().toString(36).toUpperCase()}`;
+    const codMessage = `
+🥥 *NEW COD ORDER*
+━━━━━━━━━━━━━━━━
+📦 *Order Details*
+${items.map((item) => `• ${item.name} × ${item.quantity} — ₹${item.price * item.quantity}`).join('\n')}
+
+💰 *Bill Summary*
+Subtotal: ₹${subtotal}
+Delivery: ${delivery === 0 ? 'FREE' : `₹${delivery}`}
+Handling: ₹${handlingCharge}
+Platform fee: ₹${platformFee}
+*Amount to collect (COD): ₹${grand}*
+
+📍 *Delivery Address*
+${flatAddress}${locationAddress ? `, ${locationAddress}` : ''}
+
+📞 *Customer Phone:* +91${contactPhone}
+🧾 *Order Ref:* ${orderRef}
+💵 *Payment Mode:* Cash on Delivery
+
+⏰ *Time:* ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+━━━━━━━━━━━━━━━━
+🚚 Delivered by LiftNGo Logistics
+    `.trim();
+
+    try {
+      const waUrl = `https://wa.me/${COCONUT_COD_WHATSAPP_DIGITS}?text=${encodeURIComponent(codMessage)}`;
+      window.open(waUrl, '_blank');
+    } catch {
+      // ignore popup issues
+    }
+
+    const codOrderData: SlackOrderData = {
+      items: items.map((item) => ({ name: item.name, qty: item.quantity, price: item.price * item.quantity })),
+      total: grand,
+      phone: contactPhone,
+      flat: flatAddress,
+      area: locationAddress,
+    };
+    void sendSlackNotification(codOrderData);
+
+    clear();
+    router.replace(
+      `/noida/coconut/order-success?paymentId=${orderRef}&total=${grand}&items=${items.length}&phone=${contactPhone}`,
+    );
+  }, [clear, contactPhone, delivery, flatAddress, grand, handlingCharge, items, locationAddress, platformFee, router, saveRecentAddress, sendSlackNotification, subtotal]);
+
   const placeOrder = useCallback(async () => {
     setPayError(null);
     saveRecentAddress(flatAddress, locationAddress);
@@ -403,6 +496,7 @@ export default function CoconutCheckoutPage() {
       },
       prefill: { contact: contactPhone ? `+91${contactPhone.replace(/\D/g, '')}` : undefined },
       onSuccess: ({ paymentId }) => {
+        console.log('✅ Payment success triggered');
         try {
           trackEvent('ride_booked', {
             amount: grand,
@@ -433,6 +527,7 @@ export default function CoconutCheckoutPage() {
             phone: contactPhone,
             paymentId,
           };
+          console.log('📦 Order Data:', orderData);
 
           // Send WhatsApp notification to business
           const sendWhatsAppNotification = (data: typeof orderData) => {
@@ -468,6 +563,7 @@ ${data.flat}, ${data.area}
           };
 
           sendWhatsAppNotification(orderData);
+          sendSlackNotification(orderData);
 
           // Clear cart
           clear();
@@ -500,6 +596,14 @@ ${data.flat}, ${data.area}
       },
     });
   }, [address, clear, contactPhone, delivery, flatAddress, grand, handlingCharge, items, locationAddress, openPayment, platformFee, router, saveRecentAddress, subtotal]);
+
+  const submitCheckout = useCallback(() => {
+    if (paymentMethod === 'cod') {
+      placeCodOrder();
+      return;
+    }
+    void placeOrder();
+  }, [paymentMethod, placeCodOrder, placeOrder]);
 
   if (!mounted) {
     return <div className="min-h-screen bg-gray-50" aria-busy="true" />;
@@ -833,6 +937,49 @@ ${data.flat}, ${data.area}
           </div>
         </div>
 
+        {/* PAYMENT METHOD SECTION */}
+        <div className="checkout-slidein mx-3 mt-3 rounded-[18px] border bg-white" style={{ borderColor: '#E5F0EA', animationDelay: '0.25s' }}>
+          <div className="flex items-center gap-2.5 border-b px-4 py-3" style={{ borderColor: '#F0FAF4' }}>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: '#E8F5EC' }}>
+              <svg className="h-4 w-4" style={{ color: '#1B6B3A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="1" y="4" width="22" height="16" rx="2" strokeWidth="2" />
+                <line x1="1" y1="10" x2="23" y2="10" strokeWidth="2" />
+              </svg>
+            </div>
+            <span className="text-[13px] tracking-wide" style={{ color: '#1B6B3A', fontWeight: 800, letterSpacing: '0.5px' }}>
+              PAYMENT METHOD
+            </span>
+          </div>
+          <div className="space-y-2.5 px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('online')}
+              className="w-full rounded-[12px] border px-3.5 py-3 text-left transition-colors"
+              style={{
+                borderColor: paymentMethod === 'online' ? '#1B6B3A' : '#C6E8D2',
+                background: paymentMethod === 'online' ? '#ECFDF5' : '#F8FDF9',
+              }}
+            >
+              <p className="text-[13px]" style={{ color: '#1B6B3A', fontWeight: 800 }}>Pay Online (UPI/Card/NetBanking)</p>
+              <p className="mt-0.5 text-[11px]" style={{ color: '#6B7280', fontWeight: 600 }}>Fast confirmation via Razorpay</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('cod')}
+              className="w-full rounded-[12px] border px-3.5 py-3 text-left transition-colors"
+              style={{
+                borderColor: paymentMethod === 'cod' ? '#1B6B3A' : '#C6E8D2',
+                background: paymentMethod === 'cod' ? '#ECFDF5' : '#F8FDF9',
+              }}
+            >
+              <p className="text-[13px]" style={{ color: '#1B6B3A', fontWeight: 800 }}>Cash on Delivery (COD)</p>
+              <p className="mt-0.5 text-[11px]" style={{ color: '#6B7280', fontWeight: 600 }}>
+                Order details will be sent on WhatsApp and amount collected at delivery
+              </p>
+            </button>
+          </div>
+        </div>
+
         {/* TRUST SECTION */}
         <div className="checkout-slidein mx-3 mt-3 mb-24 rounded-[18px] border bg-white" style={{ borderColor: '#E5F0EA', animationDelay: '0.28s' }}>
           {/* Trust Pills */}
@@ -852,10 +999,19 @@ ${data.flat}, ${data.area}
           </div>
           {/* Razorpay Strip */}
           <div className="flex items-center justify-center gap-1.5 border-t px-3 py-2" style={{ borderColor: '#F0FAF4' }}>
-            <svg className="h-3.5 w-3.5" style={{ color: '#6B7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" strokeWidth="2"/><line x1="1" y1="10" x2="23" y2="10" strokeWidth="2"/></svg>
-            <span className="text-[10px]" style={{ color: '#6B7280' }}>Secured by</span>
-            <span className="rounded border px-1 py-0.5 text-[9px]" style={{ background: '#EFF6FF', color: '#3B82F6', borderColor: '#BFDBFE', fontWeight: 800 }}>Razorpay</span>
-            <span className="text-[9px]" style={{ color: '#9CA3AF' }}>· UPI · Cards · NetBanking</span>
+            {paymentMethod === 'online' ? (
+              <>
+                <svg className="h-3.5 w-3.5" style={{ color: '#6B7280' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" strokeWidth="2"/><line x1="1" y1="10" x2="23" y2="10" strokeWidth="2"/></svg>
+                <span className="text-[10px]" style={{ color: '#6B7280' }}>Secured by</span>
+                <span className="rounded border px-1 py-0.5 text-[9px]" style={{ background: '#EFF6FF', color: '#3B82F6', borderColor: '#BFDBFE', fontWeight: 800 }}>Razorpay</span>
+                <span className="text-[9px]" style={{ color: '#9CA3AF' }}>· UPI · Cards · NetBanking</span>
+              </>
+            ) : (
+              <>
+                <Check className="h-3.5 w-3.5" style={{ color: '#059669' }} />
+                <span className="text-[10px]" style={{ color: '#065F46', fontWeight: 700 }}>COD confirmation via WhatsApp</span>
+              </>
+            )}
           </div>
         </div>
 
@@ -864,6 +1020,25 @@ ${data.flat}, ${data.area}
             {payError}
           </div>
         )}
+
+        <div className="mx-3 mt-3">
+          <button
+            type="button"
+            onClick={() =>
+              void sendSlackNotification({
+                total: 999,
+                phone: '9999999999',
+                flat: 'Test Flat',
+                area: 'Test Area',
+                items: [],
+              })
+            }
+            className="rounded-[10px] border px-3 py-2 text-[12px] font-bold"
+            style={{ borderColor: '#C6E8D2', color: '#1B6B3A', background: '#F8FDF9' }}
+          >
+            Test Slack
+          </button>
+        </div>
       </div>
 
       {/* PAY BUTTON */}
@@ -875,7 +1050,7 @@ ${data.flat}, ${data.area}
           <button
             type="button"
             disabled={order.stage === 'placing' || flatAddress.trim().length < 5 || !isPhoneValid}
-            onClick={() => void placeOrder()}
+            onClick={submitCheckout}
             className="flex w-full items-center justify-between disabled:opacity-50"
           >
             <div className="text-left">
@@ -886,12 +1061,20 @@ ${data.flat}, ${data.area}
               className="checkout-pulse flex items-center gap-1 rounded-[12px] px-5 py-3 text-[15px]"
               style={{ background: '#fff', color: '#2C2D5B', fontWeight: 900 }}
             >
-              {order.stage === 'placing' ? 'Opening…' : 'Pay Now →'}
+              {order.stage === 'placing'
+                ? paymentMethod === 'online'
+                  ? 'Opening…'
+                  : 'Placing…'
+                : paymentMethod === 'online'
+                  ? 'Pay Now →'
+                  : 'Place COD Order →'}
             </span>
           </button>
         </div>
         <p className="mt-2 text-center text-[11px]" style={{ color: '#9CA3AF', fontWeight: 600 }}>
-          Fresh from farm · Delivered by LiftNGo · Powered by Razorpay
+          {paymentMethod === 'online'
+            ? 'Fresh from farm · Delivered by LiftNGo · Powered by Razorpay'
+            : 'Fresh from farm · Delivered by LiftNGo · COD with WhatsApp confirmation'}
         </p>
       </div>
     </div>
