@@ -260,13 +260,13 @@ function ReferEarnSection() {
             YOUR REFERRAL LINK
           </p>
           <div className="mt-2">
-            <input
+            {/* <input
               readOnly
               value={REFERRAL_LINK_DISPLAY}
               className="min-h-[48px] w-full rounded-[10px] border bg-[#FAFAFA] px-3 text-[12px] font-semibold outline-none ring-[#4CAF50] focus:ring-2"
               style={{ borderColor: '#E0E0E0', color: '#333' }}
               aria-label="Your referral link"
-            />
+            /> */}
           </div>
 
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
@@ -647,7 +647,7 @@ export default function CoconutMenuPage() {
         const t = data.current_weather?.temperature;
         if (cancelled || typeof t !== 'number' || Number.isNaN(t)) throw new Error('bad temp');
         setTempC(Math.round(t));
-        if (t > 38) setTempBannerExtra('🔥 Extreme heat alert — Doctors recommend 3L+ water today');
+        if (t > 38) setTempBannerExtra(' Extreme heat alert — Doctors recommend 3L+ water today');
         else if (t > 35) setTempBannerExtra('☀️ It\'s very hot in Noida today — Perfect time for nariyal pani');
         else setTempBannerExtra(null);
       } catch {
@@ -1041,7 +1041,7 @@ export default function CoconutMenuPage() {
           style={{ borderColor: '#FFE0B2', background: 'linear-gradient(180deg, #FFFFFF 0%, #FFF8E7 100%)' }}
         >
           <p className="text-center text-sm font-black leading-tight text-[var(--color-primary)] sm:text-[15px]">
-            🔥 {peopleOrdered} people from Sector 53 and nearby ordered in the last hour
+             {peopleOrdered} people from Sector 53 and nearby ordered in the last hour
           </p>
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2 sm:mt-4 sm:gap-2.5">
             <div className="flex -space-x-2">
