@@ -8,12 +8,11 @@ import ChatWindow from './ChatWindow';
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  if (pathname === '/noida/coconut') return null;
-
   const close = useCallback(() => {
     trackChatToggle('close');
     setOpen(false);
   }, []);
+  if (pathname === '/noida/coconut') return null;
 
   return (
     <div className="fixed right-4 z-[100] flex flex-col items-end gap-3 bottom-[calc(env(safe-area-inset-bottom)+5rem)] sm:right-6 sm:bottom-[calc(env(safe-area-inset-bottom)+5.5rem)]">

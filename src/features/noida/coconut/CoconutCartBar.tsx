@@ -2,6 +2,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { trackCheckoutStarted, trackViewCart } from '@/lib/analytics';
+import { trackEvent as trackPosthogEvent } from '@/lib/posthogAnalytics';
 import { useCoconutCartStore, coconutCartSubtotal } from './coconutCartStore';
 import { COCONUT_VENDOR } from './products';
 
@@ -65,13 +66,23 @@ export default function CoconutCartBar({ onCheckout }: CoconutCartBarProps) {
   const goCheckout = () => {
     trackViewCart(count, grand, 'noida_coconut_menu');
     trackCheckoutStarted('noida_coconut_checkout', grand);
+    trackPosthogEvent('view_cart', {
+      source: 'noida_coconut_menu',
+      item_count: count,
+      value: grand,
+    });
+    trackPosthogEvent('checkout_started', {
+      flow: 'noida_coconut_checkout',
+      amount: grand,
+      source: 'noida_coconut_menu',
+    });
     onCheckout();
   };
 
   return (
     <>
       <style>{cartBarStyles}</style>
-      <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-3 pt-1" style={{ background: 'linear-gradient(to top, #F0FAF4 90%, transparent)' }}>
+      <div className="fixed inset-x-0 bottom-0 z-[60] px-3 pb-3 pt-1" style={{ background: 'linear-gradient(to top, #F0FAF4 90%, transparent)' }}>
         <div className="cart-glow cart-shine mx-auto flex w-full max-w-xl items-center justify-between gap-3 rounded-[12px] px-4 py-3 sm:max-w-2xl" style={{ background: '#2C2D5B' }}>
           <div className="min-w-0 leading-tight">
             <p className="text-xl font-bold tabular-nums text-white" style={{ fontWeight: 900 }}>₹{grand}</p>
