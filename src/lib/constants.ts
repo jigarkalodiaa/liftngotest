@@ -129,6 +129,7 @@ export const ROUTES = {
   PLANS_CUSTOM: '/plans/custom',
   PLANS_CUSTOM_CHECKOUT: '/plans/custom/checkout',
   PLANS_GST: '/plans/gst',
+  FARE_CALCULATOR: '/fare-calculator',
   /** SEO dashboard URL — same UI as `/dashboard` with zone pinned to Noida. */
   NOIDA: '/noida',
   /** Fleet owners: how Liftngo tech helps run owned vehicles (assign trips, private fleet). */

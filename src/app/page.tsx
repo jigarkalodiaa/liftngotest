@@ -22,6 +22,9 @@ const Features = dynamic(() => import('@/components/landing/Features'), { loadin
 const ServiceSection = dynamic(() => import('@/components/landing/ServiceSection'), {
   loading: sectionLoading('min-h-48'),
 });
+const QuickServicesSection = dynamic(() => import('@/components/landing/QuickServicesSection'), {
+  loading: sectionLoading('min-h-36'),
+});
 const QuickRidesSection = dynamic(() => import('@/components/landing/QuickRidesSection'), {
   loading: sectionLoading('min-h-36'),
 });
@@ -56,6 +59,7 @@ export default function Home() {
         aria-label="LiftnGo home: logistics, delivery, and transport services"
       >
         <Hero pickupBookingSource="homepage" />
+        <QuickServicesSection />
         <Features />
         <ServiceSection />
         <QuickRidesSection />
