@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, memo } from 'react';
-import Link from 'next/link';
 import { useMenu, useLandingPickup } from './PageWrapper';
 import HeroPickupAutocomplete from './HeroPickupAutocomplete';
 import { getLandingPickupLocation, setLandingPickupLocation, setPostLoginPath } from '@/lib/storage';
@@ -144,13 +143,6 @@ function Hero({ heroTitleLevel = 'h1', pickupBookingSource }: HeroProps) {
                 )}
                 {isLoading ? 'Getting location...' : 'Use my current location'}
               </button>
-              <Link
-                href="/noida/coconut"
-                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 sm:w-auto sm:px-6 sm:text-base"
-              >
-                
-                Order coconut in Noida
-              </Link>
             </div>
             {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
           </div>
