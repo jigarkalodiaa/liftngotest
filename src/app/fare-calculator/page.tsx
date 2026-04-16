@@ -20,7 +20,6 @@ import {
   FARE_SLABS,
   INTERSTATE_TOLL_CHARGE,
   PEAK_HOUR_MULTIPLIER,
-  BEYOND_LAST_SLAB_PER_KM,
   calculateFare,
   estimateTripTimeMinutes,
   normalizeDistanceKm,
@@ -387,7 +386,7 @@ Total Fare: ${fareStatus}`;
                 <p className="mt-1 text-sm font-bold text-slate-900">{selectedVehicle.label}</p>
                 <p className="mt-1 text-xs text-slate-500">
                   Slab up to {fareBreakdown.slabUptoApplied} km selected.
-                  {fareBreakdown.overageKm > 0 ? ` Extra km billed at ₹${BEYOND_LAST_SLAB_PER_KM}/km.` : ''}
+                  {fareBreakdown.overageKm > 0 ? ` Extra km billed at ₹${fareBreakdown.overageRate}/km.` : ''}
                 </p>
                 <p className="mt-1 text-[11px] text-slate-400">Slab bands available: up to {slabStartKm} km - {slabEndKm} km.</p>
               </div>
