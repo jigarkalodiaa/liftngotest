@@ -14,7 +14,7 @@ import {
 } from '@/features/seo-pages';
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 /**
@@ -36,7 +36,8 @@ export async function generateStaticParams() {
  * Generate metadata for each SEO page (server-side)
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const data = getSeoPageData(params.slug);
+  const { slug } = await params;
+  const data = getSeoPageData(slug);
   
   if (!data) {
     return {
@@ -47,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return generatePageMetadata({
     title: data.seo.title,
     description: data.seo.description,
-    path: data.seo.path,
+    path: `/s${data.seo.path}`,
     keywords: data.seo.keywords,
   });
 }
@@ -55,9 +56,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 /**
  * Dynamic SEO page component
  * Fully server-rendered with client-side conversion components
+ * 
+ * NOTE: This route is at /s/[slug] to avoid conflict with /[citySlug]
+ * Individual SEO pages also exist at their direct paths (e.g., /hyperlocal-delivery-service)
  */
-export default function DynamicSeoPage({ params }: PageProps) {
-  const data = getSeoPageData(params.slug);
+export default async function DynamicSeoPage({ params }: PageProps) {
+  const { slug } = await params;
+  const data = getSeoPageData(slug);
   
   if (!data) {
     notFound();
