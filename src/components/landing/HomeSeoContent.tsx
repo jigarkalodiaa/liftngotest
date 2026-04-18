@@ -6,12 +6,17 @@ const SEO_LINKS: { href: string; label: string }[] = [
   { href: ROUTES.NOIDA_B2B_LOGISTICS, label: 'Noida B2B logistics' },
   { href: '/logistics-khatu', label: 'Logistics in Khatu' },
   { href: ROUTES.B2B_TRANSPORT, label: 'B2B transport India' },
-  { href: ROUTES.ABOUT_B2B_LOGISTICS, label: 'B2B logistics detail' },
+  { href: ROUTES.FARE_CALCULATOR, label: 'Fare calculator' },
+  { href: ROUTES.FLEET_BRANDING, label: 'Fleet branding' },
   { href: ROUTES.BOOK_DELIVERY, label: 'Book delivery' },
   { href: '/services', label: 'Services (2W–4W)' },
-  { href: '/blog', label: 'Logistics blog' },
+  { href: '/same-day-delivery-khatu', label: 'Same day delivery Khatu' },
+  { href: '/hyperlocal-delivery-service', label: 'Hyperlocal delivery' },
+  { href: '/whatsapp-delivery-service', label: 'WhatsApp delivery' },
+  { href: '/b2b-logistics-rajasthan', label: 'B2B logistics Rajasthan' },
+  { href: '/hotel-logistics-partner', label: 'Hotel logistics partner' },
+  { href: '/restaurant-delivery-partner', label: 'Restaurant delivery' },
   { href: ROUTES.CONTACT, label: 'Contact & support' },
-  { href: ROUTES.BECOME_DRIVER, label: 'Become a driver' },
 ];
 
 const linkTileClass =

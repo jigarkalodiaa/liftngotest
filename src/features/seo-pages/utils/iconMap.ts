@@ -1,0 +1,55 @@
+import {
+  Zap,
+  Clock,
+  Shield,
+  MapPin,
+  Phone,
+  CheckCircle,
+  ArrowRight,
+  Package,
+  IndianRupee,
+  MessageCircle,
+  Timer,
+  Bike,
+  Truck,
+  Target,
+  Building2,
+  Utensils,
+  Hotel,
+  Store,
+  Palette,
+  Star,
+  Users,
+  Calendar,
+  LucideIcon,
+} from 'lucide-react';
+import { IconName } from '../types';
+
+export const ICON_MAP: Record<IconName, LucideIcon> = {
+  Zap,
+  Clock,
+  Shield,
+  MapPin,
+  Phone,
+  CheckCircle,
+  ArrowRight,
+  Package,
+  IndianRupee,
+  MessageCircle,
+  Timer,
+  Bike,
+  Truck,
+  Target,
+  Building2,
+  Utensils,
+  Hotel,
+  Store,
+  Palette,
+  Star,
+  Users,
+  Calendar,
+};
+
+export function getIcon(name: string): LucideIcon {
+  return ICON_MAP[name as IconName] || Zap;
+}
