@@ -227,8 +227,8 @@ select:focus {
   box-shadow: none;
 }
 
-/* Consistent input height across the platform (exclude checkbox/radio) */
-input:not([type="checkbox"]):not([type="radio"]),
+/* Consistent input height across the platform (exclude checkbox/radio/range) */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 textarea,
 select {
   min-height: 56px;

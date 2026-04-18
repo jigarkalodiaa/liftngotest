@@ -8,53 +8,53 @@ type VehiclePricingConfig = {
   slabs: FareSlab[];
 };
 
+/**
+ * 4-Wheeler slabs serve as the BASE pricing reference.
+ * 3-Wheeler slabs are derived at 95% of 4W prices for consistency.
+ */
+const FOUR_WHEELER_SLABS: FareSlab[] = [
+  { upto: 3, price: 440 },
+  { upto: 6, price: 489 },
+  { upto: 10, price: 650 },
+  { upto: 15, price: 755 },
+  { upto: 20, price: 900 },
+  { upto: 30, price: 1144 },
+  { upto: 40, price: 1700 },
+];
+
+/** 3W pricing = 4W pricing * 0.95 (5% discount), rounded to nearest rupee */
+const THREE_WHEELER_DISCOUNT = 0.95;
+const THREE_WHEELER_SLABS: FareSlab[] = FOUR_WHEELER_SLABS.map((slab) => ({
+  upto: slab.upto,
+  price: Math.round(slab.price * THREE_WHEELER_DISCOUNT),
+}));
+
+/** 2-Wheeler slabs (independent pricing tier for light parcels) */
+const TWO_WHEELER_SLABS: FareSlab[] = [
+  { upto: 2, price: 120 },
+  { upto: 5, price: 160 },
+  { upto: 10, price: 220 },
+  { upto: 15, price: 260 },
+  { upto: 23, price: 207 },
+  { upto: 25, price: 207 },
+  { upto: 35, price: 400 },
+];
+
 export const FARE_PRICING_CONFIG: Record<FareVehicleType, VehiclePricingConfig> = {
   twoWheeler: {
     minimumBaseFare: 120,
     longDistanceMarginMultiplier: 1.2,
-    slabs: [
-      { upto: 2, price: 120 },
-      { upto: 5, price: 160 },
-      { upto: 10, price: 220 },
-      { upto: 15, price: 260 },
-      /** Preserve tuned checkpoint: 23 km should evaluate to ₹207. */
-      { upto: 23, price: 207 },
-      /** Target corrected: 23 km should be ₹207 (non-interstate, non-peak). */
-      { upto: 25, price: 207 },
-      { upto: 35, price: 400 },
-    ],
+    slabs: TWO_WHEELER_SLABS,
   },
   threeWheeler: {
-    minimumBaseFare: 350,
+    minimumBaseFare: Math.round(440 * THREE_WHEELER_DISCOUNT), // 418 (95% of 4W base)
     longDistanceMarginMultiplier: 1.18,
-    slabs: [
-      { upto: 2, price: 350 },
-      { upto: 5, price: 450 },
-      { upto: 8, price: 650 },
-      { upto: 10, price: 750 },
-      { upto: 12, price: 900 },
-      { upto: 15, price: 950 },
-      { upto: 20, price: 1000 },
-      /** 30 km target: ₹1030 slab + ₹20 platform fee = ₹1050 total (non-interstate). */
-      { upto: 30, price: 1030 },
-    ],
+    slabs: THREE_WHEELER_SLABS,
   },
   fourWheeler: {
     minimumBaseFare: 440,
     longDistanceMarginMultiplier: 1.15,
-    slabs: [
-      /** Target corrected: 2.8 km should be ₹440 (non-interstate, non-peak). */
-      { upto: 3, price: 440 },
-      /** Target corrected: 6 km should be ₹489 (non-interstate, non-peak). */
-      { upto: 6, price: 489 },
-      { upto: 10, price: 650 },
-      { upto: 15, price: 755 },
-      /** Target corrected: 17 km should be ₹813 (non-interstate, non-peak). */
-      { upto: 20, price: 900 },
-      /** Target corrected: 30 km should be ₹1144 (non-interstate, non-peak). */
-      { upto: 30, price: 1144 },
-      { upto: 40, price: 1700 },
-    ],
+    slabs: FOUR_WHEELER_SLABS,
   },
 };
 

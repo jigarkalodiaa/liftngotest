@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Calculator, ChevronRight, GlassWater } from 'lucide-react';
+import { Calculator, ChevronRight, GlassWater, Truck } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
 
 const QUICK_SERVICES = [
@@ -21,6 +21,13 @@ const QUICK_SERVICES = [
     description: 'Check estimated delivery fare before booking.',
     icon: Calculator,
     href: ROUTES.FARE_CALCULATOR,
+  },
+  {
+    id: 'fleet-branding',
+    title: 'Fleet Branding',
+    description: 'Advertise your brand on Liftngo 3W & 4W vehicles across Delhi NCR.',
+    icon: Truck,
+    href: ROUTES.FLEET_BRANDING,
   },
 ];
 
@@ -44,7 +51,7 @@ export default function QuickServicesSection() {
           Use these quick actions to access our most-used services.
         </p>
 
-        <div className="mx-auto grid max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
           {QUICK_SERVICES.map((service) => {
             const Icon = service.icon;
             return (
@@ -52,9 +59,14 @@ export default function QuickServicesSection() {
                 key={service.id}
                 href={service.href}
                 onClick={(event) => {
-                  if (service.id !== 'fare-calculator') return;
-                  event.preventDefault();
-                  router.push(ROUTES.FARE_CALCULATOR);
+                  if (service.id === 'fare-calculator') {
+                    event.preventDefault();
+                    router.push(ROUTES.FARE_CALCULATOR);
+                  }
+                  if (service.id === 'fleet-branding') {
+                    event.preventDefault();
+                    router.push(ROUTES.FLEET_BRANDING);
+                  }
                 }}
                 className="group relative overflow-hidden rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 p-5 shadow-[0_10px_30px_-22px_rgba(0,0,0,0.45)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_40px_-20px_rgba(0,0,0,0.45)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2 motion-reduce:transform-none"
               >
