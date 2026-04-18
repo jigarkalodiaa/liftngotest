@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Calculator } from 'lucide-react';
 import { LOGO_PATH } from '@/lib/site';
+import { ROUTES } from '@/lib/constants';
 import { PRIMARY, ACCENT } from './constants';
 
 interface CTASectionProps {
@@ -50,6 +51,24 @@ export function CTASection({ whatsappContactSalesHref }: CTASectionProps) {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Cross-link CTA */}
+      <section className="border-t border-gray-100 bg-white">
+        <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <div className="mx-auto max-w-6xl text-center">
+            <p className="text-sm font-semibold text-gray-700">Need to estimate delivery costs?</p>
+            <Link
+              href={ROUTES.FARE_CALCULATOR}
+              className="mt-3 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold text-white transition-all hover:brightness-110"
+              style={{ backgroundColor: ACCENT }}
+            >
+              <Calculator className="h-4 w-4" />
+              Try Fare Calculator
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>

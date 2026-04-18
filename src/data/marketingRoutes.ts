@@ -9,6 +9,8 @@
 
 export const MARKETING_PATHS: { path: string; priority: number; changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never' }[] = [
   { path: '/', priority: 1.0, changeFrequency: 'weekly' },
+  { path: '/fare-calculator', priority: 0.92, changeFrequency: 'weekly' },
+  { path: '/fleet-branding', priority: 0.91, changeFrequency: 'weekly' },
   { path: '/book-delivery', priority: 0.95, changeFrequency: 'weekly' },
   { path: '/khatu-shyam-logistics', priority: 0.96, changeFrequency: 'weekly' },
   { path: '/noida-b2b-logistics', priority: 0.96, changeFrequency: 'weekly' },
