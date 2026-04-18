@@ -51,4 +51,13 @@ export const MARKETING_PATHS: { path: string; priority: number; changeFrequency:
   { path: '/promotions', priority: 0.64, changeFrequency: 'monthly' },
   { path: '/privacy', priority: 0.25, changeFrequency: 'yearly' },
   { path: '/terms', priority: 0.25, changeFrequency: 'yearly' },
+  { path: '/search', priority: 0.5, changeFrequency: 'monthly' },
+  // New SEO landing pages
+  { path: '/b2b-logistics-rajasthan', priority: 0.88, changeFrequency: 'weekly' },
+  { path: '/same-day-delivery-khatu', priority: 0.87, changeFrequency: 'weekly' },
+  { path: '/hotel-logistics-partner', priority: 0.85, changeFrequency: 'weekly' },
+  { path: '/restaurant-delivery-partner', priority: 0.85, changeFrequency: 'weekly' },
+  { path: '/whatsapp-delivery-service', priority: 0.86, changeFrequency: 'weekly' },
+  { path: '/fleet-branding-rajasthan', priority: 0.84, changeFrequency: 'weekly' },
+  { path: '/hyperlocal-delivery-service', priority: 0.86, changeFrequency: 'weekly' },
 ];

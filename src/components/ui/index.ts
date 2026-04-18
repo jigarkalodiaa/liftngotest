@@ -7,3 +7,7 @@ export { default as Modal } from './Modal';
 export { default as Card } from './Card';
 export { default as Badge } from './Badge';
 export { default as SectionHeader } from './SectionHeader';
+export { Container } from './Container';
+export { Section } from './Section';
+export { Heading } from './Heading';
+export { Grid } from './Grid';

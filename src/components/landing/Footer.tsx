@@ -71,6 +71,16 @@ const TOOLS: FooterLink[] = [
   { href: ROUTES.FARE_CALCULATOR, label: 'Fare Calculator' },
   { href: ROUTES.FLEET_BRANDING, label: 'Fleet Branding' },
   { href: ROUTES.PLANS_CUSTOM, label: 'Custom Plan Builder' },
+  { href: '/whatsapp-delivery-service', label: 'WhatsApp Delivery' },
+];
+
+const SEO_PAGES: FooterLink[] = [
+  { href: '/same-day-delivery-khatu', label: 'Same Day Delivery Khatu' },
+  { href: '/hyperlocal-delivery-service', label: 'Hyperlocal Delivery' },
+  { href: '/b2b-logistics-rajasthan', label: 'B2B Logistics Rajasthan' },
+  { href: '/hotel-logistics-partner', label: 'Hotel Logistics Partner' },
+  { href: '/restaurant-delivery-partner', label: 'Restaurant Delivery' },
+  { href: '/fleet-branding-rajasthan', label: 'Fleet Branding Rajasthan' },
 ];
 
 const COMPANY: FooterLink[] = [
@@ -111,6 +121,7 @@ export default function Footer() {
 
           <FooterNavColumn idSlug="book-plans" title="Book & plans" links={BOOK_AND_PLANS} />
           <FooterNavColumn idSlug="tools" title="Tools" links={TOOLS} />
+          <FooterNavColumn idSlug="services" title="Services" links={SEO_PAGES} />
           <FooterNavColumn idSlug="b2b-regions" title="B2B & regions" links={B2B_AND_REGIONS} />
           <FooterNavColumn idSlug="khatu-food" title="Khatu & food" links={KHATU_AND_FOOD} />
           <FooterNavColumn idSlug="vehicles" title="Vehicles" links={VEHICLE_SERVICES} />
