@@ -536,7 +536,7 @@ const intents: IntentDef[] = [
     keywords: [
       '3 wheeler', '3-wheeler', 'three wheeler', 'three-wheeler',
       'three wheel', 'tempo', 'goods auto', 'cargo auto',
-      'auto rickshaw', 'e rickshaw', 'e-loader', 'electric three',
+      'auto vehicle', 'e vehicle', 'e-loader', 'electric three',
       'ev cargo',
       'auto se bhejo', 'auto chahiye', 'teen pahiya',
     ],

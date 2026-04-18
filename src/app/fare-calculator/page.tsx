@@ -1,21 +1,25 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
 import {
+  ArrowRight,
   Bike,
+  Calculator,
   CarFront,
-  CheckCircle2,
-  ChevronLeft,
-  CircleOff,
+  CheckCircle,
+  Clock,
   MapPin,
   MessageCircle,
   Route,
+  Shield,
   Sparkles,
   Truck,
-  Wallet,
+  Zap,
 } from 'lucide-react';
 import { ROUTES } from '@/lib/constants';
+import { LOGO_PATH } from '@/lib/site';
 import {
   FARE_SLABS,
   INTERSTATE_TOLL_CHARGE,
@@ -26,33 +30,32 @@ import {
   type FareVehicleType,
 } from '@/lib/pricing/fareCalculator';
 
+const PRIMARY = '#2C2D5B';
+const ACCENT = 'rgb(255, 140, 0)';
+
 const VEHICLE_OPTIONS: Array<{
   id: FareVehicleType;
   label: string;
   subtitle: string;
   icon: typeof Bike;
-  accent: string;
 }> = [
   {
     id: 'twoWheeler',
     label: '2 Wheeler',
-    subtitle: 'Best for small parcels',
+    subtitle: 'Small parcels',
     icon: Bike,
-    accent: 'from-sky-500/18 to-sky-50',
   },
   {
     id: 'threeWheeler',
     label: '3 Wheeler',
-    subtitle: 'Ideal for medium goods',
+    subtitle: 'Medium goods',
     icon: Truck,
-    accent: 'from-emerald-500/18 to-emerald-50',
   },
   {
     id: 'fourWheeler',
     label: '4 Wheeler',
-    subtitle: 'For heavy and bulk loads',
+    subtitle: 'Bulk loads',
     icon: CarFront,
-    accent: 'from-violet-500/18 to-violet-50',
   },
 ];
 
@@ -64,7 +67,6 @@ function formatInr(value: number): string {
 }
 
 export default function FareCalculatorPage() {
-  const router = useRouter();
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropLocation, setDropLocation] = useState('');
   const [distanceInput, setDistanceInput] = useState('');
@@ -86,7 +88,6 @@ export default function FareCalculatorPage() {
   const canCalculate = normalizedDistance > 0;
   const selectedVehicle = VEHICLE_OPTIONS.find((option) => option.id === vehicleType) ?? VEHICLE_OPTIONS[0];
   const selectedSlabs = FARE_SLABS[vehicleType];
-  const slabStartKm = selectedSlabs[0]?.upto ?? 0;
   const slabEndKm = selectedSlabs[selectedSlabs.length - 1]?.upto ?? 0;
 
   const fareQuote = useMemo(
@@ -107,22 +108,18 @@ export default function FareCalculatorPage() {
       setDistanceError('');
       return;
     }
-
     const parsed = Number(rawValue);
     if (!Number.isFinite(parsed)) return;
-
     if (parsed < 0) {
       setDistanceInput('0');
       setDistanceError('Distance cannot be negative.');
       return;
     }
-
     if (parsed > MAX_DISTANCE_KM) {
       setDistanceInput(String(MAX_DISTANCE_KM));
       setDistanceError(`Maximum allowed distance is ${MAX_DISTANCE_KM} km.`);
       return;
     }
-
     setDistanceInput(rawValue);
     setDistanceError('');
   };
@@ -132,10 +129,7 @@ export default function FareCalculatorPage() {
     const drop = dropLocation.trim() || 'Not provided';
     const distanceText = normalizedDistance > 0 ? `${normalizedDistance} km` : 'Not provided';
     const timeText = estimatedTime > 0 ? `${estimatedTime} min` : 'Not available';
-    const interstateText = isInterstate ? 'Yes' : 'No';
-    const peakText = isPeakHour ? 'On' : 'Off';
     const fareStatus = canCalculate ? `Rs ${formatInr(fareQuote.totalFare)}` : 'Not calculated yet';
-
     return `LiftNGo Fare Request
 
 Pickup: ${pickup}
@@ -143,317 +137,347 @@ Drop: ${drop}
 Vehicle: ${selectedVehicle.label}
 Distance: ${distanceText}
 Estimated Time: ${timeText}
-Interstate: ${interstateText}
-Peak Hour: ${peakText}
-Best Price: ${canCalculate ? 'Applied' : 'Pending distance'}
+Interstate: ${isInterstate ? 'Yes' : 'No'}
+Peak Hour: ${isPeakHour ? 'On' : 'Off'}
 
 Total Fare: ${fareStatus}`;
-  }, [
-    pickupLocation,
-    dropLocation,
-    normalizedDistance,
-    estimatedTime,
-    isInterstate,
-    isPeakHour,
-    canCalculate,
-    selectedVehicle.label,
-    fareQuote.totalFare,
-  ]);
+  }, [pickupLocation, dropLocation, normalizedDistance, estimatedTime, isInterstate, isPeakHour, canCalculate, selectedVehicle.label, fareQuote.totalFare]);
+
   const whatsappHref = useMemo(
     () => `https://wa.me/${FARE_CALCULATOR_WHATSAPP_DIGITS}?text=${encodeURIComponent(whatsappPayload)}`,
     [whatsappPayload]
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100/60">
-      <div className="bg-gradient-to-br from-[#1e1f4b] via-[#2C2D5B] to-[#3d3f7a] px-4 pb-9 pt-3 text-white md:px-6 md:pb-11 md:pt-4 lg:px-8">
-        <div className="mx-auto w-full max-w-6xl">
-          <button
-            type="button"
-            onClick={() => router.push(ROUTES.HOME)}
-            className="mb-3 inline-flex min-h-11 items-center gap-1.5 rounded-lg text-xs font-semibold text-white/80 transition-colors hover:bg-white/10 hover:text-white md:mb-4 md:text-sm"
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/98 backdrop-blur-lg">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 lg:px-8">
+          <Link href={ROUTES.HOME} className="inline-flex items-center gap-2 sm:gap-3">
+            <Image src={LOGO_PATH} alt="Liftngo" width={120} height={36} className="h-7 w-auto object-contain sm:h-8" priority />
+            <span className="hidden rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider sm:inline sm:px-3 sm:text-[11px]" style={{ borderColor: `${ACCENT}20`, color: ACCENT }}>
+              Fare Calculator
+            </span>
+          </Link>
+          <Link
+            href={ROUTES.HOME}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg px-4 text-xs font-semibold text-gray-600 transition hover:bg-gray-100 sm:h-10 sm:text-sm"
           >
-            <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden />
-            Back to home
-          </button>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-semibold tracking-wide text-white/95 backdrop-blur-sm md:text-[11px]">
-            Instant estimation
-          </div>
-          <h1 className="mt-2 text-xl font-extrabold tracking-tight md:mt-3 md:text-2xl lg:text-3xl">
-            Fare Calculator
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/75 md:text-base">
-            Enter trip details and get an instant estimate using LiftNGo base pricing logic.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-white/90">
-            {['1. Enter locations', '2. Select vehicle', '3. View live fare'].map((step) => (
-              <span key={step} className="rounded-full border border-white/20 bg-white/10 px-3 py-1 backdrop-blur-sm">
-                {step}
-              </span>
-            ))}
+            Back to Home
+          </Link>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section style={{ background: `linear-gradient(135deg, ${PRIMARY}08 0%, white 100%)` }}>
+        <div className="px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+          <div className="mx-auto max-w-6xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider sm:px-4 sm:py-2 sm:text-[11px]" style={{ borderColor: `${ACCENT}30`, color: ACCENT }}>
+              <Calculator className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              Instant Estimation
+            </span>
+            <h1 className="mt-4 text-2xl font-black leading-tight tracking-tight text-gray-900 sm:mt-6 sm:text-3xl md:text-4xl">
+              Calculate Your
+              <span className="block" style={{ color: PRIMARY }}>Delivery Fare</span>
+            </h1>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-gray-500 sm:mt-4 sm:text-base">
+              Get instant fare estimates using Liftngo&apos;s transparent slab-based pricing.
+            </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="-mt-7 mx-auto w-full max-w-6xl px-4 pb-24 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr),370px] lg:items-start lg:gap-6">
-          <section className="space-y-4">
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.18)] sm:p-5">
-              <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-slate-500">
-                <MapPin className="h-4 w-4 text-[var(--color-primary)]" />
-                Step 1 - Trip details
-              </h2>
-
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold text-slate-600">Pickup location</span>
-                  <div className="relative rounded-xl border-2 border-slate-300 bg-white shadow-sm transition-all focus-within:border-[var(--color-primary)] focus-within:ring-4 focus-within:ring-[var(--color-primary)]/20 focus-within:shadow-md">
-                    <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      value={pickupLocation}
-                      onChange={(event) => setPickupLocation(event.target.value)}
-                      placeholder="Enter pickup location"
-                      className="h-12 w-full rounded-xl bg-transparent pl-10 pr-3 text-sm text-slate-800 focus:outline-none"
-                    />
-                  </div>
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold text-slate-600">Drop location</span>
-                  <div className="relative rounded-xl border-2 border-slate-300 bg-white shadow-sm transition-all focus-within:border-[var(--color-primary)] focus-within:ring-4 focus-within:ring-[var(--color-primary)]/20 focus-within:shadow-md">
-                    <Route className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      value={dropLocation}
-                      onChange={(event) => setDropLocation(event.target.value)}
-                      placeholder="Enter drop location"
-                      className="h-12 w-full rounded-xl bg-transparent pl-10 pr-3 text-sm text-slate-800 focus:outline-none"
-                    />
-                  </div>
-                </label>
-              </div>
-
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr),minmax(0,1fr)]">
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold text-slate-600">Distance (KM)</span>
-                  <div className="relative rounded-xl border-2 border-slate-300 bg-white shadow-sm transition-all focus-within:border-[var(--color-primary)] focus-within:ring-4 focus-within:ring-[var(--color-primary)]/20 focus-within:shadow-md">
-                    <Route className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="number"
-                      min="0"
-                      max={MAX_DISTANCE_KM}
-                      step="0.1"
-                      inputMode="decimal"
-                      value={distanceInput}
-                      onChange={(event) => handleDistanceChange(event.target.value)}
-                      placeholder="Enter distance in kilometers"
-                      className="h-12 w-full rounded-xl bg-transparent pl-10 pr-3 text-sm text-slate-800 focus:outline-none"
-                    />
-                  </div>
-                  {distanceError && <p className="mt-1 text-xs font-medium text-red-600">{distanceError}</p>}
-                </label>
-                <label className="block">
-                  <span className="mb-1.5 block text-xs font-semibold text-slate-600">Estimated time (minutes)</span>
-                  <div className="relative rounded-xl border-2 border-slate-300 bg-slate-50 shadow-sm">
-                    <Route className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <div className="flex h-12 w-full items-center pl-10 pr-3 text-sm font-medium text-slate-700">
-                      {estimatedTime > 0 ? `${estimatedTime} min` : 'Calculated from distance + vehicle'}
-                    </div>
-                  </div>
-                  <p className="mt-1 text-[11px] text-slate-500">Uses vehicle speed + city traffic factor (+ peak adjustment).</p>
-                </label>
-              </div>
-
-              <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-xs text-slate-600">
-                  <p className="font-semibold text-slate-700">Interstate trip?</p>
-                  <div className="mt-2 inline-flex rounded-lg border border-slate-200 bg-white p-1">
-                    <button
-                      type="button"
-                      onClick={() => setIsInterstate(false)}
-                      className={`min-h-8 rounded-md px-3 text-xs font-semibold transition-colors ${
-                        !isInterstate ? 'bg-[#1e1f4b] text-white' : 'text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      No
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsInterstate(true)}
-                      className={`min-h-8 rounded-md px-3 text-xs font-semibold transition-colors ${
-                        isInterstate ? 'bg-[#1e1f4b] text-white' : 'text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      Yes
-                    </button>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-xs text-slate-600">
-                  <p className="font-semibold text-slate-700">Peak hour pricing?</p>
-                  <div className="mt-2 inline-flex rounded-lg border border-slate-200 bg-white p-1">
-                    <button
-                      type="button"
-                      onClick={() => setIsPeakHour(false)}
-                      className={`min-h-8 rounded-md px-3 text-xs font-semibold transition-colors ${
-                        !isPeakHour ? 'bg-[#1e1f4b] text-white' : 'text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      Off
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsPeakHour(true)}
-                      className={`min-h-8 rounded-md px-3 text-xs font-semibold transition-colors ${
-                        isPeakHour ? 'bg-[#1e1f4b] text-white' : 'text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      On
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <p className="mt-2 text-xs text-slate-500">
-                Slab-based fare is auto-selected by distance. Interstate adds ₹{INTERSTATE_TOLL_CHARGE}. Peak hour applies {PEAK_HOUR_MULTIPLIER}x.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_10px_35px_-20px_rgba(15,23,42,0.18)] sm:p-5">
-              <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-slate-500">
-                <Truck className="h-4 w-4 text-[var(--color-primary)]" />
-                Step 2 - Select vehicle
-              </h3>
-              <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-2.5">
-                {VEHICLE_OPTIONS.map((option) => {
-                  const Icon = option.icon;
-                  const isActive = option.id === vehicleType;
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => setVehicleType(option.id)}
-                      className={`group relative overflow-hidden rounded-xl border p-2.5 text-left transition-all duration-300 sm:p-3 ${
-                        isActive
-                          ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/[0.06] shadow-md shadow-[var(--color-primary)]/20'
-                          : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300'
-                      }`}
-                    >
-                      <div
-                        className={`pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-gradient-to-br ${option.accent} blur-xl transition-opacity ${
-                          isActive ? 'opacity-90' : 'opacity-50'
-                        }`}
-                      />
-                      <div className="relative">
-                        <div
-                          className={`inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br ${option.accent} ${
-                            isActive ? 'text-[var(--color-primary)]' : 'text-slate-600'
-                          }`}
-                        >
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <p className="mt-2 text-xs font-semibold text-slate-900 sm:text-sm">{option.label}</p>
-                        <p className="mt-0.5 hidden text-xs text-slate-500 sm:block">{option.subtitle}</p>
-                        {isActive && (
-                          <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-[var(--color-primary)] sm:mt-2 sm:text-[11px]">
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            <span className="hidden sm:inline">Selected</span>
-                          </span>
-                        )}
+      {/* Calculator Section */}
+      <section className="bg-gray-50">
+        <div className="px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+          <div className="mx-auto max-w-6xl">
+            <div className="grid gap-6 lg:grid-cols-[1fr,360px] lg:items-start">
+              {/* Left: Input Form */}
+              <div className="space-y-5">
+                {/* Trip Details Card */}
+                <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" style={{ borderLeftWidth: '4px', borderLeftColor: ACCENT }}>
+                  <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ backgroundColor: `${ACCENT}15` }}>
+                        <MapPin className="h-4 w-4" style={{ color: ACCENT }} />
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-
-          <aside className="lg:sticky lg:top-20">
-            <section
-              className={`overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_12px_40px_-20px_rgba(15,23,42,0.2)] transition-all duration-300 sm:p-5 ${
-                canCalculate ? 'opacity-100' : 'opacity-90'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-500">Step 3 - Fare estimate</h2>
-                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-semibold text-slate-600">
-                  <Sparkles className="h-3 w-3 text-[var(--color-primary)]" />
-                  Live
-                </span>
-              </div>
-
-              <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">Selected vehicle</p>
-                <p className="mt-1 text-sm font-bold text-slate-900">{selectedVehicle.label}</p>
-                <p className="mt-1 text-xs text-slate-500">
-                  Slab up to {fareBreakdown.slabUptoApplied} km selected.
-                  {fareBreakdown.overageKm > 0 ? ` Extra km billed at ₹${fareBreakdown.overageRate}/km.` : ''}
-                </p>
-                <p className="mt-1 text-[11px] text-slate-400">Slab bands available: up to {slabStartKm} km - {slabEndKm} km.</p>
-              </div>
-
-              {!canCalculate ? (
-                <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
-                  <CircleOff className="mx-auto h-5 w-5 text-slate-400" />
-                  <p className="mt-2 text-sm font-semibold text-slate-700">Add distance to see fare instantly</p>
-                  <p className="mt-1 text-xs text-slate-500">The estimate will update automatically on each change.</p>
-                </div>
-              ) : (
-                <>
-                  <div className="mt-4 space-y-2.5 text-sm">
-                    <div className="flex items-center justify-between text-slate-600">
-                      <span>Slab fare ({fareBreakdown.distance} km)</span>
-                      <span className="font-semibold text-slate-900">₹{formatInr(fareBreakdown.slabFare)}</span>
+                      <div>
+                        <h2 className="text-sm font-bold text-gray-900">Trip Details</h2>
+                        <p className="text-[11px] text-gray-500">Enter pickup, drop & distance</p>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-slate-600">
-                      <span>Toll</span>
-                      <span className={`font-semibold ${fareBreakdown.toll > 0 ? 'text-amber-700' : 'text-slate-900'}`}>
-                        ₹{formatInr(fareBreakdown.toll)}
+                  </div>
+                  <div className="space-y-4 p-5">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-gray-600">Pickup Location</span>
+                        <div className="relative">
+                          <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            value={pickupLocation}
+                            onChange={(e) => setPickupLocation(e.target.value)}
+                            placeholder="Enter pickup"
+                            className="h-11 w-full rounded-xl bg-white pl-10 pr-3 text-sm text-gray-800 transition-all"
+                            style={{ border: '2px solid #D1D5DB', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                            onFocus={(e) => { e.target.style.border = `2px solid ${ACCENT}`; e.target.style.boxShadow = `0 0 0 3px ${ACCENT}20`; }}
+                            onBlur={(e) => { e.target.style.border = '2px solid #D1D5DB'; e.target.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; }}
+                          />
+                        </div>
+                      </label>
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-gray-600">Drop Location</span>
+                        <div className="relative">
+                          <Route className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="text"
+                            value={dropLocation}
+                            onChange={(e) => setDropLocation(e.target.value)}
+                            placeholder="Enter drop"
+                            className="h-11 w-full rounded-xl bg-white pl-10 pr-3 text-sm text-gray-800 transition-all"
+                            style={{ border: '2px solid #D1D5DB', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                            onFocus={(e) => { e.target.style.border = `2px solid ${ACCENT}`; e.target.style.boxShadow = `0 0 0 3px ${ACCENT}20`; }}
+                            onBlur={(e) => { e.target.style.border = '2px solid #D1D5DB'; e.target.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; }}
+                          />
+                        </div>
+                      </label>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-gray-600">Distance (KM)</span>
+                        <div className="relative">
+                          <Route className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                          <input
+                            type="number"
+                            min="0"
+                            max={MAX_DISTANCE_KM}
+                            step="0.1"
+                            inputMode="decimal"
+                            value={distanceInput}
+                            onChange={(e) => handleDistanceChange(e.target.value)}
+                            placeholder="Enter distance"
+                            className="h-11 w-full rounded-xl bg-white pl-10 pr-3 text-sm text-gray-800 transition-all"
+                            style={{ border: '2px solid #D1D5DB', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+                            onFocus={(e) => { e.target.style.border = `2px solid ${ACCENT}`; e.target.style.boxShadow = `0 0 0 3px ${ACCENT}20`; }}
+                            onBlur={(e) => { e.target.style.border = '2px solid #D1D5DB'; e.target.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'; }}
+                          />
+                        </div>
+                        {distanceError && <p className="mt-1 text-xs font-medium text-red-600">{distanceError}</p>}
+                      </label>
+                      <label className="block">
+                        <span className="mb-1.5 block text-xs font-semibold text-gray-600">Estimated Time</span>
+                        <div className="flex h-11 items-center rounded-xl bg-gray-50 px-3" style={{ border: '2px solid #D1D5DB' }}>
+                          <Clock className="mr-2 h-4 w-4 text-gray-400" />
+                          <span className="text-sm font-medium text-gray-700">
+                            {estimatedTime > 0 ? `${estimatedTime} min` : 'Auto-calculated'}
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-3">
+                        <p className="text-xs font-semibold text-gray-700">Interstate Trip?</p>
+                        <div className="mt-2 inline-flex rounded-lg border border-gray-200 bg-white p-1">
+                          <button
+                            type="button"
+                            onClick={() => setIsInterstate(false)}
+                            className="min-h-8 rounded-md px-4 text-xs font-semibold transition-all"
+                            style={!isInterstate ? { backgroundColor: ACCENT, color: 'white' } : { color: '#6B7280' }}
+                          >
+                            No
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsInterstate(true)}
+                            className="min-h-8 rounded-md px-4 text-xs font-semibold transition-all"
+                            style={isInterstate ? { backgroundColor: ACCENT, color: 'white' } : { color: '#6B7280' }}
+                          >
+                            Yes (+₹{INTERSTATE_TOLL_CHARGE})
+                          </button>
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-3">
+                        <p className="text-xs font-semibold text-gray-700">Peak Hour?</p>
+                        <div className="mt-2 inline-flex rounded-lg border border-gray-200 bg-white p-1">
+                          <button
+                            type="button"
+                            onClick={() => setIsPeakHour(false)}
+                            className="min-h-8 rounded-md px-4 text-xs font-semibold transition-all"
+                            style={!isPeakHour ? { backgroundColor: ACCENT, color: 'white' } : { color: '#6B7280' }}
+                          >
+                            Off
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsPeakHour(true)}
+                            className="min-h-8 rounded-md px-4 text-xs font-semibold transition-all"
+                            style={isPeakHour ? { backgroundColor: ACCENT, color: 'white' } : { color: '#6B7280' }}
+                          >
+                            On ({PEAK_HOUR_MULTIPLIER}x)
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vehicle Selection Card */}
+                <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" style={{ borderLeftWidth: '4px', borderLeftColor: ACCENT }}>
+                  <div className="border-b border-gray-100 bg-gray-50/50 px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ backgroundColor: `${ACCENT}15` }}>
+                        <Truck className="h-4 w-4" style={{ color: ACCENT }} />
+                      </div>
+                      <div>
+                        <h2 className="text-sm font-bold text-gray-900">Select Vehicle</h2>
+                        <p className="text-[11px] text-gray-500">Choose based on load size</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <div className="grid grid-cols-3 gap-3">
+                      {VEHICLE_OPTIONS.map((option) => {
+                        const Icon = option.icon;
+                        const isActive = option.id === vehicleType;
+                        const isRecommended = option.id === 'threeWheeler';
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => setVehicleType(option.id)}
+                            className="relative rounded-xl border-2 bg-white p-3 text-center transition-all duration-300 hover:shadow-md sm:p-4"
+                            style={isActive ? { borderColor: ACCENT, boxShadow: `0 0 0 3px ${ACCENT}20` } : { borderColor: '#E5E7EB' }}
+                          >
+                            {isRecommended && (
+                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-0.5 text-[8px] font-bold uppercase text-white sm:text-[9px]" style={{ backgroundColor: ACCENT }}>
+                                Popular
+                              </span>
+                            )}
+                            {isActive && (
+                              <CheckCircle className="absolute right-2 top-2 h-4 w-4" style={{ color: ACCENT }} />
+                            )}
+                            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg sm:h-12 sm:w-12" style={{ backgroundColor: isActive ? `${ACCENT}15` : '#F3F4F6' }}>
+                              <Icon className="h-5 w-5 sm:h-6 sm:w-6" style={{ color: isActive ? ACCENT : '#6B7280' }} />
+                            </div>
+                            <p className="mt-2 text-xs font-bold text-gray-900 sm:text-sm">{option.label}</p>
+                            <p className="mt-0.5 text-[10px] text-gray-500 sm:text-xs">{option.subtitle}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Price Summary */}
+              <div className="lg:sticky lg:top-20">
+                <div className="overflow-hidden rounded-2xl border shadow-xl" style={{ borderColor: `${ACCENT}30`, background: PRIMARY }}>
+                  {canCalculate && (
+                    <div className="flex items-center justify-center gap-2 py-2.5 text-[11px] font-bold text-white" style={{ backgroundColor: ACCENT }}>
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Live Estimate
+                    </div>
+                  )}
+                  <div className="p-5 sm:p-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-white/60">Your Fare</h3>
+                      <span className="relative flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase" style={{ backgroundColor: `${ACCENT}20`, color: ACCENT }}>
+                        <span className="relative h-1.5 w-1.5 rounded-full" style={{ backgroundColor: ACCENT }} />
+                        Live
                       </span>
                     </div>
-                    {fareBreakdown.surgeAmount > 0 && (
-                      <div className="flex items-center justify-between text-slate-600">
-                        <span>Peak hour surge ({fareBreakdown.surgeMultiplier}x)</span>
-                        <span className="font-semibold text-rose-700">+₹{formatInr(fareBreakdown.surgeAmount)}</span>
+
+                    <div className="mt-4 rounded-xl bg-white/10 p-3">
+                      <p className="text-[11px] font-semibold uppercase text-white/60">Selected</p>
+                      <p className="mt-1 text-sm font-bold text-white">{selectedVehicle.label}</p>
+                      <p className="mt-1 text-xs text-white/50">Slab up to {slabEndKm} km</p>
+                    </div>
+
+                    {!canCalculate ? (
+                      <div className="mt-5 rounded-xl border border-dashed border-white/20 bg-white/5 p-4 text-center">
+                        <Zap className="mx-auto h-6 w-6 text-white/40" />
+                        <p className="mt-2 text-sm font-semibold text-white/80">Enter distance to see fare</p>
+                        <p className="mt-1 text-xs text-white/50">Updates instantly</p>
                       </div>
+                    ) : (
+                      <>
+                        <div className="mt-5 space-y-3 text-sm">
+                          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                            <span className="text-white/60">Slab fare ({fareBreakdown.distance} km)</span>
+                            <span className="font-semibold text-white">₹{formatInr(fareBreakdown.slabFare)}</span>
+                          </div>
+                          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                            <span className="text-white/60">Toll</span>
+                            <span className="font-semibold text-white">₹{formatInr(fareBreakdown.toll)}</span>
+                          </div>
+                          {fareBreakdown.surgeAmount > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-white/60">Peak surge ({fareBreakdown.surgeMultiplier}x)</span>
+                              <span className="font-semibold" style={{ color: ACCENT }}>+₹{formatInr(fareBreakdown.surgeAmount)}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mt-5 rounded-xl p-4" style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: `2px solid ${ACCENT}40` }}>
+                          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: ACCENT }}>Total Fare</p>
+                          <p className="mt-1 text-3xl font-black tabular-nums text-white sm:text-4xl">₹{formatInr(fareQuote.totalFare)}</p>
+                          <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                            <CheckCircle className="h-3 w-3" />
+                            Best Price Applied
+                          </div>
+                        </div>
+                      </>
                     )}
-                  </div>
 
-                  <div className="mt-4 rounded-xl border border-[var(--color-primary)]/20 bg-gradient-to-r from-[var(--color-primary)]/12 to-white p-4 transition-all duration-300">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-primary)]">Total fare</p>
-                    <div className="mt-1 flex items-end justify-between gap-2">
-                      <p className="text-3xl font-extrabold tracking-tight text-[#1e1f4b]">₹{formatInr(fareQuote.totalFare)}</p>
-                      <Wallet className="h-5 w-5 text-[#1e1f4b]" aria-hidden />
-                    </div>
-                    <div className="mt-2 inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                      Best price
-                    </div>
-                    <p className="mt-1 text-[11px] text-slate-500">Subtotal before surge: ₹{formatInr(fareBreakdown.subtotal)}</p>
-                  </div>
-                </>
-              )}
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold text-white transition-all hover:brightness-110"
+                      style={{ backgroundColor: ACCENT }}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      Share on WhatsApp
+                      <ArrowRight className="h-4 w-4" />
+                    </a>
 
-              <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600">
-                <p className="font-semibold text-slate-700">Trip summary</p>
-                <p className="mt-1">Pickup: {pickupLocation.trim() || 'Not provided'}</p>
-                <p className="mt-1">Drop: {dropLocation.trim() || 'Not provided'}</p>
+                    <div className="mt-4 flex items-center justify-center gap-4 text-[10px] text-white/40">
+                      <span className="flex items-center gap-1">
+                        <Shield className="h-3 w-3" />
+                        Transparent pricing
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <CheckCircle className="h-3 w-3" />
+                        No hidden fees
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-
-              <p className="mt-3 text-[11px] text-slate-500">
-                This is an indicative fare for quick planning. Final fare may vary with route and service conditions.
-              </p>
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"
-              >
-                <MessageCircle className="h-4 w-4" aria-hidden />
-                Share details on WhatsApp
-              </a>
-            </section>
-          </aside>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-100 bg-white">
+        <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:gap-6 md:flex-row">
+            <div className="flex items-center gap-3">
+              <Image src={LOGO_PATH} alt="Liftngo" width={100} height={28} className="h-7 w-auto object-contain sm:h-8" />
+              <div className="border-l border-gray-200 pl-3">
+                <p className="text-sm font-bold text-gray-900">
+                  <span style={{ color: PRIMARY }}>Fare Calculator</span>
+                </p>
+                <p className="text-[10px] text-gray-500 sm:text-xs">Transparent Pricing</p>
+              </div>
+            </div>
+            <p className="text-[10px] text-gray-400 sm:text-xs">
+              © {new Date().getFullYear()} Liftngo
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

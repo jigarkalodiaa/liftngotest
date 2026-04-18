@@ -130,6 +130,8 @@ export const ROUTES = {
   PLANS_CUSTOM_CHECKOUT: '/plans/custom/checkout',
   PLANS_GST: '/plans/gst',
   FARE_CALCULATOR: '/fare-calculator',
+  /** Fleet vehicle advertising / branding packages (B2B). */
+  FLEET_BRANDING: '/fleet-branding',
   /** SEO dashboard URL — same UI as `/dashboard` with zone pinned to Noida. */
   NOIDA: '/noida',
   /** Fleet owners: how Liftngo tech helps run owned vehicles (assign trips, private fleet). */
@@ -137,6 +139,12 @@ export const ROUTES = {
   /** Alias → `/plans/custom` (see `next.config` redirect). */
   FLEET: '/fleet',
 } as const;
+
+/**
+ * WhatsApp (E.164 digits, no +) for fleet branding & vehicle advertising enquiries.
+ * Local number: 8580584898
+ */
+export const FLEET_BRANDING_WHATSAPP_DIGITS = '918580584898';
 
 /** `?mode=` on `/pickup-location` — dashboard “Add more default location” (pickup → drop, then trip options). */
 export const PICKUP_LOCATION_MODE_DEFAULTS = 'defaults';

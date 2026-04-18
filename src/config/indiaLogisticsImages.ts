@@ -16,7 +16,7 @@ export const indiaPhotoBangaloreLoadedTruck = (w: number) =>
 export const indiaPhotoMumbaiLoading = (w: number) =>
   indiaPhoto('photo-1764116858315-6b149603efe9', w);
 
-/** Warehouse interior — pallets, B2B distribution (no rickshaws). */
+/** Warehouse interior — pallets, B2B distribution (no vehicles). */
 export const indiaPhotoWarehouseLogistics = (w: number) =>
   indiaPhoto('photo-1586528116311-ad8dd3c8310d', w);
 
