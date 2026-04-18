@@ -459,6 +459,24 @@ Total Fare: ${fareStatus}`;
         </div>
       </section>
 
+      {/* Cross-link CTA */}
+      <section className="border-t border-gray-100 bg-gray-50">
+        <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+          <div className="mx-auto max-w-6xl text-center">
+            <p className="text-sm font-semibold text-gray-700">Looking to advertise your brand?</p>
+            <Link
+              href={ROUTES.FLEET_BRANDING}
+              className="mt-3 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold text-white transition-all hover:brightness-110"
+              style={{ backgroundColor: ACCENT }}
+            >
+              <Truck className="h-4 w-4" />
+              Explore Fleet Branding
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-gray-100 bg-white">
         <div className="px-4 py-8 sm:px-6 sm:py-10 lg:px-8">

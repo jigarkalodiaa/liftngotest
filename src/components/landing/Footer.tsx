@@ -67,6 +67,12 @@ const VEHICLE_SERVICES: FooterLink[] = [
   { href: '/services#fleet-roadmap', label: 'More vehicles (roadmap)' },
 ];
 
+const TOOLS: FooterLink[] = [
+  { href: ROUTES.FARE_CALCULATOR, label: 'Fare Calculator' },
+  { href: ROUTES.FLEET_BRANDING, label: 'Fleet Branding' },
+  { href: ROUTES.PLANS_CUSTOM, label: 'Custom Plan Builder' },
+];
+
 const COMPANY: FooterLink[] = [
   { href: ROUTES.ABOUT, label: 'About Liftngo' },
   { href: ROUTES.ABOUT_B2B_LOGISTICS, label: 'B2B logistics explained' },
@@ -87,7 +93,7 @@ export default function Footer() {
   return (
     <footer className="w-full bg-gray-900 text-white" lang="en-IN">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 xl:px-10">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 xl:gap-x-6 2xl:gap-x-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-8 xl:gap-x-5 2xl:gap-x-7">
           {/* Brand — keyword-rich intro for crawlers & users */}
           <div className="xl:col-span-2">
             <Link href="/" className="inline-flex items-center mb-4" aria-label={`${SITE_NAME} — home`}>
@@ -104,6 +110,7 @@ export default function Footer() {
           </div>
 
           <FooterNavColumn idSlug="book-plans" title="Book & plans" links={BOOK_AND_PLANS} />
+          <FooterNavColumn idSlug="tools" title="Tools" links={TOOLS} />
           <FooterNavColumn idSlug="b2b-regions" title="B2B & regions" links={B2B_AND_REGIONS} />
           <FooterNavColumn idSlug="khatu-food" title="Khatu & food" links={KHATU_AND_FOOD} />
           <FooterNavColumn idSlug="vehicles" title="Vehicles" links={VEHICLE_SERVICES} />
