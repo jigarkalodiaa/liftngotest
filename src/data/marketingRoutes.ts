@@ -60,4 +60,15 @@ export const MARKETING_PATHS: { path: string; priority: number; changeFrequency:
   { path: '/whatsapp-delivery-service', priority: 0.86, changeFrequency: 'weekly' },
   { path: '/fleet-branding-rajasthan', priority: 0.84, changeFrequency: 'weekly' },
   { path: '/hyperlocal-delivery-service', priority: 0.86, changeFrequency: 'weekly' },
+  // Service pages
+  { path: '/services/home-shifting', priority: 0.9, changeFrequency: 'weekly' },
+  { path: '/services/goods-transport', priority: 0.89, changeFrequency: 'weekly' },
+  { path: '/services/courier', priority: 0.85, changeFrequency: 'weekly' },
+  // Partner page
+  { path: '/partner', priority: 0.88, changeFrequency: 'weekly' },
+  // Blog articles
+  { path: '/blog/goods-transport-guide', priority: 0.75, changeFrequency: 'monthly' },
+  { path: '/blog/home-shifting-tips', priority: 0.74, changeFrequency: 'monthly' },
+  { path: '/blog/goods-transport-noida', priority: 0.73, changeFrequency: 'monthly' },
+  { path: '/blog/delivery-charges-guide', priority: 0.72, changeFrequency: 'monthly' },
 ];

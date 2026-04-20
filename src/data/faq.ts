@@ -13,6 +13,30 @@ export const FAQ_ITEMS: FaqItem[] = [
       'Liftngo is a hyperlocal logistics platform for B2B and B2C goods transport in India. We connect you with verified drivers for walk, two-wheeler, three-wheeler, and four-wheeler deliveries—with strong operational focus around Khatu (Rajasthan) and B2B corridors in Noida & Delhi NCR. We are not a passenger cab app.',
   },
   {
+    id: 'service-meaning',
+    question: 'What is goods transport service?',
+    answer:
+      'Goods transport service refers to the movement of cargo, parcels, and commercial items from one location to another using appropriate vehicles. Liftngo provides instant goods transport services in Noida and Delhi NCR using bikes, autos, mini trucks, and tempos. Our service includes pickup, safe transport, and doorstep delivery with real-time tracking.',
+  },
+  {
+    id: 'airport-service',
+    question: 'What is luggage delivery service at airports?',
+    answer:
+      'Luggage delivery service at airports helps travelers transport their baggage separately from their journey. While Liftngo primarily focuses on goods transport, we can arrange pickup and delivery of luggage and parcels to/from airport areas in Delhi NCR. Contact our support for airport area deliveries.',
+  },
+  {
+    id: 'hotel-service',
+    question: 'What is goods delivery service for hotels?',
+    answer:
+      'Hotels often need regular supply deliveries including linens, toiletries, food supplies, and guest packages. Liftngo provides scheduled and on-demand delivery services for hotels in Noida, Delhi, and Khatu Shyam Ji. We handle everything from daily supplies to urgent guest package deliveries.',
+  },
+  {
+    id: 'meaning-hindi',
+    question: 'Goods transport ka matlab kya hai? (What does goods transport mean in Hindi?)',
+    answer:
+      'Goods transport ka matlab hai saman ko ek jagah se doosri jagah pahunchana. Liftngo ek digital platform hai jo Noida aur Delhi NCR mein instant goods delivery provide karta hai. Aap bike, auto, ya mini truck book kar sakte hain apne saman ko safely deliver karne ke liye. Hindi mein ise "maal dhulai" ya "saman transport" bhi kehte hain.',
+  },
+  {
     id: '2',
     question: 'Do you offer B2B logistics in Khatu?',
     answer:
@@ -101,6 +125,72 @@ export const FAQ_ITEMS: FaqItem[] = [
     question: 'Is Khatu Shyam Ji covered for same-day goods delivery?',
     answer:
       'Hyperlocal delivery around Khatu Shyam Ji depends on demand and lane congestion—especially festival peaks. Start a booking with pickup and drop pins to see live vehicle options; WhatsApp helps coordinate recurring vendor patterns.',
+  },
+  {
+    id: 'charges-per-km',
+    question: 'What are the delivery charges per km?',
+    answer:
+      'Liftngo delivery charges depend on vehicle type and distance. For bikes (2W), charges start at ₹10-15 per km. For autos (3W), it is ₹15-20 per km. Mini trucks start at ₹18-25 per km. You always see the total fare upfront before booking. Use our fare calculator for accurate estimates.',
+  },
+  {
+    id: 'how-to-book',
+    question: 'How to book delivery service near me?',
+    answer:
+      'Booking on Liftngo is simple: 1) Visit liftngo.in or open the app, 2) Enter pickup and drop location, 3) Select vehicle type (bike, auto, mini truck), 4) See upfront fare and confirm booking, 5) Track your delivery in real-time. You can also book via WhatsApp for quick orders.',
+  },
+  {
+    id: 'vehicles-available',
+    question: 'What vehicles does Liftngo provide?',
+    answer:
+      'Liftngo offers multiple vehicle options: 2-Wheeler (bikes) for documents and small parcels up to 20kg, 3-Wheeler (autos) for medium loads up to 300kg, Mini Trucks (Tata Ace, Mahindra Bolero) for large shipments up to 1000kg. Choose based on your cargo size and weight.',
+  },
+  {
+    id: 'home-shifting',
+    question: 'How does home shifting service work?',
+    answer:
+      'Liftngo home shifting includes: free survey and quote, professional packing with quality materials, careful loading by trained staff, GPS-tracked transport, unloading and basic arrangement at destination. Prices start from ₹2,999 for local moves. Book via WhatsApp or app.',
+  },
+  {
+    id: 'customer-care',
+    question: 'How to contact Liftngo customer support?',
+    answer:
+      'You can reach Liftngo support through: WhatsApp at +91 85805 84898 (fastest response), Phone call to the same number, Email at support@liftngo.in, or through the in-app chat. Our support team is available 7 days a week from 8 AM to 10 PM.',
+  },
+  {
+    id: 'packers-movers',
+    question: 'Does Liftngo provide packers and movers service?',
+    answer:
+      'Yes, Liftngo offers complete packers and movers service in Noida and Delhi NCR. This includes professional packing, loading, transport, unloading, and unpacking. We provide all packing materials like boxes, bubble wrap, and furniture covers. Get instant quotes via WhatsApp.',
+  },
+  {
+    id: 'same-day-delivery',
+    question: 'Is same day delivery available?',
+    answer:
+      'Yes, Liftngo specializes in same day delivery across Noida, Delhi, Gurgaon, and NCR. For most intra-city routes, we can deliver within 2-4 hours. Express delivery options are available for urgent shipments. Check availability by starting a booking.',
+  },
+  {
+    id: 'delivery-partner',
+    question: 'How can I become a delivery partner?',
+    answer:
+      'Join Liftngo as a delivery partner: 1) WhatsApp us at +91 85805 84898, 2) Submit documents (DL, RC, Aadhaar, PAN), 3) Complete verification (24-48 hours), 4) Download driver app and start earning. No joining fee. Earn ₹15,000-50,000 monthly based on vehicle type.',
+  },
+  {
+    id: 'tracking',
+    question: 'How do I track my delivery?',
+    answer:
+      'Once your booking is confirmed, you get a tracking link via SMS and WhatsApp. Open the link to see real-time driver location on map. You also receive notifications for pickup, in-transit, and delivery completion. For any issues, contact support with your booking ID.',
+  },
+  {
+    id: 'insurance',
+    question: 'Is my shipment insured during delivery?',
+    answer:
+      'All Liftngo deliveries include basic transit insurance covering damage during transport. For high-value items, declare the value during booking for additional coverage. Home shifting services include comprehensive insurance. Check booking terms for coverage limits.',
+  },
+  {
+    id: 'payment-options',
+    question: 'What payment options are available?',
+    answer:
+      'Liftngo accepts multiple payment methods: UPI (GPay, PhonePe, Paytm), Debit/Credit cards, Net banking, Cash on delivery (for select services), and Corporate billing for B2B accounts. GST invoices are available for business customers.',
   },
 ];
 
