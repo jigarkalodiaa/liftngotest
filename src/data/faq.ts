@@ -136,7 +136,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'how-to-book',
     question: 'How to book delivery service near me?',
     answer:
-      'Booking on Liftngo is simple: 1) Visit liftngo.in or open the app, 2) Enter pickup and drop location, 3) Select vehicle type (bike, auto, mini truck), 4) See upfront fare and confirm booking, 5) Track your delivery in real-time. You can also book via WhatsApp for quick orders.',
+      'Booking on Liftngo is simple: 1) Visit goliftngo.com or open the app, 2) Enter pickup and drop location, 3) Select vehicle type (bike, auto, mini truck), 4) See upfront fare and confirm booking, 5) Track your delivery in real-time. You can also book via WhatsApp for quick orders.',
   },
   {
     id: 'vehicles-available',
@@ -154,7 +154,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'customer-care',
     question: 'How to contact Liftngo customer support?',
     answer:
-      'You can reach Liftngo support through: WhatsApp at +91 85805 84898 (fastest response), Phone call to the same number, Email at support@liftngo.in, or through the in-app chat. Our support team is available 7 days a week from 8 AM to 10 PM.',
+      'You can reach Liftngo support through: WhatsApp at +91 85805 84898 (fastest response), Phone call to the same number, Email at support@goliftngo.com, or through the in-app chat. Our support team is available 7 days a week from 8 AM to 10 PM.',
   },
   {
     id: 'packers-movers',
