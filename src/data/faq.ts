@@ -154,7 +154,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'customer-care',
     question: 'How to contact Liftngo customer support?',
     answer:
-      'You can reach Liftngo support through: WhatsApp at +91 85805 84898 (fastest response), Phone call to the same number, Email at support@goliftngo.in, or through the in-app chat. Our support team is available 7 days a week from 8 AM to 10 PM.',
+      'You can reach Liftngo support through: WhatsApp at +91 85805 84898 (fastest response), Phone call to the same number, Email at support@goliftngo.com, or through the in-app chat. Our support team is available 7 days a week from 8 AM to 10 PM.',
   },
   {
     id: 'packers-movers',
