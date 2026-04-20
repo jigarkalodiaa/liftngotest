@@ -136,7 +136,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: 'how-to-book',
     question: 'How to book delivery service near me?',
     answer:
-      'Booking on Liftngo is simple: 1) Visit goliftngo.comor open the app, 2) Enter pickup and drop location, 3) Select vehicle type (bike, auto, mini truck), 4) See upfront fare and confirm booking, 5) Track your delivery in real-time. You can also book via WhatsApp for quick orders.',
+      'Booking on Liftngo is simple: 1) Visit goliftngo.com or open the app, 2) Enter pickup and drop location, 3) Select vehicle type (bike, auto, mini truck), 4) See upfront fare and confirm booking, 5) Track your delivery in real-time. You can also book via WhatsApp for quick orders.',
   },
   {
     id: 'vehicles-available',
