@@ -12,17 +12,23 @@ const PATH = '/faq';
 const PAGE_URL = `${SITE_URL}${PATH}`;
 
 export const metadata = generatePageMetadata({
-  title: `Frequently asked questions | ${SITE_NAME}`,
+  title: 'Liftngo FAQ — Goods Transport, Delivery Charges, Home Shifting',
   description:
-    'Liftngo FAQ: hyperlocal Khatu logistics, B2B Noida & Delhi NCR, booking, vehicles, EV cargo, billing & support.',
+    'Frequently asked questions about Liftngo: goods transport services, delivery charges per km, home shifting, packers and movers, how to book, vehicle types, and customer support.',
   path: PATH,
   keywords: [
+    'goods transport FAQ',
+    'delivery charges per km',
+    'how to book delivery',
+    'home shifting services',
+    'packers and movers FAQ',
+    'same day delivery',
+    'mini truck booking',
+    'tempo booking',
+    'delivery partner',
+    'customer care number',
     'Liftngo FAQ',
-    'Liftngo help',
-    'B2B logistics questions',
-    'Khatu delivery FAQ',
-    'Noida cargo booking help',
-    'goods transport India FAQ',
+    'goods transport noida',
   ],
 });
 

@@ -32,22 +32,22 @@ export const LOGO_IMAGE_WIDTH = 1024;
 export const LOGO_IMAGE_HEIGHT = 1024;
 
 /** Meta title — target ~50–60 chars (Semrush / SERP tooling). B2B-first for NCR commercial intent. */
-export const META_TITLE = 'B2B Logistics Noida & Delhi NCR | Liftngo — Khatu';
+export const META_TITLE = 'Liftngo — Instant Goods Transport in Noida | Auto, Mini Truck, Tempo';
 
 /** Meta description — target ~150–160 chars where useful; primary B2B hooks + Khatu corridor. */
 export const SITE_DESCRIPTION =
-  'B2B goods logistics for Noida & Delhi NCR: subscription delivery packs, long-term vehicle lease, GST-ready billing, and multi-vehicle (2W–4W) booking. Hyperlocal Khatu Shyam Ji corridor with upfront pricing and live tracking.';
+  'Liftngo offers instant pickup and delivery services in Noida — auto, mini trucks, tempos, and 2W delivery. Book home shifting, packers and movers, and goods transport near you. Same day delivery with live tracking.';
 
 /** Short description (footer, cards, manifest). */
 export const SHORT_DESCRIPTION =
   'B2B logistics in Noida & Delhi NCR—subscription, lease, GST billing, and fleet-ready delivery. Hyperlocal goods transport in Khatu Shyam Ji with upfront pricing.';
 
 /** OG title (can match or complement META_TITLE). */
-export const OG_TITLE = 'Liftngo — B2B logistics Noida & NCR | Khatu delivery';
+export const OG_TITLE = 'Liftngo — Noida\'s Fastest Goods Transport & Delivery Service';
 
 /** OG description — aligned with SITE_DESCRIPTION for share previews. */
 export const OG_DESCRIPTION =
-  'Corporate delivery, subscription packs, lease, and GST invoicing in Noida & Delhi NCR. Khatu Shyam Ji hyperlocal 2W–4W goods transport with verified drivers.';
+  'Book auto, mini truck, tempo or 2W delivery instantly in Noida & Delhi NCR. Home shifting, packers and movers, same day delivery with verified drivers and live tracking.';
 
 /** Twitter card title. */
 export const TWITTER_TITLE = OG_TITLE;
@@ -63,34 +63,49 @@ export const ONE_LINE_PITCH =
   'Liftngo is a digital logistics platform for goods transport—strong on B2B subscription, lease, and GST-ready delivery in Noida & NCR, plus hyperlocal booking in Khatu Shyam Ji.';
 
 export const SEO_KEYWORDS = [
-  'b2b logistics noida',
-  'b2b logistics delhi ncr',
-  'corporate goods transport ncr',
-  'subscription delivery noida',
-  'delivery vehicle lease noida',
-  'gst billing logistics india',
-  'commercial 3 wheeler cargo',
-  'bulk delivery noida',
-  'warehouse to shop delivery',
-  'intra city freight delhi ncr',
-  'logistics company delhi ncr',
-  'corporate delivery solutions',
-  'business logistics platform',
-  'B2B logistics India',
-  'hyperlocal logistics india',
-  'last mile delivery solutions',
-  'EV cargo delivery',
-  'logistics in khatu shyam ji',
-  'delivery service khatu',
-  'local delivery khatu',
-  'temple logistics khatu',
-  'goods transport khatu',
-  'liftngo logistics',
-  'goods transport platform',
+  // Core service keywords
+  'goods transport services',
+  'delivery transport',
+  'transportation services near me',
+  'pick up and drop service',
+  'material shifting',
+  'courier service',
+  'parcel delivery app',
+  'tempo booking',
+  'mini truck booking',
+  'bike delivery service',
+  // Home shifting keywords
+  'packers and movers',
+  'packers and movers near me',
+  'home shifting services',
+  'house shifting services',
+  'packing and moving services',
+  // Vehicle keywords
+  '2 wheeler delivery',
+  '3 wheeler cargo',
   'mini truck booking service',
+  'tempo booking service',
+  // City keywords
+  'goods transport noida',
+  'delivery service noida',
+  'logistics noida',
+  'goods transport delhi',
+  'logistics delhi ncr',
+  'delivery service gurgaon',
+  // Partner keywords
+  'delivery partner',
+  'driver partner app',
+  'delivery jobs',
+  // Intent keywords
+  'same day delivery',
+  'express delivery',
+  'instant delivery service',
   'on-demand goods delivery',
-  'logistics technology platform',
-  'driver network logistics',
+  'local delivery service',
+  // Brand
+  'liftngo',
+  'liftngo logistics',
+  'liftngo noida',
 ];
 
 /**

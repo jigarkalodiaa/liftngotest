@@ -35,20 +35,27 @@ import {
 
 const PATH = ROUTES.CONTACT;
 const PAGE_URL = `${SITE_URL}${PATH}`;
-const PAGE_TITLE = 'Contact us';
+const PAGE_TITLE = 'Liftngo Customer Care | Helpline Number & Support';
 const PAGE_DESCRIPTION =
-  'Contact Liftngo for bookings, B2B logistics in Noida & Delhi NCR, and Khatu Shyam Ji corridor support. Phone, email, social links, and FAQs.';
+  'Contact Liftngo customer support for goods transport, home shifting, and delivery services. Helpline number, WhatsApp support, office address in Noida. 24/7 customer care.';
 
 export const metadata = generatePageMetadata({
   title: PAGE_TITLE,
   description: PAGE_DESCRIPTION,
   path: PATH,
   keywords: [
-    'contact Liftngo',
-    'Liftngo support',
-    'goods transport help',
-    'B2B logistics contact Noida',
-    'Khatu delivery support',
+    'customer care number',
+    'helpline number',
+    'customer support',
+    'contact number',
+    'head office',
+    'office address noida',
+    'customer service',
+    'support helpline',
+    'whatsapp support',
+    'Liftngo contact',
+    'goods transport support',
+    'delivery service helpline',
   ],
 });
 
