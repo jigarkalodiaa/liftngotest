@@ -95,6 +95,7 @@ const COMPANY: FooterLink[] = [
   { href: ROUTES.CONTACT, label: 'Contact & support' },
   { href: ROUTES.CONTACT_BUSINESS_ENQUIRY, label: 'Business enquiry' },
   { href: ROUTES.PROMOTIONS, label: 'Offers & promotions' },
+  { href: '/legal-company-information', label: 'Legal & Company Information' },
 ];
 
 export default function Footer() {
@@ -195,13 +196,63 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col items-start gap-4 border-t border-gray-800 pt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        {/* Legal Information Band */}
+        <div className="mt-8 border-t border-gray-800 pt-8">
+          <div className="rounded-xl border border-gray-700/60 bg-gray-800/50 px-5 py-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-10">
+              <div className="shrink-0">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">Legal Information</p>
+                <p className="mt-1 text-sm font-bold text-white">LiftnGo Logistics</p>
+                <p className="mt-0.5 text-xs text-gray-400">Operated by Maalvahak Mobility</p>
+                <p className="mt-0.5 text-xs text-gray-500">A business unit of <span className="text-gray-400">Puran Chand HUF</span></p>
+              </div>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-xs sm:grid-cols-3 lg:flex-1">
+                <div>
+                  <p className="text-gray-500">GSTIN</p>
+                  <p className="font-mono text-gray-300">07AAVHP9623B1ZT</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Udyam Reg. No.</p>
+                  <p className="font-mono text-gray-300">UDYAM-DL-10-0108269</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Business Type</p>
+                  <p className="text-gray-300">Logistics, Transportation &amp; Delivery</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Official Email</p>
+                  <p className="text-gray-300">liftngohuf@gmail.com</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Website</p>
+                  <p className="text-gray-300">www.goliftngo.com</p>
+                </div>
+                <div className="flex items-end">
+                  <Link
+                    href="/legal-company-information"
+                    className="inline-flex items-center gap-1 rounded-md border border-gray-600 bg-gray-700/60 px-3 py-1.5 text-[11px] font-semibold text-gray-300 transition-colors hover:border-gray-500 hover:text-white"
+                  >
+                    View full legal details →
+                  </Link>
+                </div>
+              </div>
+            </div>
+            <p className="mt-4 border-t border-gray-700/60 pt-4 text-[11px] leading-relaxed text-gray-500">
+              LiftnGo Logistics is a brand operated by Maalvahak Mobility, a business unit of Puran Chand HUF. All services, invoices, contracts, and communications are provided under the registered business entity. For DLT, SMS, regulatory, and business verification purposes, LiftnGo Logistics is the publicly used brand name of Maalvahak Mobility.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-col items-start gap-4 border-t border-gray-800 pt-6 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-400">
             <Link href="/privacy" className="hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 rounded">
               Privacy policy
             </Link>
             <Link href="/terms" className="hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 rounded">
               Terms of service
+            </Link>
+            <Link href="/legal-company-information" className="hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/60 rounded">
+              Legal &amp; Company Info
             </Link>
             <a
               href="/sitemap.xml"
