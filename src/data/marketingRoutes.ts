@@ -51,6 +51,7 @@ export const MARKETING_PATHS: { path: string; priority: number; changeFrequency:
   { path: '/promotions', priority: 0.64, changeFrequency: 'monthly' },
   { path: '/privacy', priority: 0.25, changeFrequency: 'yearly' },
   { path: '/terms', priority: 0.25, changeFrequency: 'yearly' },
+  { path: '/legal-company-information', priority: 0.6, changeFrequency: 'yearly' },
   { path: '/search', priority: 0.5, changeFrequency: 'monthly' },
   // New SEO landing pages
   { path: '/b2b-logistics-rajasthan', priority: 0.88, changeFrequency: 'weekly' },
