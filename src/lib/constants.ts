@@ -80,6 +80,8 @@ export const ROUTES = {
   B2B_TRANSPORT: '/b2b-transport',
   BOOK_DELIVERY: '/book-delivery',
   PROMOTIONS: '/promotions',
+  /** B2B launch offer landing — first business delivery free (Delhi NCR). */
+  B2B_OFFER_FIRST_BUSINESS_DELIVERY: '/offers/first-business-delivery-free',
   /** Location SEO: hyperlocal Khatu Shyam Ji */
   KHATU_SHYAM_LOGISTICS: '/khatu-shyam-logistics',
   /** Location SEO: B2B Noida & Delhi NCR */

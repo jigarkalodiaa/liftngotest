@@ -81,15 +81,17 @@ function Hero({ heroTitleLevel = 'h1', pickupBookingSource }: HeroProps) {
       <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         <div className="text-center">
           <TitleTag className={titleClass}>
-            Goods Time Pe, Business Prime Pe
+            First Business Delivery FREE*
           </TitleTag>
           <p className="mt-2 text-[clamp(1.35rem,5.5vw,3.75rem)] font-bold leading-tight text-[var(--landing-orange)] sm:text-4xl lg:text-6xl max-w-4xl mx-auto">
-            60% OFF on first order
+            For GST Registered Businesses Only
           </p>
           <p className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-1 pt-3 sm:pt-4 px-1">
-            Multi-vehicle logistics · Khatu &amp; NCR · EV, CNG, Diesel, Petrol
+            3 Wheeler Delivery · Up To 7 KM · Delhi NCR
           </p>
-          <p className="text-sm text-gray-400 mb-10 sm:mb-14">*T&C may apply</p>
+          <p className="text-sm text-gray-400 mb-10 sm:mb-14">
+            If free slots are unavailable, get up to 70% OFF (Max ₹250) on your first booking.*
+          </p>
 
           <div className="relative z-10 mx-auto w-full max-w-lg text-left">
             <div className="flex min-h-14 min-w-0 items-center gap-2 rounded-2xl border border-gray-200 bg-white px-2 py-1 shadow-sm sm:h-14 sm:py-0">
