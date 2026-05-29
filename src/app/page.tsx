@@ -52,25 +52,27 @@ export const metadata = generatePageMetadata({
 
 export default function Home() {
   return (
-    <PageWrapper headerSlot={<Header />}>
-      <JsonLd data={buildHomepageSeoGraph()} />
-      <main
-        className="page-stack min-h-[100dvh] min-h-screen w-full overflow-x-clip"
-        aria-label="LiftnGo home: logistics, delivery, and transport services"
-      >
-        <Hero pickupBookingSource="homepage" />
-        <QuickServicesSection />
-        <Features />
-        <ServiceSection />
-        <QuickRidesSection />
-        <HomeDeepAuthoritySection />
-        <AppDownloadSection />
-        <BlogSection />
-        <TestimonialsSection />
-        <FaqSection />
-        <HomeSeoContent />
-      </main>
-      <Footer />
-    </PageWrapper>
+    <>
+      <PageWrapper headerSlot={<Header />}>
+        <JsonLd data={buildHomepageSeoGraph()} />
+        <main
+          className="page-stack min-h-[100dvh] min-h-screen w-full overflow-x-clip"
+          aria-label="LiftnGo home: logistics, delivery, and transport services"
+        >
+          <Hero pickupBookingSource="homepage" />
+          <QuickServicesSection />
+          <Features />
+          <ServiceSection />
+          <QuickRidesSection />
+          <HomeDeepAuthoritySection />
+          <AppDownloadSection />
+          <BlogSection />
+          <TestimonialsSection />
+          <FaqSection />
+          <HomeSeoContent />
+        </main>
+        <Footer />
+      </PageWrapper>
+    </>
   );
 }

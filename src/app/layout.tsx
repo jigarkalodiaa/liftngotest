@@ -21,6 +21,7 @@ import PostHogAnalyticsProvider from "@/components/providers/PostHogProvider";
 import GoogleAnalytics from "@/components/Analytics";
 import { ChatWidget } from "@/components/chatbot";
 import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
+import B2bSiteConversion from "@/components/landing/b2b/B2bSiteConversion";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -137,6 +138,7 @@ export default function RootLayout({
               {children}
             </ErrorBoundary>
             <ChatWidget />
+            <B2bSiteConversion />
           </PostHogAnalyticsProvider>
         </QueryProvider>
       </body>
