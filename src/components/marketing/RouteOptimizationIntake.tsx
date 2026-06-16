@@ -1,10 +1,11 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { BarChart3, Loader2 } from 'lucide-react';
+import { BarChart3, MessageCircle } from 'lucide-react';
 import { trackFormSubmit } from '@/lib/analytics';
 import { normalizeLeadPhoneInput, parseIndianMobile } from '@/lib/validations';
-import { apiClient } from '@/lib/api';
+
+const WHATSAPP_NUMBER = '918580584898';
 
 const LEAD_SOURCE = 'route_optimization_grow_with_liftngo';
 
@@ -23,21 +24,18 @@ export default function RouteOptimizationIntake({ id = 'route-analysis', classNa
   const [honeypot, setHoneypot] = useState('');
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [serverMessage, setServerMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<'idle' | 'success'>('idle');
 
   const reset = useCallback(() => {
     setPhone('');
     setConsent(false);
     setError(null);
-    setServerMessage(null);
     setStatus('idle');
   }, []);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setServerMessage(null);
 
     const phoneParsed = parseIndianMobile(phone);
     if (!phoneParsed.ok) {
@@ -50,33 +48,22 @@ export default function RouteOptimizationIntake({ id = 'route-analysis', classNa
       return;
     }
 
-    setStatus('loading');
-    try {
-      await apiClient.post('/api/leads', {
-        name: '',
-        phone: digits,
-        query:
-          'Autonomous route optimization request — subscriber requested savings-oriented lane report via grow-with-liftngo; share report on this number when ready.',
-        source: LEAD_SOURCE,
-        company: '',
-        email: '',
-        city: '',
-        website: honeypot,
-      });
+    // Build WhatsApp message
+    const whatsappMessage = [
+      `📊 *Route Optimization Request*`,
+      ``,
+      `📱 *Phone:* ${digits}`,
+      ``,
+      `💬 *Request:* Autonomous route optimization request — subscriber requested savings-oriented lane report; share report on this number when ready.`,
+      ``,
+      `📌 *Source:* ${LEAD_SOURCE}`,
+    ].join('\n');
 
-      trackFormSubmit(LEAD_SOURCE);
-      setStatus('success');
-    } catch (err) {
-      setStatus('error');
-      const error = err as { status?: number; message?: string };
-      if (error.status === 503) {
-        setServerMessage(
-          'Online intake is unavailable. Please use the business enquiry form or contact channels.',
-        );
-      } else {
-        setServerMessage(error.message ?? 'Something went wrong. Try again shortly.');
-      }
-    }
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+
+    trackFormSubmit(LEAD_SOURCE);
+    window.open(whatsappUrl, '_blank');
+    setStatus('success');
   };
 
   if (status === 'success') {
@@ -157,17 +144,10 @@ export default function RouteOptimizationIntake({ id = 'route-analysis', classNa
           />
           <button
             type="submit"
-            disabled={status === 'loading'}
-            className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70 sm:min-h-11 sm:px-5 sm:text-sm"
+            className="flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 text-xs font-bold text-white shadow-sm transition-opacity hover:bg-[#20bd5a] sm:min-h-11 sm:px-5 sm:text-sm"
           >
-            {status === 'loading' ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                Sending…
-              </>
-            ) : (
-              'Route optimization'
-            )}
+            <MessageCircle className="h-4 w-4" aria-hidden />
+            Send via WhatsApp
           </button>
         </div>
 
@@ -183,9 +163,9 @@ export default function RouteOptimizationIntake({ id = 'route-analysis', classNa
           </span>
         </label>
 
-        {error || serverMessage ? (
+        {error ? (
           <p className="rounded-lg border border-amber-200/80 bg-amber-50/90 px-2.5 py-1.5 text-[11px] text-amber-950">
-            {error ?? serverMessage}
+            {error}
           </p>
         ) : null}
       </form>

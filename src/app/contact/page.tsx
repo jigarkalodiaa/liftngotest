@@ -226,7 +226,7 @@ export default function ContactPage() {
                 </span>
                 <h2 className="mt-4 text-sm font-bold text-slate-900 sm:text-base">Team email</h2>
                 <p className="mt-1 text-xs leading-relaxed text-slate-500 sm:text-[13px]">
-                  Set <code className="font-mono text-[10px]">NEXT_PUBLIC_SUPPORT_EMAIL</code> for a clickable team inbox.
+                  Set <code className="font-mono text-[10px]">info@goliftngo.com</code> for a clickable team inbox.
                 </p>
               </div>
             )}

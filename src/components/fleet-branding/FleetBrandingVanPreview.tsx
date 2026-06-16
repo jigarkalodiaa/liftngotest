@@ -260,7 +260,7 @@ export function FleetBrandingVanPreview() {
           textAnchor="middle"
           letterSpacing="1"
         >
-          www.liftngo.in
+          www.goliftngo.com
         </text>
         
         {/* Bumper */}

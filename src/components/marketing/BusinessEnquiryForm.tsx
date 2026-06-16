@@ -2,11 +2,12 @@
 
 import { useCallback, useState } from 'react';
 import Link from 'next/link';
-import { Loader2, Send } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { SUPPORT_EMAIL } from '@/config/env';
 import { trackFormSubmit } from '@/lib/analytics';
 import { normalizeLeadPhoneInput, parseIndianMobile } from '@/lib/validations';
-import { apiClient } from '@/lib/api';
+
+const WHATSAPP_NUMBER = '918580584898';
 
 type Props = {
   id?: string;
@@ -29,8 +30,7 @@ export default function BusinessEnquiryForm({
   const [honeypot, setHoneypot] = useState('');
   const [consent, setConsent] = useState(false);
   const [clientError, setClientError] = useState<string | null>(null);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [serverMessage, setServerMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<'idle' | 'success'>('idle');
 
   const reset = useCallback(() => {
     setName('');
@@ -41,14 +41,12 @@ export default function BusinessEnquiryForm({
     setMessage('');
     setConsent(false);
     setClientError(null);
-    setServerMessage(null);
     setStatus('idle');
   }, []);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setClientError(null);
-    setServerMessage(null);
 
     const trimmedName = name.trim();
     if (trimmedName.length < 2) {
@@ -74,32 +72,30 @@ export default function BusinessEnquiryForm({
       return;
     }
 
-    setStatus('loading');
-    try {
-      await apiClient.post('/api/leads', {
-        name: trimmedName,
-        phone: digits,
-        query: message.trim(),
-        source: leadSource,
-        company: company.trim(),
-        email: em,
-        city: city.trim(),
-        website: honeypot,
-      });
+    // Build WhatsApp message with all form data
+    const whatsappMessage = [
+      `📋 *New Business Enquiry*`,
+      ``,
+      `👤 *Name:* ${trimmedName}`,
+      `📱 *Phone:* ${digits}`,
+      company.trim() ? `🏢 *Company:* ${company.trim()}` : '',
+      em ? `📧 *Email:* ${em}` : '',
+      city.trim() ? `📍 *City:* ${city.trim()}` : '',
+      message.trim() ? `\n💬 *Message:*\n${message.trim()}` : '',
+      ``,
+      `📌 *Source:* ${leadSource}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
 
-      trackFormSubmit(leadSource);
-      setStatus('success');
-    } catch (err) {
-      setStatus('error');
-      const error = err as { status?: number; message?: string };
-      if (error.status === 503) {
-        setServerMessage(
-          'We could not record your enquiry online right now. Please email or call us using the options above.',
-        );
-      } else {
-        setServerMessage(error.message ?? 'Something went wrong. Please try again or reach us by email.');
-      }
-    }
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+
+    trackFormSubmit(leadSource);
+    
+    // Open WhatsApp in new tab
+    window.open(whatsappUrl, '_blank');
+    
+    setStatus('success');
   };
 
   if (status === 'success') {
@@ -272,28 +268,18 @@ export default function BusinessEnquiryForm({
           </span>
         </label>
 
-        {clientError || serverMessage ? (
+        {clientError ? (
           <p className="rounded-xl border border-amber-200/80 bg-amber-50/90 px-3 py-2 text-xs leading-relaxed text-amber-950">
-            {clientError ?? serverMessage}
+            {clientError}
           </p>
         ) : null}
 
         <button
           type="submit"
-          disabled={status === 'loading'}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70 sm:min-h-12 sm:w-auto sm:px-8"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 text-sm font-bold text-white shadow-sm transition-opacity hover:bg-[#20bd5a] sm:min-h-12 sm:w-auto sm:px-8"
         >
-          {status === 'loading' ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} aria-hidden />
-              Sending…
-            </>
-          ) : (
-            <>
-              <Send className="h-4 w-4" strokeWidth={2} aria-hidden />
-              Submit enquiry
-            </>
-          )}
+          <MessageCircle className="h-4 w-4" strokeWidth={2} aria-hidden />
+          Send via WhatsApp
         </button>
 
         {SUPPORT_EMAIL ? (
